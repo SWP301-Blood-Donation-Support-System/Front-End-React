@@ -5,7 +5,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
+
+const clientId = '1038271412034-f887nt2v6kln6nb09e20pvjgfo1o7jn0.apps.googleusercontent.com'; // Thay bằng client ID bạn lấy từ Google Cloud
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
@@ -13,6 +17,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -131,6 +136,40 @@ const LoginPage = () => {
                 Đăng Nhập
               </Button>
             </Form.Item>
+          <Form.Item>
+             <GoogleOAuthProvider clientId={clientId}>
+      <div style={{ padding: '2rem' }}>
+        {!user ? (
+          <>
+            <h2>Đăng nhập bằng Google</h2>
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                const decoded = jwtDecode(credentialResponse.credential);
+                setUser(decoded);
+              }}
+              onError={() => {
+                console.log('Login Failed');
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <h2>Thông tin người dùng</h2>
+            <img src={user.picture} alt="avatar" style={{ borderRadius: '50%' }} />
+            <p><strong>Họ tên:</strong> {user.name}</p>
+            <p><strong>Email:</strong> {user.email}</p>
+            <button onClick={() => {
+              googleLogout();
+              setUser(null);
+            }}>
+              Đăng xuất
+            </button>
+          </>
+        )}
+      </div>
+    </GoogleOAuthProvider>
+          </Form.Item>
+          
           </Form>
 
           <Divider style={{ margin: '24px 0' }}>
