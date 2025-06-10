@@ -1,0 +1,141 @@
+/* Global styles */
+.App {
+  min-height: 100vh;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Typography styles to ensure text colors are correct */
+.ant-typography {
+  color: inherit;
+}
+
+/* Specifically for hero section */
+[style*="background:#761611"] .ant-typography {
+  color: black !important;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ant Design customizations */
+.ant-layout-header {
+  padding: 0 !important;
+  height: 64px;
+  line-height: 64px;
+}
+
+.ant-menu-horizontal {
+  border-bottom: none !important;
+  line-height: 46px !important;
+}
+
+/* Completely remove any bottom borders from menu */
+.ant-menu-horizontal::after {
+  display: none !important;
+}
+
+.ant-menu-horizontal .ant-menu-item::after,
+.ant-menu-horizontal .ant-menu-submenu::after {
+  border-bottom: none !important;
+}
+
+/* Clean and balanced navbar styling */
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu {
+  border-bottom: none !important;
+  margin: 0 20px;
+  border-radius: 0;
+  transition: all 0.3s ease;
+  position: relative;
+  padding: 0 16px !important;
+  height: 64px !important;
+  line-height: 64px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Simple hover effect */
+.ant-menu-horizontal > .ant-menu-item:hover,
+.ant-menu-horizontal > .ant-menu-submenu:hover {
+  color: #DC2626 !important;
+  background-color: transparent !important;
+}
+
+/* Clean underline effect for active state */
+.ant-menu-horizontal > .ant-menu-item-selected,
+.ant-menu-horizontal > .ant-menu-submenu-selected,
+.ant-menu-horizontal > .ant-menu-item-active,
+.ant-menu-horizontal > .ant-menu-submenu-active {
+  color: #DC2626 !important;
+  background-color: rgba(220, 38, 38, 0.08) !important;
+  font-weight: 600 !important;
+}
+
+/* Make sure selected items stay red */
+.ant-menu-horizontal > .ant-menu-item-selected .ant-menu-title-content,
+.ant-menu-horizontal > .ant-menu-submenu-selected .ant-menu-title-content {
+  color: #DC2626 !important;
+}
+
+/* Simple bottom underline for active state */
+.ant-menu-horizontal > .ant-menu-item-selected::after,
+.ant-menu-horizontal > .ant-menu-submenu-selected::after,
+.ant-menu-horizontal > .ant-menu-item-active::after,
+.ant-menu-horizontal > .ant-menu-submenu-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #DC2626 !important;
+  display: block !important;
+}
+
+/* Responsive navbar adjustments */
+@media (max-width: 768px) {
+  .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item,
+  .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu {
+    margin: 0 10px;
+    padding: 0 12px !important;
+    font-size: 14px;
+  }
+}
+
+.ant-menu-horizontal > .ant-menu-item,
+.ant-menu-horizontal > .ant-menu-submenu {
+  color: black !important;
+}
+
+/* Override default Ant Design active colors */
+.ant-menu-horizontal > .ant-menu-item-selected {
+  color: #DC2626 !important;
+  background: rgba(220, 38, 38, 0.08) !important;
+}
+
+.ant-menu-horizontal > .ant-menu-item-selected:hover {
+  color: #DC2626 !important;
+}
+
+/* Ensure text content is red when selected */
+.ant-menu-horizontal .ant-menu-item-selected span,
+.ant-menu-horizontal .ant-menu-item-selected a {
+  color: #DC2626 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ant-layout-header {
+    padding: 0 20px !important;
+  }
+}
