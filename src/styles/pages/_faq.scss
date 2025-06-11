@@ -1,0 +1,112 @@
+// FAQ Page Styles
+.faq-page {
+  min-height: 100vh;
+  .faq-hero {
+    background: $secondary-color;
+    padding: $spacing-6xl 0;
+    text-align: center;
+
+    &-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 $spacing-xl;
+    }
+
+    &-title {
+      color: $background-white !important;
+      margin-bottom: $spacing-lg !important;
+      font-size: 48px !important;
+      font-weight: bold !important;
+    }
+
+    &-description {
+      color: $background-white !important;
+      font-size: $font-size-lg !important;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto !important;
+    }
+  }
+
+  .faq-content {
+    padding: $spacing-5xl $spacing-xl;
+    background: #f8f9fa;
+    min-height: calc(100vh - 300px);
+
+    &-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+  }
+
+  .faq-card {
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-lg;
+    border: none;
+
+    .ant-card-body {
+      padding: $spacing-4xl;
+    }
+  }
+
+  .faq-collapse {
+    background: transparent;
+
+    .ant-collapse-item {
+      margin-bottom: $spacing-lg;
+      border: 1px solid #e8e8e8;
+      border-radius: $border-radius-lg;
+      overflow: hidden;
+
+      .ant-collapse-header {
+        .faq-question {
+          font-size: $font-size-base;
+          font-weight: $font-weight-medium;
+          color: $text-primary;
+          padding: $spacing-md 0;
+        }
+      }
+
+      .ant-collapse-content {
+        .ant-collapse-content-box {
+          padding: $spacing-lg $spacing-xl;
+          background: #fafafa;
+          border-top: 1px solid #e8e8e8;
+          color: $text-secondary;
+          line-height: 1.6;
+          font-size: $font-size-sm;
+
+          p {
+            margin-bottom: $spacing-md;
+          }
+
+          ul {
+            padding-left: $spacing-xl;
+            margin-top: $spacing-md;
+
+            li {
+              margin-bottom: $spacing-sm;
+            }
+          }
+
+          .answer-section {
+            margin-top: $spacing-lg;
+
+            &-title {
+              font-weight: $font-weight-semibold;
+              color: $text-primary;
+              margin-bottom: $spacing-sm;
+            }
+          }
+        }
+      }
+    }
+
+    .ant-collapse-expand-icon {
+      .anticon {
+        color: $primary-color;
+        font-size: $font-size-base;
+      }
+    }
+  }
+}

@@ -1,0 +1,181 @@
+// Typography overrides
+.ant-typography {
+  color: inherit;
+}
+
+// Hero section typography
+[style*="background:#761611"] .ant-typography {
+  color: black !important;
+}
+
+// Layout Header
+.ant-layout-header {
+  padding: 0 !important;
+  height: 64px;
+  line-height: 64px;
+}
+
+// Menu horizontal styles
+.ant-menu-horizontal {
+  border-bottom: none !important;
+  line-height: 46px !important;
+
+  &::after {
+    display: none !important;
+  }
+
+  .ant-menu-item::after,
+  .ant-menu-submenu::after {
+    border-bottom: none !important;
+  }
+
+  // Menu item base styles
+  &:not(.ant-menu-dark) > .ant-menu-item,
+  &:not(.ant-menu-dark) > .ant-menu-submenu {
+    border-bottom: none !important;
+    margin: 0 $spacing-xl;
+    border-radius: 0;
+    transition: $transition-normal;
+    position: relative;
+    padding: 0 $spacing-lg !important;
+    height: 64px !important;
+    line-height: 64px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  // Hover effects
+  > .ant-menu-item:hover,
+  > .ant-menu-submenu:hover {
+    color: $primary-color !important;
+    background-color: transparent !important;
+  }
+  // Active/selected states
+  > .ant-menu-item-selected,
+  > .ant-menu-submenu-selected,
+  > .ant-menu-item-active,
+  > .ant-menu-submenu-active {
+    color: $primary-color !important;
+    background-color: rgba($primary-color, 0.08) !important;
+    font-weight: $font-weight-bold !important;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: $primary-color !important;
+      display: block !important;
+    }
+
+    .ant-menu-title-content {
+      color: $primary-color !important;
+      font-weight: $font-weight-bold !important;
+    }
+
+    &:hover {
+      color: $primary-color !important;
+    }
+
+    span,
+    a {
+      color: $primary-color !important;
+      font-weight: $font-weight-bold !important;
+    }
+  }
+
+  // Default item colors
+  > .ant-menu-item,
+  > .ant-menu-submenu {
+    color: $text-primary !important;
+  }
+}
+
+// Remove default Ant Design radio button borders/lines
+.ant-radio-group {
+  .ant-radio-button-wrapper {
+    // Remove the default divider lines between radio buttons
+    &:not(:first-child)::before {
+      display: none !important;
+    }
+    
+    // Remove any default borders that might create artifacts
+    &::before,
+    &::after {
+      content: none !important;
+      display: none !important;
+    }
+    
+    // Ensure clean borders
+    border-left: 2px solid #e9ecef !important;
+    border-right: 2px solid #e9ecef !important;
+    
+    &:first-child {
+      border-left: 2px solid #e9ecef !important;
+    }
+    
+    &:last-child {
+      border-right: 2px solid #e9ecef !important;
+    }
+    
+    // When checked, override all borders
+    &.ant-radio-button-wrapper-checked {
+      border-left: 2px solid #dc3545 !important;
+      border-right: 2px solid #dc3545 !important;
+    }
+    
+    // Remove any focus outlines that might show as lines
+    &:focus {
+      outline: none !important;
+    }
+    
+    // Ensure radio input is hidden
+    .ant-radio {
+      display: none !important;
+    }
+  }
+}
+
+// Remove default borders for time slot radio buttons
+.time-slot-options {
+  .ant-radio-button-wrapper {
+    // Remove any default Ant Design borders/dividers
+    &:not(:first-child)::before {
+      display: none !important;
+    }
+    
+    &::before,
+    &::after {
+      content: none !important;
+      display: none !important;
+    }
+    
+    // Ensure clean styling
+    border: 2px solid #e9ecef !important;
+    
+    &.ant-radio-button-wrapper-checked {
+      border: 2px solid #dc3545 !important;
+    }
+    
+    // Hide radio input
+    .ant-radio {
+      display: none !important;
+    }
+  }
+}
+
+// Responsive adjustments
+@include tablet {
+  .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item,
+  .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu {
+    margin: 0 10px;
+    padding: 0 $spacing-md !important;
+    font-size: $font-size-sm;
+  }
+
+  .ant-layout-header {
+    padding: 0 $spacing-xl !important;
+  }
+}

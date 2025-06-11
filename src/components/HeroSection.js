@@ -35,9 +35,9 @@ const HeroSection = () => {
               Cứ mỗi 2 giây lại có một người cần máu. Một lần hiến máu của bạn có 
               thể cứu sống nhiều người và mang lại hy vọng cho gia đình của họ. Hãy 
               là lý do để ai đó được trở về nhà.
-            </Paragraph>
-              <Button 
+            </Paragraph>              <Button 
               size="large"
+              className="hero-button"
               style={{
                 background: 'white',
                 color: '#761611',

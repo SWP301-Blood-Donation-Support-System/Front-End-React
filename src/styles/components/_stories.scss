@@ -1,0 +1,68 @@
+// Stories Section Component
+.stories-section {
+  padding: $spacing-5xl 50px;
+  background: $background-light;
+
+  &-header {
+    text-align: center;
+    margin-bottom: $spacing-6xl;
+
+    &-title {
+      color: $text-primary !important;
+      font-size: $font-size-4xl !important;
+      margin-bottom: $spacing-lg !important;
+    }
+  }
+
+  &-card {
+    height: 100%;
+    border-radius: $border-radius-xl;
+    border: none;
+    box-shadow: $shadow-md;
+    overflow: hidden;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-xl;
+    }
+
+    .ant-card-body {
+      padding: 0;
+    }
+
+    &-cover {
+      height: 220px;
+      overflow: hidden;
+      position: relative;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: $transition-normal;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+
+    &-content {
+      padding: $spacing-xxl;
+    }
+
+    &-title {
+      color: $text-primary !important;
+      margin-bottom: $spacing-md !important;
+      font-size: $font-size-lg !important;
+      line-height: 1.4 !important;
+    }
+
+    &-description {
+      color: $text-secondary !important;
+      font-size: $font-size-sm !important;
+      line-height: 1.6 !important;
+      margin: 0 !important;
+    }
+  }
+}

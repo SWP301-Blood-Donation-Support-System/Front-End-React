@@ -126,102 +126,47 @@ const FAQPage = () => {  const faqData = [
       ]
     }
   ];
-
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="faq-page">
       <Header />
       <Navbar />
       
       {/* Hero Section */}
-      <div style={{
-        background: '#761611',
-        padding: '60px 0',
-        textAlign: 'center'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <Title 
-            level={1} 
-            style={{ 
-              color: 'white', 
-              marginBottom: '16px',
-              fontSize: '48px',
-              fontWeight: 'bold'
-            }}
-          >
+      <div className="faq-hero">
+        <div className="faq-hero-container">
+          <Title level={1} className="faq-hero-title">
             Câu Hỏi Thường Gặp
           </Title>
-          <Paragraph style={{ 
-            color: 'white', 
-            fontSize: '18px',
-            opacity: 0.9,
-            maxWidth: '600px',
-            margin: '0 auto'
-          }}>
+          <Paragraph className="faq-hero-description">
             Tất cả những gì bạn cần biết về hiến máu
           </Paragraph>
         </div>
-      </div>
-
-      <Content style={{ 
-        padding: '80px 20px',
-        background: '#f8f9fa',
-        minHeight: 'calc(100vh - 300px)'
-      }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <Card
-            style={{
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              border: 'none'
-            }}
-            bodyStyle={{ padding: '40px' }}
-          >
+      </div>      <Content className="faq-content">
+        <div className="faq-content-container">
+          <Card className="faq-card">
             <Collapse
               accordion
               ghost
+              className="faq-collapse"
               expandIcon={({ isActive }) => (
-                <CaretRightOutlined 
-                  rotate={isActive ? 90 : 0} 
-                  style={{ color: '#dc2626', fontSize: '16px' }}
-                />
+                <CaretRightOutlined rotate={isActive ? 90 : 0} />
               )}
-              style={{
-                background: 'transparent'
-              }}
             >
               {faqData.map((item, index) => (
                 <Panel
                   header={
-                    <div style={{ 
-                      fontSize: '16px', 
-                      fontWeight: '500',
-                      color: '#333',
-                      padding: '12px 0'
-                    }}>
+                    <div className="faq-question">
                       {index + 1}. {item.question}
                     </div>
                   }
                   key={item.key}
-                  style={{
-                    marginBottom: '16px',
-                    border: '1px solid #e8e8e8',
-                    borderRadius: '8px',
-                    overflow: 'hidden'
-                  }}
-                >                  <div style={{ 
-                    padding: '16px 20px',
-                    background: '#fafafa',
-                    borderTop: '1px solid #e8e8e8',
-                    color: '#666',
-                    lineHeight: '1.6',
-                    fontSize: '15px'
-                  }}>
+                >                  <div>
                     {Array.isArray(item.answer) ? (
                       <>
                         <p>{item.answer[0]}</p>
-                        <ul style={{ paddingLeft: '20px', marginTop: '10px' }}>
+                        <ul>
                           {item.answer.slice(1).map((point, i) => (
-                            <li key={i} style={{ marginBottom: '8px' }}>{point}</li>
+                            <li key={i}>{point}</li>
                           ))}
                         </ul>
                       </>
@@ -229,13 +174,13 @@ const FAQPage = () => {  const faqData = [
                       <>
                         <p>{item.answer.intro}</p>
                         {item.answer.sections.map((section, sectionIndex) => (
-                          <div key={sectionIndex} style={{ marginTop: '15px' }}>
-                            <p style={{ fontWeight: 'bold', color: '#333', marginBottom: '8px' }}>
+                          <div key={sectionIndex} className="answer-section">
+                            <p className="answer-section-title">
                               {section.title}
                             </p>
-                            <ul style={{ paddingLeft: '20px' }}>
+                            <ul>
                               {section.items.map((item, itemIndex) => (
-                                <li key={itemIndex} style={{ marginBottom: '8px' }}>
+                                <li key={itemIndex}>
                                   {item}
                                 </li>
                               ))}
@@ -244,7 +189,7 @@ const FAQPage = () => {  const faqData = [
                         ))}
                       </>
                     ) : (
-                      <ul style={{ paddingLeft: '20px' }}>
+                      <ul>
                         <li>{item.answer}</li>
                       </ul>
                     )}

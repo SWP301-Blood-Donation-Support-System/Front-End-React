@@ -7,7 +7,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import '../styles/AuthPages.css';
 
 
 const clientId = ''; // Thay bằng client ID bạn lấy từ Google Cloud
@@ -29,7 +28,7 @@ const LoginPage = () => {
       navigate('/');
     }, 1000);
   };  return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="auth-page">
       <Header />
       <Navbar />
       

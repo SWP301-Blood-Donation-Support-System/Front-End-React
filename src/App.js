@@ -8,7 +8,7 @@ import FAQPage from './pages/FAQPage';
 import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
 import BloodDonationBookingPage from './pages/BloodDonationBookingPage';
-import './App.css';
+import './styles/main.scss';
 
 function App() {
   return (

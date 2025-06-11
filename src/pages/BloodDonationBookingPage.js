@@ -25,7 +25,6 @@ import {
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import '../styles/BloodDonationBookingPage.css';
 
 const { Title, Text, Paragraph } = Typography;
 const { Content } = Layout;
@@ -225,9 +224,9 @@ const BloodDonationBookingPage = () => {
               }}>
                 Sự đóng góp của bạn có thể giúp cứu sống tới 3 người. Quy trình hiến 
                 máu an toàn, đơn giản và chỉ mất không quá một giờ từ đầu đến cuối.
-              </Paragraph>
-                <Button 
+              </Paragraph>                <Button 
                 size="large"
+                className="hero-button"
                 style={{
                   background: 'white',
                   color: '#761611',

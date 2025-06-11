@@ -1,0 +1,225 @@
+// Search Page Styles
+.search-page {
+  min-height: 100vh;
+
+  .search-hero {
+    background: $primary-color;
+    padding: $spacing-6xl 0;
+    text-align: center;
+
+    &-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 $spacing-xl;
+    }
+
+    &-title {
+      color: $background-white !important;
+      margin-bottom: $spacing-lg !important;
+      font-size: 48px !important;
+      font-weight: bold !important;
+
+      .anticon {
+        margin-right: $spacing-lg;
+      }
+    }
+
+    &-description {
+      color: $background-white !important;
+      font-size: $font-size-lg !important;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto !important;
+    }
+  }
+
+  .search-content {
+    padding: $spacing-5xl $spacing-xl;
+    background: #f8f9fa;
+    min-height: calc(100vh - 300px);
+
+    &-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  }
+
+  .blood-selector-card {
+    margin-bottom: $spacing-4xl;
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-lg;
+    border: none;
+
+    .ant-card-body {
+      padding: $spacing-4xl;
+    }
+
+    &-title {
+      text-align: center;
+      margin-bottom: $spacing-xxxl !important;
+      color: $text-primary !important;
+
+      .anticon {
+        color: $primary-color;
+        margin-right: $spacing-md;
+      }
+    }
+
+    &-selector {
+      text-align: center;
+      margin-bottom: $spacing-xxxl;
+
+      .selector-text {
+        font-size: $font-size-base;
+        color: $text-secondary;
+      }
+
+      .ant-select {
+        width: 200px;
+      }
+    }
+
+    &-result {
+      background: #f8f9fa;
+      border: 2px solid $primary-color;
+      border-radius: $border-radius-lg;
+
+      .result-main {
+        text-align: center;
+
+        .blood-type-tag {
+          font-size: $font-size-xl;
+          padding: $spacing-md $spacing-xl;
+          border-radius: $border-radius-lg;
+          margin-bottom: $spacing-lg;
+        }
+
+        .percentage-text {
+          font-size: $font-size-lg;
+          font-weight: $font-weight-semibold;
+        }
+
+        .description-text {
+          font-size: $font-size-sm;
+          color: $text-secondary;
+          margin-top: $spacing-sm;
+        }
+      }
+
+      .compatibility-section {
+        h5 {
+          margin-bottom: $spacing-md !important;
+
+          &.can-give {
+            color: #52c41a !important;
+          }
+
+          &.can-receive {
+            color: #1890ff !important;
+          }
+        }
+      }
+    }
+  }
+
+  .overview-cards {
+    margin-bottom: $spacing-4xl;
+
+    .overview-card {
+      height: 100%;
+      border-radius: $border-radius-xl;
+      box-shadow: $shadow-lg;
+      border: none;
+
+      .ant-card-head-title {
+        color: $primary-color;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+      }
+
+      .overview-content {
+        width: 100%;
+
+        h5 {
+          margin-bottom: $spacing-md !important;
+        }
+
+        .ant-divider {
+          margin: $spacing-lg 0;
+        }
+      }
+    }
+
+    .stats-card {
+      .stat-item {
+        text-align: center;
+        padding: $spacing-lg;
+        background: #f0f0f0;
+        border-radius: $border-radius-lg;
+
+        .stat-percentage {
+          font-size: $font-size-xxl;
+          color: $primary-color;
+          font-weight: $font-weight-semibold;
+        }
+      }
+
+      .stats-note {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        text-align: center;
+      }
+    }
+  }
+
+  .compatibility-table-card {
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-lg;
+    border: none;
+
+    .ant-card-head-title {
+      color: $primary-color;
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+    }
+
+    .blood-type-tag {
+      font-size: $font-size-sm;
+      padding: $spacing-xs $spacing-sm;
+    }
+
+    .compatibility-notes {
+      margin-top: $spacing-xxxl;
+
+      .warning-card {
+        background: #fff2f0;
+        border: 1px solid #ffccc7;
+
+        h5 {
+          color: #cf1322 !important;
+          margin-bottom: $spacing-md !important;
+        }
+
+        .ant-typography {
+          margin: 0 !important;
+          font-size: $font-size-sm;
+        }
+      }
+
+      .success-card {
+        background: #f6ffed;
+        border: 1px solid #b7eb8f;
+
+        h5 {
+          color: #52c41a !important;
+          margin-bottom: $spacing-md !important;
+        }
+
+        .ant-typography {
+          margin: 0 !important;
+          font-size: $font-size-sm;
+        }
+      }
+    }
+  }
+}
