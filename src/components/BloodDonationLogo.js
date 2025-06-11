@@ -2,19 +2,9 @@ import React from 'react';
 
 const BloodDonationLogo = ({ size = 40, textSize = 16 }) => {
   return (
-    <div style={{ 
-      display: 'flex', 
-      alignItems: 'center',
-      background: 'white',
-      padding: '8px 16px',
-      borderRadius: '8px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-    }}>
+    <div className="blood-donation-logo">
       {/* Heart with drop logo */}
-      <div style={{ 
-        position: 'relative',
-        marginRight: '12px'
-      }}>
+      <div className="blood-donation-logo-icon">
         <svg 
           width={size} 
           height={size} 
@@ -50,22 +40,16 @@ const BloodDonationLogo = ({ size = 40, textSize = 16 }) => {
       
       {/* Text */}
       <div>
-        <div style={{ 
-          color: '#dc2626', 
-          fontWeight: 'bold', 
-          fontSize: textSize,
-          lineHeight: '1',
-          fontFamily: 'Arial, sans-serif'
-        }}>
+        <div 
+          className="blood-donation-logo-text-primary"
+          style={{ fontSize: textSize }}
+        >
           LifeFlow
         </div>
-        <div style={{ 
-          color: '#666', 
-          fontSize: textSize * 0.75,
-          lineHeight: '1',
-          marginTop: '2px',
-          fontFamily: 'Arial, sans-serif'
-        }}>
+        <div 
+          className="blood-donation-logo-text-secondary"
+          style={{ fontSize: textSize * 0.75 }}
+        >
           Blood Services
         </div>
       </div>

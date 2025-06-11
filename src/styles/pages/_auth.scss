@@ -1,0 +1,323 @@
+// Auth Container
+.auth-container {
+  @include flex-center;
+  min-height: 100vh;
+  background: $background-light;
+  padding: $spacing-xl;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba($primary-color, 0.05) 0%, rgba($primary-hover, 0.03) 100%);
+  }
+}
+
+// Auth Card
+.auth-card {
+  width: 100%;
+  max-width: 450px;
+  background: rgba($background-white, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: $border-radius-3xl;
+  box-shadow: $shadow-3xl, 0 0 0 1px rgba($background-white, 0.2);
+  border: none !important;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  @include animate-scale-in;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, $primary-color, #ef4444, #f87171, $primary-color);
+    background-size: 300% 100%;
+    animation: gradientShift 3s ease infinite;
+  }
+
+  .ant-card-body {
+    padding: $spacing-5xl $spacing-4xl !important;
+  }
+}
+
+// Auth Header
+.auth-header {
+  text-align: center;
+  margin-bottom: $spacing-4xl;
+}
+
+.auth-title {
+  font-size: $font-size-3xl !important;
+  font-weight: $font-weight-bold !important;
+  color: $text-primary !important;
+  margin-bottom: $spacing-sm !important;
+}
+
+.auth-subtitle {
+  color: $text-tertiary !important;
+  font-size: $font-size-base !important;
+  margin: 0 !important;
+  font-weight: $font-weight-normal;
+}
+
+// Form Styling
+.auth-form {
+  width: 100%;
+
+  .ant-form-item {
+    margin-bottom: $spacing-xxl !important;
+    @include animate-slide-up;
+    animation-fill-mode: both;
+
+    &:nth-child(1) { animation-delay: 0.1s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.3s; }
+    &:nth-child(4) { animation-delay: 0.4s; }
+    &:nth-child(5) { animation-delay: 0.5s; }
+  }
+
+  .ant-form-item-label {
+    padding-bottom: $spacing-sm !important;
+
+    > label {
+      font-weight: $font-weight-semibold !important;
+      color: $text-primary !important;
+      font-size: $font-size-sm !important;
+    }
+  }
+}
+
+// Input Styling
+.auth-input {
+  height: 52px !important;
+  border-radius: $border-radius-lg !important;
+  border: 2px solid $border-color !important;
+  font-size: $font-size-base !important;
+  background: #fafbfc !important;
+  padding: $spacing-md $spacing-lg !important;
+  @include input-focus($primary-color);
+}
+
+// Input with prefix
+.auth-input-affix-wrapper {
+  height: 52px !important;
+  border-radius: $border-radius-lg !important;
+  border: 2px solid $border-color !important;
+  background: #fafbfc !important;
+  padding: 0 $spacing-lg !important;
+  @include flex-center;
+  @include input-focus($primary-color);
+
+  .ant-input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: $font-size-base !important;
+    padding: 0 !important;
+    height: auto !important;
+    line-height: $line-height-normal !important;
+    @include flex-center;
+  }
+
+  .ant-input-prefix {
+    margin-right: $spacing-md !important;
+    color: $border-hover !important;
+    font-size: $font-size-lg !important;
+    @include flex-center;
+  }
+}
+
+// Password Input
+.auth-password-input {
+  height: 52px !important;
+  border-radius: $border-radius-lg !important;
+  border: 2px solid $border-color !important;
+  background: #fafbfc !important;
+  padding: 0 $spacing-lg !important;
+  @include flex-center;
+  @include input-focus($primary-color);
+
+  .ant-input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: $font-size-base !important;
+    padding: 0 !important;
+    height: auto !important;
+    line-height: $line-height-normal !important;
+    @include flex-center;
+  }
+
+  .ant-input-prefix {
+    margin-right: $spacing-md !important;
+    color: $border-hover !important;
+    font-size: $font-size-lg !important;
+    @include flex-center;
+  }
+
+  .ant-input-suffix {
+    @include flex-center;
+  }
+}
+
+// DatePicker
+.auth-datepicker {
+  height: 52px !important;
+  border-radius: $border-radius-lg !important;
+  border: 2px solid $border-color !important;
+  background: #fafbfc !important;
+  width: 100% !important;
+  font-size: $font-size-base !important;
+  padding: $spacing-md $spacing-lg !important;
+  @include input-focus($primary-color);
+}
+
+// Submit Button
+.auth-submit-btn {
+  width: 100% !important;
+  height: 56px !important;
+  border-radius: $border-radius-lg !important;
+  @include gradient-primary;
+  border: none !important;
+  font-size: $font-size-base !important;
+  font-weight: $font-weight-semibold !important;
+  color: $background-white !important;
+  box-shadow: 0 8px 25px rgba($primary-color, 0.3) !important;
+  margin-top: $spacing-sm !important;
+  @include button-hover-lift;
+
+  &:hover {
+    background: linear-gradient(135deg, $primary-hover 0%, $primary-active 100%) !important;
+    box-shadow: 0 12px 35px rgba($primary-color, 0.4) !important;
+    color: $background-white !important;
+  }
+
+  &:focus {
+    color: $background-white !important;
+  }
+}
+
+// Links
+.auth-forgot-link,
+.auth-footer-link {
+  color: $primary-color !important;
+  font-weight: $font-weight-medium !important;
+  text-decoration: none !important;
+  transition: $transition-normal !important;
+
+  &:hover {
+    color: $primary-hover !important;
+    text-decoration: underline !important;
+  }
+}
+
+// Divider
+.auth-divider {
+  margin: $spacing-xxxl 0 !important;
+  border-color: $border-color !important;
+
+  .ant-divider-inner-text {
+    color: $text-light !important;
+    font-size: $font-size-sm !important;
+    font-weight: $font-weight-medium !important;
+    background: rgba($background-white, 0.9) !important;
+    padding: 0 $spacing-xl !important;
+  }
+}
+
+// Google Login
+.auth-google-section {
+  text-align: center;
+  margin-bottom: $spacing-xxl;
+}
+
+.auth-google-text {
+  display: block;
+  margin-bottom: $spacing-lg;
+  color: $text-primary !important;
+  font-size: $font-size-base !important;
+  font-weight: $font-weight-medium !important;
+}
+
+// Footer
+.auth-footer {
+  text-align: center;
+  margin-top: $spacing-xxl;
+}
+
+.auth-footer-text {
+  color: $text-light !important;
+  font-size: $font-size-sm !important;
+}
+
+// Error States
+.auth-form .ant-form-item-has-error {
+  .auth-input,
+  .auth-input-affix-wrapper,
+  .auth-password-input,
+  .auth-datepicker {
+    border-color: $error-color !important;
+    background: #fef2f2 !important;
+
+    &:focus {
+      box-shadow: 0 0 0 4px rgba($error-color, 0.1) !important;
+    }
+  }
+}
+
+// Loading State
+.auth-submit-btn .ant-btn-loading-icon {
+  color: $background-white !important;
+}
+
+// Responsive Design
+@include tablet {
+  .auth-container {
+    padding: $spacing-lg;
+  }
+  
+  .auth-card .ant-card-body {
+    padding: $spacing-xxxl $spacing-xxl !important;
+  }
+  
+  .auth-title {
+    font-size: $font-size-2xl !important;
+  }
+  
+  .auth-subtitle {
+    font-size: $font-size-sm !important;
+  }
+  
+  .auth-input,
+  .auth-input-affix-wrapper,
+  .auth-password-input,
+  .auth-datepicker {
+    height: 48px !important;
+    font-size: $font-size-sm !important;
+  }
+  
+  .auth-submit-btn {
+    height: 52px !important;
+    font-size: $font-size-sm !important;
+  }
+}
+
+@include mobile {
+  .auth-card {
+    max-width: 100%;
+    margin: 0 $spacing-sm;
+
+    .ant-card-body {
+      padding: $spacing-xxl $spacing-xl !important;
+    }
+  }
+}

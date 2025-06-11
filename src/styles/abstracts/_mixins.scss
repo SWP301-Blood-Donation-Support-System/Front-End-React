@@ -1,0 +1,223 @@
+// Responsive mixins
+@mixin mobile {
+  @media (max-width: $mobile) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: $tablet) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $desktop) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: $large-desktop) {
+    @content;
+  }
+}
+
+// Flexbox mixins
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// Button hover effects
+@mixin button-hover-lift {
+  transition: $transition-normal;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@mixin button-hover-scale {
+  transition: $transition-normal;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Card hover effects
+@mixin card-hover {
+  transition: $transition-normal;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-xl;
+  }
+}
+
+// Input focus effects
+@mixin input-focus($color: $primary-color) {
+  transition: $transition-normal;
+  
+  &:hover {
+    border-color: $border-hover;
+    background: $background-white;
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+  
+  &:focus,
+  &:focus-within {
+    border-color: $color;
+    background: $background-white;
+    box-shadow: 0 0 0 4px rgba($color, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+// Gradient backgrounds
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-hover 100%);
+}
+
+@mixin gradient-red-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+@mixin gradient-light {
+  background: linear-gradient(135deg, $background-light 0%, $background-white 100%);
+}
+
+// Text truncation
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Container max width
+@mixin container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-xxl;
+}
+
+// Section padding
+@mixin section-padding {
+  padding: $spacing-7xl 0;
+}
+
+// Typography helpers
+@mixin heading-primary {
+  font-size: $font-size-5xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: $text-primary;
+}
+
+@mixin heading-secondary {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-normal;
+  color: $text-primary;
+}
+
+@mixin text-body {
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $text-secondary;
+}
+
+// Animation helpers
+@mixin animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@mixin animate-slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+@mixin animate-scale-in {
+  animation: scaleIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Keyframes
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.1); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.1); }
+  70% { transform: scale(1); }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}

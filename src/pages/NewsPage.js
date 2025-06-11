@@ -55,158 +55,81 @@ const NewsPage = () => {
       image: '/images/vn_blog_6.jpg'
     }
   ];
-
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="news-page">
       <Header />
       <Navbar />
       
       {/* Hero Section */}
-      <div style={{
-        background: '#761611',
-        padding: '60px 0',
-        color: 'white'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+      <div className="news-hero">
+        <div className="news-hero-container">
           <Row align="middle" gutter={[40, 20]}>
             <Col xs={24} md={16}>
-              <Title 
-                level={1} 
-                style={{ 
-                  color: 'white', 
-                  marginBottom: '16px',
-                  fontSize: '48px',
-                  fontWeight: 'bold'
-                }}
-              >
+              <Title level={1} className="news-hero-title">
                 Tin Tức
               </Title>
-              <Paragraph style={{ 
-                color: 'white', 
-                fontSize: '18px',
-                opacity: 0.9,
-                marginBottom: 0
-              }}>
+              <Paragraph className="news-hero-description">
                 Cập nhật những tin tức mới nhất về hoạt động hiến máu, các chương trình tình nguyện và những câu chuyện cảm động từ cộng đồng hiến máu.
               </Paragraph>
-            </Col>
-            <Col xs={24} md={8} style={{ textAlign: 'center' }}>
-              <FileTextOutlined style={{ fontSize: '80px', color: 'white', opacity: 0.8 }} />
+            </Col>            <Col xs={24} md={8} className="news-hero-icon-container">
+              <FileTextOutlined className="news-hero-icon" />
             </Col>
           </Row>
         </div>
-      </div>
-
-      <Content style={{ 
-        padding: '80px 20px',
-        background: '#f8f9fa',
-        minHeight: 'calc(100vh - 300px)'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      </div>      <Content className="news-content">
+        <div className="news-content-container">
           
           {/* Featured Article */}
           <Card
-            style={{
-              marginBottom: '40px',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-              border: 'none'
-            }}
+            className="featured-article"
             cover={
-              <div style={{ 
-                height: '400px', 
-                backgroundImage: `url(${newsData[0].image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                position: 'relative'
+              <div className="featured-article-cover" style={{ 
+                backgroundImage: `url(${newsData[0].image})`
               }}>
-                <div style={{
-                  position: 'absolute',
-                  top: '20px',
-                  left: '20px',
-                  background: '#dc2626',
-                  color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  fontSize: '14px',
-                  fontWeight: 'bold'
-                }}>
+                <div className="featured-article-badge">
                   TIN NỔI BẬT
                 </div>
               </div>
             }
           >
-            <div style={{ padding: '30px' }}>
-              <div style={{ marginBottom: '16px' }}>
+            <div className="featured-article-content">
+              <div className="featured-article-date">
                 <Tag icon={<CalendarOutlined />} color="blue">
                   {newsData[0].date}
                 </Tag>
               </div>
-              <Title level={2} style={{ 
-                marginBottom: '16px',
-                color: '#333',
-                fontSize: '28px',
-                lineHeight: '1.3'
-              }}>
+              <Title level={2} className="featured-article-title">
                 {newsData[0].title}
               </Title>
-              <Paragraph style={{ 
-                fontSize: '16px',
-                color: '#666',
-                lineHeight: '1.6',
-                marginBottom: '24px'
-              }}>
+              <Paragraph className="featured-article-excerpt">
                 {newsData[0].excerpt}
               </Paragraph>
               <Button 
                 type="primary" 
                 size="large"
                 icon={<ArrowRightOutlined />}
-                style={{
-                  background: '#dc2626',
-                  borderColor: '#dc2626',
-                  borderRadius: '8px',
-                  height: '48px',
-                  padding: '0 32px',
-                  fontSize: '16px'
-                }}
+                className="featured-article-button"
               >
                 Đọc Thêm
               </Button>
             </div>
-          </Card>
-
-          {/* News Grid */}
-          <Row gutter={[24, 32]}>
+          </Card>          {/* News Grid */}
+          <Row gutter={[24, 32]} className="news-grid">
             {newsData.slice(1).map((article) => (
               <Col xs={24} sm={12} lg={8} key={article.id}>
                 <Card
                   hoverable
-                  style={{
-                    height: '100%',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    border: 'none',
-                    transition: 'all 0.3s ease'
-                  }}
+                  className="news-card"
                   cover={
-                    <div style={{ 
-                      height: '220px', 
-                      backgroundImage: `url(${article.image})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center'
+                    <div className="news-card-cover" style={{ 
+                      backgroundImage: `url(${article.image})`
                     }} />
                   }
                   actions={[
                     <Button 
                       type="link" 
                       icon={<ArrowRightOutlined />}
-                      style={{ 
-                        color: '#dc2626',
-                        fontWeight: '500'
-                      }}
+                      className="news-card-action"
                     >
                       Đọc thêm
                     </Button>
@@ -215,35 +138,18 @@ const NewsPage = () => {
                   <Meta
                     title={
                       <div>
-                        <div style={{ marginBottom: '12px' }}>
+                        <div className="news-card-date">
                           <Tag icon={<CalendarOutlined />} color="blue" size="small">
                             {article.date}
                           </Tag>
                         </div>
-                        <Title level={4} style={{ 
-                          marginBottom: '12px',
-                          color: '#333',
-                          fontSize: '18px',
-                          lineHeight: '1.4',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}>
+                        <Title level={4} className="news-card-title">
                           {article.title}
                         </Title>
                       </div>
                     }
                     description={
-                      <Text style={{ 
-                        color: '#666',
-                        fontSize: '14px',
-                        lineHeight: '1.5',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                      }}>
+                      <Text className="news-card-excerpt">
                         {article.excerpt}
                       </Text>
                     }
@@ -251,31 +157,14 @@ const NewsPage = () => {
                 </Card>
               </Col>
             ))}
-          </Row>
-
-          {/* Load More Section */}
-          <div style={{ 
-            textAlign: 'center', 
-            marginTop: '60px',
-            padding: '40px',
-            background: 'white',
-            borderRadius: '16px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
-          }}>
-            <Title level={4} style={{ color: '#333', marginBottom: '20px' }}>
+          </Row>          {/* Load More Section */}
+          <div className="load-more-section">
+            <Title level={4} className="load-more-section-title">
               Khám phá thêm nhiều tin tức hấp dẫn
             </Title>
             <Button 
               size="large"
-              style={{
-                background: '#dc2626',
-                borderColor: '#dc2626',
-                color: 'white',
-                borderRadius: '8px',
-                height: '48px',
-                padding: '0 32px',
-                fontSize: '16px'
-              }}
+              className="load-more-section-button"
             >
               Xem Thêm Tin Tức
             </Button>

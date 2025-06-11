@@ -1,0 +1,29 @@
+// Blood Donation Logo Component
+.blood-donation-logo {
+  @include flex-center;
+  background: $background-white;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+
+  &-icon {
+    position: relative;
+    margin-right: $spacing-md;
+  }
+
+  &-text {
+    &-primary {
+      color: $primary-color;
+      font-weight: $font-weight-bold;
+      line-height: 1;
+      font-family: Arial, sans-serif;
+    }
+
+    &-secondary {
+      color: $text-secondary;
+      line-height: 1;
+      margin-top: 2px;
+      font-family: Arial, sans-serif;
+    }
+  }
+}

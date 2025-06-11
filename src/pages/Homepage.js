@@ -8,9 +8,8 @@ import Footer from '../components/Footer';
 
 const { Content } = Layout;
 
-const Homepage = () => {
-  return (
-    <Layout style={{ minHeight: '100vh' }}>
+const Homepage = () => {  return (
+    <Layout className="homepage">
       <Header />
       <Navbar />
       <Content>

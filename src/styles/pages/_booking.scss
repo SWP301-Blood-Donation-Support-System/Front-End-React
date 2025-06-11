@@ -1,0 +1,1211 @@
+// Blood Donation Booking Page Styles
+
+// Hero Section
+.hero-section {
+  background: $secondary-color;
+  min-height: 70vh;
+  @include flex-center;
+  position: relative;
+  overflow: hidden;
+  padding: 50px 0;
+
+  .hero-container {
+    @include container;
+    @include flex-center;
+    gap: $spacing-7xl;
+    width: 100%;
+  }
+
+  .hero-text {
+    flex: 1;
+    color: $background-white;
+  }
+
+  .hero-image {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: $border-radius-2xl;
+    box-shadow: $shadow-2xl;
+    transition: $transition-normal;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  .hero-title {
+    color: $background-white !important;
+    font-size: 3.2rem !important;
+    font-weight: $font-weight-bold !important;
+    margin-bottom: $spacing-xl !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: $line-height-tight;
+  }
+
+  // Compact hero section variation
+  &-compact {
+    background: $secondary-color;
+    min-height: 500px;
+    padding: 50px 80px;
+    color: $background-white;
+
+    .hero-text-container {
+      max-width: 500px;
+    }
+
+    .hero-title {
+      color: $background-white !important;
+      font-size: 48px !important;
+      font-weight: $font-weight-bold !important;
+      margin-bottom: $spacing-xxl !important;
+      line-height: 1.2 !important;
+    }
+
+    .hero-description {
+      color: $background-white !important;
+      font-size: $font-size-lg !important;
+      line-height: $line-height-relaxed !important;
+      margin-bottom: $spacing-xxxl !important;
+    }    .hero-button {
+      background: $background-white !important;
+      color: $secondary-color !important;
+      border-color: $background-white !important;
+      font-weight: $font-weight-semibold;
+      border-radius: $border-radius-lg;
+      height: 48px;
+      padding: 0 $spacing-xxxl;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba($secondary-color, 0.1);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 0;
+      }
+
+      &:hover {
+        background: rgba($background-white, 0.95) !important;
+        transform: translateY(-6px) scale(1.05);
+        box-shadow: 0 20px 40px rgba($secondary-color, 0.4), 
+                    0 8px 20px rgba($secondary-color, 0.2) !important;
+        border-color: $secondary-color !important;
+        
+        &::before {
+          width: 300px;
+          height: 300px;
+          background: rgba($secondary-color, 0.05);
+        }
+        
+        .anticon {
+          animation: heartBeat 0.8s ease-in-out;
+        }
+      }
+
+      &:active {
+        transform: translateY(-2px) scale(1.02);
+        transition: all 0.1s ease;
+      }
+
+      .anticon {
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s ease;
+      }
+
+      span {
+        position: relative;
+        z-index: 1;
+      }
+    }
+
+    .hero-image-container {
+      text-align: center;
+    }
+
+    .hero-image {
+      width: 100%;
+      height: auto;
+      max-width: 450px;
+      border-radius: $border-radius-xl;
+      box-shadow: $shadow-xl;
+    }
+
+    .hero-stats {
+      margin-top: $spacing-4xl;
+      color: rgba($background-white, 0.9) !important;
+      font-size: $font-size-base !important;
+      line-height: $line-height-relaxed !important;
+    }
+  }
+  .hero-description {
+    color: rgba($background-white, 0.9) !important;
+    font-size: 1.1rem;
+    line-height: $line-height-relaxed;
+    margin-bottom: $spacing-xxxl;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-button {
+    background: $background-white !important;
+    color: $secondary-color !important;
+    border: 2px solid $secondary-color !important;
+    height: 50px !important;
+    font-size: $font-size-base !important;
+    font-weight: $font-weight-bold !important;
+    border-radius: $border-radius-md !important;
+    padding: 0 $spacing-xxxl !important;
+    @include button-hover-lift;
+
+    &:hover,
+    &:focus {
+      background: transparent !important;
+      color: $background-white !important;
+      border-color: $background-white !important;
+      box-shadow: $shadow-lg !important;
+    }
+  }
+}
+
+// Process Section
+.process-section {
+  @include section-padding;
+  @include gradient-light;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba($primary-color, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba($primary-color, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    @include container;
+  }
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: $spacing-6xl;
+  font-size: 2.5rem !important;
+  font-weight: $font-weight-semibold !important;
+  position: relative;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(45deg, $primary-color, $primary-hover);
+    margin: $spacing-lg auto 0;
+    border-radius: 2px;
+  }
+}
+
+// Donation Steps
+.donation-steps {
+  margin-top: 50px;
+  padding: 50px $spacing-xl;
+  background: $background-white;
+  border-radius: $border-radius-3xl;
+  box-shadow: $shadow-xl;
+  border: 1px solid rgba($primary-color, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba($primary-color, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .ant-steps {
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ant-steps-item {
+    transition: $transition-normal;
+    padding: 15px $spacing-sm;
+    cursor: pointer;
+    position: relative;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .ant-steps-item-icon {
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 42px !important;
+    font-size: $font-size-base !important;
+    font-weight: $font-weight-semibold !important;
+    border-width: 2px !important;
+    margin-bottom: $spacing-sm !important;
+    transition: $transition-normal;
+    background: $background-white !important;
+    border-color: $primary-color !important;
+    color: $primary-color !important;
+    box-shadow: 0 2px 8px rgba($primary-color, 0.15);
+  }
+
+  .ant-steps-item-title {
+    font-size: $font-size-lg !important;
+    font-weight: $font-weight-semibold !important;
+    color: $text-primary !important;
+    margin: $spacing-sm 0 $spacing-sm 0 !important;
+    text-align: center !important;
+    transition: color 0.3s ease;
+    line-height: $line-height-normal;
+  }
+
+  .ant-steps-item-description {
+    color: $text-tertiary !important;
+    margin: 0 !important;
+    font-size: $font-size-base !important;
+    text-align: center !important;
+    line-height: $line-height-relaxed;
+  }
+
+  .ant-steps-item-tail::after {
+    background: linear-gradient(90deg, #e1e5e9, $primary-color, #e1e5e9) !important;
+    height: 2px !important;
+    top: 22px !important;
+    border-radius: 1px !important;
+    transition: $transition-normal;
+  }
+
+  .ant-steps-item:hover .ant-steps-item-tail::after {
+    background: $primary-color !important;
+    height: 3px !important;
+  }
+}
+
+// Form Container
+.form-container {
+  background: $background-white;
+  border-radius: $border-radius-2xl;
+  padding: $spacing-4xl;
+  box-shadow: 
+    $shadow-lg,
+    0 4px 20px rgba($primary-color, 0.08);
+  border: 1px solid rgba($primary-color, 0.1);
+  position: relative;
+  overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba($primary-color, 0.01) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  // Form styling
+  .donation-form {
+    position: relative;
+    z-index: 1;
+
+    .ant-row {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    .ant-col {
+      padding-left: $spacing-sm !important;
+      padding-right: $spacing-sm !important;
+    }
+
+    .ant-form-item {
+      margin-bottom: $spacing-xl !important;
+
+      &-label {
+        padding: 0 0 $spacing-sm 0 !important;
+
+        > label {
+          font-size: $font-size-sm !important;
+          font-weight: $font-weight-semibold !important;
+          color: $text-primary !important;
+        }
+      }
+    }
+  }
+}
+
+
+
+// Form Inputs
+.form-input {
+  &.ant-input,
+  &.ant-select .ant-select-selector,
+  &.ant-picker {
+    border-radius: $border-radius-md !important;
+    border: 2px solid #ecf0f1 !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    transition: $transition-normal !important;
+    @include input-focus($primary-color);
+  }
+
+  &.ant-input-affix-wrapper {
+    border-radius: $border-radius-md !important;
+    border: 2px solid #ecf0f1 !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    @include input-focus($primary-color);
+  }
+}
+
+// Submit Button
+.submit-button {
+  @include gradient-primary;
+  border: none !important;
+  height: 56px !important;
+  font-size: $font-size-base !important;
+  font-weight: $font-weight-semibold !important;
+  border-radius: $border-radius-lg !important;
+  box-shadow: 0 4px 15px rgba($primary-color, 0.3) !important;
+  @include button-hover-lift;
+
+  &:hover {
+    background: linear-gradient(135deg, $primary-hover, $primary-active) !important;
+    box-shadow: 0 6px 20px rgba($primary-color, 0.4) !important;
+  }
+}
+
+// FAQ Section
+.faq-section {
+  @include section-padding;
+  background: $background-light;
+}
+
+.faq-collapse .ant-collapse-item {
+  margin-bottom: $spacing-lg !important;
+  border-radius: $border-radius-lg !important;
+  box-shadow: $shadow-md !important;
+  overflow: hidden;
+  border: 1px solid rgba($primary-color, 0.08);
+  transition: $transition-normal;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-xl !important;
+  }
+}
+
+.faq-collapse .ant-collapse-header {
+  background: $background-white !important;
+  border-radius: $border-radius-lg !important;
+  font-weight: $font-weight-semibold !important;
+  color: $text-primary !important;
+  font-size: $font-size-base !important;
+  padding: $spacing-xl $spacing-xxl !important;
+}
+
+.faq-collapse .ant-collapse-content {
+  background: $background-white !important;
+  border-radius: 0 0 $border-radius-lg $border-radius-lg !important;
+}
+
+.faq-collapse .ant-collapse-content-box {
+  padding: 0 $spacing-xxl $spacing-xxl $spacing-xxl !important;
+  color: $text-tertiary !important;
+  line-height: $line-height-relaxed;
+
+  ul {
+    margin: $spacing-md 0;
+    padding-left: $spacing-xl;
+  }
+
+  li {
+    margin-bottom: $spacing-sm;
+  }
+
+  strong {
+    color: $text-primary;
+  }
+}
+
+// Registration Form Section  
+.registration-form-section {
+  @include section-padding;
+  @include gradient-light;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba($primary-color, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba($primary-color, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-lg;
+  }
+
+  // Form header styling
+  .form-header {
+    text-align: center;
+    margin-bottom: $spacing-4xl;
+
+    .form-title {
+      font-size: $font-size-3xl !important;
+      font-weight: $font-weight-bold !important;
+      color: $text-primary !important;
+      margin-bottom: $spacing-lg !important;
+      @include flex-center;
+      gap: $spacing-lg;
+
+      .form-title-icon {
+        color: $primary-color;
+        font-size: 36px;
+        animation: heartbeat 2s ease-in-out infinite;
+      }
+    }
+
+    .form-subtitle {
+      font-size: $font-size-base !important;
+      color: $text-tertiary !important;
+      max-width: 600px;
+      margin: 0 auto !important;
+      line-height: $line-height-relaxed;
+      font-weight: $font-weight-normal;
+    }
+  }
+
+  .ant-card {
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-lg;
+    border: none;
+    margin-bottom: 0;
+
+    .ant-card-body {
+      padding: $spacing-4xl;
+    }
+  }
+
+  .ant-form-item {
+    margin-bottom: $spacing-xxl;
+
+    &-label > label {
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      font-size: $font-size-sm;
+      margin-bottom: $spacing-sm;
+    }
+  }
+
+  .ant-input,
+  .ant-select-selector,
+  .ant-picker {
+    border-radius: $border-radius-lg;
+    border: 2px solid #e9ecef;
+    height: 48px;
+    transition: $transition-normal;
+    font-size: $font-size-sm;
+    @include input-focus($primary-color);
+  }
+
+  .ant-input-prefix {
+    color: $text-tertiary;
+    margin-right: $spacing-sm;
+  }
+
+  .ant-radio-wrapper {
+    display: flex;
+    align-items: center;
+    padding: $spacing-md $spacing-lg;
+    border: 2px solid #e9ecef;
+    border-radius: $border-radius-lg;
+    margin-bottom: $spacing-md;
+    transition: $transition-normal;
+    font-size: $font-size-sm;
+
+    &:hover {
+      border-color: $primary-color;
+      background: rgba($primary-color, 0.05);
+    }
+
+    &-checked {
+      border-color: $primary-color;
+      background: rgba($primary-color, 0.1);
+    }
+  }
+
+  .ant-checkbox-wrapper {
+    font-size: $font-size-sm;
+    line-height: $line-height-relaxed;
+    @include flex-center;
+    align-items: flex-start;
+    gap: $spacing-sm;
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: $primary-color;
+    border-color: $primary-color;
+  }
+
+  .ant-checkbox:hover .ant-checkbox-inner {
+    border-color: $primary-color;
+  }
+
+  .ant-btn-primary {
+    @include gradient-primary;
+    border: none;
+    height: 48px;
+    border-radius: $border-radius-md;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+    @include button-hover-lift;
+
+    &:hover {
+      background: linear-gradient(135deg, $primary-hover, $primary-active);
+      box-shadow: 0 8px 16px rgba($primary-color, 0.3);
+    }
+  }
+}
+
+// Responsive Design
+@include tablet {
+  .hero-section {
+    .hero-container {
+      @include flex-column;
+      gap: $spacing-4xl;
+    }
+
+    .hero-title {
+      font-size: 2.5rem !important;
+    }
+  }
+
+  .process-section {
+    padding: $spacing-6xl 0;
+  }
+
+  .donation-steps {
+    margin-top: $spacing-4xl;
+    padding: $spacing-4xl $spacing-lg;
+
+    .ant-steps-item {
+      padding: $spacing-md $spacing-sm;
+    }
+
+    .ant-steps-item-title {
+      font-size: $font-size-base !important;
+    }
+
+    .ant-steps-item-description {
+      font-size: $font-size-sm !important;
+    }
+
+    .ant-steps-item-icon {
+      width: 38px !important;
+      height: 38px !important;
+      line-height: 36px !important;
+      font-size: $font-size-sm !important;
+      margin-bottom: $spacing-sm !important;
+    }
+
+    .ant-steps-item-tail::after {
+      top: 19px !important;
+    }
+  }
+
+  .time-slot-options {
+    @include flex-column;
+    gap: $spacing-md;
+  }
+
+  .time-slot-option.ant-radio-button-wrapper {
+    padding: $spacing-lg !important;
+  }
+}
+
+@include mobile {
+  .form-container {
+    padding: $spacing-xxl $spacing-lg;
+    margin: 0 $spacing-sm;
+  }
+
+  .form-input.ant-input,
+  .form-input.ant-select .ant-select-selector,
+  .form-input.ant-picker {    
+    height: 48px !important;
+    font-size: $font-size-sm !important;
+  }
+
+  .submit-button {
+    height: 52px !important;
+    font-size: $font-size-base !important;
+    padding: 0 $spacing-xxxl !important;
+  }
+
+  // FAQ responsive
+  .faq-section {
+    padding: $spacing-4xl $spacing-sm;
+
+    .section-title {
+      font-size: $font-size-2xl !important;
+      margin-bottom: $spacing-xxxl !important;
+    }
+
+    .faq-collapse {
+      .ant-collapse-header {
+        padding: $spacing-lg $spacing-xl !important;
+        font-size: $font-size-base !important;
+      }
+
+      .ant-collapse-content-box {
+        padding: 0 $spacing-xl $spacing-lg $spacing-xl !important;
+      }
+    }
+  }
+
+  // Time slot responsive
+  .time-slot-wrapper {
+    .ant-radio-group {
+      flex-direction: column;
+      gap: $spacing-lg;
+
+      .ant-radio-button-wrapper {
+        max-width: none;
+        min-width: auto;
+      }
+    }
+  }
+
+  // Gender radio responsive
+  .ant-radio-group {
+    .ant-radio-button-wrapper {
+      max-width: none;
+      font-size: $font-size-sm !important;
+    }
+  }
+}
+
+// Donation Types Section
+.donation-types-section {
+  @include section-padding;
+  background: #f8f9fa;
+
+  .container {
+    @include container;
+  }
+}
+
+.donation-type-card {
+  cursor: pointer;
+  background: $background-white;
+  border: 2px solid #e9ecef;
+  border-radius: $border-radius-xl;
+  padding: $spacing-xxl;
+  text-align: center;
+  transition: $transition-normal;
+  height: 100%;
+  min-height: 240px;
+  @include flex-column-center;
+  position: relative;
+
+  &:hover,
+  &.selected {
+    border-color: $primary-color;
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+
+    .donation-type-icon {
+      transform: scale(1.1);
+      color: $primary-color;
+    }
+
+    .donation-type-title {
+      color: $primary-color;
+    }
+  }
+
+  &.selected {
+    background: rgba($primary-color, 0.02);
+    border-color: $primary-color;
+    box-shadow: 0 0 0 1px rgba($primary-color, 0.2), $shadow-lg;
+  }
+}
+
+.donation-type-icon {
+  font-size: 40px;
+  color: $text-tertiary;
+  margin-bottom: $spacing-lg;
+  transition: $transition-normal;
+}
+
+.donation-type-title {
+  font-size: $font-size-lg !important;
+  font-weight: $font-weight-semibold !important;
+  color: $text-primary !important;
+  margin-bottom: $spacing-md !important;
+  transition: $transition-normal;
+}
+
+.donation-type-description {
+  color: $text-secondary !important;
+  font-size: $font-size-sm !important;
+  line-height: $line-height-relaxed !important;
+  margin: 0 !important;
+}
+
+// Registration Form Improvements
+.form-container {
+  .ant-form-item {
+    margin-bottom: $spacing-xl !important;
+  }
+
+  .ant-form-item-label {
+    padding: 0 0 $spacing-sm 0 !important;
+
+    > label {
+      font-size: $font-size-sm !important;
+      font-weight: $font-weight-semibold !important;
+      color: $text-primary !important;
+    }
+  }
+
+  .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .ant-col {
+    padding-left: $spacing-sm !important;
+    padding-right: $spacing-sm !important;
+  }  // Gender radio group
+  .ant-radio-group {
+    width: 100%;
+    display: flex;
+    gap: $spacing-lg;
+    justify-content: space-between;
+
+    .ant-radio-button-wrapper {
+      flex: 1;
+      max-width: 200px;
+      text-align: center;
+      border: 2px solid #e9ecef !important;
+      border-radius: $border-radius-lg !important;
+      height: 52px !important;
+      line-height: 48px !important;
+      font-size: $font-size-base !important;
+      font-weight: $font-weight-medium !important;
+      transition: $transition-normal;
+      position: relative;
+      background: $background-white !important;
+
+      // Remove Ant Design default borders/lines
+      &::before,
+      &::after {
+        display: none !important;
+      }
+
+      // Remove any default outline
+      &:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.2) !important;
+      }      &:hover {
+        border-color: $primary-color !important;
+        color: $primary-color !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($primary-color, 0.15);
+      }
+
+      &.ant-radio-button-wrapper-checked {
+        background: linear-gradient(135deg, $primary-color, $primary-hover) !important;
+        border-color: $primary-color !important;
+        color: $background-white !important;
+        box-shadow: 0 4px 15px rgba($primary-color, 0.3);
+
+        &:hover {
+          background: linear-gradient(135deg, $primary-hover, $primary-active) !important;
+          border-color: $primary-hover !important;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba($primary-color, 0.4);
+        }
+      }
+
+      &:first-child {
+        margin-left: 0 !important;
+      }
+
+      &:last-child {
+        margin-right: 0 !important;
+      }
+
+      // Specifically target Ant Design's default border behavior
+      &:not(:first-child)::before {
+        display: none !important;
+      }
+    }
+  }
+  // Time slot styling
+  .time-slot-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: $spacing-xl 0;
+
+    .time-slot-group {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: center;
+
+      .time-slot-options {
+        display: flex;
+        gap: $spacing-xl;
+        width: 100%;
+        justify-content: center;      .ant-radio-button-wrapper {
+        flex: 1;
+        max-width: 280px;
+        min-width: 240px;
+        height: auto !important;
+        padding: $spacing-xl $spacing-lg !important;
+        border: 2px solid #e9ecef !important;
+        border-radius: $border-radius-xl !important;
+        background: $background-white;
+        transition: $transition-normal;
+        text-align: center;
+        line-height: $line-height-normal !important;
+        font-size: $font-size-base !important;
+        font-weight: $font-weight-medium !important;
+        position: relative;
+
+        &:hover {
+          border-color: $primary-color !important;
+          background: rgba($primary-color, 0.05) !important;
+          transform: translateY(-4px);
+          box-shadow: 0 8px 20px rgba($primary-color, 0.15);
+          color: $primary-color !important;
+        }        &.ant-radio-button-wrapper-checked {
+          border-color: $primary-color !important;
+          background: linear-gradient(135deg, $primary-color, $primary-hover) !important;
+          color: $background-white !important;
+          box-shadow: 0 8px 25px rgba($primary-color, 0.3);
+          transform: translateY(-2px);
+
+          &:hover {
+            background: linear-gradient(135deg, $primary-hover, $primary-active) !important;
+            border-color: $primary-hover !important;
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba($primary-color, 0.4);
+          }
+        }
+
+        // Remove Ant Design default borders/lines
+        &::before,
+        &::after {
+          display: none !important;
+        }
+
+        &:not(:first-child)::before {
+          display: none !important;
+        }
+
+        &:focus {
+          outline: none !important;
+          box-shadow: 0 0 0 2px rgba($primary-color, 0.2) !important;
+        }
+
+          .time-slot-content {
+            .time-slot-title {
+              display: block;
+              font-weight: $font-weight-semibold;
+              margin-bottom: $spacing-xs;
+            }
+
+            .time-slot-time {
+              display: block;
+              font-size: $font-size-sm;
+              opacity: 0.9;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Form submit section - proper centering
+  .form-submit-section {
+    text-align: center;
+    margin-top: $spacing-4xl !important;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    .submit-button {
+      min-width: 280px;
+      height: 56px !important;
+      @include gradient-primary;
+      border: none !important;
+      border-radius: $border-radius-xl !important;
+      font-size: $font-size-lg !important;
+      font-weight: $font-weight-semibold !important;
+      box-shadow: 0 6px 20px rgba($primary-color, 0.3) !important;
+      @include button-hover-lift;
+      position: relative;
+      overflow: hidden;      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: linear-gradient(135deg, $primary-hover, $primary-active) !important;
+        box-shadow: 0 8px 25px rgba($primary-color, 0.4) !important;
+        transform: translateY(-3px) scale(1.02);
+      }
+
+      &:active {
+        transform: translateY(-1px) scale(1.01);
+      }
+
+      .anticon {
+        margin-right: $spacing-sm;
+        font-size: $font-size-lg;
+      }
+    }
+  }
+}
+
+// FAQ Section
+.faq-section {
+  @include section-padding;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba($primary-color, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba($primary-color, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+  .section-title {
+    text-align: center !important;
+    color: $text-primary !important;
+    font-size: $font-size-3xl !important;
+    font-weight: $font-weight-bold !important;
+    margin-bottom: $spacing-4xl !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: $spacing-lg !important;
+    flex-direction: row !important;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -$spacing-lg;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, $primary-color, $primary-hover);
+      border-radius: 2px;
+      margin: 0;
+    }
+
+    .anticon {
+      color: $primary-color;
+      font-size: $font-size-2xl;
+      animation: pulse 2s ease-in-out infinite;
+    }
+  }
+
+  .faq-collapse {
+    background: transparent;
+    border: none;
+
+    .ant-collapse-item {
+      margin-bottom: $spacing-xl !important;
+      border-radius: $border-radius-xl !important;
+      box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.08),
+        0 1px 3px rgba(0, 0, 0, 0.1) !important;
+      overflow: hidden;
+      border: none !important;
+      transition: $transition-normal;
+      background: $background-white;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 
+          0 8px 30px rgba(0, 0, 0, 0.12),
+          0 2px 6px rgba(0, 0, 0, 0.15) !important;
+      }
+
+      &:last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+
+    .ant-collapse-header {
+      background: $background-white !important;      border-radius: $border-radius-xl !important;
+      font-weight: $font-weight-semibold !important;
+      color: $text-primary !important;
+      font-size: $font-size-lg !important;
+      padding: $spacing-xxl $spacing-xxxl !important;
+      align-items: center !important;
+      transition: $transition-normal;
+      position: relative;
+
+      &:hover {
+        color: $primary-color !important;
+
+        .ant-collapse-arrow {
+          color: $primary-color !important;
+          transform: scale(1.1);
+        }
+      }
+
+      .ant-collapse-arrow {
+        color: $primary-color !important;
+        font-size: $font-size-xl !important;
+        font-weight: $font-weight-bold !important;
+        transition: $transition-normal;
+        margin-inline-end: $spacing-lg !important;
+      }
+    }
+
+    .ant-collapse-content {
+      background: $background-white !important;
+      border-radius: 0 0 $border-radius-xl $border-radius-xl !important;
+      border-top: 1px solid rgba($primary-color, 0.1);
+
+      .ant-collapse-content-box {
+        padding: 0 $spacing-xxxl $spacing-xxl $spacing-xxxl !important;
+        
+        .faq-answer {
+          color: $text-secondary !important;
+          line-height: $line-height-relaxed !important;
+          font-size: $font-size-base !important;
+
+          p {
+            margin-bottom: $spacing-lg !important;
+            font-weight: $font-weight-medium;
+            color: $text-primary;
+          }
+
+          ul {
+            margin: 0;
+            padding-left: $spacing-xl;
+            
+            li {
+              margin-bottom: $spacing-md;
+              color: $text-secondary;
+              line-height: $line-height-relaxed;
+              position: relative;
+              
+              &::marker {
+                color: $primary-color;
+                font-size: $font-size-lg;
+              }
+
+              &:hover {
+                color: $text-primary;
+                transform: translateX(4px);
+                transition: $transition-normal;
+              }
+            }
+          }
+
+          strong {
+            color: $primary-color;
+            font-weight: $font-weight-semibold;
+          }
+        }
+      }
+    }
+
+    // Active state
+    .ant-collapse-item-active {
+      .ant-collapse-header {
+        background: linear-gradient(135deg, rgba($primary-color, 0.05), rgba($primary-color, 0.02)) !important;
+        color: $primary-color !important;
+
+        .ant-collapse-arrow {
+          color: $primary-color !important;
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}

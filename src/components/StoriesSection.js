@@ -21,18 +21,10 @@ const StoriesSection = () => {
       image: "/images/vn_blog_10.png"
     }
   ];
-
   return (
-    <div style={{ 
-      padding: '80px 50px',
-      background: '#f8f9fa'
-    }}>
-      <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-        <Title level={2} style={{ 
-          color: '#333',
-          fontSize: '36px',
-          marginBottom: '16px'
-        }}>
+    <div className="stories-section">
+      <div className="stories-section-header">
+        <Title level={2} className="stories-section-header-title">
           Những Câu Chuyện Trên Hành Trình "Trao Giọt Hồng"
         </Title>
       </div>
@@ -42,50 +34,21 @@ const StoriesSection = () => {
           <Col xs={24} md={8} key={index}>
             <Card
               hoverable
-              style={{
-                height: '100%',
-                borderRadius: '12px',
-                border: 'none',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                overflow: 'hidden'
-              }}
-              bodyStyle={{ padding: '0' }}
+              className="stories-section-card"
               cover={
-                <div style={{ 
-                  height: '220px', 
-                  overflow: 'hidden',
-                  position: 'relative'
-                }}>
+                <div className="stories-section-card-cover">
                   <img
                     alt={story.title}
                     src={story.image}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      transition: 'transform 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                   />
                 </div>
               }
             >
-              <div style={{ padding: '24px' }}>
-                <Title level={4} style={{ 
-                  color: '#333',
-                  marginBottom: '12px',
-                  fontSize: '18px',
-                  lineHeight: '1.4'
-                }}>
+              <div className="stories-section-card-content">
+                <Title level={4} className="stories-section-card-title">
                   {story.title}
                 </Title>
-                <Paragraph style={{ 
-                  color: '#666',
-                  fontSize: '14px',
-                  lineHeight: '1.6',
-                  margin: '0'
-                }}>
+                <Paragraph className="stories-section-card-description">
                   {story.description}
                 </Paragraph>
               </div>

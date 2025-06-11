@@ -1,0 +1,201 @@
+// News Page Styles
+.news-page {
+  min-height: 100vh;
+  .news-hero {
+    background: $secondary-color;
+    padding: $spacing-6xl 0;
+    color: $background-white;
+
+    &-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 $spacing-xl;
+    }
+
+    &-title {
+      color: $background-white !important;
+      margin-bottom: $spacing-lg !important;
+      font-size: 48px !important;
+      font-weight: bold !important;
+    }
+
+    &-description {
+      color: $background-white !important;
+      font-size: $font-size-lg !important;
+      opacity: 0.9;
+      margin-bottom: 0 !important;
+    }    &-icon {
+      font-size: 80px;
+      color: $background-white;
+      opacity: 0.8;
+
+      &-container {
+        text-align: center;
+      }
+    }
+  }
+
+  .news-content {
+    padding: $spacing-5xl $spacing-xl;
+    background: #f8f9fa;
+    min-height: calc(100vh - 300px);
+
+    &-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  }
+
+  .featured-article {
+    margin-bottom: $spacing-4xl;
+    border-radius: $border-radius-xxl;
+    overflow: hidden;
+    box-shadow: $shadow-2xl;
+    border: none;
+
+    &-cover {
+      height: 400px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }    &-badge {
+      position: absolute;
+      top: $spacing-xl;
+      left: $spacing-xl;
+      background: $primary-color;
+      color: $background-white;
+      padding: $spacing-sm $spacing-lg;
+      border-radius: $border-radius-full;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+    }
+
+    &-content {
+      padding: $spacing-xxxl;
+    }
+
+    &-date {
+      margin-bottom: $spacing-lg;
+    }
+
+    &-title {
+      margin-bottom: $spacing-lg !important;
+      color: $text-primary !important;
+      font-size: $font-size-xxl !important;
+      line-height: 1.3 !important;
+    }
+
+    &-excerpt {
+      font-size: $font-size-base !important;
+      color: $text-secondary !important;
+      line-height: 1.6 !important;
+      margin-bottom: $spacing-xxl !important;
+    }    &-button {
+      background: $primary-color;
+      border-color: $primary-color;
+      border-radius: $border-radius-lg;
+      height: 48px;
+      padding: 0 $spacing-4xl;
+      font-size: $font-size-base;
+
+      &:hover {
+        background: $primary-hover;
+        border-color: $primary-hover;
+      }
+    }
+  }
+
+  .news-grid {
+    .news-card {
+      height: 100%;
+      border-radius: $border-radius-xl;
+      overflow: hidden;
+      box-shadow: $shadow-md;
+      border: none;
+      transition: $transition-normal;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: $shadow-xl;
+      }
+
+      &-cover {
+        height: 220px;
+        background-size: cover;
+        background-position: center;
+      }
+
+      &-date {
+        margin-bottom: $spacing-md;
+      }      &-title {
+        margin-bottom: $spacing-md !important;
+        color: $text-primary !important;
+        font-size: $font-size-lg !important;
+        line-height: 1.4 !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      &-excerpt {
+        color: $text-secondary !important;
+        font-size: $font-size-sm !important;
+        line-height: 1.5 !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      &-action {
+        color: $primary-color;
+        font-weight: $font-weight-medium;
+
+        &:hover {
+          color: $primary-hover;
+        }
+      }
+
+      &-action {
+        color: $primary-color;
+        font-weight: $font-weight-medium;
+
+        &:hover {
+          color: $primary-hover;
+        }
+      }
+    }
+  }
+
+  .load-more-section {
+    text-align: center;
+    margin-top: $spacing-6xl;
+    padding: $spacing-4xl;
+    background: $background-white;
+    border-radius: $border-radius-xxl;
+    box-shadow: $shadow-md;
+
+    &-title {
+      color: $text-primary !important;
+      margin-bottom: $spacing-xl !important;
+    }
+
+    &-button {
+      background: $primary-color;
+      border-color: $primary-color;
+      color: $background-white;
+      border-radius: $border-radius-lg;
+      height: 48px;
+      padding: 0 $spacing-4xl;
+      font-size: $font-size-base;
+
+      &:hover {
+        background: $primary-hover;
+        border-color: $primary-hover;
+      }
+    }
+  }
+}

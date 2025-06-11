@@ -5,7 +5,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import '../styles/AuthPages.css';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -22,9 +21,8 @@ const RegisterPage = () => {
       // Navigate to login page after successful registration
       navigate('/login');
     }, 1000);
-  };
-  return (
-    <Layout style={{ minHeight: '100vh' }}>
+  };  return (
+    <Layout className="auth-page">
       <Header />
       <Navbar />
       
