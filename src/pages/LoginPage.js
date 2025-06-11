@@ -7,11 +7,10 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import '../styles/AuthPages.css';
 
 
 const clientId = ''; // Thay bằng client ID bạn lấy từ Google Cloud
-const { Content } = Layout;
-const { Title, Text } = Typography;
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -29,31 +28,20 @@ const LoginPage = () => {
       // Navigate to homepage after successful login
       navigate('/');
     }, 1000);
-  };
-  return (
+  };  return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header />
-      <Navbar />      <Content style={{ 
-        padding: '50px',
-        background: '#f0f2f5',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 'calc(100vh - 64px - 46px - 200px)' // Subtract header (64px) + navbar (46px) + footer (~200px)
-      }}>
-        <Card
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            borderRadius: '12px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
-          }}
-          bodyStyle={{ padding: '40px' }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <Title level={2} style={{ color: '#333', marginBottom: '8px' }}>
+      <Navbar />
+      
+      <div className="auth-container">
+        <Card className="auth-card">
+          <div className="auth-header">
+            <Typography.Title className="auth-title">
               Chào Mừng Trở Lại
-            </Title>
+            </Typography.Title>
+            <Typography.Text className="auth-subtitle">
+              Đăng nhập để tiếp tục hành trình hiến máu cứu người
+            </Typography.Text>
           </div>
 
           <Form
@@ -62,6 +50,7 @@ const LoginPage = () => {
             layout="vertical"
             onFinish={onFinish}
             autoComplete="off"
+            className="auth-form"
           >
             <Form.Item
               label="Địa Chỉ Email"
@@ -78,10 +67,10 @@ const LoginPage = () => {
               ]}
             >
               <Input
-                prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
-                placeholder="Nhập email"
+                className="auth-input-affix-wrapper"
+                prefix={<UserOutlined />}
+                placeholder="Nhập địa chỉ email"
                 size="large"
-                style={{ borderRadius: '6px' }}
               />
             </Form.Item>
 
@@ -96,10 +85,10 @@ const LoginPage = () => {
               ]}
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
-                placeholder="Mật khẩu"
+                className="auth-password-input"
+                prefix={<LockOutlined />}
+                placeholder="Nhập mật khẩu"
                 size="large"
-                style={{ borderRadius: '6px' }}
                 iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
               />
             </Form.Item>
@@ -110,10 +99,7 @@ const LoginPage = () => {
                 justifyContent: 'flex-end',
                 marginBottom: '16px'
               }}>
-                <Link 
-                  to="/forgot-password"
-                  style={{ color: '#dc2626' }}
-                >
+                <Link to="/forgot-password" className="auth-forgot-link">
                   Quên Mật Khẩu?
                 </Link>
               </div>
@@ -121,79 +107,78 @@ const LoginPage = () => {
               <Button 
                 type="primary" 
                 htmlType="submit"
-                size="large"
                 loading={loading}
-                style={{
-                  width: '100%',
-                  height: '48px',
-                  background: '#dc2626',
-                  borderColor: '#dc2626',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '500'
-                }}
+                className="auth-submit-btn"
               >
                 Đăng Nhập
               </Button>
             </Form.Item>
-          <Form.Item>
-             <GoogleOAuthProvider clientId={clientId}>
-      <div style={{ padding: '2rem' }}>
-        {!user ? (
-          <>
-            <h2>Đăng nhập bằng Google</h2>
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                const decoded = jwtDecode(credentialResponse.credential);
-                setUser(decoded);
-              }}
-              onError={() => {
-                console.log('Login Failed');
-              }}
-            />
-          </>
-        ) : (
-          <>
-            <h2>Thông tin người dùng</h2>
-            <img src={user.picture} alt="avatar" style={{ borderRadius: '50%' }} />
-            <p><strong>Họ tên:</strong> {user.name}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <button onClick={() => {
-              googleLogout();
-              setUser(null);
-            }}>
-              Đăng xuất
-            </button>
-          </>
-        )}
-      </div>
-    </GoogleOAuthProvider>
-          </Form.Item>
-          
           </Form>
 
-          <Divider style={{ margin: '24px 0' }}>
-            <Text style={{ color: '#8c8c8c', fontSize: '14px' }}>
-              Ghi nhớ đăng nhập
-            </Text>
+          <Divider className="auth-divider">
+            Hoặc
           </Divider>
 
-          <div style={{ textAlign: 'center' }}>
-            <Text style={{ color: '#8c8c8c' }}>
+          <GoogleOAuthProvider clientId={clientId}>
+            <div className="auth-google-section">
+              {!user ? (
+                <>
+                  <Typography.Text className="auth-google-text">
+                    Đăng nhập bằng Google
+                  </Typography.Text>
+                  <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                      const decoded = jwtDecode(credentialResponse.credential);
+                      setUser(decoded);
+                    }}
+                    onError={() => {
+                      console.log('Login Failed');
+                    }}
+                    size="large"
+                    width="100%"
+                  />
+                </>
+              ) : (
+                <div style={{ textAlign: 'center' }}>
+                  <Typography.Title level={4}>Thông tin người dùng</Typography.Title>
+                  <img 
+                    src={user.picture} 
+                    alt="avatar" 
+                    style={{ 
+                      borderRadius: '50%', 
+                      width: '60px', 
+                      height: '60px',
+                      marginBottom: '16px'
+                    }} 
+                  />
+                  <p><strong>Họ tên:</strong> {user.name}</p>
+                  <p><strong>Email:</strong> {user.email}</p>
+                  <Button 
+                    onClick={() => {
+                      googleLogout();
+                      setUser(null);
+                    }}
+                    className="auth-submit-btn"
+                    style={{ width: 'auto', padding: '0 24px' }}
+                  >
+                    Đăng xuất
+                  </Button>
+                </div>
+              )}
+            </div>
+          </GoogleOAuthProvider>
+
+          <div className="auth-footer">
+            <Typography.Text className="auth-footer-text">
               Chưa có tài khoản?{' '}
-              <Link 
-                to="/register" 
-                style={{ 
-                  color: '#dc2626',
-                  fontWeight: '500'
-                }}
-              >
+              <Link to="/register" className="auth-footer-link">
                 Đăng Ký
               </Link>
-            </Text>
+            </Typography.Text>
           </div>
         </Card>
-      </Content>
+      </div>
+      
       <Footer />
     </Layout>
   );
