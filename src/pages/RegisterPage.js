@@ -5,9 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-
-const { Content } = Layout;
-const { Title, Text } = Typography;
+import '../styles/AuthPages.css';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -25,35 +23,20 @@ const RegisterPage = () => {
       navigate('/login');
     }, 1000);
   };
-
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header />
       <Navbar />
-      <Content style={{ 
-        padding: '50px',
-        background: '#f0f2f5',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 'calc(100vh - 64px - 46px - 200px)'
-      }}>
-        <Card
-          style={{
-            width: '100%',
-            maxWidth: '480px',
-            borderRadius: '12px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
-          }}
-          bodyStyle={{ padding: '40px' }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <Title level={2} style={{ color: '#333', marginBottom: '8px' }}>
+      
+      <div className="auth-container">
+        <Card className="auth-card">
+          <div className="auth-header">
+            <Typography.Title className="auth-title">
               Tạo Tài Khoản Của Bạn
-            </Title>
-            <Text style={{ color: '#666', fontSize: '14px' }}>
+            </Typography.Title>
+            <Typography.Text className="auth-subtitle">
               Tham gia cộng đồng của chúng tôi và tạo sự khác biệt bằng cách hiến máu.
-            </Text>
+            </Typography.Text>
           </div>
 
           <Form
@@ -62,6 +45,7 @@ const RegisterPage = () => {
             layout="vertical"
             onFinish={onFinish}
             autoComplete="off"
+            className="auth-form"
           >
             <Form.Item
               label="Họ và Tên"
@@ -78,10 +62,10 @@ const RegisterPage = () => {
               ]}
             >
               <Input
-                prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
+                className="auth-input-affix-wrapper"
+                prefix={<UserOutlined />}
                 placeholder="Nhập họ và tên đầy đủ"
                 size="large"
-                style={{ borderRadius: '6px' }}
               />
             </Form.Item>
 
@@ -100,10 +84,10 @@ const RegisterPage = () => {
               ]}
             >
               <Input
-                prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
+                className="auth-input-affix-wrapper"
+                prefix={<MailOutlined />}
                 placeholder="Nhập địa chỉ email"
                 size="large"
-                style={{ borderRadius: '6px' }}
               />
             </Form.Item>
 
@@ -121,10 +105,10 @@ const RegisterPage = () => {
               ]}
             >
               <Input
-                prefix={<PhoneOutlined style={{ color: '#bfbfbf' }} />}
+                className="auth-input-affix-wrapper"
+                prefix={<PhoneOutlined />}
                 placeholder="Nhập số điện thoại (tùy chọn)"
                 size="large"
-                style={{ borderRadius: '6px' }}
               />
             </Form.Item>
 
@@ -144,10 +128,10 @@ const RegisterPage = () => {
               help="Mật khẩu phải có ít nhất 8 ký tự và bao gồm một số và ký tự đặc biệt."
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
+                className="auth-password-input"
+                prefix={<LockOutlined />}
                 placeholder="Nhập mật khẩu"
                 size="large"
-                style={{ borderRadius: '6px' }}
                 iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
               />
             </Form.Item>
@@ -167,15 +151,15 @@ const RegisterPage = () => {
                       return Promise.resolve();
                     }
                     return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
-                  },
+                  }
                 }),
               ]}
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
+                className="auth-password-input"
+                prefix={<LockOutlined />}
                 placeholder="Nhập lại mật khẩu"
                 size="large"
-                style={{ borderRadius: '6px' }}
                 iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
               />
             </Form.Item>
@@ -191,53 +175,38 @@ const RegisterPage = () => {
               ]}
             >
               <DatePicker
+                className="auth-datepicker"
                 placeholder="dd/mm/yyyy"
                 size="large"
-                style={{ 
-                  width: '100%', 
-                  borderRadius: '6px' 
-                }}
                 format="DD/MM/YYYY"
               />
-            </Form.Item>            <Form.Item>
+            </Form.Item>
+
+            <Form.Item>
               <Button 
                 type="primary" 
                 htmlType="submit"
-                size="large"
                 loading={loading}
-                style={{
-                  width: '100%',
-                  height: '48px',
-                  background: '#dc2626',
-                  borderColor: '#dc2626',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '500'
-                }}
+                className="auth-submit-btn"
               >
                 Tạo Tài Khoản
               </Button>
             </Form.Item>
           </Form>
 
-          <Divider style={{ margin: '24px 0' }} />
+          <Divider className="auth-divider" />
 
-          <div style={{ textAlign: 'center' }}>
-            <Text style={{ color: '#8c8c8c' }}>
+          <div className="auth-footer">
+            <Typography.Text className="auth-footer-text">
               Đã có tài khoản?{' '}
-              <Link 
-                to="/login" 
-                style={{ 
-                  color: '#dc2626',
-                  fontWeight: '500'
-                }}
-              >
+              <Link to="/login" className="auth-footer-link">
                 Đăng Nhập
               </Link>
-            </Text>
+            </Typography.Text>
           </div>
         </Card>
-      </Content>
+      </div>
+      
       <Footer />
     </Layout>
   );
