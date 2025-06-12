@@ -66,21 +66,18 @@
       font-weight: $font-weight-bold !important;
       margin-bottom: $spacing-xxl !important;
       line-height: 1.2 !important;
-    }
-
-    .hero-description {
+    }    .hero-description {
       color: $background-white !important;
       font-size: $font-size-lg !important;
       line-height: $line-height-relaxed !important;
-      margin-bottom: $spacing-xxxl !important;
-    }    .hero-button {
+      margin-bottom: $spacing-3xl !important;
+    }.hero-button {
       background: $background-white !important;
       color: $secondary-color !important;
       border-color: $background-white !important;
-      font-weight: $font-weight-semibold;
-      border-radius: $border-radius-lg;
+      font-weight: $font-weight-semibold;      border-radius: $border-radius-lg;
       height: 48px;
-      padding: 0 $spacing-xxxl;
+      padding: 0 $spacing-3xl;
       position: relative;
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -155,10 +152,9 @@
     }
   }
   .hero-description {
-    color: rgba($background-white, 0.9) !important;
-    font-size: 1.1rem;
+    color: rgba($background-white, 0.9) !important;    font-size: 1.1rem;
     line-height: $line-height-relaxed;
-    margin-bottom: $spacing-xxxl;
+    margin-bottom: $spacing-3xl;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   }
 
@@ -166,11 +162,10 @@
     background: $background-white !important;
     color: $secondary-color !important;
     border: 2px solid $secondary-color !important;
-    height: 50px !important;
-    font-size: $font-size-base !important;
+    height: 50px !important;    font-size: $font-size-base !important;
     font-weight: $font-weight-bold !important;
     border-radius: $border-radius-md !important;
-    padding: 0 $spacing-xxxl !important;
+    padding: 0 $spacing-3xl !important;
     @include button-hover-lift;
 
     &:hover,
@@ -682,20 +677,17 @@
     height: 48px !important;
     font-size: $font-size-sm !important;
   }
-
   .submit-button {
     height: 52px !important;
     font-size: $font-size-base !important;
-    padding: 0 $spacing-xxxl !important;
+    padding: 0 $spacing-3xl !important;
   }
 
   // FAQ responsive
   .faq-section {
-    padding: $spacing-4xl $spacing-sm;
-
-    .section-title {
+    padding: $spacing-4xl $spacing-sm;    .section-title {
       font-size: $font-size-2xl !important;
-      margin-bottom: $spacing-xxxl !important;
+      margin-bottom: $spacing-3xl !important;
     }
 
     .faq-collapse {
@@ -1103,9 +1095,8 @@
     .ant-collapse-header {
       background: $background-white !important;      border-radius: $border-radius-xl !important;
       font-weight: $font-weight-semibold !important;
-      color: $text-primary !important;
-      font-size: $font-size-lg !important;
-      padding: $spacing-xxl $spacing-xxxl !important;
+      color: $text-primary !important;      font-size: $font-size-lg !important;
+      padding: $spacing-xxl $spacing-3xl !important;
       align-items: center !important;
       transition: $transition-normal;
       position: relative;
@@ -1131,10 +1122,8 @@
     .ant-collapse-content {
       background: $background-white !important;
       border-radius: 0 0 $border-radius-xl $border-radius-xl !important;
-      border-top: 1px solid rgba($primary-color, 0.1);
-
-      .ant-collapse-content-box {
-        padding: 0 $spacing-xxxl $spacing-xxl $spacing-xxxl !important;
+      border-top: 1px solid rgba($primary-color, 0.1);      .ant-collapse-content-box {
+        padding: 0 $spacing-3xl $spacing-xxl $spacing-3xl !important;
         
         .faq-answer {
           color: $text-secondary !important;

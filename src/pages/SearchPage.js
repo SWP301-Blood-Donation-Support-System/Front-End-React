@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, Typography, Card, Row, Col, Select, Table, Tag, Divider, Space } from 'antd';
-import { SearchOutlined, HeartOutlined } from '@ant-design/icons';
+import { SearchOutlined, HeartOutlined, UserOutlined, TeamOutlined, SafetyOutlined } from '@ant-design/icons';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -151,40 +151,45 @@ const SearchPage = () => {
       key: 'note',
     },
   ];
-
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="search-page">
       <Header />
       <Navbar />
-      
-      {/* Hero Section */}
-      <div style={{
-        background: '#761611',
-        padding: '60px 0',
-        textAlign: 'center'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <Title 
-            level={1} 
-            style={{ 
-              color: 'white', 
-              marginBottom: '16px',
-              fontSize: '48px',
-              fontWeight: 'bold'
-            }}
-          >
-            <SearchOutlined style={{ marginRight: '16px' }} />
-            Tra Cứu Nhóm Máu
-          </Title>
-          <Paragraph style={{ 
-            color: 'white', 
-            fontSize: '18px',
-            opacity: 0.9,
-            maxWidth: '600px',
-            margin: '0 auto'
-          }}>
-            Tìm hiểu về các nhóm máu và tính tương thích trong truyền máu
-          </Paragraph>
+        {/* Modern Header Section */}
+      <div className="search-header">
+        <div className="search-header-container">
+          <div className="search-header-content">
+            <div className="search-icon-wrapper">
+              <SearchOutlined className="search-main-icon" />
+            </div>            <div className="search-text-content">
+              <Title level={2} className="search-header-title">
+                Tra Cứu Nhóm Máu
+              </Title>
+              <Paragraph className="search-header-subtitle">
+                Tìm hiểu về tính tương thích giữa các nhóm máu
+              </Paragraph>
+              {/* Thêm mini stats */}
+              <div className="search-header-stats">
+                <div className="stat-item">
+                  <UserOutlined className="stat-icon" />
+                  <span className="stat-text">8 nhóm máu</span>
+                </div>
+                <div className="stat-item">
+                  <TeamOutlined className="stat-icon" />
+                  <span className="stat-text">Tương thích đầy đủ</span>
+                </div>
+                <div className="stat-item">
+                  <SafetyOutlined className="stat-icon" />
+                  <span className="stat-text">Thông tin chính xác</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="search-decorative-elements">
+            <div className="blood-drop-1">🩸</div>
+            <div className="blood-drop-2">💉</div>
+            <div className="blood-drop-3">🫀</div>
+          </div>
         </div>
       </div>
 
