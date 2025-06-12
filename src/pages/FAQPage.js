@@ -1,15 +1,16 @@
 import React from 'react';
-import { Layout, Typography, Collapse, Card } from 'antd';
+import { Layout, Typography, Collapse } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 const { Content } = Layout;
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 const { Panel } = Collapse;
 
-const FAQPage = () => {  const faqData = [
+const FAQPage = () => {
+  const faqData = [
     {
       key: '1',
       question: 'Ai có thể tham gia hiến máu?',
@@ -43,7 +44,8 @@ const FAQPage = () => {  const faqData = [
         'Xét nghiệm xác định ALT (một chỉ số men gan)',
         'Nếu bạn hiến máu nhiều lần, định kỳ sẽ được kiểm tra tổng phân tích tế bào máu ngoại vi',
       ]
-    },    {
+    },
+    {
       key: '4',
       question: 'Máu gồm những thành phần và chức năng gì?',
       answer: {
@@ -69,7 +71,8 @@ const FAQPage = () => {  const faqData = [
           }
         ]
       }
-    },    {
+    },
+    {
       key: '5',
       question: 'Tại sao lại có nhiều người cần phải được truyền máu?',
       answer: [
@@ -80,7 +83,8 @@ const FAQPage = () => {  const faqData = [
         'Các bệnh lý về máu như thiếu máu, giảm tiểu cầu, rối loạn đông máu, bệnh ung thư máu...',
         'Các bệnh lý sản khoa như băng huyết sau sinh, lọc máu, thay máu ở trẻ sơ sinh'
       ]
-    },    {
+    },
+    {
       key: '6',
       question: 'Nhu cầu máu điều trị ở nước ta hiện nay?',
       answer: [
@@ -90,7 +94,8 @@ const FAQPage = () => {  const faqData = [
         'Tình trạng thiếu máu thường xảy ra vào dịp hè (tháng 6-8) và dịp Tết Nguyên đán',
         'Thành phần máu khan hiếm nhất là tiểu cầu, do thời gian bảo quản ngắn (chỉ 5 ngày)'
       ]
-    },    {
+    },
+    {
       key: '7',
       question: 'Tại sao khi tham gia hiến máu lại cần phải có giấy CMND?',
       answer: [
@@ -101,7 +106,8 @@ const FAQPage = () => {  const faqData = [
         'Quản lý thông tin người hiến máu trong hệ thống dữ liệu quốc gia',
         'Phòng ngừa các trường hợp người hiến máu có tình che giấu thông tin về tình trạng sức khỏe'
       ]
-    },    {
+    },
+    {
       key: '8',
       question: 'Hiến máu nhân đạo có hại đến sức khỏe không?',
       answer: [
@@ -112,7 +118,8 @@ const FAQPage = () => {  const faqData = [
         'Được kiểm tra sức khỏe cơ bản và xét nghiệm máu miễn phí',
         'Được bổ sung dinh dưỡng qua quà tặng hiến máu'
       ]
-    },    {
+    },
+    {
       key: '9',
       question: 'Quyền lợi đối với người hiến máu tình nguyện?',
       answer: [
@@ -126,78 +133,90 @@ const FAQPage = () => {  const faqData = [
       ]
     }
   ];
+
+  const renderAnswer = (answer) => {
+    if (Array.isArray(answer)) {
+      return (
+        <div className="faq-answer">
+          <p className="answer-intro">{answer[0]}</p>
+          <ul className="answer-list">
+            {answer.slice(1).map((point, i) => (
+              <li key={i} className="answer-item">{point}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    } else if (typeof answer === 'object' && answer.sections) {
+      return (
+        <div className="faq-answer">
+          <p className="answer-intro">{answer.intro}</p>
+          {answer.sections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="answer-section">
+              <p className="answer-section-title">{section.title}</p>
+              <ul className="answer-list">
+                {section.items.map((item, itemIndex) => (
+                  <li key={itemIndex} className="answer-item">{item}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <div className="faq-answer">
+          <ul className="answer-list">
+            <li className="answer-item">{answer}</li>
+          </ul>
+        </div>
+      );
+    }
+  };
+
   return (
     <Layout className="faq-page">
       <Header />
       <Navbar />
       
-      {/* Hero Section */}
-      <div className="faq-hero">
-        <div className="faq-hero-container">
-          <Title level={1} className="faq-hero-title">
-            Câu Hỏi Thường Gặp
-          </Title>
-          <Paragraph className="faq-hero-description">
-            Tất cả những gì bạn cần biết về hiến máu
-          </Paragraph>
-        </div>
-      </div>      <Content className="faq-content">
-        <div className="faq-content-container">
-          <Card className="faq-card">
+      <Content className="faq-content">
+        <div className="faq-container">
+          <div className="faq-header">
+            <Title level={1} className="faq-title">
+              ❓ Câu Hỏi Thường Gặp
+            </Title>
+            <p className="faq-subtitle">
+              Tất cả những gì bạn cần biết về hiến máu
+            </p>
+          </div>
+
+          <div className="faq-wrapper">
             <Collapse
               accordion
               ghost
               className="faq-collapse"
               expandIcon={({ isActive }) => (
-                <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                <CaretRightOutlined 
+                  rotate={isActive ? 90 : 0} 
+                  className="faq-expand-icon"
+                />
               )}
             >
               {faqData.map((item, index) => (
                 <Panel
                   header={
                     <div className="faq-question">
-                      {index + 1}. {item.question}
+                      <span className="question-number">{index + 1}</span>
+                      <span className="question-text">{item.question}</span>
                     </div>
                   }
                   key={item.key}
-                >                  <div>
-                    {Array.isArray(item.answer) ? (
-                      <>
-                        <p>{item.answer[0]}</p>
-                        <ul>
-                          {item.answer.slice(1).map((point, i) => (
-                            <li key={i}>{point}</li>
-                          ))}
-                        </ul>
-                      </>
-                    ) : typeof item.answer === 'object' && item.answer.sections ? (
-                      <>
-                        <p>{item.answer.intro}</p>
-                        {item.answer.sections.map((section, sectionIndex) => (
-                          <div key={sectionIndex} className="answer-section">
-                            <p className="answer-section-title">
-                              {section.title}
-                            </p>
-                            <ul>
-                              {section.items.map((item, itemIndex) => (
-                                <li key={itemIndex}>
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </>
-                    ) : (
-                      <ul>
-                        <li>{item.answer}</li>
-                      </ul>
-                    )}
-                  </div>
+                  className="faq-panel"
+                >
+                  {renderAnswer(item.answer)}
                 </Panel>
               ))}
             </Collapse>
-          </Card>
+          </div>
         </div>
       </Content>
       
