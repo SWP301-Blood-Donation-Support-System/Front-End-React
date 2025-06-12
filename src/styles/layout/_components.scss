@@ -1,8 +1,7 @@
 // Header Component
-.header {
-  &-container {
+.header {  &-container {
     background: $primary-color;
-    padding: $spacing-xxxl $spacing-7xl;
+    padding: $spacing-3xl $spacing-7xl;
     display: flex;
     align-items: center;
     min-height: 120px;
