@@ -59,6 +59,7 @@
     @include flex-center;
     box-shadow: $shadow-sm;
   }
+
   &-menu {
     background: transparent;
     border: none;
@@ -71,13 +72,47 @@
 
     .ant-menu-item {
       font-weight: $font-weight-medium;
-      transition: all 0.3s ease;
+      position: relative;
+      transition: 0.4s;
+
+      &::before {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 4px;
+        bottom: 0;
+        left: 50%;
+        background-color: $primary-color;
+        transition: all 0.4s;
+      }
+
+      &:hover::before {
+        width: 100%;
+        left: 0;
+      }
+
+      // Remove Ant Design's default red underline
+      &::after {
+        display: none !important;
+      }
 
       &.ant-menu-item-selected {
         font-weight: $font-weight-bold !important;
+        color: $primary-color !important;
+        background: rgba($primary-color, 0.1) !important;
+        border-radius: $border-radius-sm;
         
         .ant-menu-title-content {
           font-weight: $font-weight-bold !important;
+        }
+
+        &::before {
+          width: 100% !important;
+          left: 0 !important;
+        }
+
+        &::after {
+          display: none !important;
         }
       }
     }
