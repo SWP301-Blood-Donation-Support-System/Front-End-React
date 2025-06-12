@@ -118,33 +118,28 @@ const BloodDonationBookingPage = () => {
   const faqData = [
     {
       key: '1',
-      label: 'Ai có thể hiến máu?',
+      label: 'Có đau khi hiến máu không?',
       children: (
         <div>
-          <p>Để hiến máu, bạn cần đáp ứng các điều kiện sau:</p>
-          <ul>
-            <li>Tuổi từ 18-60 (lần đầu) hoặc 18-65 (đã hiến trước đó)</li>
-            <li>Cân nặng tối thiểu 45kg</li>
-            <li>Sức khỏe tốt, không mắc các bệnh truyền nhiễm</li>
-            <li>Huyết áp trong khoảng bình thường (90-180 mmHg / 60-100 mmHg)</li>
-            <li>Hemoglobin ≥ 120g/L (nữ) hoặc ≥ 125g/L (nam)</li>
-          </ul>
+          <p>
+          Hầu hết người hiến máu chỉ cảm thấy hơi đau khi kim được đưa vào. 
+          Trong suốt quá trình hiến máu, bạn sẽ chỉ cảm thấy khó chịu rất ít. 
+          Đội ngũ nhân viên được đào tạo của chúng tôi có kỹ năng đảm bảo quá trình hiến máu của bạn được thoải mái nhất có thể.
+          </p>
         </div>
       )
     },
     {
       key: '2',
-      label: 'Tôi cần chuẩn bị gì trước khi hiến máu?',
+      label: 'Hiến máu mất bao nhiêu thời gian?',
       children: (
         <div>
-          <ul>
-            <li>Ngủ đủ giấc (ít nhất 6-8 tiếng)</li>
-            <li>Ăn đầy đủ, tránh đồ ăn nhiều dầu mỡ</li>
-            <li>Uống đủ nước (ít nhất 2-3 ly nước)</li>
-            <li>Mang theo CMND/CCCD gốc</li>
-            <li>Không uống rượu bia 24h trước hiến máu</li>
-            <li>Thông báo các loại thuốc đang sử dụng</li>
-          </ul>
+          <p>
+          Toàn bộ quá trình mất khoảng một giờ từ đầu đến cuối. 
+          Việc hiến máu thực tế thường kéo dài khoảng 8-10 phút, 
+          nhưng bạn nên dành thời gian cho đăng ký, kiểm tra tiền sử sức khỏe, 
+          kiểm tra thể chất cơ bản, và thời gian nghỉ ngơi sau khi hiến máu.
+          </p>
         </div>
       )
     },
@@ -154,11 +149,12 @@ const BloodDonationBookingPage = () => {
       children: (
         <div>
           <ul>
-            <li>Giữ băng keo ít nhất 4-6 giờ</li>
-            <li>Tránh các hoạt động nặng trong 24h</li>
-            <li>Uống nhiều nước và ăn đầy đủ</li>
-            <li>Không hút thuốc lá trong 2-3 giờ</li>
-            <li>Liên hệ với trung tâm nếu có bất thường</li>
+            <li>Giữ băng gạc ít nhất từ 4 đến 6 giờ</li>
+            <li>Tránh các hoạt động nặng, gắng sức trong vòng 24 giờ</li>
+            <li>Ăn uống đầy đủ dưỡng chất và uống nhiều nước</li>
+            <li>Không hút thuốc lá trong 2 đến 3 giờ</li>
+            <li>Nếu bạn cảm thấy chóng mặt, hãy nằm xuống với chân nâng cao</li>
+            <li>Hãy liên hệ với trung tâm y tế nếu có gì bất thường</li>
           </ul>
         </div>
       )
@@ -198,67 +194,93 @@ const BloodDonationBookingPage = () => {
     <Layout>
       <Header />
       <Navbar />      {/* Hero Section */}
-      <div className="hero-section-compact" style={{
-        background: '#761611',
-        minHeight: '500px',
-        padding: '50px 80px',
-        color: 'white'
+      <div style={{ 
+        background: '#f5f5f5', 
+        padding: '0 60px' 
       }}>
-        <Row align="middle" gutter={[32, 32]}>
-          <Col xs={24} md={12}>
-            <div style={{ maxWidth: '500px' }}>              <Title level={1} style={{ 
-                color: 'white', 
-                fontSize: '48px', 
-                fontWeight: 'bold',
-                marginBottom: '24px',
-                lineHeight: '1.2'
-              }}>
-                Hiến Máu, Cứu Sống Người
-              </Title>
+        <div className="hero-section-compact" style={{
+          background: '#761611',
+          minHeight: '500px',
+          padding: '60px 40px',
+          color: 'white',
+          borderRadius: '16px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ 
+            maxWidth: '1200px', 
+            margin: '0 auto' 
+          }}>
+            <Row align="middle" gutter={[60, 32]} style={{ minHeight: '400px' }}>
+              <Col xs={24} md={12}>
+                <div style={{ maxWidth: '500px' }}>
+                  <Title level={1} style={{ 
+                    color: 'white', 
+                    fontSize: '48px', 
+                    fontWeight: 'bold',
+                    marginBottom: '24px',
+                    lineHeight: '1.2'
+                  }}>
+                    Hiến Máu, Cứu Sống Người
+                  </Title>
+                  
+                  <Paragraph style={{ 
+                    color: 'white', 
+                    fontSize: '18px', 
+                    marginBottom: '32px',
+                    lineHeight: '1.6'
+                  }}>
+                    Sự đóng góp của bạn có thể giúp cứu sống tới 3 người. Quy trình hiến 
+                    máu an toàn, đơn giản và chỉ mất không quá một giờ từ đầu đến cuối.
+                  </Paragraph>
+                  
+                  <Button 
+                    size="large"
+                    className="hero-button"
+                    style={{
+                      background: 'white',
+                      color: '#761611',
+                      border: '2px solid #761611',
+                      fontWeight: 'bold',
+                      fontSize: '18px',
+                      height: '56px',
+                      padding: '0 36px',
+                      borderRadius: '8px',
+                      marginBottom: '16px'
+                    }}
+                    icon={<CalendarOutlined />}
+                    onClick={() => document.getElementById('booking-form').scrollIntoView({ behavior: 'smooth' })}
+                  >
+                    ĐẶT LỊCH HIẾN MÁU NGAY
+                  </Button>
+                  
+                  <div style={{
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    fontSize: '14px',
+                    fontStyle: 'italic'
+                  }}>
+                    *Điều khoản áp dụng, tìm hiểu thêm
+                  </div>
+                </div>
+              </Col>
               
-              <Paragraph style={{ 
-                color: 'white', 
-                fontSize: '18px', 
-                marginBottom: '32px',
-                lineHeight: '1.6'
-              }}>
-                Sự đóng góp của bạn có thể giúp cứu sống tới 3 người. Quy trình hiến 
-                máu an toàn, đơn giản và chỉ mất không quá một giờ từ đầu đến cuối.
-              </Paragraph>                <Button 
-                size="large"
-                className="hero-button"
-                style={{
-                  background: 'white',
-                  color: '#761611',
-                  border: '2px solid #761611',
-                  fontWeight: 'bold',
-                  fontSize: '18px',
-                  height: '56px',
-                  padding: '0 36px',
-                  borderRadius: '8px'
-                }}
-                icon={<CalendarOutlined />}
-                onClick={() => document.getElementById('booking-form').scrollIntoView({ behavior: 'smooth' })}
-              >
-                ĐẶT LỊCH HIẾN MÁU NGAY
-              </Button>
-            </div>
-          </Col>
-          <Col xs={24} md={12}>
-            <div style={{ textAlign: 'center' }}>              <img 
-                src="/images/hero_banner_2.jpg" 
-                alt="Hiến máu cứu người"
-                style={{
-                  width: '100%',
-                  maxWidth: '540px',
-                  borderRadius: '12px',
-                  boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
-                  transform: 'scale(1.05)'
-                }}
-              />
-            </div>
-          </Col>
-        </Row>
+              <Col xs={24} md={12}>
+                <div style={{ textAlign: 'center' }}>
+                  <img 
+                    src="/images/hero_banner_2.jpg" 
+                    alt="Hiến máu cứu người"
+                    style={{
+                      width: '100%',
+                      maxWidth: '540px',
+                      borderRadius: '12px',
+                      boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
+                      transform: 'scale(1.05)'
+                    }}
+                  />
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </div>
       </div>
 
       <Content className="booking-content">        {/* Quy trình hiến máu */}        <section className="process-section">
