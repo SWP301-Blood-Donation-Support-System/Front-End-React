@@ -130,7 +130,10 @@ const SearchPage = () => {
       dataIndex: 'bloodType',
       key: 'bloodType',
       render: (text) => (
-        <Tag color={text.includes('-') ? 'red' : 'blue'} style={{ fontSize: '14px', padding: '4px 8px' }}>
+        <Tag 
+          color={text.includes('-') ? 'red' : 'blue'} 
+          className={`blood-type-tag ${text.includes('-') ? 'negative' : 'positive'}`}
+        >
           {text}
         </Tag>
       ),
@@ -188,41 +191,29 @@ const SearchPage = () => {
           <div className="search-decorative-elements">
             <div className="blood-drop-1">🩸</div>
             <div className="blood-drop-2">💉</div>
-            <div className="blood-drop-3">🫀</div>
+            <div className="blood-drop-3">🫀</div> 
+            <div className="blood-drop-4">🐧</div>
           </div>
         </div>
       </div>
 
-      <Content style={{ 
-        padding: '80px 20px',
-        background: '#f8f9fa',
-        minHeight: 'calc(100vh - 300px)'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <Content className="search-content">
+        <div className="search-content-container">
           
           {/* Blood Type Selector */}
-          <Card
-            style={{
-              marginBottom: '40px',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              border: 'none'
-            }}
-            bodyStyle={{ padding: '40px' }}
-          >            <Title level={3} style={{ textAlign: 'center', marginBottom: '30px', color: '#333' }}>
-              <HeartOutlined style={{ color: '#dc2626', marginRight: '12px' }} />
+          <Card className="blood-selector-card">            <Title level={3} className="blood-selector-card-title">
+              <HeartOutlined />
               Tra Cứu Thông Tin Nhóm Máu
             </Title>
             
-            <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+            <div className="blood-selector-card-selector">
               <Space direction="vertical" size="large">
-                <Text style={{ fontSize: '16px', color: '#666' }}>
+                <Text className="selector-text">
                   Chọn nhóm máu để xem thông tin chi tiết:
                 </Text>
                 <Select
                   placeholder="Chọn nhóm máu"
                   size="large"
-                  style={{ width: 200 }}
                   onChange={setSelectedBloodType}
                   value={selectedBloodType}
                 >
@@ -234,34 +225,23 @@ const SearchPage = () => {
             </div>
 
             {selectedBloodType && (
-              <Card 
-                style={{ 
-                  background: '#f8f9fa', 
-                  border: '2px solid #dc2626', 
-                  borderRadius: '8px' 
-                }}
-              >
+              <Card className="blood-selector-card-result">
                 <Row gutter={[24, 24]}>
                   <Col xs={24} md={8}>
-                    <div style={{ textAlign: 'center' }}>
+                    <div className="result-main">
                       <Tag 
                         color="red" 
-                        style={{ 
-                          fontSize: '24px', 
-                          padding: '12px 20px', 
-                          borderRadius: '8px',
-                          marginBottom: '16px'
-                        }}
+                        className={`blood-type-tag ${selectedBloodType.includes('-') ? 'negative' : 'positive'}`}
                       >
                         {selectedBloodType}
                       </Tag>
                       <div>
-                        <Text strong style={{ fontSize: '18px' }}>
+                        <Text strong className="percentage-text">
                           Tỷ lệ: {bloodTypeInfo[selectedBloodType].percentage}
                         </Text>
                       </div>
-                      <div style={{ marginTop: '8px' }}>
-                        <Text style={{ fontSize: '14px', color: '#666' }}>
+                      <div>
+                        <Text className="description-text">
                           {bloodTypeInfo[selectedBloodType].description}
                         </Text>
                       </div>
@@ -269,8 +249,8 @@ const SearchPage = () => {
                   </Col>
                   
                   <Col xs={24} md={8}>
-                    <div>
-                      <Title level={5} style={{ color: '#52c41a', marginBottom: '12px' }}>
+                    <div className="compatibility-section">
+                      <Title level={5} className="can-give">
                         Có thể cho máu đến:
                       </Title>
                       <Space wrap>
@@ -282,8 +262,8 @@ const SearchPage = () => {
                   </Col>
                   
                   <Col xs={24} md={8}>
-                    <div>
-                      <Title level={5} style={{ color: '#1890ff', marginBottom: '12px' }}>
+                    <div className="compatibility-section">
+                      <Title level={5} className="can-receive">
                         Có thể nhận máu từ:
                       </Title>
                       <Space wrap>
@@ -299,22 +279,13 @@ const SearchPage = () => {
           </Card>
 
           {/* Blood Type Overview */}
-          <Row gutter={[24, 24]} style={{ marginBottom: '40px' }}>
+          <Row gutter={[24, 24]} className="overview-cards">
             <Col xs={24} lg={12}>
               <Card
-                title={
-                  <span style={{ color: '#dc2626', fontSize: '18px', fontWeight: 'bold' }}>
-                    Phân Loại Nhóm Máu
-                  </span>
-                }
-                style={{
-                  height: '100%',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                  border: 'none'
-                }}
+                title="Phân Loại Nhóm Máu"
+                className="overview-card"
               >
-                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                <Space direction="vertical" size="middle" className="overview-content">
                   <div>
                     <Title level={5}>Hệ ABO:</Title>
                     <Paragraph>
@@ -338,50 +309,41 @@ const SearchPage = () => {
             
             <Col xs={24} lg={12}>
               <Card
-                title={
-                  <span style={{ color: '#dc2626', fontSize: '18px', fontWeight: 'bold' }}>
-                    Thống Kê Nhóm Máu Tại Việt Nam
-                  </span>
-                }
-                style={{
-                  height: '100%',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                  border: 'none'
-                }}
+                title="Thống Kê Nhóm Máu Tại Việt Nam"
+                className="overview-card"
               >
                 <Row gutter={[16, 16]}>
                   <Col span={12}>
-                    <div style={{ textAlign: 'center', padding: '16px', background: '#f0f0f0', borderRadius: '8px' }}>
-                      <Text strong style={{ fontSize: '24px', color: '#dc2626' }}>30%</Text>
+                    <div className="blood-stats-item">
+                      <Text strong className="percentage">30%</Text>
                       <br/>
-                      <Text>O+</Text>
+                      <Text className="blood-type">O+</Text>
                     </div>
                   </Col>
                   <Col span={12}>
-                    <div style={{ textAlign: 'center', padding: '16px', background: '#f0f0f0', borderRadius: '8px' }}>
-                      <Text strong style={{ fontSize: '24px', color: '#dc2626' }}>34%</Text>
+                    <div className="blood-stats-item">
+                      <Text strong className="percentage">34%</Text>
                       <br/>
-                      <Text>A+</Text>
+                      <Text className="blood-type">A+</Text>
                     </div>
                   </Col>
                   <Col span={12}>
-                    <div style={{ textAlign: 'center', padding: '16px', background: '#f0f0f0', borderRadius: '8px' }}>
-                      <Text strong style={{ fontSize: '24px', color: '#dc2626' }}>21%</Text>
+                    <div className="blood-stats-item">
+                      <Text strong className="percentage">21%</Text>
                       <br/>
-                      <Text>B+</Text>
+                      <Text className="blood-type">B+</Text>
                     </div>
                   </Col>
                   <Col span={12}>
-                    <div style={{ textAlign: 'center', padding: '16px', background: '#f0f0f0', borderRadius: '8px' }}>
-                      <Text strong style={{ fontSize: '24px', color: '#dc2626' }}>5%</Text>
+                    <div className="blood-stats-item">
+                      <Text strong className="percentage">5%</Text>
                       <br/>
-                      <Text>AB+</Text>
+                      <Text className="blood-type">AB+</Text>
                     </div>
                   </Col>
                 </Row>
                 <Divider />
-                <Paragraph style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
+                <Paragraph className="blood-stats-note">
                   Các nhóm máu âm tính (Rh-) chiếm khoảng 10% dân số
                 </Paragraph>
               </Card>
@@ -390,34 +352,25 @@ const SearchPage = () => {
 
           {/* Compatibility Table */}
           <Card
-            title={
-              <span style={{ color: '#dc2626', fontSize: '18px', fontWeight: 'bold' }}>
-                Bảng Tương Thích Nhóm Máu
-              </span>
-            }
-            style={{
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              border: 'none'
-            }}
+            title="Bảng Tương Thích Nhóm Máu"
+            className="compatibility-table"
           >
             <Table
               columns={columns}
               dataSource={compatibilityData}
               pagination={false}
               scroll={{ x: true }}
-              style={{ marginTop: '20px' }}
             />
             
             <Divider />
             
-            <Row gutter={[24, 24]} style={{ marginTop: '30px' }}>
+            <Row gutter={[24, 24]} className="table-notes">
               <Col xs={24} md={12}>
-                <Card size="small" style={{ background: '#fff2f0', border: '1px solid #ffccc7' }}>
-                  <Title level={5} style={{ color: '#cf1322' }}>
+                <Card size="small" className="warning-card">
+                  <Title level={5} className="warning-title">
                     ⚠️ Lưu ý quan trọng:
                   </Title>
-                  <Paragraph style={{ margin: 0, fontSize: '14px' }}>
+                  <Paragraph className="warning-content">
                     • Truyền sai nhóm máu có thể gây phản ứng nghiêm trọng<br/>
                     • Luôn kiểm tra kỹ nhóm máu trước khi truyền<br/>
                     • Người nhận Rh- không nên nhận máu Rh+
@@ -426,11 +379,11 @@ const SearchPage = () => {
               </Col>
               
               <Col xs={24} md={12}>
-                <Card size="small" style={{ background: '#f6ffed', border: '1px solid #b7eb8f' }}>
-                  <Title level={5} style={{ color: '#52c41a' }}>
+                <Card size="small" className="info-card">
+                  <Title level={5} className="info-title">
                     ✅ Nhóm máu đặc biệt:
                   </Title>
-                  <Paragraph style={{ margin: 0, fontSize: '14px' }}>
+                  <Paragraph className="info-content">
                     • <strong>O-:</strong> Người cho máu toàn năng<br/>
                     • <strong>AB+:</strong> Người nhận máu toàn năng<br/>
                     • Nhóm máu âm tính rất quý hiếm
