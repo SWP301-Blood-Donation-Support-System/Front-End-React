@@ -31,7 +31,9 @@ const { Content } = Layout;
 
 const BookingPage = () => {
   const [donationType, setDonationType] = useState('whole-blood');
-  const [form] = Form.useForm();  // Scroll to form when there's a hash in URL (từ trang chủ)
+  const [form] = Form.useForm();
+
+  // Scroll to form when there's a hash in URL (từ trang chủ)
   useEffect(() => {
     if (window.location.hash === '#booking-form') {
       const timer = setTimeout(() => {
@@ -53,6 +55,7 @@ const BookingPage = () => {
     });
     form.resetFields();
   };
+
   const donationTypes = [
     {
       key: 'whole-blood',
@@ -188,12 +191,15 @@ const BookingPage = () => {
           </ul>
         </div>
       )
-    }  ];
+    }
+  ];
 
   return (
     <Layout>
       <Header />
-      <Navbar />      {/* Hero Section */}
+      <Navbar />
+
+      {/* Hero Section */}
       <div className="booking-hero-wrapper">
         <div className="hero-section-compact">
           <div className="booking-hero-container">
@@ -216,7 +222,11 @@ const BookingPage = () => {
                     onClick={() => document.getElementById('booking-form').scrollIntoView({ behavior: 'smooth' })}
                   >
                     ĐẶT LỊCH HIẾN MÁU NGAY
-                  </Button> 
+                  </Button>
+                  
+                  <div className="booking-hero-disclaimer">
+                    *Điều khoản áp dụng, tìm hiểu thêm
+                  </div>
                 </div>
               </Col>
               
@@ -234,14 +244,18 @@ const BookingPage = () => {
         </div>
       </div>
 
-      <Content className="booking-content">        {/* Quy trình hiến máu */}        <section className="process-section">
+      <Content className="booking-content">
+        {/* Quy trình hiến máu */}
+        <section className="process-section">
           <div className="container">
             <Title level={2} className="section-title">
               Quy Trình Hiến Máu
             </Title>
             <Paragraph className="process-subtitle">
               Quy trình hiến máu đơn giản, an toàn và được thực hiện bởi đội ngũ y tế chuyên nghiệp
-            </Paragraph>            <Steps
+            </Paragraph>
+            
+            <Steps
               current={-1}
               items={donationSteps}
               className="donation-steps"
@@ -249,7 +263,9 @@ const BookingPage = () => {
               direction="horizontal"
             />
           </div>
-        </section>        {/* Các loại hiến máu */}
+        </section>
+
+        {/* Các loại hiến máu */}
         <section className="donation-types-section">
           <div className="container">
             <Title level={2} className="section-title">
@@ -294,7 +310,10 @@ const BookingPage = () => {
                 </Col>
               ))}
             </Row>
-          </div>        </section>        {/* Form đăng ký hiến máu */}
+          </div>
+        </section>
+
+        {/* Form đăng ký hiến máu */}
         <section className="registration-form-section" id="booking-form">
           <div className="container">
             <div className="form-header">
@@ -306,7 +325,8 @@ const BookingPage = () => {
                 Một hành động nhỏ, một sự sống lớn. Hãy cùng chúng tôi cứu sống những con người cần giúp đỡ.
               </Paragraph>
             </div>
-              <Row justify="center">
+            
+            <Row justify="center">
               <Col xs={24} lg={20} xl={18}>
                 <div className="form-container">
                   <Form
@@ -316,7 +336,8 @@ const BookingPage = () => {
                     requiredMark={false}
                     size="large"
                     className="donation-form"
-                  >                    <Row gutter={[24, 24]}>
+                  >
+                    <Row gutter={[24, 24]}>
                       <Col xs={24} md={12}>
                         <Form.Item
                           label="Họ và tên"
@@ -366,7 +387,8 @@ const BookingPage = () => {
                           />
                         </Form.Item>
                       </Col>
-                        <Col xs={24} md={12}>
+                      
+                      <Col xs={24} md={12}>
                         <Form.Item
                           label="Ngày hiến"
                           name="donationDate"
@@ -380,7 +402,9 @@ const BookingPage = () => {
                           />
                         </Form.Item>
                       </Col>
-                    </Row>                    <Row gutter={[24, 24]}>
+                    </Row>
+
+                    <Row gutter={[24, 24]}>
                       <Col xs={24} md={12}>
                         <Form.Item
                           label="Giới tính"
@@ -415,7 +439,9 @@ const BookingPage = () => {
                           </Select>
                         </Form.Item>
                       </Col>
-                    </Row>                    <Form.Item
+                    </Row>
+
+                    <Form.Item
                       label="Thời gian hiến máu"
                       name="donationSlot"
                       rules={[{ required: true, message: 'Vui lòng chọn thời gian hiến máu' }]}
@@ -438,7 +464,9 @@ const BookingPage = () => {
                           </div>
                         </Radio.Group>
                       </div>
-                    </Form.Item>                    <div className="form-submit-section">
+                    </Form.Item>
+
+                    <div className="form-submit-section">
                       <Button 
                         type="primary" 
                         htmlType="submit" 
@@ -454,7 +482,9 @@ const BookingPage = () => {
               </Col>
             </Row>
           </div>
-        </section>        {/* FAQ Section */}
+        </section>
+
+        {/* FAQ Section */}
         <section className="faq-section">
           <div className="container">
             <Title level={2} className="section-title">
