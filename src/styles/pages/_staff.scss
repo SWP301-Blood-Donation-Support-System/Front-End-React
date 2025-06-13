@@ -4,6 +4,125 @@
   background: #f5f6fa;
 }
 
+// Staff Header (Horizontal Navigation)
+.staff-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 0 $spacing-lg !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  
+  .staff-header-logo {
+    width: 80px;
+    height: 60px;
+    background: #e91e63;
+    margin: 16px 0;
+    border-radius: 6px;
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    
+    &::before {
+      display: none;
+    }
+    
+    .logo-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+  }
+  
+  .staff-header-right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+  }
+  
+  .staff-header-menu {
+    border-bottom: none !important;
+    background: transparent !important;
+    
+    .ant-menu-item {
+      color: #666666 !important;
+      border-bottom: 2px solid transparent !important;
+      
+      &:hover {
+        color: #e91e63 !important;
+        background: #f5f5f5 !important;
+      }
+      
+      &.ant-menu-item-selected {
+        color: #e91e63 !important;
+        background-color: #f5f5f5 !important;
+        border-bottom-color: #e91e63 !important;
+      }
+      
+      &::after {
+        display: none !important;
+      }
+    }
+  }
+  
+  .staff-header-actions {
+    display: flex;
+    align-items: center;
+    
+    .header-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: $transition-fast;
+      color: #666666;
+      
+      &:hover {
+        background: #f5f5f5;
+        color: #e91e63;
+      }
+    }
+  }
+  
+  .staff-user-profile {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    transition: $transition-fast;
+    
+    &:hover {
+      background: #f5f5f5;
+    }
+    
+    .user-avatar {
+      flex-shrink: 0;
+    }
+    
+    .user-name {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $text-primary;
+    }
+    
+    .dropdown-icon {
+      font-size: 10px;
+      color: #666666;
+      margin-left: $spacing-xs;
+    }
+  }
+}
+
 .staff-main-layout {
   min-height: calc(100vh - 120px); // Account for header height
 }
@@ -11,15 +130,50 @@
 // Sidebar Styles
 .staff-sidebar {
   .ant-layout-sider {
-    background: #e91e63 !important; // Pink/red color from the image
+    background: #ffffff !important; // White background like the image
+    border-right: 1px solid #f0f0f0 !important;
   }
 
   .ant-layout-sider-trigger {
-    background: darken(#e91e63, 10%);
+    background: #ffffff !important;
+    color: #333333 !important;
     transition: $transition-normal;
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    position: relative;
+
+    &::before {
+      display: none !important;
+    }
 
     &:hover {
-      background: darken(#e91e63, 15%);
+      background: #e91e63 !important;
+      color: #ffffff !important;
+    }
+    
+    .anticon {
+      color: #333333 !important;
+      font-weight: bold !important;
+    }
+    
+    &:hover .anticon {
+      color: #ffffff !important;
+    }
+  }
+  
+  .custom-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #333333;
+    font-size: 16px;
+    
+    .anticon {
+      color: #333333 !important;
     }
   }
 
@@ -27,54 +181,44 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #e91e63;
+    background: #ffffff;
+    border: none !important;
+    
+    &::before,
+    &::after {
+      display: none !important;
+    }
   }
 }
 
 .staff-logo {
-  height: $spacing-6xl;
-  margin: $spacing-lg;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: $border-radius-md;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: $background-white;
-  font-weight: $font-weight-bold;
-  font-size: $font-size-lg;
-
-  &::before {
-    content: "🩸";
-    font-size: $font-size-xl;
-    margin-right: $spacing-sm;
-  }
-
-  &::after {
-    content: "KetoUI";
-  }
+  display: none;
 }
 
 .staff-menu {
   flex: 1;
   border: none;
-  background: #e91e63 !important;
+  background: #ffffff !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 
   .ant-menu-item {
     margin: 0;
     border-radius: 0;
     padding-left: $spacing-xl !important;
     transition: $transition-normal;
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: #666666 !important;
     font-size: $font-size-sm;
+    font-weight: $font-weight-bold !important;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1) !important;
-      color: $background-white !important;
+      background-color: #f5f5f5 !important;
+      color: #e91e63 !important;
     }
 
     &.ant-menu-item-selected {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      color: $background-white !important;
+      background-color: #f0f0f0 !important;
+      color: #e91e63 !important;
 
       &::after {
         display: none;
@@ -86,12 +230,13 @@
     .ant-menu-submenu-title {
       padding-left: $spacing-xl !important;
       transition: $transition-normal;
-      color: rgba(255, 255, 255, 0.8) !important;
+      color: #666666 !important;
       font-size: $font-size-sm;
+      font-weight: $font-weight-bold !important;
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        color: $background-white !important;
+        background-color: #f5f5f5 !important;
+        color: #e91e63 !important;
       }
     }
 
@@ -104,6 +249,7 @@
     font-size: $font-size-sm;
     margin-right: $spacing-sm;
     opacity: 0.8;
+    color: #666666;
   }
 }
 
@@ -112,7 +258,7 @@
   background: #f5f6fa;
 }
 
-.staff-header {
+.staff-header-old {
   padding: 0;
   background: $background-white;
   border-bottom: 1px solid #e5e9f2;
