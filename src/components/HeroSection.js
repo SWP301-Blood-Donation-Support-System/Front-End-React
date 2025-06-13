@@ -16,14 +16,7 @@ const HeroSection = () => {
       background: '#f5f5f5', 
       padding: '0 60px' 
     }}>
-      <div className="hero-section-compact" style={{
-        background: '#761611',
-        minHeight: '500px',
-        padding: '60px 40px',
-        color: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
-      }}>
+      <div className="hero-section-compact">
         <div style={{ 
           maxWidth: '1200px', 
           margin: '0 auto' 
@@ -55,17 +48,6 @@ const HeroSection = () => {
                 <Button 
                   size="large"
                   className="hero-button"
-                  style={{
-                    background: 'white',
-                    color: '#761611',
-                    border: '2px solid #761611',
-                    fontWeight: 'bold',
-                    fontSize: '18px',
-                    height: '56px',
-                    padding: '0 36px',
-                    borderRadius: '8px',
-                    marginBottom: '16px'
-                  }}
                   icon={<HeartOutlined />}
                   onClick={handleBookingClick}
                 >
