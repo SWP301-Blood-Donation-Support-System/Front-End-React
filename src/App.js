@@ -8,6 +8,7 @@ import FAQPage from './pages/FAQPage';
 import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
 import BookingPage from './pages/BookingPage';
+import StaffPage from './pages/StaffPage';
 import './styles/main.scss';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/news" element={<NewsPage />} />
             <Route path="/booking" element={<BookingPage />} />
+            <Route path="/staff" element={<StaffPage />} />
           </Routes>
         </div>
       </Router>
