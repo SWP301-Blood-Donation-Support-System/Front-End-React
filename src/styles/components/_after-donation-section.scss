@@ -1,0 +1,474 @@
+// After Donation Section Styles
+.after-donation-section {
+  padding: $spacing-5xl 0;
+  background: $background-light;
+  position: relative;
+  overflow: hidden;
+
+  // Subtle background pattern overlay
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(220, 38, 38, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(161, 18, 18, 0.01) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .after-donation-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-xl;
+    position: relative;
+    z-index: 2;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: $spacing-4xl;    .section-title {
+      color: $text-primary;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      margin: 0;
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+    }
+  }  .advice-cards-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-3xl;
+    align-items: start;
+
+    @media (max-width: 992px) {
+      grid-template-columns: 1fr;
+      gap: $spacing-xl;
+    }
+  }
+  .featured-card-wrapper {
+    position: relative;
+    transform: translateY($spacing-xl); // Move down to center with the two right cards
+    
+    .featured-card {
+      transform: scale(1.02);
+      box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.12),
+        0 6px 20px rgba(0, 0, 0, 0.08);
+      
+      &:hover {
+        transform: scale(1.04);
+        box-shadow: 
+          0 16px 50px rgba(0, 0, 0, 0.15),
+          0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  .side-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xl; // Increase gap between the two right cards
+
+    .side-card {
+      &.elevated {
+        transform: translateY(-$spacing-lg);
+        
+        @media (max-width: 992px) {
+          transform: none;
+        }
+      }
+    }
+  }
+  .advice-card {
+    border-radius: $border-radius-xl;
+    border: none;
+    background: white;
+    box-shadow: 
+      0 4px 20px rgba(0, 0, 0, 0.08),
+      0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 
+        0 8px 30px rgba(0, 0, 0, 0.12),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .ant-card-body {
+      padding: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-lg;
+      padding: $spacing-xl;
+      position: relative;
+      flex-shrink: 0;
+
+      .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        position: relative;
+        
+        .card-icon {
+          font-size: 28px;
+          z-index: 2;
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          opacity: 0.1;
+          z-index: 1;
+        }
+      }
+
+      .header-content {
+        flex: 1;
+
+        .card-title {
+          font-size: $font-size-xl;
+          font-weight: 700;
+          margin: 0 0 $spacing-xs 0;
+          line-height: 1.2;
+        }
+
+        .card-subtitle {
+          font-size: $font-size-sm;
+          margin: 0;
+          opacity: 0.7;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .card-content {
+      padding: 0 $spacing-xl $spacing-xl;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+
+      .advice-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 $spacing-xl 0;
+        flex: 1;        .advice-item {
+          display: flex;
+          align-items: flex-start;
+          gap: $spacing-md;
+          padding: $spacing-md 0;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+          &:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+          }
+
+          &.main-point {
+            background: rgba(245, 158, 11, 0.08);
+            border-radius: $border-radius-md;
+            padding: $spacing-md;
+            margin-bottom: $spacing-sm;
+            border-left: 3px solid #f59e0b;
+            
+            .item-text {
+              font-weight: 600;
+              color: #92400e;
+              font-size: $font-size-base;
+            }
+            
+            .item-icon {
+              font-size: 20px;
+            }
+          }
+
+          &.sub-point {
+            margin-left: $spacing-lg;
+            padding-left: $spacing-md;
+            border-left: 2px solid rgba(245, 158, 11, 0.2);
+            
+            .item-icon {
+              font-size: 14px;
+              opacity: 0.7;
+            }
+            
+            .item-text {
+              font-size: $font-size-sm;
+              color: $text-secondary;
+            }
+          }
+
+          .item-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: $font-size-xs;
+            font-weight: 700;
+            flex-shrink: 0;
+          }
+
+          .item-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+          }
+
+          .item-text {
+            font-size: $font-size-sm;
+            line-height: 1.5;
+            color: $text-primary;
+            font-weight: 500;
+            flex: 1;
+          }
+        }
+      }
+
+      .doctor-credit {
+        display: flex;
+        gap: $spacing-md;
+        padding-top: $spacing-lg;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        align-items: center;
+
+        .doctor-avatar {
+          font-size: 40px;
+          flex-shrink: 0;
+        }
+
+        .doctor-info {
+          flex: 1;
+
+          .doctor-name {
+            font-size: $font-size-sm;
+            font-weight: 700;
+            margin: 0 0 2px 0;
+            color: $text-primary;
+          }
+
+          .doctor-title {
+            font-size: $font-size-xs;
+            margin: 0 0 2px 0;
+            color: $text-secondary;
+            font-weight: 500;
+          }
+
+          .hospital-name {
+            font-size: $font-size-xs;
+            margin: 0;
+            color: $text-secondary;
+            font-weight: 500;
+          }
+        }        &.compact {
+          flex-direction: column;
+          text-align: center;
+          gap: 0;
+
+          .doctor-name {
+            font-size: $font-size-xs;
+            font-weight: 700; // Make doctor name bold in compact version
+          }
+
+          .hospital-name {
+            font-size: 10px;
+          }
+        }
+      }
+    }    // Should Do Card Styling
+    &.should-do-card {
+      border-left: 4px solid #22c55e;
+
+      .icon-wrapper {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+
+        &::before {
+          background: #22c55e;
+        }
+
+        .should-do-icon {
+          color: white;
+        }
+      }
+
+      .card-title {
+        color: #166534;
+      }
+
+      .item-number {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+      }
+    }
+
+    // Should Not Do Card Styling
+    &.should-not-do-card {
+      border-left: 4px solid #ef4444;
+
+      .icon-wrapper {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+
+        &::before {
+          background: #ef4444;
+        }
+
+        .should-not-do-icon {
+          color: white;
+        }
+      }
+
+      .card-title {
+        color: #991b1b;
+      }
+    }
+
+    // Warning Card Styling
+    &.warning-card {
+      border-left: 4px solid #f59e0b;
+
+      .icon-wrapper {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+
+        &::before {
+          background: #f59e0b;
+        }
+
+        .warning-icon {
+          color: white;
+        }
+      }
+
+      .card-title {
+        color: #92400e;
+      }
+    }
+  }  // Responsive adjustments
+  @media (max-width: 992px) {
+    .advice-cards-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .featured-card-wrapper {
+      transform: none; // Remove the translateY on mobile
+      
+      .featured-card {
+        transform: none;
+      }
+    }
+    
+    .side-cards-container .side-card.elevated {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: $spacing-3xl 0;
+
+    .section-header {
+      margin-bottom: $spacing-3xl;
+    }
+
+    .advice-cards-container {
+      gap: $spacing-lg;
+    }    .side-cards-container {
+      gap: $spacing-lg;
+    }
+
+    .advice-card {
+      .card-header {
+        padding: $spacing-lg $spacing-md $spacing-md;
+        gap: $spacing-md;
+
+        .icon-wrapper {
+          width: 50px;
+          height: 50px;
+
+          .card-icon {
+            font-size: 24px;
+          }
+        }
+
+        .header-content {
+          .card-title {
+            font-size: $font-size-lg;
+          }
+
+          .card-subtitle {
+            font-size: $font-size-xs;
+          }
+        }
+      }
+
+      .card-content {
+        padding: 0 $spacing-md $spacing-md;
+
+        .advice-list {
+          margin-bottom: $spacing-md;
+
+          .advice-item {
+            gap: $spacing-sm;
+
+            .item-number {
+              width: 20px;
+              height: 20px;
+              font-size: 10px;
+            }
+
+            .item-icon {
+              font-size: 16px;
+            }
+
+            .item-text {
+              font-size: $font-size-xs;
+              line-height: 1.4;
+            }
+          }
+        }
+
+        .doctor-credit {
+          padding-top: $spacing-sm;
+
+          .doctor-avatar {
+            font-size: 32px;
+          }
+
+          .doctor-info {
+            .doctor-name,
+            .doctor-title,
+            .hospital-name {
+              font-size: 10px;
+            }
+          }
+
+          &.compact {
+            .doctor-name {
+              font-size: 10px;
+            }
+
+            .hospital-name {
+              font-size: 9px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
