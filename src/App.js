@@ -7,7 +7,7 @@ import RegisterPage from './pages/RegisterPage';
 import FAQPage from './pages/FAQPage';
 import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
-import BloodDonationBookingPage from './pages/BloodDonationBookingPage';
+import BookingPage from './pages/BookingPage';
 import './styles/main.scss';
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/news" element={<NewsPage />} />
-            <Route path="/booking" element={<BloodDonationBookingPage />} />
+            <Route path="/booking" element={<BookingPage />} />
           </Routes>
         </div>
       </Router>

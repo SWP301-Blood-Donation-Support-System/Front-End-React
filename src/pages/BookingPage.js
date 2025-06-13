@@ -29,7 +29,7 @@ import Footer from '../components/Footer';
 const { Title, Text, Paragraph } = Typography;
 const { Content } = Layout;
 
-const BloodDonationBookingPage = () => {
+const BookingPage = () => {
   const [donationType, setDonationType] = useState('whole-blood');
   const [form] = Form.useForm();  // Scroll to form when there's a hash in URL (từ trang chủ)
   useEffect(() => {
@@ -194,34 +194,17 @@ const BloodDonationBookingPage = () => {
     <Layout>
       <Header />
       <Navbar />      {/* Hero Section */}
-      <div style={{ 
-        background: '#f5f5f5', 
-        padding: '0 60px' 
-      }}>
+      <div className="booking-hero-wrapper">
         <div className="hero-section-compact">
-          <div style={{ 
-            maxWidth: '1200px', 
-            margin: '0 auto' 
-          }}>
-            <Row align="middle" gutter={[60, 32]} style={{ minHeight: '400px' }}>
+          <div className="booking-hero-container">
+            <Row align="middle" gutter={[60, 32]} className="booking-hero-row">
               <Col xs={24} md={12}>
-                <div style={{ maxWidth: '500px' }}>
-                  <Title level={1} style={{ 
-                    color: 'white', 
-                    fontSize: '48px', 
-                    fontWeight: 'bold',
-                    marginBottom: '24px',
-                    lineHeight: '1.2'
-                  }}>
+                <div className="booking-hero-content">
+                  <Title level={1} className="booking-hero-title">
                     Hiến Máu, Cứu Sống Người
                   </Title>
                   
-                  <Paragraph style={{ 
-                    color: 'white', 
-                    fontSize: '18px', 
-                    marginBottom: '32px',
-                    lineHeight: '1.6'
-                  }}>
+                  <Paragraph className="booking-hero-description">
                     Sự đóng góp của bạn có thể giúp cứu sống tới 3 người. Quy trình hiến 
                     máu an toàn, đơn giản và chỉ mất không quá một giờ từ đầu đến cuối.
                   </Paragraph>
@@ -233,30 +216,16 @@ const BloodDonationBookingPage = () => {
                     onClick={() => document.getElementById('booking-form').scrollIntoView({ behavior: 'smooth' })}
                   >
                     ĐẶT LỊCH HIẾN MÁU NGAY
-                  </Button>
-                  
-                  <div style={{
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    fontSize: '14px',
-                    fontStyle: 'italic'
-                  }}>
-                    *Điều khoản áp dụng, tìm hiểu thêm
-                  </div>
+                  </Button> 
                 </div>
               </Col>
               
               <Col xs={24} md={12}>
-                <div style={{ textAlign: 'center' }}>
+                <div className="booking-hero-image-container">
                   <img 
                     src="/images/hero_banner_2.jpg" 
                     alt="Hiến máu cứu người"
-                    style={{
-                      width: '100%',
-                      maxWidth: '540px',
-                      borderRadius: '12px',
-                      boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
-                      transform: 'scale(1.05)'
-                    }}
+                    className="booking-hero-image"
                   />
                 </div>
               </Col>
@@ -270,14 +239,7 @@ const BloodDonationBookingPage = () => {
             <Title level={2} className="section-title">
               Quy Trình Hiến Máu
             </Title>
-            <Paragraph style={{
-              textAlign: 'center',
-              fontSize: '18px',
-              color: '#6c757d',
-              maxWidth: '600px',
-              margin: '0 auto 40px auto',
-              lineHeight: '1.6'
-            }}>
+            <Paragraph className="process-subtitle">
               Quy trình hiến máu đơn giản, an toàn và được thực hiện bởi đội ngũ y tế chuyên nghiệp
             </Paragraph>            <Steps
               current={-1}
@@ -414,7 +376,6 @@ const BloodDonationBookingPage = () => {
                             className="form-input"
                             placeholder="Chọn ngày hiến máu"
                             format="DD/MM/YYYY"
-                            style={{ width: '100%' }}
                             disabledDate={(current) => current && current.valueOf() < Date.now()}
                           />
                         </Form.Item>
@@ -518,4 +479,4 @@ const BloodDonationBookingPage = () => {
   );
 };
 
-export default BloodDonationBookingPage;
+export default BookingPage;

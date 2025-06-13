@@ -11,7 +11,9 @@
 @import 'vendors/antd-overrides';
 
 // 4. Layout components
-@import 'layout/components';
+@import 'layout/header';
+@import 'layout/navbar';
+@import 'layout/footer';
 
 // 5. Page styles
 @import 'pages/homepage';
@@ -24,6 +26,7 @@
 // 6. Component styles (to be added as we convert)
 @import 'components/logo';
 @import 'components/stories';
+@import 'components/hero-section';
 // @import 'components/buttons';
 // @import 'components/cards';
 // @import 'components/forms';

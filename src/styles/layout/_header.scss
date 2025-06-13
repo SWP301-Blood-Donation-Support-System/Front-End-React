@@ -1,0 +1,70 @@
+// Header Component
+.header {
+  &-container {
+    background: $primary-color;
+    padding: $spacing-3xl $spacing-7xl;
+    display: flex;
+    align-items: center;
+    min-height: 120px;
+    position: relative;
+
+    @include tablet {
+      padding: 0 $spacing-3xl;
+    }
+  }
+
+  &-logo {
+    background: $background-white;
+    border-radius: 30px;
+    padding: $spacing-md $spacing-lg;
+    @include flex-center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: $transition-normal;
+    position: absolute;
+    left: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+
+    &:hover {
+      transform: translateY(-50%) scale(1.05);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    img {
+      height: 50px;
+      width: auto;
+      pointer-events: none;
+    }
+  }
+
+  &-login-btn {
+    background: $background-white;
+    border: 3px solid $background-white;
+    color: $primary-color;
+    padding: 0 $spacing-xxl;
+    height: 50px;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    @include button-hover-scale;
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+
+    .anticon {
+      margin-right: $spacing-sm;
+    }
+
+    &:hover,
+    &:focus {
+      background: $background-white;
+      color: $primary-color;
+      border-color: $background-white;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      transform: translateY(-50%) scale(1.05);
+    }
+  }
+} 

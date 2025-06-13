@@ -12,34 +12,17 @@ const HeroSection = () => {
   };
 
   return (
-    <div style={{ 
-      background: '#f5f5f5', 
-      padding: '0 60px' 
-    }}>
+    <div className="hero-section-wrapper">
       <div className="hero-section-compact">
-        <div style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto' 
-        }}>
-          <Row align="middle" gutter={[60, 32]} style={{ minHeight: '400px' }}>
+        <div className="hero-section-container">
+          <Row align="middle" gutter={[60, 32]} className="hero-section-row">
             <Col xs={24} md={12}>
-              <div style={{ maxWidth: '500px' }}>
-                <Title level={1} style={{ 
-                  color: 'white', 
-                  fontSize: '48px', 
-                  fontWeight: 'bold',
-                  marginBottom: '24px',
-                  lineHeight: '1.2'
-                }}>
+              <div className="hero-section-content">
+                <Title level={1} className="hero-section-title">
                   Chúng tôi cần người hiến máu
                 </Title>
                 
-                <Paragraph style={{ 
-                  color: 'white', 
-                  fontSize: '18px', 
-                  marginBottom: '32px',
-                  lineHeight: '1.6'
-                }}>
+                <Paragraph className="hero-section-description">
                   Cứ mỗi 2 giây lại có một người cần máu. Một lần hiến máu của bạn có 
                   thể cứu sống nhiều người và mang lại hy vọng cho gia đình của họ. Hãy 
                   là lý do để ai đó được trở về nhà.
@@ -54,28 +37,16 @@ const HeroSection = () => {
                   ĐẶT LỊCH HIẾN MÁU NGAY
                 </Button>
                 
-                <div style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '14px',
-                  fontStyle: 'italic'
-                }}>
-                  *Điều khoản áp dụng, tìm hiểu thêm
-                </div>
+                
               </div>
             </Col>
             
             <Col xs={24} md={12}>
-              <div style={{ textAlign: 'center' }}>
+              <div className="hero-section-image-container">
                 <img 
                   src="/images/hero_banner_3.jpg" 
                   alt="Blood donation"
-                  style={{
-                    width: '100%',
-                    maxWidth: '540px',
-                    borderRadius: '12px',
-                    boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
-                    transform: 'scale(1.05)'
-                  }}
+                  className="hero-section-image-main"
                 />
               </div>
             </Col>

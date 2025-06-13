@@ -1,0 +1,86 @@
+// Footer Component
+.footer {
+  &-container {
+    background: #212529;
+    color: $background-white;
+    padding: $spacing-6xl 50px $spacing-xl;
+  }
+
+  &-section {
+    line-height: 2;
+  }
+
+  &-section-title {
+    color: $background-white !important;
+    margin-bottom: $spacing-xxl !important;
+  }
+
+  &-link {
+    color: #bdc3c7 !important;
+    transition: $transition-normal;
+
+    &:hover {
+      color: $background-white !important;
+    }
+  }
+
+  &-newsletter {
+    width: 100%;
+    margin-bottom: $spacing-xxl;
+
+    .ant-input {
+      border-radius: $border-radius-md 0 0 $border-radius-md;
+      border: none;
+      padding: $spacing-md $spacing-lg;
+    }
+
+    .ant-btn {
+      border-radius: 0 $border-radius-md $border-radius-md 0;
+      background: $primary-color;
+      border-color: $primary-color;
+      height: 40px;
+
+      &:hover {
+        background: $primary-hover;
+        border-color: $primary-hover;
+      }
+    }
+  }
+
+  &-text {
+    color: #bdc3c7;
+
+    &.footer-newsletter-text {
+      display: block;
+      margin-bottom: $spacing-lg;
+    }
+  }
+
+  &-social-icons {
+    gap: $spacing-lg;
+
+    .anticon {
+      font-size: $spacing-xl;
+      color: #bdc3c7;
+      cursor: pointer;
+      transition: $transition-normal;
+
+      &:hover {
+        color: $background-white;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  &-bottom {
+    border-top: 1px solid #34495e;
+    margin-top: $spacing-4xl;
+    padding-top: $spacing-xl;
+    @include flex-between;
+    flex-wrap: wrap;
+
+    .footer-text {
+      color: #bdc3c7;
+    }
+  }
+} 
