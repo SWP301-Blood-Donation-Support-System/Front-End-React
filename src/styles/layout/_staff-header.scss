@@ -1,0 +1,185 @@
+.staff-header {
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  padding: $spacing-lg $spacing-xl;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  &__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: $spacing-lg;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-md;
+    }
+  }
+
+  &__left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title-section {
+    .staff-header__title {
+      font-size: 28px;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 $spacing-xs 0;
+      line-height: 1.2;
+    }
+
+    .staff-header__subtitle {
+      font-size: 14px;
+      color: $text-secondary;
+      margin: 0;
+      line-height: 1.4;
+      max-width: 500px;
+    }
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+
+  &__search {
+    .staff-header__search-input {
+      width: 300px;
+      
+      @media (max-width: 768px) {
+        width: 200px;
+      }
+
+      .ant-input {
+        border-radius: 6px;
+        border: 1px solid #d9d9d9;
+        padding: 8px 12px;
+        font-size: 14px;
+
+        &:focus,
+        &:hover {
+          border-color: $primary-color;
+          box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+        }
+      }
+
+      .ant-input-search-button {
+        border-radius: 0 6px 6px 0;
+        border-left: none;
+        background: $primary-color;
+        border-color: $primary-color;
+
+        &:hover {
+          background: darken($primary-color, 5%);
+          border-color: darken($primary-color, 5%);
+        }
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__action-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f5f5f5;
+
+    &:hover {
+      background: #e6e6e6;
+      transform: translateY(-1px);
+    }
+
+    .staff-header__action-icon {
+      font-size: 16px;
+      color: $text-secondary;
+    }
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    .staff-header__avatar {
+      flex-shrink: 0;
+    }
+
+    .staff-header__username {
+      font-size: 14px;
+      font-weight: 500;
+      color: $text-primary;
+      
+      @media (max-width: 768px) {
+        display: none;
+      }
+    }
+  }
+}
+
+// Notification dropdown styles
+.notification-item {
+  padding: $spacing-xs 0;
+  
+  strong {
+    display: block;
+    font-size: 14px;
+    color: $text-primary;
+    margin-bottom: 2px;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: $text-secondary;
+  }
+}
+
+// Override Ant Design dropdown styles for staff header
+.ant-dropdown {
+  .ant-dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #f0f0f0;
+    
+    .ant-dropdown-menu-item {
+      padding: $spacing-sm $spacing-md;
+      
+      &:hover {
+        background: #f5f5f5;
+      }
+    }
+  }
+} 

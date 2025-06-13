@@ -5,12 +5,15 @@ import {
   PieChartOutlined,
   TeamOutlined,
   UserOutlined,
+  BellOutlined,
+  MailOutlined,
+  PoweroffOutlined,
+  MenuOutlined,
+  DownOutlined,
 } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu } from 'antd';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import { Breadcrumb, Layout, Menu, theme, Avatar, Dropdown, Badge, Space } from 'antd';
 
-const { Content, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
 function getItem(label, key, icon, children) {
   return {
@@ -21,35 +24,91 @@ function getItem(label, key, icon, children) {
   };
 }
 
-const items = [
-  getItem('Dashboards', '1', <PieChartOutlined />),
-  getItem('Analytics', '2', <DesktopOutlined />),
-  getItem('Management', 'sub1', <UserOutlined />, [
-    getItem('Active Donors', '3'),
-    getItem('New Registrations', '4'),
-    getItem('Donor History', '5'),
-  ]),
-  getItem('Advertisement', '6', <FileOutlined />),
-  getItem('Helpdesk', '7', <TeamOutlined />),
-  getItem('Monitoring', '8', <DesktopOutlined />),
-  getItem('Cryptocurrency', '9', <PieChartOutlined />),
-  getItem('Project Management', '10', <FileOutlined />),
-  getItem('Product', '11', <UserOutlined />),
-  getItem('Statistics', '12', <TeamOutlined />),
-  getItem('Pages', 'sub2', <FileOutlined />, [
-    getItem('Applications', '13')
-  ]),
-  getItem('Elements', '14', <DesktopOutlined />),
-  getItem('Components', '15', <UserOutlined />),
-  getItem('Tables', '16', <TeamOutlined />),
+// Horizontal header navigation items
+const headerItems = [
+  { key: '1', label: 'Dashboard' },
+  { key: '2', label: 'Analytics' },
+  { key: '3', label: 'Donors' },
+  { key: '4', label: 'Appointments' },
+  { key: '5', label: 'Reports' },
+  { key: '6', label: 'Settings' },
+  { key: '7', label: 'Support' },
+];
+
+// Sidebar items
+const sidebarItems = [
+  getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
+  getItem('Quản lý người hiến', '2', <UserOutlined />),
+  getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />),
+  getItem('Hồ sơ hiến máu', '4', <FileOutlined />),
+  getItem('Báo cáo thống kê', '5', <TeamOutlined />),
 ];
 
 const StaffPage = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
+  // User dropdown menu
+  const userMenu = (
+    <Menu>
+      <Menu.Item key="profile" icon={<UserOutlined />}>
+        Profile
+      </Menu.Item>
+      <Menu.Item key="settings" icon={<MenuOutlined />}>
+        Settings
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="logout" icon={<PoweroffOutlined />}>
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <Layout className="staff-layout">
-      <Header />
+      <Header className="staff-header">
+        <div className="staff-header-logo">
+          <img src="/images/huy1.png" alt="Logo" className="logo-image" />
+        </div>
+        
+        <div className="staff-header-right">
+          <div className="staff-header-actions">
+            <Space size="middle">
+              <div className="header-icon">
+                <MailOutlined />
+              </div>
+              
+              <Badge count={3} size="small">
+                <div className="header-icon">
+                  <BellOutlined />
+                </div>
+              </Badge>
+              
+              <div className="header-icon">
+                <PoweroffOutlined />
+              </div>
+              
+              <div className="header-icon">
+                <MenuOutlined />
+              </div>
+              
+              <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+                <div className="staff-user-profile">
+                  <Avatar 
+                    size={32} 
+                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=David"
+                    className="user-avatar"
+                  />
+                  <span className="user-name">David Greymaax</span>
+                  <DownOutlined className="dropdown-icon" />
+                </div>
+              </Dropdown>
+            </Space>
+          </div>
+        </div>
+      </Header>
       
       <Layout className="staff-main-layout">
         <Sider 
@@ -57,33 +116,27 @@ const StaffPage = () => {
           collapsed={collapsed} 
           onCollapse={value => setCollapsed(value)}
           className="staff-sidebar"
+          width={280}
+          collapsedWidth={80}
+          trigger={
+            <div className="custom-trigger">
+              <MenuOutlined />
+            </div>
+          }
         >
           <div className="staff-logo" />
           <Menu 
             theme="dark" 
             defaultSelectedKeys={['1']} 
             mode="inline" 
-            items={items}
+            items={sidebarItems}
             className="staff-menu"
           />
         </Sider>
         
         <Layout className="staff-content-layout">
-          <div className="staff-header" />
-          
-          <Content className="staff-content">
-            <div className="staff-header-section">
-              <div className="staff-page-header">
-                <h1 className="staff-page-title">Analytics</h1>
-                <p className="staff-page-subtitle">This is an example dashboard created using built-in elements and components.</p>
-              </div>
-              <div className="staff-tabs">
-                <span className="staff-tab active">Overview</span>
-                <span className="staff-tab">Audiences</span>
-                <span className="staff-tab">Demographics</span>
-                <span className="staff-tab">More</span>
-              </div>
-            </div>
+          <Content className="staff-content" style={{ padding: '0 48px' }}>
+
             
             <div className="staff-content-container">
               <div className="staff-section">
@@ -208,8 +261,6 @@ const StaffPage = () => {
               </div>
             </div>
           </Content>
-          
-          <Footer />
         </Layout>
       </Layout>
     </Layout>
