@@ -45,13 +45,19 @@ const Header = () => {
       <Menu.Item key="settings" icon={<SettingOutlined />}>
         Settings
       </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item 
+      <Menu.Divider />      <Menu.Item 
         key="logout" 
         icon={<LogoutOutlined />}
         onClick={() => {
           UserAPI.logout();
           setUser(null);
+          
+          // Clear all stored data to prevent unwanted redirects
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("userInfo");
+          sessionStorage.removeItem("pendingBookingData");
+          
           navigate("/");
         }}
       >

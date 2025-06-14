@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const { Title, Paragraph } = Typography;
 
 const HeroSection = () => {
-  const navigate = useNavigate();
-  const handleBookingClick = () => {
+  const navigate = useNavigate();  const handleBookingClick = () => {
     navigate('/booking#booking-form');
   };
 

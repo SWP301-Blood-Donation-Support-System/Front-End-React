@@ -8,6 +8,7 @@ import FAQPage from './pages/FAQPage';
 import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
 import BookingPage from './pages/BookingPage';
+import EligibilityFormPage from './pages/EligibilityFormPage';
 import ProfilePage from './pages/ProfilePage';
 import StaffPage from './admin/pages/StaffPage';
 import './styles/main.scss';
@@ -37,9 +38,9 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/faq" element={<FAQPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/news" element={<NewsPage />} />
+            <Route path="/search" element={<SearchPage />} />            <Route path="/news" element={<NewsPage />} />
             <Route path="/booking" element={<BookingPage />} />
+            <Route path="/eligibility" element={<EligibilityFormPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/staff" element={<StaffPage />} />
           </Routes>
