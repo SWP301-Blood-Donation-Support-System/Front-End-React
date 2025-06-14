@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import { UserAPI } from '../api/User';
 
 
 const clientId = ''; // Thay bằng client ID bạn lấy từ Google Cloud
@@ -19,15 +20,24 @@ const LoginPage = () => {
 
   const onFinish = async (values) => {
     setLoading(true);
+    //sus
     console.log('Login values:', values);
-    
-    // Simulate login API call
-    setTimeout(() => {
+    //sus
+    try{
+      const response = await UserAPI.login(values.email, values.password);
+      console.log("response", response.data.result);
+      const decoded = jwtDecode(response.data.result);
+      console.log("Decode item", decoded);
+      localStorage.setItem("token", response.data.result);
+      localStorage.setItem("userInfo", JSON.stringify(decoded));
+      navigate("/");
+    }catch(error){
+      console.log("error", error);
+    }finally{
       setLoading(false);
-      // Navigate to homepage after successful login
-      navigate('/');
-    }, 1000);
-  };  return (
+    }
+  };
+  return (
     <Layout className="auth-page">
       <Header />
       <Navbar />
