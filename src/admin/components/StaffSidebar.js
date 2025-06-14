@@ -46,7 +46,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     >
       <div className="staff-logo" />
       <Menu 
-        theme="dark" 
+        theme="dark"
         defaultSelectedKeys={['1']} 
         mode="inline" 
         items={sidebarItems}

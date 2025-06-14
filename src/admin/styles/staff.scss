@@ -14,118 +14,23 @@
 // Staff Page Main Styles
 .staff-layout {
   min-height: 100vh;
-  background: #f8f9fa; // Clean medical white background
+  background: #F5F5F5; // Light gray background
 }
 
 .staff-main-layout {
   min-height: calc(100vh - 160px); // Account for header + navbar height
 }
 
-// Staff Header (Horizontal Navigation)
-.staff-header {
-  background: #ffffff !important;
-  border-bottom: 1px solid #e8e8e8;
-  padding: 0 $spacing-lg !important;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.08); // Subtle red shadow
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  
-  .staff-header-right {
-    display: flex;
-    align-items: center;
-    gap: $spacing-lg;
-    margin-left: auto;
-  }
-  
-  .staff-header-menu {
-    border-bottom: none !important;
-    background: transparent !important;
-    
-    .ant-menu-item {
-      color: #666666 !important;
-      border-bottom: 2px solid transparent !important;
-      
-      &:hover {
-        color: #dc3545 !important; // Blood red color
-        background: #fff5f5 !important; // Light red background
-      }
-      
-      &.ant-menu-item-selected {
-        color: #dc3545 !important;
-        background-color: #fff5f5 !important;
-        border-bottom-color: #dc3545 !important;
-      }
-      
-      &::after {
-        display: none !important;
-      }
-    }
-  }
-  
-  .staff-header-actions {
-    display: flex;
-    align-items: center;
-    
-    .header-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: $transition-fast;
-      color: #666666;
-      
-      &:hover {
-        background: #fff5f5;
-        color: #dc3545; // Blood red on hover
-      }
-    }
-  }
-  
-  .staff-user-profile {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    padding: $spacing-xs $spacing-sm;
-    border-radius: $border-radius-md;
-    cursor: pointer;
-    transition: $transition-fast;
-    
-    &:hover {
-      background: #fff5f5;
-    }
-    
-    .user-avatar {
-      flex-shrink: 0;
-    }
-    
-    .user-name {
-      font-size: $font-size-sm;
-      font-weight: $font-weight-medium;
-      color: $text-primary;
-    }
-    
-    .dropdown-icon {
-      font-size: 10px;
-      color: #666666;
-      margin-left: $spacing-xs;
-    }
-  }
-}
-
 // Content Layout
 .staff-content-layout {
-  background: #f8f9fa; // Clean medical background
+  background: #F5F5F5; // Light gray background
 }
 
 .staff-content {
   margin: 0;
   padding: $spacing-xl $spacing-xl;
   min-height: calc(100vh - 240px);
-  background: #f8f9fa;
+  background: #F5F5F5; // Light gray background
 }
 
 .staff-content-container {

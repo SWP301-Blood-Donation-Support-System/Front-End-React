@@ -1,55 +1,113 @@
 // Staff Navbar Component Styles
 .staff-navbar {
-  background: #ffffff;
-  border: 2px solid #e6e6e6;
-  border-radius: 12px;
+  background: #FFFFFF !important;
+  border: none !important;
+  padding: 0 24px;
   margin: 24px 48px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   min-height: 64px;
   display: flex;
   align-items: center;
+  justify-content: center;
   
-  &-content {
+  .staff-navbar-content {
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0 32px;
-    width: 100%;
-    gap: 48px;
-    
-    @media (max-width: 768px) {
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px;
-    }
   }
-  
-  &-actions {
+
+  .staff-nav-tabs {
     display: flex;
     align-items: center;
     gap: 16px;
+  }
+
+  .staff-nav-tab {
+    background: none;
+    border: none !important;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 700 !important;
+    color: #666666;
+    text-decoration: none !important;
+    position: relative;
     
-    .staff-drawer-btn {
+    &::before,
+    &::after {
+      display: none !important;
+    }
+    
+    &:hover {
+      background: rgba(220, 38, 38, 0.1);
+      color: #dc2626;
+      text-decoration: none !important;
+      border-bottom: none !important;
+      
+      &::before,
+      &::after {
+        display: none !important;
+      }
+    }
+    
+    &.active {
+      background: #dc2626;
+      color: white;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      border-bottom: none !important;
+      
+      &::before,
+      &::after {
+        display: none !important;
+      }
+    }
+    
+    &.dropdown {
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #f5f5f5;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      color: #666666;
-      font-size: 14px;
+    }
+  }
+
+  .ant-tabs {
+    display: none;
+  }
+
+  .navbar-dropdown {
+    .ant-dropdown-trigger {
+      padding: 16px 24px;
+      margin: 0 8px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
       cursor: pointer;
-      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #666;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      border: none !important;
       
-      &:hover {
-        background: #e6e6e6;
-        color: #333333;
+      &::before,
+      &::after {
+        display: none !important;
       }
       
-      .anticon {
-        font-size: 12px;
+      &:hover {
+        background: rgba(220, 38, 38, 0.1);
+        color: #dc2626;
+        text-decoration: none !important;
+        border-bottom: none !important;
+        
+        &::before,
+        &::after {
+          display: none !important;
+        }
       }
     }
   }

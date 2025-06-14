@@ -1,8 +1,8 @@
 // Staff Sidebar Component Styles
 .staff-sidebar {
   .ant-layout-sider {
-    background: #ffffff !important; // Clean white background
-    border-right: 1px solid #e8e8e8 !important; // Subtle border
+    background: #D91D1D !important; // User specified red background
+    border-right: none !important;
     padding-top: 24px !important; // Add top padding to the sidebar
     position: sticky !important;
     top: 0 !important;
@@ -10,11 +10,11 @@
   }
 
   .ant-layout-sider-trigger {
-    background: #ffffff !important;
-    color: #333333 !important;
+    background: #D91D1D !important;
+    color: #ffffff !important;
     transition: $transition-normal;
     border: none !important;
-    border-top: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
     border-bottom: none !important;
     box-shadow: none !important;
     position: sticky !important;
@@ -26,12 +26,12 @@
     }
 
     &:hover {
-      background: #dc3545 !important; // Blood red background
+      background: #dc2626 !important; // Original darker red on hover
       color: #ffffff !important;
     }
     
     .anticon {
-      color: #333333 !important;
+      color: #ffffff !important;
       font-weight: bold !important;
     }
     
@@ -46,11 +46,11 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    color: #333333;
+    color: #ffffff;
     font-size: 16px;
     
     .anticon {
-      color: #333333 !important;
+      color: #ffffff !important;
     }
   }
 
@@ -58,7 +58,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #ffffff;
+    background: #D91D1D;
     border: none !important;
     
     &::before,
@@ -67,9 +67,9 @@
     }
   }
 
-  // Dark theme adjustments for blood donation theme
+  // Dark theme adjustments for red sidebar
   .ant-menu-dark {
-    background: #dc3545; // Blood red background
+    background: #D91D1D; // User specified red background
 
     .ant-menu-item-group-title {
       color: rgba(255, 255, 255, 0.67);
@@ -87,7 +87,7 @@
   // Responsive adjustments
   @media (max-width: 768px) {
     .ant-layout-sider-children {
-      background: $text-primary;
+      background: #D91D1D;
     }
   }
 }
@@ -99,7 +99,7 @@
 .staff-menu {
   flex: 1;
   border: none;
-  background: #ffffff !important;
+  background: #D91D1D !important; // User specified red background
   margin-top: 0 !important;
   padding-top: 24px !important; // Add space above the first menu item
 
@@ -108,18 +108,18 @@
     border-radius: 0;
     padding-left: $spacing-xl !important;
     transition: $transition-normal;
-    color: #666666 !important;
+    color: #ffffff !important; // White text
     font-size: $font-size-sm;
     font-weight: $font-weight-bold !important;
 
     &:hover {
-      background-color: #fff5f5 !important; // Light red background
-      color: #dc3545 !important; // Blood red text
+      background-color: rgba(255, 255, 255, 0.1) !important; // Light overlay on hover
+      color: #ffffff !important;
     }
 
     &.ant-menu-item-selected {
-      background-color: #fee !important; // Lighter red for selected
-      color: #dc3545 !important;
+      background-color: rgba(255, 255, 255, 0.15) !important; // Selected state
+      color: #ffffff !important;
 
       &::after {
         display: none;
@@ -131,13 +131,13 @@
     .ant-menu-submenu-title {
       padding-left: $spacing-xl !important;
       transition: $transition-normal;
-      color: #666666 !important;
+      color: #ffffff !important;
       font-size: $font-size-sm;
       font-weight: $font-weight-bold !important;
 
       &:hover {
-        background-color: #fff5f5 !important;
-        color: #dc3545 !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
       }
     }
 
@@ -150,11 +150,11 @@
     font-size: $font-size-sm;
     margin-right: $spacing-sm;
     opacity: 0.8;
-    color: #666666;
+    color: #ffffff; // White icons
     
-    // Blood donation themed icon colors
+    // Red sidebar themed icon colors
     &:hover {
-      color: #dc3545;
+      color: #ffffff;
     }
   }
 } 
