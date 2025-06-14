@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { DownOutlined, MenuOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 const StaffNavbar = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const navigate = useNavigate();
+
+  const handleBackToHome = () => {
+    navigate('/'); // Redirect to homepage
+  };
 
   return (
     <div className="staff-navbar">
@@ -11,9 +17,9 @@ const StaffNavbar = () => {
         <nav className="staff-nav-tabs">
           <button 
             className={`staff-nav-tab ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
+            onClick={handleBackToHome}
           >
-            Overview
+            BackToHome
           </button>
           <button 
             className={`staff-nav-tab ${activeTab === 'audiences' ? 'active' : ''}`}
