@@ -6,6 +6,9 @@ import {
   TeamOutlined,
   UserOutlined,
   MenuOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 
@@ -24,7 +27,11 @@ function getItem(label, key, icon, children) {
 const sidebarItems = [
   getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
   getItem('Quản lý người hiến', '2', <UserOutlined />),
-  getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />),
+  getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />, [
+    getItem('Máu đạt', '3-1', <CheckCircleOutlined />),
+    getItem('Máu không đạt', '3-2', <CloseCircleOutlined />),
+    getItem('Máu chờ duyệt', '3-3', <ClockCircleOutlined />),
+  ]),
   getItem('Hồ sơ hiến máu', '4', <FileOutlined />),
   getItem('Báo cáo thống kê', '5', <TeamOutlined />),
 ];

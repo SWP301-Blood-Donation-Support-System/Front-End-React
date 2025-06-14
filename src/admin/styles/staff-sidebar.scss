@@ -155,8 +155,24 @@
       }
     }
 
+    .ant-menu-sub {
+      background: #D91D1D !important; // Match sidebar red background
+    }
+
     .ant-menu-item {
       padding-left: $spacing-3xl !important;
+      background: #D91D1D !important; // Match sidebar red background
+      color: #ffffff !important;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+      }
+
+      &.ant-menu-item-selected {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        color: #ffffff !important;
+      }
     }
   }
 
