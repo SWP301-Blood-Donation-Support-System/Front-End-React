@@ -2,10 +2,10 @@
 .header {
   &-container {
     background: $primary-color;
-    padding: $spacing-3xl $spacing-7xl;
+    padding: $spacing-lg $spacing-7xl;
     display: flex;
     align-items: center;
-    min-height: 120px;
+    min-height: 80px;
     position: relative;
 
     @include tablet {
@@ -66,5 +66,46 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
       transform: translateY(-50%) scale(1.05);
     }
+  }
+
+  &-user-section {
+    position: absolute;
+    right: 1%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &-user-profile {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: $transition-normal;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &-user-avatar {
+    flex-shrink: 0;
+  }
+
+  &-user-name {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $background-white;
+    
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  &-dropdown-icon {
+    font-size: 10px;
+    color: $background-white;
+    margin-left: $spacing-xs;
   }
 } 
