@@ -28,11 +28,25 @@ const LoginPage = () => {
       console.log("response", response.data.result);
       const decoded = jwtDecode(response.data.result);
       console.log("Decode item", decoded);
+      
+      // Store token and user info
       localStorage.setItem("token", response.data.result);
       localStorage.setItem("userInfo", JSON.stringify(decoded));
-      navigate("/");
+      
+      // Role-based redirection
+      const userRoleId = decoded.RoleID;
+      console.log("User Role ID:", userRoleId);
+      
+      if (userRoleId === 1 || userRoleId === 2 || userRoleId === "1" || userRoleId === "2") {
+        // Redirect to staff page for roles 1 and 2
+        navigate("/staff");
+      } else {
+        // Redirect to homepage for other roles
+        navigate("/");
+      }
     }catch(error){
       console.log("error", error);
+      // You can add error handling here (show error message to user)
     }finally{
       setLoading(false);
     }
@@ -40,8 +54,7 @@ const LoginPage = () => {
   return (
     <Layout className="auth-page">
       <Header />
-      <Navbar />
-      
+      <Navbar />      
       <div className="auth-container">
         <Card className="auth-card">
           <div className="auth-header">

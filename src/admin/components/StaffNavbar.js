@@ -48,12 +48,6 @@ const StaffNavbar = () => {
             </button>
           </Dropdown>
         </nav>
-        
-        <div className="staff-navbar-actions">
-          <button className="staff-drawer-btn">
-            <MenuOutlined /> Show right drawer
-          </button>
-        </div>
       </div>
     </div>
   );

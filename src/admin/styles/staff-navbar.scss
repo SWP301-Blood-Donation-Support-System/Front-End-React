@@ -1,15 +1,22 @@
 // Staff Navbar Component Styles
 .staff-navbar {
   background: #ffffff;
-  border-bottom: 1px solid #f0f0f0;
-  padding: 0;
-  width: 100%;
+  border: 2px solid #e6e6e6;
+  border-radius: 12px;
+  margin: 24px 48px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  min-height: 64px;
+  display: flex;
+  align-items: center;
   
   &-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0 48px;
+    padding: 0 32px;
+    width: 100%;
+    gap: 48px;
     
     @media (max-width: 768px) {
       flex-direction: column;
@@ -52,18 +59,22 @@
   display: flex;
   align-items: center;
   gap: 0;
+  height: 64px;
   
   .staff-nav-tab {
     background: transparent;
     border: none;
-    padding: 16px 24px;
+    padding: 20px 24px;
     font-size: 14px;
     font-weight: 500;
     color: #666666;
     cursor: pointer;
     position: relative;
     transition: all 0.2s ease;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
+    height: 100%;
+    display: flex;
+    align-items: center;
     
     &:hover {
       color: #e91e63;
