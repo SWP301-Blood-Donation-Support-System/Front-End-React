@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Button } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { Layout, Button, Avatar, Dropdown, Menu } from "antd";
+import { UserOutlined, DownOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { UserAPI } from "../api/User";
 
@@ -9,6 +9,7 @@ const { Header: AntHeader } = Layout;
 const Header = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState();
+  
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -31,42 +32,52 @@ const Header = () => {
     initializeAuth();
   }, []);
 
+  // User dropdown menu
+  const userMenu = (
+    <Menu>
+      <Menu.Item key="profile" icon={<UserOutlined />}>
+        Profile
+      </Menu.Item>
+      <Menu.Item key="settings" icon={<SettingOutlined />}>
+        Settings
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item 
+        key="logout" 
+        icon={<LogoutOutlined />}
+        onClick={() => {
+          UserAPI.logout();
+          setUser(null);
+          navigate("/");
+        }}
+      >
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
     <AntHeader className="header-container">
       {/* Logo using logo.svg - clickable to go home */}
       <div onClick={() => navigate("/")} className="header-logo">
         <img src="/images/logo.svg" alt="Blood Services Logo" />
       </div>
-      {user ? 
-      <>
-       <Button
-          type="primary"
-          icon={<UserOutlined />}
-          onClick={() => {
-            UserAPI.logout();
-            setUser(null);
-            navigate("/");
-        }}
-          size="large"
-          className="header-login-btn"
-        >
-         おはいよう　{user.FullName}
-        </Button>
-        <Button
-          type="primary"
-          icon={<UserOutlined />}
-          onClick={() => {
-            UserAPI.logout();
-            setUser(null);
-            navigate("/");
-        }}
-          size="large"
-          className="header-login-btn"
-        >
-         Logout
-        </Button>
-      </>    
-       : (
+      
+      {user ? (
+        <div className="header-user-section">
+          <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+            <div className="header-user-profile">
+              <Avatar 
+                size={32} 
+                icon={<UserOutlined />}
+                className="header-user-avatar"
+              />
+              <span className="header-user-name">おはいよう {user.FullName}</span>
+              <DownOutlined className="header-dropdown-icon" />
+            </div>
+          </Dropdown>
+        </div>
+      ) : (
         <Button
           type="primary"
           icon={<UserOutlined />}
