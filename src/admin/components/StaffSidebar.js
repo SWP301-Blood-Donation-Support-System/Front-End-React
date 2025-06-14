@@ -44,7 +44,9 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         </div>
       }
     >
-      <div className="staff-logo" />
+      <div className="staff-logo">
+        <img src="/images/new-logo.png" alt="Healthcare Logo" className="healthcare-logo" />
+      </div>
       <Menu 
         theme="dark"
         defaultSelectedKeys={['1']} 

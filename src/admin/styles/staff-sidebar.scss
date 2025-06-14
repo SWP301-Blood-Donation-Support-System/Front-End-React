@@ -7,6 +7,7 @@
     position: sticky !important;
     top: 0 !important;
     height: 100vh !important;
+    align-self: flex-start !important;
   }
 
   .ant-layout-sider-trigger {
@@ -14,7 +15,7 @@
     color: #ffffff !important;
     transition: $transition-normal;
     border: none !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-top: none !important;
     border-bottom: none !important;
     box-shadow: none !important;
     position: sticky !important;
@@ -93,7 +94,20 @@
 }
 
 .staff-logo {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: #D91D1D;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  .healthcare-logo {
+    max-width: 180px;
+    max-height: 90px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
 }
 
 .staff-menu {
@@ -101,7 +115,7 @@
   border: none;
   background: #D91D1D !important; // User specified red background
   margin-top: 0 !important;
-  padding-top: 24px !important; // Add space above the first menu item
+  padding-top: 0 !important; // No top padding needed since logo provides spacing
 
   .ant-menu-item {
     margin: 0;

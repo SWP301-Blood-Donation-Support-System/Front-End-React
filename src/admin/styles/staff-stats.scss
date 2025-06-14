@@ -89,7 +89,7 @@
 }
 
 .staff-complete-report-btn {
-  background: #e91e63;
+  background: #D91D1D;
   color: $background-white;
   border: none;
   padding: $spacing-md $spacing-xl;
@@ -99,6 +99,6 @@
   transition: $transition-fast;
 
   &:hover {
-    background: darken(#e91e63, 10%);
+    background: #dc2626;
   }
 } 
