@@ -90,55 +90,51 @@ const StaffPage = () => {
 
   return (
     <Layout className="staff-layout">
-      <Header className="staff-header">
-        <div className="staff-header-logo">
-          <img src="/images/huy1.png" alt="Logo" className="logo-image" />
-        </div>
-
-        <div className="staff-header-right">
-          <div className="staff-header-actions">
-            <Space size="middle">
-              <div className="header-icon">
-                <MailOutlined />
-              </div>
-
-              <Badge count={3} size="small">
-                <div className="header-icon">
-                  <BellOutlined />
-                </div>
-              </Badge>
-
-              <div className="header-icon">
-                <PoweroffOutlined />
-              </div>
-
-              <div className="header-icon">
-                <MenuOutlined />
-              </div>
-
-              <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
-                <div className="staff-user-profile">
-                  <Avatar
-                    size={32}
-                    src="/images/huy1.png"
-                    className="user-avatar"
-                  />
-                  <span className="user-name">
-                    おはいよう {user ? user.FullName : 'Hehe'}
-                  </span>
-                  <DownOutlined className="dropdown-icon" />
-                </div>
-              </Dropdown>
-            </Space>
-          </div>
-        </div>
-      </Header>
-
+      <StaffSidebar
+        collapsed={collapsed}
+        onCollapse={value => setCollapsed(value)}
+      />
+      
       <Layout className="staff-main-layout">
-        <StaffSidebar
-          collapsed={collapsed}
-          onCollapse={value => setCollapsed(value)}
-        />
+        <Header className="staff-header">
+          <div className="staff-header-right">
+            <div className="staff-header-actions">
+              <Space size="middle">
+                <div className="header-icon">
+                  <MailOutlined />
+                </div>
+
+                <Badge count={3} size="small">
+                  <div className="header-icon">
+                    <BellOutlined />
+                  </div>
+                </Badge>
+
+                <div className="header-icon">
+                  <PoweroffOutlined />
+                </div>
+
+                <div className="header-icon">
+                  <MenuOutlined />
+                </div>
+
+                <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+                  <div className="staff-user-profile">
+                    <Avatar
+                      size={32}
+                      src="/images/huy1.png"
+                      className="user-avatar"
+                    />
+                    <span className="user-name">
+                      おはいよう {user ? user.FullName : 'Hehe'}
+                    </span>
+                    <DownOutlined className="dropdown-icon" />
+                  </div>
+                </Dropdown>
+              </Space>
+            </div>
+          </div>
+        </Header>
 
         <Layout className="staff-content-layout">
           <StaffNavbar />
@@ -148,39 +144,39 @@ const StaffPage = () => {
             <div className="staff-content-container">
               <div className="staff-section">
                 <div className="staff-section-header">
-                  <h2>Portfolio Performance</h2>
-                  <button className="staff-view-all-btn">View All</button>
+                  <h2>Blood Donation Overview</h2>
+                  <button className="staff-view-all-btn">View All Reports</button>
                 </div>
 
                 <div className="staff-stats-grid">
                   <div className="staff-stat-card">
-                    <div className="stat-icon yellow">💰</div>
+                    <div className="stat-icon red">🩸</div>
                     <div className="stat-content">
-                      <h3>Cash Deposits</h3>
-                      <div className="stat-number">1,234</div>
-                      <div className="stat-change negative">↓ 54.1% less earnings</div>
+                      <h3>Total Blood Units Collected</h3>
+                      <div className="stat-number">1,847</div>
+                      <div className="stat-change positive">↑ 12.3% from last month</div>
                     </div>
                   </div>
                   <div className="staff-stat-card">
-                    <div className="stat-icon red">📈</div>
+                    <div className="stat-icon blue">👥</div>
                     <div className="stat-content">
-                      <h3>Today's Donations</h3>
-                      <div className="stat-number">23</div>
-                      <div className="stat-change positive">↑ 14.1% Grow Rate</div>
+                      <h3>Today's Donors</h3>
+                      <div className="stat-number">42</div>
+                      <div className="stat-change positive">↑ 18.5% higher than average</div>
                     </div>
                   </div>
                   <div className="staff-stat-card">
-                    <div className="stat-icon green">💵</div>
+                    <div className="stat-icon green">💉</div>
                     <div className="stat-content">
                       <h3>Blood Units Available</h3>
-                      <div className="stat-number">456</div>
-                      <div className="stat-change positive">↑ 7.35% Increased by</div>
+                      <div className="stat-number">863</div>
+                      <div className="stat-change positive">↑ 5.2% stock increase</div>
                     </div>
                   </div>
                 </div>
 
                 <div className="staff-report-section">
-                  <button className="staff-complete-report-btn">View Complete Report</button>
+                  <button className="staff-complete-report-btn">View Complete Blood Bank Report</button>
                 </div>
               </div>
 
@@ -188,19 +184,19 @@ const StaffPage = () => {
                 <div className="staff-chart-section">
                   <div className="staff-chart-card">
                     <div className="chart-header">
-                      <h3>📊 Technical Support</h3>
+                      <h3>🩸 Blood Type Distribution</h3>
                     </div>
                     <div className="chart-content">
                       <div className="chart-stats">
-                        <span className="chart-subtitle">NEW ACCOUNTS SINCE 2018</span>
+                        <span className="chart-subtitle">CURRENT BLOOD INVENTORY</span>
                         <div className="chart-number">
-                          <span className="big-number">78</span>
-                          <span className="percentage">%</span>
-                          <span className="change-indicator">+14</span>
+                          <span className="big-number">863</span>
+                          <span className="percentage">units</span>
+                          <span className="change-indicator">+42 today</span>
                         </div>
                       </div>
                       <div className="chart-placeholder">
-                        📈 [Chart visualization would go here]
+                        📊 O+: 35% | A+: 28% | B+: 15% | AB+: 12% | Others: 10%
                       </div>
                     </div>
                   </div>
@@ -209,27 +205,27 @@ const StaffPage = () => {
                 <div className="staff-timeline-section">
                   <div className="staff-timeline-card">
                     <div className="timeline-header">
-                      <h3>📅 Timeline Example</h3>
+                      <h3>📅 Today's Donation Schedule</h3>
                     </div>
                     <div className="timeline-content">
                       <div className="timeline-item">
                         <div className="timeline-dot red"></div>
-                        <span>All Hands Meeting</span>
+                        <span>Emergency blood request - O- type needed</span>
                       </div>
                       <div className="timeline-item">
-                        <div className="timeline-dot yellow"></div>
-                        <span>Yet another one, at 15:00 PM</span>
+                        <div className="timeline-dot blue"></div>
+                        <span>Mobile donation drive - 15:00 PM</span>
                       </div>
                       <div className="timeline-item">
                         <div className="timeline-dot green"></div>
-                        <span>Build the production release <span class="new-badge">NEW</span></span>
+                        <span>Blood screening completed <span className="new-badge">NEW</span></span>
                       </div>
                       <div className="timeline-item">
-                        <div className="timeline-dot red"></div>
-                        <span>Something not important</span>
+                        <div className="timeline-dot yellow"></div>
+                        <span>Donor appointment confirmed - 16:30</span>
                       </div>
                       <div className="staff-view-messages">
-                        <button className="view-messages-btn">View All Messages</button>
+                        <button className="view-messages-btn">View All Activities</button>
                       </div>
                     </div>
                   </div>
@@ -238,31 +234,31 @@ const StaffPage = () => {
 
               <div className="staff-metrics-section">
                 <div className="staff-section-header">
-                  <span className="metrics-subtitle">SALES PROGRESS</span>
-                  <h3>Total Orders</h3>
-                  <p>Last year expenses</p>
+                  <span className="metrics-subtitle">MONTHLY PERFORMANCE</span>
+                  <h3>Blood Donation Statistics</h3>
+                  <p>Current month progress</p>
                 </div>
 
                 <div className="staff-metrics-grid">
-                  <div className="metric-card green">
-                    <div className="metric-value">$1234</div>
-                    <div className="metric-label">Total Donors</div>
-                    <div className="metric-chart">📈</div>
+                  <div className="metric-card red">
+                    <div className="metric-value">1,847</div>
+                    <div className="metric-label">Total Donors This Month</div>
+                    <div className="metric-chart">👥</div>
                   </div>
                   <div className="metric-card blue">
-                    <div className="metric-value">$456</div>
-                    <div className="metric-label">Blood Units Available</div>
-                    <div className="metric-chart">📊</div>
+                    <div className="metric-value">863</div>
+                    <div className="metric-label">Blood Units in Stock</div>
+                    <div className="metric-chart">🩸</div>
+                  </div>
+                  <div className="metric-card green">
+                    <div className="metric-value">142</div>
+                    <div className="metric-label">Scheduled Appointments</div>
+                    <div className="metric-chart">📅</div>
                   </div>
                   <div className="metric-card yellow">
-                    <div className="metric-value">$789</div>
-                    <div className="metric-label">Pending Appointments</div>
-                    <div className="metric-chart">📉</div>
-                  </div>
-                  <div className="metric-card red">
-                    <div className="metric-value">$012</div>
-                    <div className="metric-label">Total Revenue</div>
-                    <div className="metric-chart">📈</div>
+                    <div className="metric-value">98.5%</div>
+                    <div className="metric-label">Blood Safety Rate</div>
+                    <div className="metric-chart">✅</div>
                   </div>
                 </div>
               </div>

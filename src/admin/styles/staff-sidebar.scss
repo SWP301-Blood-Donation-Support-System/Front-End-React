@@ -1,8 +1,12 @@
 // Staff Sidebar Component Styles
 .staff-sidebar {
   .ant-layout-sider {
-    background: #ffffff !important; // White background like the image
-    border-right: 1px solid #f0f0f0 !important;
+    background: #ffffff !important; // Clean white background
+    border-right: 1px solid #e8e8e8 !important; // Subtle border
+    padding-top: 24px !important; // Add top padding to the sidebar
+    position: sticky !important;
+    top: 0 !important;
+    height: 100vh !important;
   }
 
   .ant-layout-sider-trigger {
@@ -22,7 +26,7 @@
     }
 
     &:hover {
-      background: #e91e63 !important;
+      background: #dc3545 !important; // Blood red background
       color: #ffffff !important;
     }
     
@@ -63,9 +67,9 @@
     }
   }
 
-  // Dark theme adjustments
+  // Dark theme adjustments for blood donation theme
   .ant-menu-dark {
-    background: #e91e63;
+    background: #dc3545; // Blood red background
 
     .ant-menu-item-group-title {
       color: rgba(255, 255, 255, 0.67);
@@ -97,7 +101,7 @@
   border: none;
   background: #ffffff !important;
   margin-top: 0 !important;
-  padding-top: 0 !important;
+  padding-top: 24px !important; // Add space above the first menu item
 
   .ant-menu-item {
     margin: 0;
@@ -109,13 +113,13 @@
     font-weight: $font-weight-bold !important;
 
     &:hover {
-      background-color: #f5f5f5 !important;
-      color: #e91e63 !important;
+      background-color: #fff5f5 !important; // Light red background
+      color: #dc3545 !important; // Blood red text
     }
 
     &.ant-menu-item-selected {
-      background-color: #f0f0f0 !important;
-      color: #e91e63 !important;
+      background-color: #fee !important; // Lighter red for selected
+      color: #dc3545 !important;
 
       &::after {
         display: none;
@@ -132,8 +136,8 @@
       font-weight: $font-weight-bold !important;
 
       &:hover {
-        background-color: #f5f5f5 !important;
-        color: #e91e63 !important;
+        background-color: #fff5f5 !important;
+        color: #dc3545 !important;
       }
     }
 
@@ -147,5 +151,10 @@
     margin-right: $spacing-sm;
     opacity: 0.8;
     color: #666666;
+    
+    // Blood donation themed icon colors
+    &:hover {
+      color: #dc3545;
+    }
   }
 } 

@@ -14,7 +14,7 @@
 // Staff Page Main Styles
 .staff-layout {
   min-height: 100vh;
-  background: #d6dde4;
+  background: #f8f9fa; // Clean medical white background
 }
 
 .staff-main-layout {
@@ -24,42 +24,18 @@
 // Staff Header (Horizontal Navigation)
 .staff-header {
   background: #ffffff !important;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #e8e8e8;
   padding: 0 $spacing-lg !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.08); // Subtle red shadow
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  
-  .staff-header-logo {
-    width: 80px;
-    height: 60px;
-    background: #e91e63;
-    margin: 16px 0;
-    border-radius: 6px;
-    position: relative;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    
-    &::before {
-      display: none;
-    }
-    
-    .logo-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 6px;
-    }
-  }
   
   .staff-header-right {
     display: flex;
     align-items: center;
     gap: $spacing-lg;
+    margin-left: auto;
   }
   
   .staff-header-menu {
@@ -71,14 +47,14 @@
       border-bottom: 2px solid transparent !important;
       
       &:hover {
-        color: #e91e63 !important;
-        background: #f5f5f5 !important;
+        color: #dc3545 !important; // Blood red color
+        background: #fff5f5 !important; // Light red background
       }
       
       &.ant-menu-item-selected {
-        color: #e91e63 !important;
-        background-color: #f5f5f5 !important;
-        border-bottom-color: #e91e63 !important;
+        color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        border-bottom-color: #dc3545 !important;
       }
       
       &::after {
@@ -103,8 +79,8 @@
       color: #666666;
       
       &:hover {
-        background: #f5f5f5;
-        color: #e91e63;
+        background: #fff5f5;
+        color: #dc3545; // Blood red on hover
       }
     }
   }
@@ -119,7 +95,7 @@
     transition: $transition-fast;
     
     &:hover {
-      background: #f5f5f5;
+      background: #fff5f5;
     }
     
     .user-avatar {
@@ -142,14 +118,14 @@
 
 // Content Layout
 .staff-content-layout {
-  background: #d6dde4;
+  background: #f8f9fa; // Clean medical background
 }
 
 .staff-content {
   margin: 0;
   padding: $spacing-xl $spacing-xl;
   min-height: calc(100vh - 240px);
-  background: #d6dde4;
+  background: #f8f9fa;
 }
 
 .staff-content-container {
