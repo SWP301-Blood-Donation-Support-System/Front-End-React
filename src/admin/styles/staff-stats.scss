@@ -1,0 +1,104 @@
+// Staff Stats Cards Component Styles
+.staff-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-xl;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+  }
+}
+
+.staff-stat-card {
+  background: $background-white;
+  border: 1px solid #f0f2f5;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  transition: $transition-normal;
+  position: relative;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-xl;
+    flex-shrink: 0;
+
+    &.yellow {
+      background: #fff3e0;
+    }
+
+    &.red {
+      background: #ffebee;
+    }
+
+    &.green {
+      background: #e8f5e8;
+    }
+  }
+
+  .stat-content {
+    flex: 1;
+
+    h3 {
+      color: $text-secondary;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      margin-bottom: $spacing-xs;
+    }
+
+    .stat-number {
+      color: $text-primary;
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      margin-bottom: $spacing-xs;
+    }
+
+    .stat-change {
+      font-size: $font-size-sm;
+      
+      &.positive {
+        color: #4caf50;
+      }
+
+      &.negative {
+        color: #f44336;
+      }
+    }
+  }
+}
+
+// Report Section
+.staff-report-section {
+  text-align: center;
+  margin-top: $spacing-xl;
+  padding-top: $spacing-xl;
+  border-top: 1px solid #f0f2f5;
+}
+
+.staff-complete-report-btn {
+  background: #e91e63;
+  color: $background-white;
+  border: none;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    background: darken(#e91e63, 10%);
+  }
+} 

@@ -12,6 +12,7 @@ import {
   DownOutlined,
 } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme, Avatar, Dropdown, Badge, Space } from 'antd';
+import StaffNavbar from '../components/StaffNavbar';
 
 const { Header, Content, Sider } = Layout;
 
@@ -135,6 +136,7 @@ const StaffPage = () => {
         </Sider>
         
         <Layout className="staff-content-layout">
+          <StaffNavbar />
           <Content className="staff-content" style={{ padding: '0 48px' }}>
 
             
