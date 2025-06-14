@@ -1,0 +1,285 @@
+// Profile Page Styles
+.profile-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: $spacing-xl;
+
+  @media (max-width: 768px) {
+    padding: $spacing-lg;
+  }
+}
+
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profile-title {
+  color: $text-primary;
+  margin-bottom: $spacing-xl;
+  text-align: center;
+
+  .anticon {
+    margin-right: $spacing-sm;
+    color: #dc2626;
+  }
+}
+
+// Loading and Error States
+.profile-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+}
+
+.profile-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-size: $font-size-lg;
+}
+
+// Profile Header Card
+.profile-header-card {
+  border-radius: $border-radius-lg;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+
+  .ant-card-body {
+    padding: $spacing-2xl;
+  }
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xl;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: $spacing-lg;
+  }
+}
+
+.profile-avatar {
+  border: 4px solid #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+  flex-shrink: 0;
+}
+
+.profile-header-info {
+  flex: 1;
+
+  .profile-name {
+    color: $text-primary;
+    margin-bottom: $spacing-xs;
+    font-weight: $font-weight-bold;
+  }
+
+  .profile-username {
+    color: $text-secondary;
+    font-size: $font-size-lg;
+    display: block;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.profile-tags {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+
+  .ant-tag {
+    padding: 4px 12px;
+    border-radius: $border-radius-md;
+    font-weight: $font-weight-medium;
+    border: none;
+
+    .anticon {
+      margin-right: 4px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.profile-actions {
+  @media (max-width: 768px) {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .ant-btn {
+    height: 40px;
+    padding: 0 $spacing-xl;
+    border-radius: $border-radius-md;
+    font-weight: $font-weight-medium;
+  }
+}
+
+// Info Cards
+.profile-info-card {
+  border-radius: $border-radius-lg;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  height: 100%;
+
+  .ant-card-head {
+    border-bottom: 2px solid #f0f2f5;
+
+    .ant-card-head-title {
+      color: $text-primary;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-lg;
+    }
+  }
+
+  .ant-descriptions-item-label {
+    color: $text-secondary;
+    font-weight: $font-weight-medium;
+    width: 40%;
+
+    .anticon {
+      margin-right: $spacing-xs;
+      color: #dc2626;
+    }
+  }
+
+  .ant-descriptions-item-content {
+    color: $text-primary;
+    font-weight: $font-weight-medium;
+  }
+
+  .ant-descriptions-row {
+    border-bottom: 1px solid #f5f5f5;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+// Donation History Card
+.profile-donation-card {
+  border-radius: $border-radius-lg;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+
+  .ant-card-head {
+    border-bottom: 2px solid #f0f2f5;
+
+    .ant-card-head-title {
+      color: $text-primary;
+      font-weight: $font-weight-bold;
+      font-size: $font-size-lg;
+    }
+  }
+}
+
+.donation-stat {
+  text-align: center;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border-radius: $border-radius-lg;
+  color: white;
+  transition: $transition-normal;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(220, 38, 38, 0.3);
+  }
+
+  .stat-number {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    line-height: 1.2;
+    margin-bottom: $spacing-xs;
+  }
+
+  .stat-label {
+    font-size: $font-size-sm;
+    opacity: 0.9;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.donation-actions {
+  text-align: center;
+  margin-top: $spacing-lg;
+
+  .ant-btn {
+    height: 48px;
+    padding: 0 $spacing-2xl;
+    border-radius: $border-radius-md;
+    font-weight: $font-weight-medium;
+    font-size: $font-size-base;
+
+    &.ant-btn-primary {
+      background: #dc2626;
+      border-color: #dc2626;
+
+      &:hover {
+        background: #b91c1c;
+        border-color: #b91c1c;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .ant-space {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      .ant-space-item {
+        width: 100%;
+
+        .ant-btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 992px) {
+  .profile-header {
+    .profile-actions {
+      margin-top: $spacing-lg;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-page {
+    padding: $spacing-md;
+  }
+
+  .profile-header-card .ant-card-body {
+    padding: $spacing-xl;
+  }
+
+  .profile-avatar {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .profile-title {
+    font-size: $font-size-xl;
+  }
+
+  .donation-stat {
+    padding: $spacing-md;
+
+    .stat-number {
+      font-size: $font-size-2xl;
+    }
+  }
+} 

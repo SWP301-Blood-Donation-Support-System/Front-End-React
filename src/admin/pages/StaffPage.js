@@ -69,6 +69,8 @@ const StaffPage = () => {
   const handleMenuClick = ({ key }) => {
     if (key === 'logout') {
       handleLogout();
+    } else if (key === 'profile') {
+      navigate('/profile');
     }
   };
 

@@ -35,7 +35,11 @@ const Header = () => {
   // User dropdown menu
   const userMenu = (
     <Menu>
-      <Menu.Item key="profile" icon={<UserOutlined />}>
+      <Menu.Item 
+        key="profile" 
+        icon={<UserOutlined />}
+        onClick={() => navigate("/profile")}
+      >
         Profile
       </Menu.Item>
       <Menu.Item key="settings" icon={<SettingOutlined />}>
