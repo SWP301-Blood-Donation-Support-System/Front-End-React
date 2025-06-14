@@ -1,0 +1,112 @@
+// Staff Layout Component Styles - Additional layout utilities
+// Main layout styles are now in staff.scss
+
+// Section Styles
+.staff-section {
+  background: $background-white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.staff-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    color: $text-primary;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    margin: 0;
+  }
+}
+
+.staff-view-all-btn {
+  background: transparent;
+  border: 1px solid #e5e9f2;
+  color: $text-secondary;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    border-color: #e91e63;
+    color: #e91e63;
+  }
+}
+
+// Header Section (Old)
+.staff-header-old {
+  padding: 0;
+  background: $background-white;
+  border-bottom: 1px solid #e5e9f2;
+  height: $spacing-xl;
+}
+
+.staff-header-section {
+  background: $background-white;
+  padding: $spacing-xl $spacing-xxl;
+  border-bottom: 1px solid #e5e9f2;
+  margin: 0 (-$spacing-xl) $spacing-xl (-$spacing-xl);
+}
+
+.staff-page-header {
+  margin-bottom: $spacing-lg;
+}
+
+.staff-page-title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.staff-page-subtitle {
+  color: $text-secondary;
+  font-size: $font-size-base;
+  margin-bottom: 0;
+}
+
+// Tab Styles
+.staff-tabs {
+  display: flex;
+  gap: $spacing-xl;
+}
+
+.staff-tab {
+  color: $text-secondary;
+  font-size: $font-size-base;
+  cursor: pointer;
+  padding-bottom: $spacing-sm;
+  border-bottom: 2px solid transparent;
+  transition: $transition-fast;
+
+  &.active {
+    color: #e91e63;
+    border-bottom-color: #e91e63;
+  }
+
+  &:hover {
+    color: #e91e63;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .staff-content {
+    margin: 0 $spacing-sm;
+  }
+
+  .staff-content-container {
+    padding: $spacing-lg;
+
+    h2 {
+      font-size: $font-size-2xl;
+    }
+  }
+} 

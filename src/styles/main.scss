@@ -16,6 +16,14 @@
 @import 'layout/footer';
 @import '../admin/styles/staff-header';
 
+// 4.5 Admin component styles
+@import '../admin/styles/staff-layout';
+@import '../admin/styles/staff-sidebar';
+@import '../admin/styles/staff-navbar';
+@import '../admin/styles/staff-stats';
+@import '../admin/styles/staff-charts';
+@import '../admin/styles/staff-metrics';
+
 // 5. Page styles
 @import 'pages/homepage';
 @import 'pages/auth';

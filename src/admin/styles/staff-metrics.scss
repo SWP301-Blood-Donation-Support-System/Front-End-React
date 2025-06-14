@@ -1,0 +1,109 @@
+// Staff Metrics Component Styles
+.staff-metrics-section {
+  background: $background-white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  .staff-section-header {
+    margin-bottom: $spacing-xl;
+
+    .metrics-subtitle {
+      color: $text-light;
+      font-size: $font-size-xs;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: $spacing-sm;
+    }
+
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin: 0 0 $spacing-xs 0;
+    }
+
+    p {
+      color: $text-secondary;
+      font-size: $font-size-sm;
+      margin: 0;
+    }
+  }
+}
+
+.staff-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-lg;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metric-card {
+  border: 1px solid #f0f2f5;
+  border-radius: $border-radius-lg;
+  padding: $spacing-lg;
+  text-align: center;
+  transition: $transition-normal;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .metric-value {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-sm;
+  }
+
+  .metric-label {
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    margin-bottom: $spacing-md;
+  }
+
+  .metric-chart {
+    font-size: $font-size-xl;
+    opacity: 0.6;
+  }
+
+  &.green {
+    border-left: 4px solid #4caf50;
+    
+    .metric-value {
+      color: #4caf50;
+    }
+  }
+
+  &.blue {
+    border-left: 4px solid #2196f3;
+    
+    .metric-value {
+      color: #2196f3;
+    }
+  }
+
+  &.yellow {
+    border-left: 4px solid #ff9800;
+    
+    .metric-value {
+      color: #ff9800;
+    }
+  }
+
+  &.red {
+    border-left: 4px solid #f44336;
+    
+    .metric-value {
+      color: #f44336;
+    }
+  }
+} 

@@ -1,0 +1,190 @@
+// Staff Sidebar Component Styles
+.staff-sidebar {
+  .ant-layout-sider {
+    background: #D91D1D !important; // User specified red background
+    border-right: none !important;
+    padding-top: 24px !important; // Add top padding to the sidebar
+    position: sticky !important;
+    top: 0 !important;
+    height: 100vh !important;
+    align-self: flex-start !important;
+  }
+
+  .ant-layout-sider-trigger {
+    background: #D91D1D !important;
+    color: #ffffff !important;
+    transition: $transition-normal;
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+
+    &::before {
+      display: none !important;
+    }
+
+    &:hover {
+      background: #dc2626 !important; // Original darker red on hover
+      color: #ffffff !important;
+    }
+    
+    .anticon {
+      color: #ffffff !important;
+      font-weight: bold !important;
+    }
+    
+    &:hover .anticon {
+      color: #ffffff !important;
+    }
+  }
+  
+  .custom-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #ffffff;
+    font-size: 16px;
+    
+    .anticon {
+      color: #ffffff !important;
+    }
+  }
+
+  .ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #D91D1D;
+    border: none !important;
+    
+    &::before,
+    &::after {
+      display: none !important;
+    }
+  }
+
+  // Dark theme adjustments for red sidebar
+  .ant-menu-dark {
+    background: #D91D1D; // User specified red background
+
+    .ant-menu-item-group-title {
+      color: rgba(255, 255, 255, 0.67);
+    }
+
+    .ant-menu-item-selected {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .ant-menu-submenu-selected > .ant-menu-submenu-title {
+      color: #ffffff;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .ant-layout-sider-children {
+      background: #D91D1D;
+    }
+  }
+}
+
+.staff-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: #D91D1D;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  .healthcare-logo {
+    max-width: 180px;
+    max-height: 90px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+.staff-menu {
+  flex: 1;
+  border: none;
+  background: #D91D1D !important; // User specified red background
+  margin-top: 0 !important;
+  padding-top: 0 !important; // No top padding needed since logo provides spacing
+
+  .ant-menu-item {
+    margin: 0;
+    border-radius: 0;
+    padding-left: $spacing-xl !important;
+    transition: $transition-normal;
+    color: #ffffff !important; // White text
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important; // Light overlay on hover
+      color: #ffffff !important;
+    }
+
+    &.ant-menu-item-selected {
+      background-color: rgba(255, 255, 255, 0.15) !important; // Selected state
+      color: #ffffff !important;
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  .ant-menu-submenu {
+    .ant-menu-submenu-title {
+      padding-left: $spacing-xl !important;
+      transition: $transition-normal;
+      color: #ffffff !important;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-bold !important;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+      }
+    }
+
+    .ant-menu-sub {
+      background: #D91D1D !important; // Match sidebar red background
+    }
+
+    .ant-menu-item {
+      padding-left: $spacing-3xl !important;
+      background: #D91D1D !important; // Match sidebar red background
+      color: #ffffff !important;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+      }
+
+      &.ant-menu-item-selected {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        color: #ffffff !important;
+      }
+    }
+  }
+
+  .anticon {
+    font-size: $font-size-sm;
+    margin-right: $spacing-sm;
+    opacity: 0.8;
+    color: #ffffff; // White icons
+    
+    // Red sidebar themed icon colors
+    &:hover {
+      color: #ffffff;
+    }
+  }
+} 
