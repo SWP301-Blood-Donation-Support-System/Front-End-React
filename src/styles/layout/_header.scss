@@ -14,11 +14,7 @@
   }
 
   &-logo {
-    background: $background-white;
-    border-radius: 30px;
-    padding: $spacing-md $spacing-lg;
     @include flex-center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     transition: $transition-normal;
     position: absolute;
@@ -28,11 +24,10 @@
 
     &:hover {
       transform: translateY(-50%) scale(1.05);
-      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
     }
 
     img {
-      height: 50px;
+      height: 80px;
       width: auto;
       pointer-events: none;
     }

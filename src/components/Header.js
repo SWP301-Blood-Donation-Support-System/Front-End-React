@@ -62,9 +62,9 @@ const Header = () => {
 
   return (
     <AntHeader className="header-container">
-      {/* Logo using logo.svg - clickable to go home */}
+      {/* Logo using new-logo.png - clickable to go home */}
       <div onClick={() => navigate("/")} className="header-logo">
-        <img src="/images/logo.svg" alt="Blood Services Logo" />
+        <img src="/images/new-logo.png" alt="Blood Services Logo" />
       </div>
       
       {user ? (
