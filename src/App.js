@@ -8,7 +8,7 @@ import FAQPage from './pages/FAQPage';
 import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
 import BookingPage from './pages/BookingPage';
-import StaffPage from './pages/StaffPage';
+import StaffPage from './admin/pages/StaffPage';
 import './styles/main.scss';
 
 function App() {

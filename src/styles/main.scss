@@ -14,7 +14,7 @@
 @import 'layout/header';
 @import 'layout/navbar';
 @import 'layout/footer';
-@import 'layout/staff-header';
+@import '../admin/styles/staff-header';
 
 // 5. Page styles
 @import 'pages/homepage';
@@ -23,7 +23,7 @@
 @import 'pages/search';
 @import 'pages/news';
 @import 'pages/faq';
-@import 'pages/staff';
+@import '../admin/styles/staff';
 
 // 6. Component styles (to be added as we convert)
 @import 'components/logo';
