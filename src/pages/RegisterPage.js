@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Layout, Card, Form, Input, Button, Typography, DatePicker, Divider } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Layout, Card, Form, Input, Button, Typography, DatePicker, Divider, message } from 'antd';
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -11,6 +11,11 @@ const RegisterPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const onFinish = async (values) => {
     setLoading(true);
     console.log('Register values:', values);
@@ -18,10 +23,11 @@ const RegisterPage = () => {
     // Simulate registration API call
     setTimeout(() => {
       setLoading(false);
+      message.success('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
       // Navigate to login page after successful registration
       navigate('/login');
     }, 1000);
-  };  return (
+  };return (
     <Layout className="auth-page">
       <Header />
       <Navbar />

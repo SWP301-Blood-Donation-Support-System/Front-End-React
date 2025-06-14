@@ -1,0 +1,507 @@
+// Eligibility Form Styles
+.eligibility-layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.eligibility-content {
+  padding: 2rem 0;
+  min-height: calc(100vh - 200px);
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+}
+
+// Header Section
+.eligibility-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  .page-title {
+    color: #dc2626;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    font-size: 2.5rem;
+
+    .anticon {
+      margin-right: 0.5rem;
+      color: #dc2626;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .page-description {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// Steps Component
+.eligibility-steps {
+  margin-bottom: 2rem;
+
+  .custom-steps {
+    .ant-steps-item-process .ant-steps-item-icon,
+    .ant-steps-item-finish .ant-steps-item-icon {
+      background-color: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+      color: white;
+    }
+
+    .ant-steps-item-process .ant-steps-item-title,
+    .ant-steps-item-finish .ant-steps-item-title {
+      color: #dc2626;
+      font-weight: 600;
+    }
+  }
+}
+
+// Main Form Container
+.eligibility-main {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 100px; // Add space for sticky buttons
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin-bottom: 120px; // More space on mobile due to stacked buttons
+  }
+}
+
+// Form Styles
+.eligibility-form {
+  .eligibility-questions {
+    .question-card {
+      margin-bottom: 1.5rem;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #dc2626;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+      }
+
+      .ant-card-body {
+        padding: 1.5rem;
+      }
+
+      .question-header {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+
+        .question-number {
+          font-weight: 700;
+          color: #dc2626;
+          font-size: 1.1rem;
+          margin-right: 0.5rem;
+          min-width: 2rem;
+        }
+
+        .question-title {
+          margin: 0;
+          color: #333;
+          font-weight: 600;
+          line-height: 1.4;
+        }
+      }
+
+      .question-content {
+        margin-left: 2.5rem;
+
+        @media (max-width: 768px) {
+          margin-left: 0;
+        }
+      }
+    }
+  }
+
+  // Radio Group Styles
+  .eligibility-radio-group {
+    width: 100%;
+
+    .eligibility-radio {
+      display: block;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #f8f9fa;
+      }
+
+      .ant-radio {
+        margin-right: 0.5rem;
+      }
+
+      .ant-radio-checked .ant-radio-inner {
+        border-color: #dc2626;
+        background-color: #dc2626;
+      }
+
+      .ant-radio:hover .ant-radio-inner {
+        border-color: #dc2626;
+      }
+    }
+  }
+
+  // Checkbox Group Styles
+  .eligibility-checkbox-group {
+    width: 100%;
+
+    .checkbox-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .eligibility-checkbox {
+      display: block;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      line-height: 1.4;
+
+      &:hover {
+        background-color: #f8f9fa;
+      }
+
+      .ant-checkbox {
+        margin-right: 0.5rem;
+        align-self: flex-start;
+        margin-top: 0.2rem;
+      }
+
+      .ant-checkbox-checked .ant-checkbox-inner {
+        background-color: #dc2626;
+        border-color: #dc2626;
+      }
+
+      .ant-checkbox:hover .ant-checkbox-inner {
+        border-color: #dc2626;
+      }
+
+      span:last-child {
+        flex: 1;
+      }
+    }
+  }
+
+  // Textarea Styles
+  .eligibility-textarea {
+    margin-top: 1rem;
+    border-radius: 6px;
+
+    &:focus,
+    &:hover {
+      border-color: #dc2626;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+    }
+  }
+  // Form Actions - Sticky at bottom
+  .form-actions {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding: 1.5rem 2rem;
+    background: white;
+    border-top: 1px solid #e8e8e8;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    border-radius: 12px 12px 0 0;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+
+      .ant-btn {
+        width: 100%;
+      }
+    }    .back-button {
+      border-color: #dc2626;
+      color: #dc2626;
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #dc2626;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      }
+    }
+
+    .submit-button {
+      background-color: #dc2626;
+      border-color: #dc2626;
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #b91c1c;
+        border-color: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+      }
+    }
+  }
+}
+
+// Result Section
+.eligibility-result {  .result-card {
+    text-align: center;
+    border-radius: 12px;
+    overflow: hidden;
+    padding-bottom: 100px; // Add space for sticky actions
+
+    @media (max-width: 768px) {
+      padding-bottom: 120px; // More space on mobile
+    }
+
+    &.eligible {
+      border: 2px solid #22c55e;
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+
+      .result-icon {
+        color: #22c55e;
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      .result-title {
+        color: #16a34a;
+      }
+    }
+
+    &.not-eligible {
+      border: 2px solid #f59e0b;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+
+      .result-icon {
+        color: #f59e0b;
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      .result-title {
+        color: #d97706;
+      }
+    }
+
+    .ant-card-body {
+      padding: 3rem 2rem;
+
+      @media (max-width: 768px) {
+        padding: 2rem 1.5rem;
+      }
+    }
+
+    .result-content {
+      max-width: 600px;
+      margin: 0 auto;
+
+      .result-title {
+        margin-bottom: 1rem;
+        font-weight: 700;
+
+        @media (max-width: 768px) {
+          font-size: 1.5rem;
+        }
+      }
+
+      .result-description {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      }      .result-actions {
+        position: sticky;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        background: white;
+        padding: 1.5rem 2rem;
+        margin: 2rem -2rem -2rem -2rem; // Extend to card edges
+        border-top: 1px solid #e8e8e8;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 12px 12px 0 0;
+
+        @media (max-width: 768px) {
+          flex-direction: column;
+          gap: 0.5rem;
+          padding: 1rem;
+          margin: 2rem -1.5rem -1.5rem -1.5rem;
+        }
+
+        .proceed-button {
+          background-color: #22c55e;
+          border-color: #22c55e;
+          font-weight: 600;
+          font-size: 1rem;
+          height: auto;
+          padding: 0.75rem 2rem;
+
+          &:hover {
+            background-color: #16a34a;
+            border-color: #16a34a;
+          }
+        }
+
+        .back-button {
+          background-color: #dc2626;
+          border-color: #dc2626;
+          color: white;
+          font-weight: 600;
+          font-size: 1rem;
+          height: auto;
+          padding: 0.75rem 2rem;
+
+          &:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+          }
+        }
+
+        .review-button {
+          border-color: #6b7280;
+          color: #6b7280;
+          font-weight: 600;
+          font-size: 1rem;
+          height: auto;
+          padding: 0.75rem 2rem;
+
+          &:hover {
+            background-color: #6b7280;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Form Validation Styles
+.ant-form-item-has-error {
+  .eligibility-radio-group .eligibility-radio,
+  .eligibility-checkbox-group .eligibility-checkbox {
+    border: 1px solid #ff4d4f;
+    background-color: #fff2f0;
+  }
+
+  .eligibility-textarea {
+    border-color: #ff4d4f;
+  }
+}
+
+// Loading and Transition Effects
+.question-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .eligibility-content {
+    padding: 1rem 0;
+
+    .container {
+      padding: 0 0.5rem;
+    }
+  }
+
+  .eligibility-header {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .eligibility-main {
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .eligibility-form .eligibility-questions .question-card {
+    .question-header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .question-number {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    .question-content {
+      margin-left: 0;
+    }
+  }
+}
+
+// Print Styles
+@media print {
+  .eligibility-layout {
+    background: white !important;
+  }
+
+  .form-actions,
+  .result-actions {
+    display: none !important;
+  }
+
+  .question-card {
+    border: 1px solid #ccc !important;
+    margin-bottom: 1rem !important;
+    page-break-inside: avoid;
+  }
+}

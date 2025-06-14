@@ -709,6 +709,123 @@
   }
 }
 
+// Custom toggle options for gender and time slots
+.gender-option {
+  display: inline-block;
+  padding: 12px 24px;
+  margin-right: 12px;
+  margin-bottom: 8px;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  text-align: center;
+  min-width: 80px;
+  color: #333;
+
+  &:hover {
+    border-color: #dc2626;
+    color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border-color: #dc2626;
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.time-slot-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 24px;
+  margin: 0 12px 12px 0;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 160px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    border-color: #dc2626;
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.15);
+    transform: translateY(-2px);
+    
+    .time-slot-title {
+      color: #dc2626;
+    }
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border-color: #dc2626;
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.25);
+    transform: translateY(-1px);
+    
+    .time-slot-title,
+    .time-slot-time {
+      color: white !important;
+    }
+  }
+
+  .time-slot-content {
+    text-align: center;
+    width: 100%;
+    
+    .time-slot-title {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 6px;
+      transition: all 0.3s ease;
+      color: #333;
+    }
+    
+    .time-slot-time {
+      font-size: 14px;
+      color: #666;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+  }
+}
+
+.time-slot-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  justify-content: flex-start;
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+    
+    .time-slot-option {
+      margin: 0 6px 12px 6px;
+      min-width: 140px;
+      padding: 16px 20px;
+    }
+  }
+}
+
+.time-slot-wrapper {
+  .time-slot-group {
+    width: 100%;
+  }
+}
+
 // Responsive Design
 @include tablet {
   .hero-section {
@@ -1110,172 +1227,58 @@
   }
 }
 
-// FAQ Section
-.faq-section {
-  @include section-padding;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 20% 80%, rgba($primary-color, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba($primary-color, 0.05) 0%, transparent 50%);
-    pointer-events: none;
+// Login Notification Modal Styles
+.login-notification-modal {
+  .ant-modal-content {
+    border-radius: 12px;
+    overflow: hidden;
   }
 
-  .container {
-    position: relative;
-    z-index: 1;
+  .login-modal-content {
+    padding: $spacing-2xl;
+    text-align: center;
   }
-  .section-title {
-    text-align: center !important;
-    color: $text-primary !important;
-    font-size: $font-size-3xl !important;
+
+  .login-modal-icon {
+    margin-bottom: $spacing-lg;
+  }
+
+  .login-modal-title {
+    color: $primary-color !important;
     font-weight: $font-weight-bold !important;
-    margin-bottom: $spacing-4xl !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: $spacing-lg !important;
-    flex-direction: row !important;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -$spacing-lg;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 4px;
-      background: linear-gradient(90deg, $primary-color, $primary-hover);
-      border-radius: 2px;
-      margin: 0;
-    }
-
-    .anticon {
-      color: $primary-color;
-      font-size: $font-size-2xl;
-      animation: pulse 2s ease-in-out infinite;
-    }
+    margin-bottom: $spacing-md !important;
+  }
+  .login-modal-description {
+    color: $text-secondary !important;
+    font-size: $font-size-base !important;
+    line-height: 1.6 !important;
   }
 
-  .faq-collapse {
-    background: transparent;
-    border: none;
-
-    .ant-collapse-item {
-      margin-bottom: $spacing-xl !important;
-      border-radius: $border-radius-xl !important;
-      box-shadow: 
-        0 4px 20px rgba(0, 0, 0, 0.08),
-        0 1px 3px rgba(0, 0, 0, 0.1) !important;
-      overflow: hidden;
-      border: none !important;
-      transition: $transition-normal;
-      background: $background-white;
-
+  .login-modal-actions {
+    .login-button {
+      background: $primary-color;
+      border: none;
+      border-radius: 8px;
+      font-weight: $font-weight-medium;
+      
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 
-          0 8px 30px rgba(0, 0, 0, 0.12),
-          0 2px 6px rgba(0, 0, 0, 0.15) !important;
-      }
-
-      &:last-child {
-        margin-bottom: 0 !important;
+        background: darken($primary-color, 10%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($primary-color, 0.3);
       }
     }
 
-    .ant-collapse-header {
-      background: $background-white !important;      border-radius: $border-radius-xl !important;
-      font-weight: $font-weight-semibold !important;
-      color: $text-primary !important;      font-size: $font-size-lg !important;
-      padding: $spacing-xxl $spacing-3xl !important;
-      align-items: center !important;
-      transition: $transition-normal;
-      position: relative;
-
+    .register-button {
+      border: 2px solid $primary-color;
+      color: $primary-color;
+      border-radius: 8px;
+      font-weight: $font-weight-medium;
+      
       &:hover {
-        color: $primary-color !important;
-
-        .ant-collapse-arrow {
-          color: $primary-color !important;
-          transform: scale(1.1);
-        }
-      }
-
-      .ant-collapse-arrow {
-        color: $primary-color !important;
-        font-size: $font-size-xl !important;
-        font-weight: $font-weight-bold !important;
-        transition: $transition-normal;
-        margin-inline-end: $spacing-lg !important;
-      }
-    }
-
-    .ant-collapse-content {
-      background: $background-white !important;
-      border-radius: 0 0 $border-radius-xl $border-radius-xl !important;
-      border-top: 1px solid rgba($primary-color, 0.1);      .ant-collapse-content-box {
-        padding: 0 $spacing-3xl $spacing-xxl $spacing-3xl !important;
-        
-        .faq-answer {
-          color: $text-secondary !important;
-          line-height: $line-height-relaxed !important;
-          font-size: $font-size-base !important;
-
-          p {
-            margin-bottom: $spacing-lg !important;
-            font-weight: $font-weight-medium;
-            color: $text-primary;
-          }
-
-          ul {
-            margin: 0;
-            padding-left: $spacing-xl;
-            
-            li {
-              margin-bottom: $spacing-md;
-              color: $text-secondary;
-              line-height: $line-height-relaxed;
-              position: relative;
-              
-              &::marker {
-                color: $primary-color;
-                font-size: $font-size-lg;
-              }
-
-              &:hover {
-                color: $text-primary;
-                transform: translateX(4px);
-                transition: $transition-normal;
-              }
-            }
-          }
-
-          strong {
-            color: $primary-color;
-            font-weight: $font-weight-semibold;
-          }
-        }
-      }
-    }
-
-    // Active state
-    .ant-collapse-item-active {
-      .ant-collapse-header {
-        background: linear-gradient(135deg, rgba($primary-color, 0.05), rgba($primary-color, 0.02)) !important;
-        color: $primary-color !important;
-
-        .ant-collapse-arrow {
-          color: $primary-color !important;
-        }
+        background: $primary-color;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($primary-color, 0.3);
       }
     }
   }

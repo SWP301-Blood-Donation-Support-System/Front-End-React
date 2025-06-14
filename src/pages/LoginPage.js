@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Card, Form, Input, Button, Typography, Divider } from 'antd';
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,6 +17,10 @@ const LoginPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -31,9 +35,9 @@ const LoginPage = () => {
       
       // Store token and user info
       localStorage.setItem("token", response.data.result);
+      localStorage.setItem("user", JSON.stringify(decoded));
       localStorage.setItem("userInfo", JSON.stringify(decoded));
-      
-      // Role-based redirection
+        // Role-based redirection - simplified to always go home for regular users
       const userRoleId = decoded.RoleID;
       console.log("User Role ID:", userRoleId);
       
@@ -41,7 +45,7 @@ const LoginPage = () => {
         // Redirect to staff page for roles 1 and 2
         navigate("/staff");
       } else {
-        // Redirect to homepage for other roles
+        // Always redirect regular users to homepage after login
         navigate("/");
       }
     }catch(error){

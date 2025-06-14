@@ -10,18 +10,19 @@ import {
   Collapse,
   Divider,
   Form,
-  Input,
-  Select,
-  DatePicker,
-  Radio,
-  message
+  Input,  Select,  DatePicker,
+  Modal
 } from 'antd';
 import { 
   HeartOutlined, 
   CalendarOutlined, 
   ClockCircleOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
+  UserOutlined,
+  LoginOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -32,9 +33,14 @@ const { Content } = Layout;
 const BookingPage = () => {
   const [donationType, setDonationType] = useState('whole-blood');
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const preservedData = location.state?.preservedBookingData;  const [formValues, setFormValues] = useState({});
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Scroll to form when there's a hash in URL (từ trang chủ)
+  // Handle navigation and scroll effects
   useEffect(() => {
+    // Scroll to form when there's a hash in URL (từ trang chủ)
     if (window.location.hash === '#booking-form') {
       const timer = setTimeout(() => {
         const formElement = document.getElementById('booking-form');
@@ -44,16 +50,86 @@ const BookingPage = () => {
       }, 300); // Small delay for page load
 
       return () => clearTimeout(timer);
+    } else {
+      // Scroll to top when navigating to booking page without hash
+      window.scrollTo(0, 0);
     }
-  }, []);
-  
-  const handleFormSubmit = (values) => {
+  }, []);// Restore form data when coming back from eligibility page
+  useEffect(() => {
+    if (preservedData) {
+      // Create a copy of preserved data to avoid mutating the original
+      const formData = { ...preservedData };
+      
+      // Skip date field to avoid validation issues - user will need to re-select date
+      delete formData.donationDate;
+      
+      form.setFieldsValue(formData);
+      // Also set donation type if it was preserved
+      if (preservedData.donationType) {
+        setDonationType(preservedData.donationType);
+      }
+    }
+  }, [preservedData, form]);const handleFormSubmit = (values) => {
+    // Check authentication before proceeding to eligibility form
+    const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    if (!user || !token) {
+      // Store form data temporarily for after login
+      sessionStorage.setItem('pendingBookingData', JSON.stringify({
+        ...values,
+        donationType
+      }));
+      
+      // Show login modal instead of redirecting
+      setShowLoginModal(true);
+      return;
+    }
+
     console.log('Form Data:', values);
-    message.success({
-      content: 'Đăng ký thành công! Chúng tôi sẽ liên hệ với bạn trong vòng 24h để xác nhận lịch hẹn.',
-      duration: 5,
+    // Include donation type in the booking data and safely handle date
+    const completeBookingData = {
+      ...values,
+      donationType,
+      userId: JSON.parse(user).id // Add user ID to booking data
+    };
+    
+    // Safely convert date to string for state transfer
+    if (values.donationDate) {
+      try {
+        completeBookingData.donationDate = values.donationDate.format ? 
+          values.donationDate.format('YYYY-MM-DD') : 
+          values.donationDate.toString();
+      } catch (error) {
+        console.error('Error formatting date:', error);
+        completeBookingData.donationDate = null;
+      }
+    }
+      // Navigate to eligibility form
+    navigate('/eligibility', { state: { bookingData: completeBookingData } });
+  };  const handleLoginClick = () => {
+    // Save booking data to sessionStorage before redirecting
+    if (form.getFieldsValue()) {
+      sessionStorage.setItem('pendingBookingData', JSON.stringify({
+        ...form.getFieldsValue(),
+        donationType
+      }));
+    }
+    
+    navigate('/login', {
+      state: {
+        redirectPath: '/booking',
+        preserveHash: window.location.hash
+      }
     });
-    form.resetFields();
+  };
+
+  const handleRegisterClick = () => {
+    navigate('/register');
+  };
+
+  const handleCloseModal = () => {
+    setShowLoginModal(false);
   };
 
   const donationTypes = [
@@ -224,9 +300,7 @@ const BookingPage = () => {
                     ĐẶT LỊCH HIẾN MÁU NGAY
                   </Button>
                   
-                  <div className="booking-hero-disclaimer">
-                    *Điều khoản áp dụng, tìm hiểu thêm
-                  </div>
+                  
                 </div>
               </Col>
               
@@ -328,11 +402,11 @@ const BookingPage = () => {
             
             <Row justify="center">
               <Col xs={24} lg={20} xl={18}>
-                <div className="form-container">
-                  <Form
+                <div className="form-container">                  <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleFormSubmit}
+                    onValuesChange={(changedValues, allValues) => setFormValues(allValues)}
                     requiredMark={false}
                     size="large"
                     className="donation-form"
@@ -405,18 +479,45 @@ const BookingPage = () => {
                     </Row>
 
                     <Row gutter={[24, 24]}>
-                      <Col xs={24} md={12}>
-                        <Form.Item
+                      <Col xs={24} md={12}>                        <Form.Item
                           label="Giới tính"
                           name="gender"
                           rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}
                         >
-                          <div className="radio-group-wrapper">
-                            <Radio.Group className="custom-radio-group">
-                              <Radio.Button value="male">Nam</Radio.Button>
-                              <Radio.Button value="female">Nữ</Radio.Button>
-                              <Radio.Button value="other">Khác</Radio.Button>
-                            </Radio.Group>
+                          <div className="custom-radio-group radio-group-wrapper">
+                            <div 
+                              className={`gender-option ${formValues.gender === 'male' ? 'selected' : ''}`}
+                              onClick={() => {
+                                const currentValue = formValues.gender;
+                                const newValue = currentValue === 'male' ? undefined : 'male';
+                                form.setFieldsValue({ gender: newValue });
+                                setFormValues({ ...formValues, gender: newValue });
+                              }}
+                            >
+                              Nam
+                            </div>
+                            <div 
+                              className={`gender-option ${formValues.gender === 'female' ? 'selected' : ''}`}
+                              onClick={() => {
+                                const currentValue = formValues.gender;
+                                const newValue = currentValue === 'female' ? undefined : 'female';
+                                form.setFieldsValue({ gender: newValue });
+                                setFormValues({ ...formValues, gender: newValue });
+                              }}
+                            >
+                              Nữ
+                            </div>
+                            <div 
+                              className={`gender-option ${formValues.gender === 'other' ? 'selected' : ''}`}
+                              onClick={() => {
+                                const currentValue = formValues.gender;
+                                const newValue = currentValue === 'other' ? undefined : 'other';
+                                form.setFieldsValue({ gender: newValue });
+                                setFormValues({ ...formValues, gender: newValue });
+                              }}
+                            >
+                              Khác
+                            </div>
                           </div>
                         </Form.Item>
                       </Col>
@@ -439,30 +540,42 @@ const BookingPage = () => {
                           </Select>
                         </Form.Item>
                       </Col>
-                    </Row>
-
-                    <Form.Item
+                    </Row>                    <Form.Item
                       label="Thời gian hiến máu"
                       name="donationSlot"
                       rules={[{ required: true, message: 'Vui lòng chọn thời gian hiến máu' }]}
                     >
-                      <div className="time-slot-wrapper">
-                        <Radio.Group className="time-slot-group">
-                          <div className="time-slot-options">
-                            <Radio.Button value="morning" className="time-slot-option">
-                              <div className="time-slot-content">
-                                <div className="time-slot-title">Buổi sáng</div>
-                                <div className="time-slot-time">7:00 - 11:00</div>
-                              </div>
-                            </Radio.Button>
-                            <Radio.Button value="afternoon" className="time-slot-option">
-                              <div className="time-slot-content">
-                                <div className="time-slot-title">Buổi chiều</div>
-                                <div className="time-slot-time">13:00 - 17:00</div>
-                              </div>
-                            </Radio.Button>
+                      <div className="time-slot-group time-slot-wrapper">
+                        <div className="time-slot-options">
+                          <div 
+                            className={`time-slot-option ${formValues.donationSlot === 'morning' ? 'selected' : ''}`}
+                            onClick={() => {
+                              const currentValue = formValues.donationSlot;
+                              const newValue = currentValue === 'morning' ? undefined : 'morning';
+                              form.setFieldsValue({ donationSlot: newValue });
+                              setFormValues({ ...formValues, donationSlot: newValue });
+                            }}
+                          >
+                            <div className="time-slot-content">
+                              <div className="time-slot-title">Buổi sáng</div>
+                              <div className="time-slot-time">7:00 - 11:00</div>
+                            </div>
                           </div>
-                        </Radio.Group>
+                          <div 
+                            className={`time-slot-option ${formValues.donationSlot === 'afternoon' ? 'selected' : ''}`}
+                            onClick={() => {
+                              const currentValue = formValues.donationSlot;
+                              const newValue = currentValue === 'afternoon' ? undefined : 'afternoon';
+                              form.setFieldsValue({ donationSlot: newValue });
+                              setFormValues({ ...formValues, donationSlot: newValue });
+                            }}
+                          >
+                            <div className="time-slot-content">
+                              <div className="time-slot-title">Buổi chiều</div>
+                              <div className="time-slot-time">13:00 - 17:00</div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </Form.Item>
 
@@ -504,7 +617,49 @@ const BookingPage = () => {
         </section>
       </Content>
 
-      <Footer />
+      <Footer />      {/* Modal thông báo đăng nhập */}
+      <Modal
+        open={showLoginModal}
+        onCancel={handleCloseModal}
+        footer={null}
+        className="login-notification-modal"
+        centered
+        width={480}
+      >
+        <div className="login-modal-content">
+          <div className="login-modal-icon">
+            <UserOutlined style={{ fontSize: '48px', color: '#dc2626' }} />
+          </div>
+          
+          <Title level={3} className="login-modal-title" style={{ textAlign: 'center', marginTop: '16px' }}>
+            Yêu Cầu Đăng Nhập
+          </Title>
+          
+          <Paragraph className="login-modal-description" style={{ textAlign: 'center', marginBottom: '24px' }}>
+            Bạn cần đăng nhập để thực hiện đăng ký hiến máu. Thông tin đặt lịch của bạn sẽ được lưu lại.
+          </Paragraph>
+
+          <div className="login-modal-actions" style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <Button 
+              type="primary" 
+              size="large"
+              icon={<LoginOutlined />}
+              onClick={handleLoginClick}
+              className="login-button"
+            >
+              Đăng Nhập
+            </Button>
+            
+            <Button 
+              size="large"
+              onClick={handleRegisterClick}
+              className="register-button"
+            >
+              Đăng Ký
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </Layout>
   );
 };
