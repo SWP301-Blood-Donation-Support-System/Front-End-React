@@ -127,18 +127,16 @@ const ProfilePage = () => {
             {/* Profile Header Card */}
             <Col span={24}>
               <Card className="profile-header-card">
-                <div className="profile-header">
-                  <Avatar
+                <div className="profile-header">                  <Avatar
                     size={120}
-                    src="/images/huy1.png"
+                    src={user.picture || "/images/huy1.png"} // Use Google profile picture if available
                     icon={<UserOutlined />}
                     className="profile-avatar"
                   />
-                  <div className="profile-header-info">
-                    <Title level={3} className="profile-name">
-                      {user.FullName || 'User Name'}
+                  <div className="profile-header-info">                    <Title level={3} className="profile-name">
+                      {user.FullName || user.name || 'User Name'}
                     </Title>
-                    <Text className="profile-username">@{user.UserName || 'username'}</Text>
+                    <Text className="profile-username">@{user.UserName || user.email?.split('@')[0] || 'username'}</Text>
                     <div className="profile-tags">
                       <Tag color="red" icon={<HeartOutlined />}>
                         {user.DonationCount || 0} Donations
@@ -160,11 +158,10 @@ const ProfilePage = () => {
             {/* Personal Information */}
             <Col xs={24} lg={12}>
               <Card title="Personal Information" className="profile-info-card">
-                <Descriptions column={1} size="middle">
-                  <Descriptions.Item 
+                <Descriptions column={1} size="middle">                  <Descriptions.Item 
                     label={<span><UserOutlined /> Full Name</span>}
                   >
-                    {user.FullName || 'Not specified'}
+                    {user.FullName || user.name || 'Not specified'}
                   </Descriptions.Item>
                   <Descriptions.Item 
                     label={<span><CalendarOutlined /> Date of Birth</span>}
@@ -198,11 +195,10 @@ const ProfilePage = () => {
                     label={<span><MailOutlined /> Email</span>}
                   >
                     {user.email || 'Not specified'}
-                  </Descriptions.Item>
-                  <Descriptions.Item 
+                  </Descriptions.Item>                  <Descriptions.Item 
                     label={<span><UserOutlined /> Username</span>}
                   >
-                    {user.UserName || 'Not specified'}
+                    {user.UserName || user.email?.split('@')[0] || 'Not specified'}
                   </Descriptions.Item>
                   <Descriptions.Item 
                     label={<span><PhoneOutlined /> Phone</span>}
