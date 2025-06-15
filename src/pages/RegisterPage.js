@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Form, Input, Button, Typography, DatePicker, Divider, message } from 'antd';
-import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import { Layout, Card, Form, Input, Button, Typography, Divider, message } from 'antd';
+import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { UserAPI } from '../api/User';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -20,14 +21,34 @@ const RegisterPage = () => {
     setLoading(true);
     console.log('Register values:', values);
     
-    // Simulate registration API call
-    setTimeout(() => {
+    try {
+      // Call the actual registration API
+      const response = await UserAPI.register(values.username, values.email, values.password);
+      console.log("response", response.data.result);
+      if (response.status === 200 || response.status === 201) {
+        message.success('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
+        // Navigate to login page after successful registration
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      
+      // Handle different types of errors
+      if (error.response && error.response.data && error.response.data.message) {
+        message.error(error.response.data.message);
+      } else if (error.response && error.response.status === 400) {
+        message.error('Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.');
+      } else if (error.response && error.response.status === 409) {
+        message.error('Email hoặc username đã tồn tại. Vui lòng chọn email/username khác.');
+      } else {
+        message.error('Đăng ký thất bại. Vui lòng thử lại sau.');
+      }
+    } finally {
       setLoading(false);
-      message.success('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
-      // Navigate to login page after successful registration
-      navigate('/login');
-    }, 1000);
-  };return (
+    }
+  };
+
+  return (
     <Layout className="auth-page">
       <Header />
       <Navbar />
@@ -52,23 +73,23 @@ const RegisterPage = () => {
             className="auth-form"
           >
             <Form.Item
-              label="Họ và Tên"
-              name="fullName"
+              label="Username"
+              name="username"
               rules={[
                 {
                   required: true,
-                  message: 'Vui lòng nhập họ và tên!'
+                  message: 'Vui lòng nhập username!'
                 },
                 {
-                  min: 2,
-                  message: 'Họ và tên phải có ít nhất 2 ký tự!'
+                  min: 3,
+                  message: 'Username phải có ít nhất 3 ký tự!'
                 }
               ]}
             >
               <Input
                 className="auth-input-affix-wrapper"
                 prefix={<UserOutlined />}
-                placeholder="Nhập họ và tên đầy đủ"
+                placeholder="Nhập username"
                 size="large"
               />
             </Form.Item>
@@ -91,27 +112,6 @@ const RegisterPage = () => {
                 className="auth-input-affix-wrapper"
                 prefix={<MailOutlined />}
                 placeholder="Nhập địa chỉ email"
-                size="large"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Số Điện Thoại"
-              name="phone"
-              rules={[
-                {
-                  required: false
-                },
-                {
-                  pattern: /^[0-9]{10,11}$/,
-                  message: 'Số điện thoại không hợp lệ!'
-                }
-              ]}
-            >
-              <Input
-                className="auth-input-affix-wrapper"
-                prefix={<PhoneOutlined />}
-                placeholder="Nhập số điện thoại (tùy chọn)"
                 size="large"
               />
             </Form.Item>
@@ -165,24 +165,6 @@ const RegisterPage = () => {
                 placeholder="Nhập lại mật khẩu"
                 size="large"
                 iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Ngày Sinh"
-              name="birthDate"
-              rules={[
-                {
-                  required: true,
-                  message: 'Vui lòng chọn ngày sinh!'
-                }
-              ]}
-            >
-              <DatePicker
-                className="auth-datepicker"
-                placeholder="dd/mm/yyyy"
-                size="large"
-                format="DD/MM/YYYY"
               />
             </Form.Item>
 
