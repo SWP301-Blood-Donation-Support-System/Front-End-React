@@ -12,7 +12,13 @@ import {
   Space,
   Spin,
   message,
-  Layout
+  Layout,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Alert
 } from 'antd';
 import {
   UserOutlined,
@@ -23,22 +29,45 @@ import {
   EnvironmentOutlined,
   HeartOutlined,
   IdcardOutlined,
-  TeamOutlined
+  TeamOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editForm] = Form.useForm();
+  const [editLoading, setEditLoading] = useState(false);
+  const [bloodTypes, setBloodTypes] = useState([]);
+  const [showUpdateRequired, setShowUpdateRequired] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    // Check if user was redirected here for profile update
+    const urlParams = new URLSearchParams(location.search);
+    const updateRequired = urlParams.get('updateRequired');
+    
+    if (updateRequired === 'true') {
+      setShowUpdateRequired(true);
+      // Show immediate notification
+      message.warning({
+        content: 'Vui lòng cập nhật thông tin cá nhân để có thể đăng ký hiến máu!',
+        duration: 5,
+        style: { marginTop: '20px' }
+      });
+    }
+
     const fetchUserProfile = async () => {
       try {
         setLoading(true);
@@ -51,19 +80,143 @@ const ProfilePage = () => {
           return;
         }
 
-        // You can create a new API function to get detailed user profile
-        // For now, using the stored userInfo and extending it
-        setUser(userInfo);
+        // Call the actual getUserProfile API to get latest data
+        const response = await UserAPI.getUserProfile(userInfo.UserID);
+        if (response.status === 200) {
+          setUser(response.data.result || response.data);
+        } else {
+          // Fallback to stored userInfo if API fails
+          setUser(userInfo);
+        }
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        message.error("Failed to load profile information");
+        // Fallback to stored userInfo
+        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+        if (userInfo) {
+          setUser(userInfo);
+        } else {
+          message.error("Failed to load profile information");
+        }
       } finally {
         setLoading(false);
       }
     };
 
+    const fetchBloodTypes = async () => {
+      try {
+        const response = await UserAPI.getBloodTypes();
+        if (response.status === 200) {
+          setBloodTypes(response.data.result || response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching blood types:", error);
+        // Fallback to hardcoded values if API fails
+        setBloodTypes([
+          { id: 1, name: 'A+' },
+          { id: 2, name: 'A-' },
+          { id: 3, name: 'B+' },
+          { id: 4, name: 'B-' },
+          { id: 5, name: 'AB+' },
+          { id: 6, name: 'AB-' },
+          { id: 7, name: 'O+' },
+          { id: 8, name: 'O-' }
+        ]);
+      }
+    };
+
     fetchUserProfile();
-  }, [navigate]);
+    fetchBloodTypes();
+  }, [navigate, location]);
+
+  // Auto-open edit modal when user data is loaded and update is required
+  useEffect(() => {
+    if (user && showUpdateRequired) {
+      // Auto-open edit modal after user data is loaded
+      const timer = setTimeout(() => {
+        handleEditProfile();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [user, showUpdateRequired]);
+
+  const handleEditProfile = () => {
+    // Check if user data is available before proceeding
+    if (!user) {
+      console.warn('User data not available yet, cannot open edit profile');
+      return;
+    }
+
+    // Pre-fill the form with current user data
+    editForm.setFieldsValue({
+      fullName: user.FullName || user.name || '',
+      email: user.Email || user.email || '',
+      phoneNumber: user.PhoneNumber || '',
+      address: user.Address || '',
+      nationalID: user.NationalID || '',
+      dateOfBirth: user.DateOfBirth ? dayjs(user.DateOfBirth) : null,
+      genderID: user.GenderID || null,
+      bloodTypeID: user.BloodTypeID || null
+    });
+    setEditModalVisible(true);
+  };
+
+  const handleEditSubmit = async (values) => {
+    try {
+      setEditLoading(true);
+      
+      // Prepare the data for API
+      const updateData = {
+        FullName: values.fullName,
+        Email: values.email,
+        PhoneNumber: values.phoneNumber,
+        Address: values.address,
+        NationalID: values.nationalID,
+        DateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : null,
+        GenderID: values.genderID,
+        BloodTypeID: values.bloodTypeID
+      };
+
+      // Call the update API
+      const response = await UserAPI.updateUserProfile(user.UserID, updateData);
+      
+      if (response.status === 200) {
+        message.success('Hồ sơ đã được cập nhật thành công! Bây giờ bạn có thể đăng ký hiến máu.');
+        
+        // Update the local user state
+        const updatedUser = { ...user, ...updateData };
+        setUser(updatedUser);
+        
+        // Update localStorage as well
+        localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+        
+        setEditModalVisible(false);
+        editForm.resetFields();
+        
+        // Clear the update required flag
+        setShowUpdateRequired(false);
+        
+        // Update URL to remove updateRequired parameter
+        const url = new URL(window.location);
+        url.searchParams.delete('updateRequired');
+        window.history.replaceState({}, '', url);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      if (error.response && error.response.data && error.response.data.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Failed to update profile. Please try again.');
+      }
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditModalVisible(false);
+    editForm.resetFields();
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Not specified';
@@ -75,17 +228,8 @@ const ProfilePage = () => {
   };
 
   const getBloodTypeDisplay = (bloodTypeID) => {
-    const bloodTypes = {
-      1: 'A+',
-      2: 'A-',
-      3: 'B+',
-      4: 'B-',
-      5: 'AB+',
-      6: 'AB-',
-      7: 'O+',
-      8: 'O-'
-    };
-    return bloodTypes[bloodTypeID] || 'Not specified';
+    const bloodType = bloodTypes.find(bt => bt.id === bloodTypeID);
+    return bloodType ? bloodType.name : 'Not specified';
   };
 
   const getGenderDisplay = (genderID) => {
@@ -123,6 +267,18 @@ const ProfilePage = () => {
             <UserOutlined /> My Profile
           </Title>
 
+                     {/* Update Required Alert */}
+           {showUpdateRequired && (
+             <Alert
+               message="Cập nhật thông tin cá nhân cần thiết"
+               description="Để có thể đăng ký hiến máu, vui lòng cập nhật đầy đủ thông tin cá nhân của bạn bao gồm: họ tên, số điện thoại, địa chỉ, ngày sinh, giới tính và nhóm máu."
+               type="warning"
+               icon={<ExclamationCircleOutlined />}
+               showIcon
+               style={{ marginBottom: 24 }}
+             />
+           )}
+
           <Row gutter={[24, 24]}>
             {/* Profile Header Card */}
             <Col span={24}>
@@ -134,7 +290,7 @@ const ProfilePage = () => {
                     className="profile-avatar"
                   />
                   <div className="profile-header-info">                    <Title level={3} className="profile-name">
-                      {user.FullName || user.name || 'User Name'}
+                      {user.FullName || user.name || 'Full Name'}
                     </Title>
                     <Text className="profile-username">@{user.UserName || user.email?.split('@')[0] || 'username'}</Text>
                     <div className="profile-tags">
@@ -147,7 +303,7 @@ const ProfilePage = () => {
                     </div>
                   </div>
                   <div className="profile-actions">
-                    <Button type="primary" icon={<EditOutlined />}>
+                    <Button type="primary" icon={<EditOutlined />} onClick={handleEditProfile}>
                       Edit Profile
                     </Button>
                   </div>
@@ -176,7 +332,7 @@ const ProfilePage = () => {
                   <Descriptions.Item 
                     label={<span><IdcardOutlined /> National ID</span>}
                   >
-                    {user.NationID || 'Not specified'}
+                    {user.NationalID || 'Not specified'}
                   </Descriptions.Item>
                   <Descriptions.Item 
                     label={<span><EnvironmentOutlined /> Address</span>}
@@ -201,9 +357,9 @@ const ProfilePage = () => {
                     {user.UserName || user.email?.split('@')[0] || 'Not specified'}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><PhoneOutlined /> Phone</span>}
+                    label={<span><PhoneOutlined /> PhoneNumber</span>}
                   >
-                    {user.Phone || 'Not specified'}
+                    {user.PhoneNumber || 'Not specified'}
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
@@ -252,6 +408,132 @@ const ProfilePage = () => {
           </Row>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <Modal
+        title="Edit Profile"
+        open={editModalVisible}
+        onCancel={handleEditCancel}
+        footer={null}
+        width={600}
+        destroyOnClose
+      >
+        <Form
+          form={editForm}
+          layout="vertical"
+          onFinish={handleEditSubmit}
+          autoComplete="off"
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Full Name"
+                name="fullName"
+                rules={[
+                  { required: true, message: 'Please enter your full name!' },
+                  { min: 2, message: 'Full name must be at least 2 characters!' }
+                ]}
+              >
+                <Input placeholder="Enter full name" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[
+                  { required: true, message: 'Please enter your email!' },
+                  { type: 'email', message: 'Please enter a valid email!' }
+                ]}
+              >
+                <Input placeholder="Enter email address" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="PhoneNumber"
+                name="phoneNumber"
+                rules={[
+                  { pattern: /^[0-9]{10,11}$/, message: 'Please enter a valid phone number!' }
+                ]}
+              >
+                <Input placeholder="Enter phone number" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="National ID"
+                name="nationalID"
+              >
+                <Input placeholder="Enter national ID" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item
+            label="Address"
+            name="address"
+          >
+            <Input.TextArea rows={2} placeholder="Enter address" />
+          </Form.Item>
+
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item
+                label="Date of Birth"
+                name="dateOfBirth"
+              >
+                <DatePicker 
+                  style={{ width: '100%' }} 
+                  placeholder="Select date"
+                  format="DD/MM/YYYY"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label="Gender"
+                name="genderID"
+              >
+                <Select placeholder="Select gender">
+                  <Option value={1}>Male</Option>
+                  <Option value={2}>Female</Option>
+                  <Option value={3}>Other</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label="Blood Type"
+                name="bloodTypeID"
+              >
+                <Select placeholder="Select blood type">
+                  {bloodTypes.map(bloodType => (
+                    <Option key={bloodType.id} value={bloodType.id}>
+                      {bloodType.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+            <Space>
+              <Button onClick={handleEditCancel}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit" loading={editLoading}>
+                Update Profile
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
       <Footer />
     </Layout>
   );

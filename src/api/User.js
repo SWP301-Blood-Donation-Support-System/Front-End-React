@@ -5,6 +5,21 @@ export const UserAPI = {
         return response;
     },
 
+    register: async (username, email, password) => {
+        try {
+            const response = await axios.post("https://localhost:7198/api/User/registerDonor", {
+                username: username,
+                email: email,
+                passwordHash: password
+            });
+            console.log("Registration response:", response);
+            return response;
+        } catch (error) {
+            console.error("Error during registration:", error);
+            throw error;
+        }
+    },
+
     login: async (email, password) => {
         const response = await axios.post("https://localhost:7198/api/User/login",
             {
@@ -39,7 +54,7 @@ export const UserAPI = {
     updateUserProfile: async (userId, profileData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.put(`https://localhost:7198/api/User/${userId}`, profileData, {
+            const response = await axios.put(`https://localhost:7198/api/User/updateDonor/${userId}`, profileData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -48,6 +63,17 @@ export const UserAPI = {
             return response;
         } catch (error) {
             console.error("Error updating user profile:", error);
+            throw error;
+        }
+    },
+
+    // Get blood types from backend
+    getBloodTypes: async () => {
+        try {
+            const response = await axios.get("https://localhost:7198/api/Lookup/blood-types");
+            return response;
+        } catch (error) {
+            console.error("Error fetching blood types:", error);
             throw error;
         }
     }
