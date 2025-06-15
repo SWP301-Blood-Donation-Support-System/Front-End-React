@@ -17,7 +17,8 @@ import {
   Form,
   Input,
   Select,
-  DatePicker
+  DatePicker,
+  Alert
 } from 'antd';
 import {
   UserOutlined,
@@ -28,9 +29,10 @@ import {
   EnvironmentOutlined,
   HeartOutlined,
   IdcardOutlined,
-  TeamOutlined
+  TeamOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
@@ -47,9 +49,25 @@ const ProfilePage = () => {
   const [editForm] = Form.useForm();
   const [editLoading, setEditLoading] = useState(false);
   const [bloodTypes, setBloodTypes] = useState([]);
+  const [showUpdateRequired, setShowUpdateRequired] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    // Check if user was redirected here for profile update
+    const urlParams = new URLSearchParams(location.search);
+    const updateRequired = urlParams.get('updateRequired');
+    
+    if (updateRequired === 'true') {
+      setShowUpdateRequired(true);
+      // Show immediate notification
+      message.warning({
+        content: 'Vui lòng cập nhật thông tin cá nhân để có thể đăng ký hiến máu!',
+        duration: 5,
+        style: { marginTop: '20px' }
+      });
+    }
+
     const fetchUserProfile = async () => {
       try {
         setLoading(true);
@@ -108,9 +126,27 @@ const ProfilePage = () => {
 
     fetchUserProfile();
     fetchBloodTypes();
-  }, [navigate]);
+  }, [navigate, location]);
+
+  // Auto-open edit modal when user data is loaded and update is required
+  useEffect(() => {
+    if (user && showUpdateRequired) {
+      // Auto-open edit modal after user data is loaded
+      const timer = setTimeout(() => {
+        handleEditProfile();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [user, showUpdateRequired]);
 
   const handleEditProfile = () => {
+    // Check if user data is available before proceeding
+    if (!user) {
+      console.warn('User data not available yet, cannot open edit profile');
+      return;
+    }
+
     // Pre-fill the form with current user data
     editForm.setFieldsValue({
       fullName: user.FullName || user.name || '',
@@ -145,7 +181,7 @@ const ProfilePage = () => {
       const response = await UserAPI.updateUserProfile(user.UserID, updateData);
       
       if (response.status === 200) {
-        message.success('Profile updated successfully!');
+        message.success('Hồ sơ đã được cập nhật thành công! Bây giờ bạn có thể đăng ký hiến máu.');
         
         // Update the local user state
         const updatedUser = { ...user, ...updateData };
@@ -156,6 +192,14 @@ const ProfilePage = () => {
         
         setEditModalVisible(false);
         editForm.resetFields();
+        
+        // Clear the update required flag
+        setShowUpdateRequired(false);
+        
+        // Update URL to remove updateRequired parameter
+        const url = new URL(window.location);
+        url.searchParams.delete('updateRequired');
+        window.history.replaceState({}, '', url);
       }
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -222,6 +266,18 @@ const ProfilePage = () => {
           <Title level={2} className="profile-title">
             <UserOutlined /> My Profile
           </Title>
+
+                     {/* Update Required Alert */}
+           {showUpdateRequired && (
+             <Alert
+               message="Cập nhật thông tin cá nhân cần thiết"
+               description="Để có thể đăng ký hiến máu, vui lòng cập nhật đầy đủ thông tin cá nhân của bạn bao gồm: họ tên, số điện thoại, địa chỉ, ngày sinh, giới tính và nhóm máu."
+               type="warning"
+               icon={<ExclamationCircleOutlined />}
+               showIcon
+               style={{ marginBottom: 24 }}
+             />
+           )}
 
           <Row gutter={[24, 24]}>
             {/* Profile Header Card */}

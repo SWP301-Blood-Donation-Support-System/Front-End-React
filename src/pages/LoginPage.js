@@ -9,7 +9,6 @@ import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/goo
 import { jwtDecode } from 'jwt-decode';
 import { UserAPI } from '../api/User';
 
-
 const clientId = ''; // Thay bằng client ID bạn lấy từ Google Cloud
 
 const LoginPage = () => {
@@ -22,22 +21,32 @@ const LoginPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const onFinish = async (values) => {
-    setLoading(true);
-    //sus
-    console.log('Login values:', values);
-    //sus
-    try{
-      const response = await UserAPI.login(values.email, values.password);
-      console.log("response", response.data.result);
-      const decoded = jwtDecode(response.data.result);
-      console.log("Decode item", decoded);
-      
+  // Function to check if user profile is complete
+  const isProfileComplete = (userInfo) => {
+    // Check if essential profile fields are filled
+    const requiredFields = ['FullName', 'PhoneNumber', 'Address', 'DateOfBirth', 'GenderID', 'BloodTypeID'];
+    
+    return requiredFields.every(field => {
+      const value = userInfo[field];
+      return value !== null && value !== undefined && value !== '';
+    });
+  };
+
+  const handleSuccessfulLogin = async (decoded) => {
+    try {
       // Store token and user info
-      localStorage.setItem("token", response.data.result);
-      localStorage.setItem("user", JSON.stringify(decoded));
       localStorage.setItem("userInfo", JSON.stringify(decoded));
-        // Role-based redirection - simplified to always go home for regular users
+      
+      // Get full user profile to check completeness
+      const profileResponse = await UserAPI.getUserProfile(decoded.UserID);
+      let userProfile = decoded;
+      
+      if (profileResponse.status === 200) {
+        userProfile = profileResponse.data.result || profileResponse.data;
+        localStorage.setItem("userInfo", JSON.stringify(userProfile));
+      }
+
+      // Role-based redirection
       const userRoleId = decoded.RoleID;
       console.log("User Role ID:", userRoleId);
       
@@ -45,9 +54,39 @@ const LoginPage = () => {
         // Redirect to staff page for roles 1 and 2
         navigate("/staff");
       } else {
-        // Always redirect regular users to homepage after login
-        navigate("/");
+        // Check if profile is complete for regular users
+        if (!isProfileComplete(userProfile)) {
+          // Redirect to profile page with update required flag
+          navigate("/profile?updateRequired=true");
+        } else {
+          // Redirect to homepage if profile is complete
+          navigate("/");
+        }
       }
+    } catch (error) {
+      console.error("Error checking user profile:", error);
+      // If there's an error, still redirect but assume profile needs update
+      navigate("/profile?updateRequired=true");
+    }
+  };
+
+  const onFinish = async (values) => {
+    setLoading(true);
+    console.log('Login values:', values);
+    
+    try{
+      const response = await UserAPI.login(values.email, values.password);
+      console.log("response", response.data.result);
+      const decoded = jwtDecode(response.data.result);
+      console.log("Decode item", decoded);
+      
+      // Store token
+      localStorage.setItem("token", response.data.result);
+      localStorage.setItem("user", JSON.stringify(decoded));
+      
+      // Handle successful login with profile check
+      await handleSuccessfulLogin(decoded);
+      
     }catch(error){
       console.log("error", error);
       // You can add error handling here (show error message to user)
@@ -152,17 +191,16 @@ const LoginPage = () => {
                   <Typography.Text className="auth-google-text">
                     Đăng nhập bằng Google
                   </Typography.Text>                  <GoogleLogin
-                    onSuccess={(credentialResponse) => {
+                    onSuccess={async (credentialResponse) => {
                       const decoded = jwtDecode(credentialResponse.credential);
                       setUser(decoded);
                       
-                      // Store Google login info in localStorage (similar to email/password login)
+                      // Store Google login info in localStorage
                       localStorage.setItem("token", credentialResponse.credential);
                       localStorage.setItem("user", JSON.stringify(decoded));
-                      localStorage.setItem("userInfo", JSON.stringify(decoded));
                       
-                      // Navigate to homepage after successful Google login
-                      navigate("/");
+                      // Handle successful login with profile check
+                      await handleSuccessfulLogin(decoded);
                     }}
                     onError={() => {
                       console.log('Login Failed');
