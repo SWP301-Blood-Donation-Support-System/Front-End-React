@@ -76,13 +76,13 @@ const Header = () => {
       {user ? (
         <div className="header-user-section">
           <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
-            <div className="header-user-profile">
-              <Avatar 
+            <div className="header-user-profile">              <Avatar 
                 size={32} 
+                src={user.picture} // Use Google profile picture if available
                 icon={<UserOutlined />}
                 className="header-user-avatar"
               />
-              <span className="header-user-name">おはいよう {user.FullName}</span>
+              <span className="header-user-name">おはいよう {user.FullName || user.name}</span>
               <DownOutlined className="header-dropdown-icon" />
             </div>
           </Dropdown>

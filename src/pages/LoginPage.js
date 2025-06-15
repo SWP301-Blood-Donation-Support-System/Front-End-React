@@ -151,11 +151,18 @@ const LoginPage = () => {
                 <>
                   <Typography.Text className="auth-google-text">
                     Đăng nhập bằng Google
-                  </Typography.Text>
-                  <GoogleLogin
+                  </Typography.Text>                  <GoogleLogin
                     onSuccess={(credentialResponse) => {
                       const decoded = jwtDecode(credentialResponse.credential);
                       setUser(decoded);
+                      
+                      // Store Google login info in localStorage (similar to email/password login)
+                      localStorage.setItem("token", credentialResponse.credential);
+                      localStorage.setItem("user", JSON.stringify(decoded));
+                      localStorage.setItem("userInfo", JSON.stringify(decoded));
+                      
+                      // Navigate to homepage after successful Google login
+                      navigate("/");
                     }}
                     onError={() => {
                       console.log('Login Failed');
