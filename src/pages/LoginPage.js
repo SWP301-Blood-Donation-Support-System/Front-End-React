@@ -38,9 +38,7 @@ const LoginPage = () => {
       localStorage.setItem("userInfo", JSON.stringify(decoded));
       
       // Use the decoded token data directly without API call
-      let userProfile = decoded;
-
-      // Role-based redirection
+      let userProfile = decoded;      // Role-based redirection
       const userRoleId = decoded.RoleID;
       console.log("User Role ID:", userRoleId);
       
@@ -56,14 +54,12 @@ const LoginPage = () => {
           // Redirect to homepage if profile is complete
           navigate("/");
         }
-      }
-    } catch (error) {
+      }    } catch (error) {
       console.error("Error checking user profile:", error);
       // If there's an error, still redirect but assume profile needs update
       navigate("/profile?updateRequired=true");
     }
-  };
-  const onFinish = async (values) => {
+  };  const onFinish = async (values) => {
     setLoading(true);
     setLoginError(''); // Clear previous errors
     console.log('Login values:', values);
@@ -80,7 +76,6 @@ const LoginPage = () => {
       
       // Handle successful login with profile check
       await handleSuccessfulLogin(decoded);
-      
     }catch(error){
       console.log("error", error);
       
@@ -218,8 +213,7 @@ const LoginPage = () => {
                       
                       // Handle successful login with profile check
                       await handleSuccessfulLogin(decoded);
-                    }}
-                    onError={() => {
+                    }}                    onError={() => {
                       console.log('Login Failed');
                     }}
                     size="large"
