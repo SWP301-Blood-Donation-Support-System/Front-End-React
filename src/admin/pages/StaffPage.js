@@ -1,94 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import {
-  UserOutlined,
-  BellOutlined,
-  MailOutlined,
-  PoweroffOutlined,
-  MenuOutlined,
-  DownOutlined,
-} from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme, Avatar, Dropdown, Badge, Space } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Breadcrumb, Layout, theme } from 'antd';
 import StaffNavbar from '../components/StaffNavbar';
 import StaffSidebar from '../components/StaffSidebar';
-import { UserAPI } from '../../api/User';
+import StaffHeader from '../components/StaffHeader';
 
-const { Header, Content } = Layout;
-
-// Horizontal header navigation items
-const headerItems = [
-  { key: '1', label: 'Dashboard' },
-  { key: '2', label: 'Analytics' },
-  { key: '3', label: 'Donors' },
-  { key: '4', label: 'Appointments' },
-  { key: '5', label: 'Reports' },
-  { key: '6', label: 'Settings' },
-  { key: '7', label: 'Support' },
-];
+const { Content } = Layout;
 
 const StaffPage = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-
-  // Initialize user authentication
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-
-        if (token && userInfo) {
-          setUser(userInfo);
-        } else {
-          localStorage.removeItem("token");
-          localStorage.removeItem("userInfo");
-          setUser(null);
-          navigate("/login"); // Redirect to login if no valid session
-        }
-      } catch (error) {
-        console.error("Error initializing auth:", error);
-        navigate("/login");
-      }
-    };
-
-    initializeAuth();
-  }, [navigate]);
-
-  // Handle logout functionality
-  const handleLogout = () => {
-    UserAPI.logout(); // Clear token and userInfo from localStorage
-    setUser(null);
-    navigate('/'); // Redirect to homepage
-  };
-
-  // Handle menu item clicks
-  const handleMenuClick = ({ key }) => {
-    if (key === 'logout') {
-      handleLogout();
-    } else if (key === 'profile') {
-      navigate('/profile');
-    }
-  };
-
-  // User dropdown menu
-  const userMenu = (
-    <Menu onClick={handleMenuClick}>
-      <Menu.Item key="profile" icon={<UserOutlined />}>
-        Profile
-      </Menu.Item>
-      <Menu.Item key="settings" icon={<MenuOutlined />}>
-        Settings
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" icon={<PoweroffOutlined />}>
-        Logout
-      </Menu.Item>
-    </Menu>
-  );
 
   return (
     <Layout className="staff-layout">
@@ -98,45 +20,7 @@ const StaffPage = () => {
       />
       
       <Layout className="staff-main-layout">
-        <Header className="staff-header">
-          <div className="staff-header-right">
-            <div className="staff-header-actions">
-              <Space size="middle">
-                <div className="header-icon">
-                  <MailOutlined />
-                </div>
-
-                <Badge count={3} size="small">
-                  <div className="header-icon">
-                    <BellOutlined />
-                  </div>
-                </Badge>
-
-                <div className="header-icon">
-                  <PoweroffOutlined />
-                </div>
-
-                <div className="header-icon">
-                  <MenuOutlined />
-                </div>
-
-                <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
-                  <div className="staff-user-profile">
-                    <Avatar
-                      size={32}
-                      src="/images/huy1.png"
-                      className="user-avatar"
-                    />
-                    <span className="user-name">
-                      おはいよう {user ? user.FullName : 'Hehe'}
-                    </span>
-                    <DownOutlined className="dropdown-icon" />
-                  </div>
-                </Dropdown>
-              </Space>
-            </div>
-          </div>
-        </Header>
+        <StaffHeader />
 
         <Layout className="staff-content-layout">
           <StaffNavbar />

@@ -1,0 +1,869 @@
+// Schedule Management Page Styles - Staff Theme
+.schedule-page-header {
+  background: #FFFFFF;
+  border: none;
+  padding: 24px 48px;
+  margin: 24px 48px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  
+  .schedule-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .schedule-title {
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 700;
+    
+    .anticon {
+      color: #dc2626;
+      margin-right: 12px;
+    }
+  }
+  
+  .schedule-refresh-btn {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #b91c1c;
+      border-color: #b91c1c;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+  }
+}
+
+.schedule-card {
+  background: #FFFFFF;
+  border: 1px solid #f0f2f5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  
+  .ant-card-body {
+    padding: 24px;
+  }
+}
+
+.schedule-filters {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.schedule-table {
+  .ant-table {
+    background: transparent;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .ant-table-thead > tr > th {
+    background: #dc2626;
+    color: white;
+    font-weight: 600;
+    border: none;
+    text-align: center;
+    
+    &:first-child {
+      border-radius: 8px 0 0 0;
+    }
+    
+    &:last-child {
+      border-radius: 0 8px 0 0;
+    }
+  }
+  
+  .ant-table-tbody > tr {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #fef2f2;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    > td {
+      border-bottom: 1px solid #f0f2f5;
+      text-align: center;
+      padding: 16px;
+    }
+  }
+}
+
+// Simple pagination fix - just center it at the bottom
+.schedule-table {
+  .ant-pagination {
+    text-align: center !important;
+    margin-top: 24px !important;
+    padding: 16px !important;
+    background: #fafafa !important;
+    border-top: 1px solid #f0f2f5 !important;
+    border-radius: 0 0 8px 8px !important;
+  }
+}
+
+.schedule-detail-modal {
+  .ant-modal-header {
+    background: #dc2626;
+    border-radius: 8px 8px 0 0;
+    
+    .ant-modal-title {
+      color: white;
+      font-weight: 600;
+    }
+  }
+  
+  .ant-modal-content {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .ant-modal-body {
+    padding: 24px;
+    background: #fafafa;
+  }
+}
+
+.schedule-detail-content {
+  .ant-descriptions {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    .ant-descriptions-item-label {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    .ant-descriptions-item-content {
+      background: white;
+    }
+  }
+  
+  .ant-table {
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    .ant-table-thead > tr > th {
+      background: #dc2626;
+      color: white;
+      font-weight: 600;
+    }
+    
+    .ant-table-tbody > tr:hover > td {
+      background: #fef2f2;
+    }
+  }
+}
+
+// Staff header user profile styles
+.staff-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(220, 38, 38, 0.1);
+  }
+  
+  .user-avatar {
+    border: 2px solid #dc2626;
+  }
+  
+  .user-name {
+    color: #374151;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .dropdown-icon {
+    color: #9ca3af;
+    font-size: 12px;
+  }
+}
+
+// New styles for table layout within layout bounds
+.schedule-management-content {
+  margin: 0;
+  padding: 16px;
+  min-height: calc(100vh - 240px); // Match staff-content min-height
+  background: #F5F5F5;
+  display: flex;
+  flex-direction: column;
+  
+  .schedule-management-container {
+    width: 100%;
+    flex: 1;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    .schedule-header-section {
+      padding: 24px 24px 16px 24px;
+      margin-bottom: 0;
+      flex-shrink: 0; // Prevent header from shrinking
+      border-bottom: 1px solid #f0f2f5;
+      
+      .schedule-management-title {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 700;
+      }
+      
+      .schedule-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+    }
+    
+    .schedule-table-container {
+      width: 100%;
+      flex: 1; // Fill remaining space
+      display: flex;
+      flex-direction: column;
+      padding: 16px 24px 24px 24px;
+      
+      .schedule-wide-table {
+        width: 100%;
+        
+        .ant-table {
+          width: 100% !important;
+          background: transparent;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        
+        .ant-table-wrapper {
+          width: 100% !important;
+        }
+        
+        .ant-table-container {
+          width: 100% !important;
+        }
+        
+        .ant-table-content {
+          width: 100% !important;
+        }
+        
+        .ant-table-thead > tr > th {
+          background: #dc2626;
+          color: white;
+          font-weight: 600;
+          border: none;
+          text-align: center;
+          padding: 16px;
+          
+          &:first-child {
+            border-radius: 8px 0 0 0;
+          }
+          
+          &:last-child {
+            border-radius: 0 8px 0 0;
+          }
+        }
+        
+        .ant-table-tbody > tr {
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: #fef2f2;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+          
+          > td {
+            border-bottom: 1px solid #f0f2f5;
+            text-align: center;
+            padding: 16px;
+          }
+        }
+      }
+      
+      .custom-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 16px;
+        padding: 16px 0;
+        gap: 24px;
+        flex-shrink: 0; // Prevent pagination from shrinking
+        border-top: 1px solid #f0f2f5;
+        
+        .pagination-info {
+          color: #666;
+          font-size: 14px;
+        }
+        
+        .pagination-buttons {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          
+                     .pagination-btn {
+             border: none;
+             background: none;
+             cursor: pointer;
+             padding: 4px 8px;
+             margin: 0 4px;
+             color: #666;
+             
+             &.active {
+               border: 1px solid #d9d9d9;
+               background: #1890ff;
+               color: white;
+               border-radius: 2px;
+             }
+             
+             &.inactive {
+               border: 1px solid #d9d9d9;
+               background: white;
+               border-radius: 2px;
+               
+               &:hover {
+                 background: #f5f5f5;
+               }
+             }
+             
+             &:disabled {
+               color: #ccc;
+               cursor: not-allowed;
+               background: #f5f5f5;
+               border: 1px solid #e5e5e5;
+               
+               &:hover {
+                 background: #f5f5f5;
+               }
+             }
+           }
+        }
+        
+        .pagination-controls {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          
+          .page-size-select {
+            border: 1px solid #d9d9d9;
+            padding: 4px 8px;
+            border-radius: 2px;
+          }
+          
+          .goto-input {
+            border: 1px solid #d9d9d9;
+            padding: 4px 8px;
+            width: 60px;
+            border-radius: 2px;
+          }
+          
+          .goto-label {
+            color: #666;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Modal table styling to match main table
+.ant-modal {
+  .schedule-wide-table {
+    width: 100%;
+    
+    .ant-table {
+      width: 100% !important;
+      background: transparent;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .ant-table-wrapper {
+      width: 100% !important;
+    }
+    
+    .ant-table-container {
+      width: 100% !important;
+    }
+    
+    .ant-table-content {
+      width: 100% !important;
+    }
+    
+    .ant-table-thead > tr > th {
+      background: #dc2626;
+      color: white;
+      font-weight: 600;
+      border: none;
+      text-align: center;
+      padding: 16px;
+      
+      &:first-child {
+        border-radius: 8px 0 0 0;
+      }
+      
+      &:last-child {
+        border-radius: 0 8px 0 0;
+      }
+    }
+    
+    .ant-table-tbody > tr {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: #fef2f2;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      > td {
+        border-bottom: 1px solid #f0f2f5;
+        text-align: center;
+        padding: 16px;
+      }
+    }
+  }
+  
+  // Enhanced modal pagination styling
+  .custom-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    
+    .pagination-info {
+      color: #475569;
+      font-size: 14px;
+      font-weight: 500;
+      background: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pagination-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      
+      .pagination-btn {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 10px 14px;
+        margin: 0;
+        color: #64748b;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        min-width: 40px;
+        
+        &.active {
+          background: #dc2626;
+          color: white;
+          box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+          transform: translateY(-1px);
+        }
+        
+        &.inactive {
+          &:hover {
+            background: #f1f5f9;
+            color: #dc2626;
+            transform: translateY(-1px);
+          }
+        }
+        
+        &:disabled {
+          color: #cbd5e1;
+          cursor: not-allowed;
+          background: transparent;
+          
+          &:hover {
+            background: transparent;
+            transform: none;
+          }
+        }
+      }
+    }
+    
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .page-size-select {
+        border: 1px solid #e2e8f0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: white;
+        font-size: 14px;
+        font-weight: 500;
+        color: #475569;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        
+        &:focus {
+          outline: none;
+          border-color: #dc2626;
+          box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+      }
+      
+      .goto-input {
+        border: 1px solid #e2e8f0;
+        padding: 8px 12px;
+        width: 70px;
+        border-radius: 8px;
+        background: white;
+        font-size: 14px;
+        text-align: center;
+        color: #475569;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        
+        &:focus {
+          outline: none;
+          border-color: #dc2626;
+          box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        &:disabled {
+          background: #f8fafc;
+          color: #cbd5e1;
+          cursor: not-allowed;
+        }
+      }
+      
+      .goto-label {
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Staff theme button overrides
+.staff-layout .ant-btn-primary {
+  background: #dc2626;
+  border-color: #dc2626;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  
+  &:hover,
+  &:focus {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Status Tags with staff theme colors
+.ant-tag {
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 500;
+  border: none;
+  
+  &.ant-tag-blue {
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  &.ant-tag-green {
+    background: #e8f5e8;
+    color: #2e7d32;
+  }
+  
+  &.ant-tag-red {
+    background: #ffebee;
+    color: #d32f2f;
+  }
+  
+  &.ant-tag-gray {
+    background: #f5f5f5;
+    color: #616161;
+  }
+  
+  &.ant-tag-purple {
+    background: #f3e5f5;
+    color: #7b1fa2;
+  }
+}
+
+// Select dropdown styling
+.ant-select {
+  .ant-select-selector {
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    
+    &:hover {
+      border-color: #dc2626;
+    }
+  }
+  
+  &.ant-select-focused .ant-select-selector {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+  }
+}
+
+// Table pagination styling
+.schedule-table {
+  .ant-table-pagination {
+    margin-top: 24px;
+    padding: 16px 0;
+    text-align: center;
+    border-top: 1px solid #f0f2f5;
+  }
+}
+
+.ant-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  
+  .ant-pagination-total-text {
+    margin-right: 16px;
+    color: #6b7280;
+    font-size: 14px;
+  }
+  
+  .ant-pagination-item {
+    border-radius: 6px;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &.ant-pagination-item-active {
+      background: #dc2626;
+      border-color: #dc2626;
+      
+      a {
+        color: white;
+      }
+    }
+  }
+  
+  .ant-pagination-item:hover {
+    border-color: #dc2626;
+    
+    a {
+      color: #dc2626;
+    }
+  }
+  
+  .ant-pagination-prev,
+  .ant-pagination-next {
+    border-radius: 6px;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+      border-color: #dc2626;
+      
+      .ant-pagination-item-link {
+        color: #dc2626;
+      }
+    }
+  }
+  
+  .ant-pagination-options {
+    margin-left: 16px;
+    
+    .ant-select {
+      .ant-select-selector {
+        border-color: #d1d5db;
+        border-radius: 6px;
+        
+        &:hover {
+          border-color: #dc2626;
+        }
+      }
+    }
+  }
+  
+  .ant-pagination-jump-prev,
+  .ant-pagination-jump-next {
+    border-radius: 6px;
+    
+    &:hover {
+      border-color: #dc2626;
+      color: #dc2626;
+    }
+  }
+}
+
+// Modal close button
+.ant-modal-close {
+  .ant-modal-close-x {
+    color: white;
+    
+    &:hover {
+      color: #f8f9fa;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .schedule-page-header {
+    margin: 16px;
+    padding: 16px;
+    
+    .schedule-header-content {
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+    }
+  }
+  
+  .staff-content {
+    padding: 0 16px !important;
+  }
+  
+  .schedule-card .ant-card-body {
+    padding: 16px;
+  }
+  
+  .schedule-filters {
+    padding: 16px;
+  }
+  
+  .schedule-table {
+    .ant-table-tbody > tr > td {
+      padding: 12px 8px;
+      font-size: 12px;
+    }
+    
+    // Mobile pagination adjustments
+    .ant-table-pagination.ant-pagination {
+      padding: 16px 8px;
+      flex-direction: column;
+      gap: 16px;
+      
+      .ant-pagination-total-text {
+        margin: 0;
+        order: -1;
+      }
+      
+      .ant-pagination-options {
+        margin: 0;
+        order: 1;
+      }
+    }
+  }
+  
+  .ant-pagination {
+    gap: 6px;
+    
+    .ant-pagination-item,
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      min-width: 28px;
+      height: 28px;
+      font-size: 12px;
+    }
+  }
+  
+  .staff-user-profile {
+    .user-name {
+      display: none;
+    }
+  }
+}
+
+// Loading state
+.ant-spin-container {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Animation
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.staff-section {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+// Empty state styling
+.ant-empty {
+  .ant-empty-description {
+    color: #6b7280;
+  }
+}
+
+// Success states
+.ant-message-success {
+  .ant-message-notice-content {
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    color: #0c4a6e;
+  }
+}
+
+// Error states  
+.ant-message-error {
+  .ant-message-notice-content {
+    background: #fef2f2;
+    border: 1px solid #dc2626;
+    color: #991b1b;
+  }
+} 
