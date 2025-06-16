@@ -366,8 +366,7 @@ const EligibilityFormPage = () => {
           'accept': '*/*',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(donationData)
-      });
+        body: JSON.stringify(donationData)      });
       
       const responseText = await response.text();
       console.log('API response:', response.status, responseText);
@@ -384,10 +383,28 @@ const EligibilityFormPage = () => {
           duration: 5,
         });
         
-      } else if (response.status === 400 && responseText.includes('UNIQUE KEY constraint')) {
-        // Đã đăng ký rồi
-        setIsEligible('already_registered');
-        setCurrentStep(1);
+      } else if (response.status === 400) {
+        // Parse response để lấy thông tin lỗi chi tiết
+        let errorData;
+        try {
+          errorData = JSON.parse(responseText);
+        } catch (e) {
+          errorData = { msg: responseText };
+        }
+        
+        if (responseText.includes('UNIQUE KEY constraint') || 
+            (errorData.msg && errorData.msg.includes("already have an active donation registration"))) {
+          // User đã đăng ký rồi
+          setIsEligible('already_registered');
+          setCurrentStep(1);
+          message.warning({
+            content: 'Bạn đã đăng ký hiến máu rồi, vui lòng đợi cho đến thời gian phù hợp để đăng ký lại.',
+            duration: 5,
+          });
+        } else {
+          // Lỗi validation khác
+          throw new Error(errorData.msg || `Có lỗi xảy ra: ${responseText || 'Vui lòng thử lại sau'}`);
+        }
         
       } else {
         // Lỗi khác
@@ -914,13 +931,12 @@ const EligibilityFormPage = () => {
                 <ExclamationCircleOutlined />
               </div>
               <Title level={3} className="result-title">
-                ⚠️ Bạn đã đăng ký hiến máu cho lịch này rồi!
+                ⚠️ Bạn đã đăng ký hiến máu gần đây rồi!
               </Title>
               <Paragraph className="result-description">
                 🩸 Để đảm bảo sức khỏe, bạn cần nghỉ ngơi ít nhất <strong>12-16 tuần</strong> giữa các lần hiến máu.
                 <br /><br />
                 📅 <strong>Bạn có thể:</strong><br />
-                • Chọn lịch hiến máu khác (ngày khác)<br />
                 • Đăng ký lại sau 3-4 tháng<br />
                 • Liên hệ hotline để được tư vấn: <strong>1900-xxxx</strong>
                 <br /><br />

@@ -116,38 +116,4 @@ export const UserAPI = {
             throw error;
         }
     },
-
-    // Check if user already registered for a specific schedule
-    checkDonationRegistration: async (donorId, scheduleId) => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get(`https://localhost:7198/api/DonationRegistration/check?donorId=${donorId}&scheduleId=${scheduleId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            return response;
-        } catch (error) {
-            console.error("Error checking donation registration:", error);
-            throw error;
-        }
-    },
-
-    // Get user's donation history
-    getUserDonationHistory: async (donorId) => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get(`https://localhost:7198/api/DonationRegistration/history/${donorId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            return response;
-        } catch (error) {
-            console.error("Error fetching donation history:", error);
-            throw error;
-        }
-    }
 }
