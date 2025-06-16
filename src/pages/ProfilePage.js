@@ -777,31 +777,32 @@ const ProfilePage = () => {
                         Đang tải thông tin lịch đăng kí...
                       </Text>
                     </div>
-                  ) : registrations.length > 0 ? (
-                    <Table
+                  ) : registrations.length > 0 ? (                    <Table
                       dataSource={registrations}
                       rowKey="registrationId"
                       pagination={false}
-                      className="registration-table"                      columns={[
+                      className="registration-table"
+                      size="large"
+                      columns={[
                         {
                           title: 'Schedule ID',
                           dataIndex: 'scheduleId',
                           key: 'scheduleId',
-                          width: 120,
+                          width: '20%',
                           render: (scheduleId) => <strong>#{scheduleId || 'N/A'}</strong>
                         },
                         {
                           title: 'Ngày đăng kí',
                           dataIndex: 'createdAt',
                           key: 'createdAt',
-                          width: 150,
+                          width: '25%',
                           render: (date) => formatDate(date)
                         },
                         {
                           title: 'Trạng thái',
                           dataIndex: 'registrationStatusId',
                           key: 'status',
-                          width: 150,
+                          width: '25%',
                           render: (statusId) => (
                             <Tag color={getStatusColor(statusId)}>
                               {getStatusText(statusId)}
@@ -811,7 +812,7 @@ const ProfilePage = () => {
                         {
                           title: 'Khung giờ',
                           key: 'timeslot',
-                          width: 120,
+                          width: '30%',
                           render: (_, record) => {
                             // Try multiple possible field names
                             const timeslotId = record.timeslotId || record.timeSlotId || record.TimeslotId || record.TimeSlotId;
@@ -819,7 +820,8 @@ const ProfilePage = () => {
                             return getTimeSlotDisplay(timeslotId);
                           }
                         }
-                      ]}scroll={{ x: true }}
+                      ]}
+                      scroll={{ x: 'max-content' }}
                     />
                   ) : (
                     <div className="schedule-placeholder">

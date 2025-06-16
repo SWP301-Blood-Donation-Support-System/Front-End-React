@@ -263,6 +263,31 @@
       font-size: $font-size-lg;
     }
   }
+
+  .ant-card-body {
+    padding: 24px;
+  }
+
+  .registration-table {
+    width: 100%;
+
+    .ant-table-wrapper {
+      width: 100%;
+    }
+
+    .ant-table {
+      width: 100%;
+      table-layout: fixed; // Fixed layout for consistent column widths
+    }
+
+    .ant-table-container {
+      width: 100%;
+    }
+
+    .ant-table-content {
+      width: 100%;
+    }
+  }
 }
 
 .schedule-content {
@@ -271,16 +296,18 @@
       border-radius: $border-radius-md;
       overflow: hidden;
       border: 1px solid #e5e7eb;
+      min-width: 100%;
     }
 
     .ant-table-thead > tr > th {
       background: #dc2626;
       color: white;
       font-weight: 700; // Extra bold for headers
-      font-size: $font-size-sm;
+      font-size: $font-size-base;
       border-bottom: none;
       text-align: center;
-      padding: 16px 12px;
+      padding: 20px 16px;
+      white-space: nowrap;
 
       &:first-child {
         border-top-left-radius: $border-radius-md;
@@ -289,9 +316,7 @@
       &:last-child {
         border-top-right-radius: $border-radius-md;
       }
-    }
-
-    .ant-table-tbody > tr {
+    }    .ant-table-tbody > tr {
       transition: background-color 0.2s ease;
 
       &:nth-child(even) {
@@ -304,11 +329,12 @@
 
       > td {
         border-bottom: 1px solid #e5e7eb;
-        padding: 16px 12px;
+        padding: 20px 16px;
         text-align: center;
-        font-size: $font-size-sm;
+        font-size: $font-size-base;
         font-weight: 700; // Bold for all table content
         color: #1f2937; // Darker color for better readability
+        white-space: nowrap;
 
         &:first-child {
           font-weight: 800; // Extra bold for Schedule ID
@@ -450,14 +476,24 @@
   .registration-table {
     .ant-table-thead > tr > th {
       font-size: $font-size-sm;
-      padding: 12px 8px;
+      padding: 16px 12px;
       font-weight: 700; // Keep extra bold on mobile
     }
 
     .ant-table-tbody > tr > td {
       font-size: $font-size-sm;
-      padding: 12px 8px;
+      padding: 16px 12px;
       font-weight: 700; // Keep bold on mobile
+    }
+    
+    .ant-table {
+      table-layout: auto; // Allow auto layout on mobile for better responsiveness
+    }
+  }
+  
+  .profile-schedule-card {
+    .ant-card-body {
+      padding: 16px;
     }
   }
 }
