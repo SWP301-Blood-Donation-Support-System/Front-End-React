@@ -28,6 +28,7 @@ import {
   HeartOutlined,
   IdcardOutlined,
   TeamOutlined,
+  BankOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -47,6 +48,7 @@ const ProfilePage = () => {
   const [editLoading, setEditLoading] = useState(false);
   const [bloodTypes, setBloodTypes] = useState([]);
   const [genders, setGenders] = useState([]);
+  const [occupations, setOccupations] = useState([]);
   const [showUpdateRequired, setShowUpdateRequired] = useState(false);
   const [editValues, setEditValues] = useState({});
   const navigate = useNavigate();
@@ -136,9 +138,22 @@ const ProfilePage = () => {
       }
     };
 
+    const fetchOccupations = async () => {
+      try {
+        const response = await UserAPI.getOccupations();
+        if (response.status === 200) {
+          const occupationData = response.data.result || response.data;
+          setOccupations(occupationData);
+        }
+      } catch (error) {
+        console.error("Error fetching occupations:", error);
+      }
+    };
+
     fetchUserProfile();
     fetchBloodTypes();
     fetchGenders();
+    fetchOccupations();
   }, [navigate, location]);
 
   // Auto-enable edit mode when user data is loaded and update is required
@@ -152,16 +167,17 @@ const ProfilePage = () => {
       return () => clearTimeout(timer);
     }
   }, [user, showUpdateRequired]);
-
   // Initialize edit values when edit mode is enabled
   useEffect(() => {
-    if (editMode && user && genders.length > 0 && bloodTypes.length > 0) {
+    if (editMode && user && genders.length > 0 && bloodTypes.length > 0 && occupations.length > 0) {
       const genderIdValue = user.GenderId || user.GenderID;
       const bloodTypeIdValue = user.BloodTypeId || user.BloodTypeID;
+      const occupationIdValue = user.OccupationId || user.OccupationID;
       
       // Ensure IDs are numbers for proper matching
       const parsedGenderId = genderIdValue ? parseInt(genderIdValue) : null;
       const parsedBloodTypeId = bloodTypeIdValue ? parseInt(bloodTypeIdValue) : null;
+      const parsedOccupationId = occupationIdValue ? parseInt(occupationIdValue) : null;
       
       setEditValues({
         fullName: user.FullName || user.name || '',
@@ -171,10 +187,11 @@ const ProfilePage = () => {
         nationalID: user.NationalId || user.NationalID || '',
         dateOfBirth: user.DateOfBirth || null,
         genderID: parsedGenderId,
-        bloodTypeID: parsedBloodTypeId
+        bloodTypeID: parsedBloodTypeId,
+        occupationID: parsedOccupationId
       });
     }
-  }, [editMode, user, genders, bloodTypes]);
+  }, [editMode, user, genders, bloodTypes, occupations]);
 
   const handleEditProfile = () => {
     // Check if user data is available before proceeding
@@ -189,8 +206,7 @@ const ProfilePage = () => {
   const handleSaveProfile = async () => {
     try {
       setEditLoading(true);
-      
-      // Prepare the data for API
+        // Prepare the data for API
       const updateData = {
         FullName: editValues.fullName,
         Email: editValues.email,
@@ -199,7 +215,8 @@ const ProfilePage = () => {
         NationalID: editValues.nationalID,
         DateOfBirth: editValues.dateOfBirth,
         GenderID: editValues.genderID,
-        BloodTypeID: editValues.bloodTypeID
+        BloodTypeID: editValues.bloodTypeID,
+        OccupationID: editValues.occupationID
       };
 
       // Call the update API  
@@ -252,8 +269,7 @@ const ProfilePage = () => {
     setEditValues(prev => ({
       ...prev,
       [field]: value
-    }));
-  };
+    }));  };
 
   // Check if profile is complete
   const isProfileComplete = (userData) => {
@@ -266,7 +282,8 @@ const ProfilePage = () => {
       userData.Address,
       userData.DateOfBirth,
       userData.GenderId || userData.GenderID,
-      userData.BloodTypeId || userData.BloodTypeID
+      userData.BloodTypeId || userData.BloodTypeID,
+      userData.OccupationId || userData.OccupationID
     ];
     
     return requiredFields.every(field => field !== null && field !== undefined && field !== '');
@@ -303,6 +320,17 @@ const ProfilePage = () => {
     return gender ? gender.name : 'Not specified';
   };
 
+  const getOccupationDisplay = (occupationID) => {
+    // Handle both field name cases
+    const occupationIdValue = occupationID || user?.OccupationId || user?.OccupationID;
+    
+    if (!occupationIdValue || occupations.length === 0) return 'Not specified';
+    
+    // Handle both string and number comparison
+    const occupation = occupations.find(o => o.id === occupationIdValue || o.id === parseInt(occupationIdValue));
+      return occupation ? occupation.name : 'Not specified';
+  };
+
   if (loading) {
     return (
       <div className="profile-loading">
@@ -326,7 +354,7 @@ const ProfilePage = () => {
       <div className="profile-page">
         <div className="profile-container">
           <Title level={2} className="profile-title">
-            <UserOutlined /> My Profile
+            <UserOutlined /> Hồ Sơ Cá Nhân
           </Title>
 
                      {/* Update Required Alert */}
@@ -357,17 +385,17 @@ const ProfilePage = () => {
                     <Text className="profile-username">@{user.UserName || user.email?.split('@')[0] || 'username'}</Text>
                     <div className="profile-tags">
                       <Tag color="red" icon={<HeartOutlined />}>
-                        {user.DonationCount || 0} Donations
+                        {user.DonationCount || 0} Lần Hiến Máu
                       </Tag>
                       <Tag color="blue">
-                        Blood Type: {getBloodTypeDisplay(user.BloodTypeID)}
+                        Nhóm máu: {getBloodTypeDisplay(user.BloodTypeID)}
                       </Tag>
                     </div>
                   </div>
                   <div className="profile-actions">
                     {!editMode ? (
                       <Button type="primary" icon={<EditOutlined />} onClick={handleEditProfile}>
-                        Edit Profile
+                        Chỉnh sửa
                       </Button>
                     ) : (
                       <Space>
@@ -386,10 +414,10 @@ const ProfilePage = () => {
 
             {/* Personal Information */}
             <Col xs={24} lg={12}>
-              <Card title="Personal Information" className="profile-info-card">
+              <Card title="Thông Tin Cá Nhân" className="profile-info-card">
                 <Descriptions column={1} size="middle">
                   <Descriptions.Item 
-                    label={<span><UserOutlined /> Full Name</span>}
+                    label={<span><UserOutlined /> Họ và Tên</span>}
                   >
                     {!editMode ? (
                       user.FullName || user.name || 'Not specified'
@@ -402,7 +430,7 @@ const ProfilePage = () => {
                     )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><CalendarOutlined /> Date of Birth</span>}
+                    label={<span><CalendarOutlined /> Ngày Sinh</span>}
                   >
                     {!editMode ? (
                       formatDate(user.DateOfBirth)
@@ -416,7 +444,7 @@ const ProfilePage = () => {
                     )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><TeamOutlined /> Gender</span>}
+                    label={<span><TeamOutlined /> Giới Tính</span>}
                     key={`gender-${genders.length}`}
                   >
                     {!editMode ? (
@@ -442,7 +470,7 @@ const ProfilePage = () => {
                     )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><IdcardOutlined /> National ID</span>}
+                    label={<span><IdcardOutlined /> Số CMND/CCCD</span>}
                   >
                     {!editMode ? (
                       user.NationalId || user.NationalID || 'Not specified'
@@ -451,11 +479,10 @@ const ProfilePage = () => {
                         value={editValues.nationalID || ''}
                         onChange={(e) => handleFieldChange('nationalID', e.target.value)}
                         placeholder="Enter national ID"
-                      />
-                    )}
+                      />                    )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><EnvironmentOutlined /> Address</span>}
+                    label={<span><EnvironmentOutlined /> Địa Chỉ</span>}
                   >
                     {!editMode ? (
                       user.Address || 'Not specified'
@@ -468,13 +495,38 @@ const ProfilePage = () => {
                       />
                     )}
                   </Descriptions.Item>
+                  <Descriptions.Item 
+                    label={<span><BankOutlined /> Nghề Nghiệp</span>}
+                  >
+                    {!editMode ? (
+                      getOccupationDisplay(user.OccupationId || user.OccupationID)
+                    ) : (
+                      occupations.length > 0 ? (
+                        <Select 
+                          key={`occupation-select-${occupations.length}-${editValues.occupationID}`}
+                          value={editValues.occupationID}
+                          onChange={(value) => handleFieldChange('occupationID', value)}
+                          placeholder="Select occupation"
+                          style={{ width: '100%' }}
+                        >
+                          {occupations.map(occupation => (
+                            <Option key={occupation.id} value={occupation.id}>
+                              {occupation.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      ) : (
+                        <Select placeholder="Loading occupations..." disabled style={{ width: '100%' }} />
+                      )
+                    )}
+                  </Descriptions.Item>
                 </Descriptions>
               </Card>
             </Col>
 
             {/* Contact & Account Information */}
             <Col xs={24} lg={12}>
-              <Card title="Contact & Account" className="profile-info-card">
+              <Card title="Liên Hệ" className="profile-info-card">
                 <Descriptions column={1} size="middle">
                   <Descriptions.Item 
                     label={<span><MailOutlined /> Email</span>}
@@ -496,7 +548,7 @@ const ProfilePage = () => {
                     {user.Username || user.UserName || user.email?.split('@')[0] || 'Not specified'}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><PhoneOutlined /> Phone Number</span>}
+                    label={<span><PhoneOutlined /> Số Điện Thoại</span>}
                   >
                     {!editMode ? (
                       user.PhoneNumber || 'Not specified'
@@ -509,7 +561,7 @@ const ProfilePage = () => {
                     )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><HeartOutlined /> Blood Type</span>}
+                    label={<span><HeartOutlined /> Nhóm Máu</span>}
                   >
                     {!editMode ? (
                       getBloodTypeDisplay(user.BloodTypeId || user.BloodTypeID)
@@ -528,10 +580,8 @@ const ProfilePage = () => {
                             </Option>
                           ))}
                         </Select>
-                      ) : (
-                        <Select placeholder="Loading blood types..." disabled style={{ width: '100%' }} />
-                      )
-                    )}
+                      ) : (                        <Select placeholder="Loading blood types..." disabled style={{ width: '100%' }} />
+                      )                    )}
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
@@ -544,13 +594,13 @@ const ProfilePage = () => {
                   <Col xs={24} sm={8}>
                     <div className="donation-stat">
                       <div className="stat-number">{user.DonationCount || 0}</div>
-                      <div className="stat-label">Total Donations</div>
+                      <div className="stat-label">Tổng Số Lần Hiến Máu</div>
                     </div>
                   </Col>
                   <Col xs={24} sm={8}>
                     <div className="donation-stat">
                       <div className="stat-number">{getBloodTypeDisplay(user.BloodTypeId || user.BloodTypeID)}</div>
-                      <div className="stat-label">Blood Type</div>
+                      <div className="stat-label">Nhóm Máu</div>
                     </div>
                   </Col>
                   <Col xs={24} sm={8}>
@@ -558,7 +608,7 @@ const ProfilePage = () => {
                       <div className="stat-number">
                         {user.LastDonationDate ? formatDate(user.LastDonationDate) : 'Never'}
                       </div>
-                      <div className="stat-label">Last Donation</div>
+                      <div className="stat-label">Lần Hiến Máu Gần Nhất</div>
                     </div>
                   </Col>
                 </Row>
@@ -588,4 +638,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage; 
+export default ProfilePage;
