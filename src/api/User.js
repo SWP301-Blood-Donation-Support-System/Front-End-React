@@ -31,24 +31,7 @@ export const UserAPI = {
     },
     logout: () => {
         localStorage.removeItem("token");
-        localStorage.removeItem("userInfo");
-    },
-
-    // Get detailed user profile information
-    getUserProfile: async (userId) => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get(`https://localhost:7198/api/User/${userId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            return response;
-        } catch (error) {
-            console.error("Error fetching user profile:", error);
-            throw error;
-        }
-    },
+        localStorage.removeItem("userInfo");    },
 
     // Update user profile information
     updateUserProfile: async (userId, profileData) => {
