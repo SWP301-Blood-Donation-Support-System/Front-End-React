@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card, 
   Row, 
   Col, 
   Avatar, 
   Typography, 
-  Divider, 
   Tag, 
   Button, 
   Descriptions,
@@ -16,7 +15,8 @@ import {
   Input,
   Select,
   DatePicker,
-  Alert
+  Alert,
+  Table
 } from 'antd';
 import {
   UserOutlined,
@@ -51,6 +51,10 @@ const ProfilePage = () => {
   const [occupations, setOccupations] = useState([]);
   const [showUpdateRequired, setShowUpdateRequired] = useState(false);
   const [editValues, setEditValues] = useState({});
+  const [registrations, setRegistrations] = useState([]);
+  const [registrationsLoading, setRegistrationsLoading] = useState(false);
+  const [registrationStatuses, setRegistrationStatuses] = useState([]);
+  const [timeSlots, setTimeSlots] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -142,11 +146,125 @@ const ProfilePage = () => {
       }
     };
 
-    fetchUserProfile();
+    const fetchRegistrationStatuses = async () => {
+      try {
+        const response = await UserAPI.getRegistrationStatuses();
+        if (response.status === 200) {
+          const statusData = response.data.result || response.data;
+          setRegistrationStatuses(statusData);
+        }
+      } catch (error) {
+        console.error("Error fetching registration statuses:", error);
+        // Fallback to hardcoded values if API fails
+        setRegistrationStatuses([
+          { id: 1, name: 'Đang chờ xác nhận' },
+          { id: 2, name: 'Đã xác nhận' },
+          { id: 3, name: 'Đã hoàn thành' },
+          { id: 4, name: 'Đã hủy' },
+          { id: 5, name: 'No Show' }
+        ]);
+      }
+    };
+
+    const fetchTimeSlots = async () => {
+      try {
+        const response = await UserAPI.getTimeSlots();
+        if (response.status === 200) {
+          const timeSlotsData = response.data.result || response.data;
+          setTimeSlots(timeSlotsData);
+        }
+      } catch (error) {
+        console.error("Error fetching time slots:", error);
+        // Don't set fallback as time slots are dynamic
+      }
+    };    fetchUserProfile();
     fetchBloodTypes();
     fetchGenders();
     fetchOccupations();
-  }, [navigate, location]);
+    fetchRegistrationStatuses();
+    fetchTimeSlots();
+    fetchTimeSlots();
+  }, [navigate, location]);  // Fetch user's donation registrations
+  const fetchRegistrations = async () => {
+    try {
+      setRegistrationsLoading(true);
+      const token = localStorage.getItem("token");
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+
+      console.log("Fetching registrations - Token:", token ? "Available" : "Not available");
+      console.log("Fetching registrations - UserInfo:", userInfo);
+
+      if (!token || !userInfo) {
+        console.log("No token or user info available for fetching registrations");
+        return;
+      }
+
+      console.log("Calling API to get all registrations");
+      const response = await UserAPI.getDonationRegistrations();
+      console.log("Registrations API response:", response);
+      console.log("Registrations API response status:", response.status);
+      console.log("Registrations API response data:", response.data);
+        if (response.status === 200) {
+        // Filter registrations for current user
+        const userId = userInfo.UserId || userInfo.UserID || userInfo.id;
+        console.log("Current user ID:", userId);
+        console.log("User ID type:", typeof userId);
+        
+        const allRegistrations = response.data || [];
+        console.log("All registrations:", allRegistrations);
+        console.log("Total registrations count:", allRegistrations.length);
+        
+        // Log some sample donorIds to see the format
+        if (allRegistrations.length > 0) {
+          console.log("Sample donorIds:", allRegistrations.slice(0, 5).map(reg => ({
+            registrationId: reg.registrationId,
+            donorId: reg.donorId,
+            donorIdType: typeof reg.donorId
+          })));
+        }
+        
+        // Filter by donorId matching current user - try both string and number comparison
+        const userRegistrations = allRegistrations.filter(reg => {
+          const donorId = reg.donorId || reg.DonorId || reg.donorID || reg.DonorID;
+          const match = donorId === userId || 
+                       donorId === parseInt(userId) || 
+                       donorId === String(userId) ||
+                       parseInt(donorId) === parseInt(userId);
+          
+          if (match) {
+            console.log("Found matching registration:", reg);
+          }
+          
+          return match;
+        });        console.log("User registrations after filtering:", userRegistrations);
+        console.log("Filtered registrations count:", userRegistrations.length);
+        setRegistrations(userRegistrations);
+      }
+    } catch (error) {
+      console.error("Error fetching registrations:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      // Don't show error message as this might be normal for new users
+    } finally {
+      setRegistrationsLoading(false);
+    }
+  };// Fetch registrations when user data is available
+  useEffect(() => {
+    if (user) {
+      fetchRegistrations();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const handleEditProfile = useCallback(() => {
+    // Check if user data is available before proceeding
+    if (!user) {
+      console.warn('User data not available yet, cannot enable edit mode');
+      return;
+    }
+
+    setEditMode(true);
+  }, [user]);
 
   // Auto-enable edit mode when user data is loaded and update is required
   useEffect(() => {
@@ -158,7 +276,7 @@ const ProfilePage = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [user, showUpdateRequired]);
+  }, [user, showUpdateRequired, handleEditProfile]);
   // Initialize edit values when edit mode is enabled
   useEffect(() => {
     if (editMode && user && genders.length > 0 && bloodTypes.length > 0 && occupations.length > 0) {
@@ -179,21 +297,10 @@ const ProfilePage = () => {
         nationalID: user.NationalId || user.NationalID || '',
         dateOfBirth: user.DateOfBirth || null,
         genderID: parsedGenderId,
-        bloodTypeID: parsedBloodTypeId,
-        occupationID: parsedOccupationId
+        bloodTypeID: parsedBloodTypeId,        occupationID: parsedOccupationId
       });
     }
   }, [editMode, user, genders, bloodTypes, occupations]);
-
-  const handleEditProfile = () => {
-    // Check if user data is available before proceeding
-    if (!user) {
-      console.warn('User data not available yet, cannot enable edit mode');
-      return;
-    }
-
-    setEditMode(true);
-  };
 
   const handleSaveProfile = async () => {
     try {
@@ -261,7 +368,13 @@ const ProfilePage = () => {
     setEditValues(prev => ({
       ...prev,
       [field]: value
-    }));  };
+    }));
+  };
+
+  // Refresh registrations data
+  const refreshRegistrations = () => {
+    fetchRegistrations();
+  };
 
   // Check if profile is complete
   const isProfileComplete = (userData) => {
@@ -320,7 +433,87 @@ const ProfilePage = () => {
     
     // Handle both string and number comparison
     const occupation = occupations.find(o => o.id === occupationIdValue || o.id === parseInt(occupationIdValue));
-      return occupation ? occupation.name : 'Not specified';
+    return occupation ? occupation.name : 'Not specified';
+  };  // Helper functions for registration status
+  const getStatusColor = (statusId) => {
+    // Get status name from lookup array
+    const status = registrationStatuses.find(s => s.id === statusId);
+    const statusName = status ? status.name.toLowerCase() : '';
+    
+    if (statusName.includes('chờ') || statusName.includes('pending')) {
+      return 'orange';
+    } else if (statusName.includes('xác nhận') || statusName.includes('confirmed')) {
+      return 'green';
+    } else if (statusName.includes('hủy') || statusName.includes('cancelled')) {
+      return 'red';
+    } else if (statusName.includes('hoàn thành') || statusName.includes('completed')) {
+      return 'blue';
+    } else if (statusName.includes('no show')) {
+      return 'volcano';
+    }
+    
+    // Fallback colors based on ID
+    switch (statusId) {
+      case 1:
+        return 'orange'; // Đang chờ xác nhận
+      case 2:
+        return 'green'; // Đã xác nhận
+      case 3:
+        return 'blue'; // Đã hoàn thành
+      case 4:
+        return 'red'; // Đã hủy
+      case 5:
+        return 'volcano'; // No Show
+      default:
+        return 'default';
+    }
+  };
+
+  const getStatusText = (statusId) => {
+    // Get status name from lookup array
+    const status = registrationStatuses.find(s => s.id === statusId);
+    if (status) {
+      return status.name;
+    }
+    
+    // Fallback text based on ID
+    switch (statusId) {
+      case 1:
+        return 'Đang chờ xác nhận';
+      case 2:
+        return 'Đã xác nhận';
+      case 3:
+        return 'Đã hoàn thành';
+      case 4:
+        return 'Đã hủy';
+      case 5:
+        return 'No Show';
+      default:
+        return 'Không xác định';
+    }
+  };  // Helper function for timeslot display with short format
+  const getTimeSlotDisplay = (timeslotId) => {
+    if (!timeslotId) return 'N/A';
+    
+    // Find timeslot from lookup array
+    const timeSlot = timeSlots.find(ts => ts.id === timeslotId || ts.timeSlotId === timeslotId);
+    
+    if (timeSlot) {
+      // Try different possible field names for time display
+      const timeDisplay = timeSlot.timeRange || timeSlot.time || timeSlot.name || 
+                         `${timeSlot.startTime} - ${timeSlot.endTime}` ||
+                         `${timeSlot.StartTime} - ${timeSlot.EndTime}`;
+      
+      if (timeDisplay && !timeDisplay.includes('undefined')) {
+        // Format time to short format (HH:mm - HH:mm)
+        // Remove seconds from time format: 10:00:00 -> 10:00
+        const formatted = timeDisplay.replace(/:\d{2}(?=\s*[-\s]|$)/g, '');
+        return formatted;
+      }
+    }
+    
+    // Fallback to slot ID if no time info found
+    return `Slot ${timeslotId}`;
   };
 
   if (loading) {
@@ -374,11 +567,7 @@ const ProfilePage = () => {
                   <div className="profile-header-info">                    <Title level={3} className="profile-name">
                       {user.FullName || user.name || 'Full Name'}
                     </Title>
-                    <Text className="profile-username">@{user.UserName || user.email?.split('@')[0] || 'username'}</Text>
-                    <div className="profile-tags">
-                      <Tag color="red" icon={<HeartOutlined />}>
-                        {user.DonationCount || 0} Lần Hiến Máu
-                      </Tag>
+                    <Text className="profile-username">@{user.UserName || user.email?.split('@')[0] || 'username'}</Text>                    <div className="profile-tags">
                       <Tag color="blue">
                         Nhóm máu: {getBloodTypeDisplay(user.BloodTypeID)}
                       </Tag>
@@ -577,45 +766,85 @@ const ProfilePage = () => {
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
-            </Col>
-
-            {/* Blood Donation History */}
+            </Col>            {/* Registered Schedules */}
             <Col span={24}>
-              <Card title="Blood Donation History" className="profile-donation-card">
-                <Row gutter={[16, 16]}>
-                  <Col xs={24} sm={8}>
-                    <div className="donation-stat">
-                      <div className="stat-number">{user.DonationCount || 0}</div>
-                      <div className="stat-label">Tổng Số Lần Hiến Máu</div>
+              <Card title="Lịch Đã Đăng Kí" className="profile-schedule-card">
+                <div className="schedule-content">
+                  {registrationsLoading ? (
+                    <div className="schedule-loading">
+                      <Spin size="large" />
+                      <Text style={{ marginTop: '16px', display: 'block', textAlign: 'center' }}>
+                        Đang tải thông tin lịch đăng kí...
+                      </Text>
                     </div>
-                  </Col>
-                  <Col xs={24} sm={8}>
-                    <div className="donation-stat">
-                      <div className="stat-number">{getBloodTypeDisplay(user.BloodTypeId || user.BloodTypeID)}</div>
-                      <div className="stat-label">Nhóm Máu</div>
-                    </div>
-                  </Col>
-                  <Col xs={24} sm={8}>
-                    <div className="donation-stat">
-                      <div className="stat-number">
-                        {user.LastDonationDate ? formatDate(user.LastDonationDate) : 'Never'}
+                  ) : registrations.length > 0 ? (
+                    <Table
+                      dataSource={registrations}
+                      rowKey="registrationId"
+                      pagination={false}
+                      className="registration-table"                      columns={[
+                        {
+                          title: 'Schedule ID',
+                          dataIndex: 'scheduleId',
+                          key: 'scheduleId',
+                          width: 120,
+                          render: (scheduleId) => <strong>#{scheduleId || 'N/A'}</strong>
+                        },
+                        {
+                          title: 'Ngày đăng kí',
+                          dataIndex: 'createdAt',
+                          key: 'createdAt',
+                          width: 150,
+                          render: (date) => formatDate(date)
+                        },
+                        {
+                          title: 'Trạng thái',
+                          dataIndex: 'registrationStatusId',
+                          key: 'status',
+                          width: 150,
+                          render: (statusId) => (
+                            <Tag color={getStatusColor(statusId)}>
+                              {getStatusText(statusId)}
+                            </Tag>
+                          )
+                        },
+                        {
+                          title: 'Khung giờ',
+                          key: 'timeslot',
+                          width: 120,
+                          render: (_, record) => {
+                            // Try multiple possible field names
+                            const timeslotId = record.timeslotId || record.timeSlotId || record.TimeslotId || record.TimeSlotId;
+                            
+                            return getTimeSlotDisplay(timeslotId);
+                          }
+                        }
+                      ]}scroll={{ x: true }}
+                    />
+                  ) : (
+                    <div className="schedule-placeholder">
+                      <div className="placeholder-icon">
+                        <CalendarOutlined style={{ fontSize: '48px', color: '#d1d5db' }} />
                       </div>
-                      <div className="stat-label">Lần Hiến Máu Gần Nhất</div>
+                      <div className="placeholder-text">
+                        <Title level={4} style={{ color: '#6b7280', marginBottom: '8px' }}>
+                          Chưa có lịch đăng kí nào
+                        </Title>
+                        <Text style={{ color: '#9ca3af' }}>
+                          Các lịch hiến máu đã đăng kí sẽ hiển thị tại đây
+                        </Text>
+                      </div>
+                      <div className="placeholder-actions">                        <Button 
+                          type="primary" 
+                          size="large"
+                          onClick={() => navigate('/booking')}
+                          style={{ marginTop: '16px' }}
+                        >
+                          Đăng Kí Hiến Máu
+                        </Button>
+                      </div>
                     </div>
-                  </Col>
-                </Row>
-                
-                <Divider />
-                
-                <div className="donation-actions">
-                  <Space>
-                    <Button type="primary" size="large">
-                      Schedule Donation
-                    </Button>
-                    <Button type="default" size="large">
-                      View Donation History
-                    </Button>
-                  </Space>
+                  )}
                 </div>
               </Card>
             </Col>

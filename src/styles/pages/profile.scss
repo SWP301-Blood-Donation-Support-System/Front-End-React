@@ -248,6 +248,168 @@
   }
 }
 
+// Registered Schedules Card Styling
+.profile-schedule-card {
+  border-radius: $border-radius-lg;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+
+  .ant-card-head {
+    border-bottom: 2px solid #f0f2f5;
+
+    .ant-card-head-title {
+      color: $text-primary;
+      font-weight: 700; // Extra bold for card title
+      font-size: $font-size-lg;
+    }
+  }
+}
+
+.schedule-content {
+  .registration-table {
+    .ant-table {
+      border-radius: $border-radius-md;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+
+    .ant-table-thead > tr > th {
+      background: #dc2626;
+      color: white;
+      font-weight: 700; // Extra bold for headers
+      font-size: $font-size-sm;
+      border-bottom: none;
+      text-align: center;
+      padding: 16px 12px;
+
+      &:first-child {
+        border-top-left-radius: $border-radius-md;
+      }
+
+      &:last-child {
+        border-top-right-radius: $border-radius-md;
+      }
+    }
+
+    .ant-table-tbody > tr {
+      transition: background-color 0.2s ease;
+
+      &:nth-child(even) {
+        background-color: #fafafa;
+      }
+
+      &:hover {
+        background-color: #f0f9ff;
+      }
+
+      > td {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 16px 12px;
+        text-align: center;
+        font-size: $font-size-sm;
+        font-weight: 700; // Bold for all table content
+        color: #1f2937; // Darker color for better readability
+
+        &:first-child {
+          font-weight: 800; // Extra bold for Schedule ID
+          color: #dc2626;
+        }
+      }
+    }
+
+    .ant-tag {
+      border-radius: $border-radius-sm;
+      font-weight: 700; // Bold for tags
+      border: none;
+      padding: 4px 12px;
+      font-size: $font-size-xs;
+
+      &.ant-tag-orange {
+        background: #f59e0b;
+        color: white;
+      }
+
+      &.ant-tag-green {
+        background: #10b981;
+        color: white;
+      }
+
+      &.ant-tag-blue {
+        background: #3b82f6;
+        color: white;
+      }
+
+      &.ant-tag-red {
+        background: #ef4444;
+        color: white;
+      }
+    }
+
+    .timeslot-display {
+      font-weight: 700; // Bold for timeslot
+      color: #1f2937; // Darker color
+      background: #f3f4f6;
+      padding: 6px 12px;
+      border-radius: $border-radius-sm;
+      display: inline-block;
+    }
+  }
+}
+
+// Loading state
+.schedule-loading {
+  text-align: center;
+  padding: $spacing-2xl;
+
+  .ant-spin {
+    margin-bottom: $spacing-md;
+  }
+
+  .ant-typography {
+    font-weight: 600; // Bold loading text
+  }
+}
+
+// Placeholder styling
+.schedule-placeholder {
+  text-align: center;
+  padding: $spacing-2xl;
+
+  .placeholder-icon {
+    margin-bottom: $spacing-lg;
+
+    .anticon {
+      opacity: 0.5;
+    }
+  }
+
+  .placeholder-text {
+    margin-bottom: $spacing-lg;
+
+    .ant-typography {
+      margin-bottom: $spacing-sm;
+      font-weight: 700; // Bold for placeholder text
+    }
+  }
+
+  .placeholder-actions {
+    .ant-btn {
+      height: 48px;
+      padding: 0 $spacing-2xl;
+      border-radius: $border-radius-md;
+      font-weight: 700; // Bold for button
+      font-size: $font-size-base;
+      background: #dc2626;
+      border-color: #dc2626;
+
+      &:hover {
+        background: #b91c1c;
+        border-color: #b91c1c;
+      }
+    }
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 992px) {
   .profile-header {
@@ -282,4 +444,20 @@
       font-size: $font-size-2xl;
     }
   }
-} 
+}
+
+@media (max-width: 768px) {
+  .registration-table {
+    .ant-table-thead > tr > th {
+      font-size: $font-size-sm;
+      padding: 12px 8px;
+      font-weight: 700; // Keep extra bold on mobile
+    }
+
+    .ant-table-tbody > tr > td {
+      font-size: $font-size-sm;
+      padding: 12px 8px;
+      font-weight: 700; // Keep bold on mobile
+    }
+  }
+}
