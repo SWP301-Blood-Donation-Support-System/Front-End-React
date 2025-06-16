@@ -115,5 +115,31 @@ export const UserAPI = {
             console.error("Error response status:", error.response?.status);
             throw error;
         }
+    },    // Get user's donation registrations
+    getDonationRegistrations: async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`https://localhost:7198/api/DonationRegistration`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error("Error fetching donation registrations:", error);
+            throw error;
+        }
+    },
+
+    // Get registration statuses from backend
+    getRegistrationStatuses: async () => {
+        try {
+            const response = await axios.get("https://localhost:7198/api/Lookup/registration-statuses");
+            return response;
+        } catch (error) {
+            console.error("Error fetching registration statuses:", error);
+            throw error;
+        }
     },
 }
