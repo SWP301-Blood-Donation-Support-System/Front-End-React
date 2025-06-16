@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Card, 
   Row, 
   Col, 
@@ -13,8 +13,6 @@ import {
   Spin,
   message,
   Layout,
-  Modal,
-  Form,
   Input,
   Select,
   DatePicker,
@@ -30,6 +28,7 @@ import {
   HeartOutlined,
   IdcardOutlined,
   TeamOutlined,
+  BankOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -45,11 +44,13 @@ const { Option } = Select;
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [editForm] = Form.useForm();
+  const [editMode, setEditMode] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [bloodTypes, setBloodTypes] = useState([]);
+  const [genders, setGenders] = useState([]);
+  const [occupations, setOccupations] = useState([]);
   const [showUpdateRequired, setShowUpdateRequired] = useState(false);
+  const [editValues, setEditValues] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -83,7 +84,8 @@ const ProfilePage = () => {
         // Call the actual getUserProfile API to get latest data
         const response = await UserAPI.getUserProfile(userInfo.UserID);
         if (response.status === 200) {
-          setUser(response.data.result || response.data);
+          const userData = response.data.result || response.data;
+          setUser(userData);
         } else {
           // Fallback to stored userInfo if API fails
           setUser(userInfo);
@@ -124,14 +126,40 @@ const ProfilePage = () => {
       }
     };
 
+    const fetchGenders = async () => {
+      try {
+        const response = await UserAPI.getGenders();
+        if (response.status === 200) {
+          const genderData = response.data.result || response.data;
+          setGenders(genderData);
+        }
+      } catch (error) {
+        console.error("Error fetching genders:", error);
+      }
+    };
+
+    const fetchOccupations = async () => {
+      try {
+        const response = await UserAPI.getOccupations();
+        if (response.status === 200) {
+          const occupationData = response.data.result || response.data;
+          setOccupations(occupationData);
+        }
+      } catch (error) {
+        console.error("Error fetching occupations:", error);
+      }
+    };
+
     fetchUserProfile();
     fetchBloodTypes();
+    fetchGenders();
+    fetchOccupations();
   }, [navigate, location]);
 
-  // Auto-open edit modal when user data is loaded and update is required
+  // Auto-enable edit mode when user data is loaded and update is required
   useEffect(() => {
-    if (user && showUpdateRequired) {
-      // Auto-open edit modal after user data is loaded
+    if (user && showUpdateRequired && !isProfileComplete(user)) {
+      // Auto-enable edit mode after user data is loaded only if profile is incomplete
       const timer = setTimeout(() => {
         handleEditProfile();
       }, 1000);
@@ -139,50 +167,63 @@ const ProfilePage = () => {
       return () => clearTimeout(timer);
     }
   }, [user, showUpdateRequired]);
+  // Initialize edit values when edit mode is enabled
+  useEffect(() => {
+    if (editMode && user && genders.length > 0 && bloodTypes.length > 0 && occupations.length > 0) {
+      const genderIdValue = user.GenderId || user.GenderID;
+      const bloodTypeIdValue = user.BloodTypeId || user.BloodTypeID;
+      const occupationIdValue = user.OccupationId || user.OccupationID;
+      
+      // Ensure IDs are numbers for proper matching
+      const parsedGenderId = genderIdValue ? parseInt(genderIdValue) : null;
+      const parsedBloodTypeId = bloodTypeIdValue ? parseInt(bloodTypeIdValue) : null;
+      const parsedOccupationId = occupationIdValue ? parseInt(occupationIdValue) : null;
+      
+      setEditValues({
+        fullName: user.FullName || user.name || '',
+        email: user.Email || user.email || '',
+        phoneNumber: user.PhoneNumber || '',
+        address: user.Address || '',
+        nationalID: user.NationalId || user.NationalID || '',
+        dateOfBirth: user.DateOfBirth || null,
+        genderID: parsedGenderId,
+        bloodTypeID: parsedBloodTypeId,
+        occupationID: parsedOccupationId
+      });
+    }
+  }, [editMode, user, genders, bloodTypes, occupations]);
 
   const handleEditProfile = () => {
     // Check if user data is available before proceeding
     if (!user) {
-      console.warn('User data not available yet, cannot open edit profile');
+      console.warn('User data not available yet, cannot enable edit mode');
       return;
     }
 
-    // Pre-fill the form with current user data
-    editForm.setFieldsValue({
-      fullName: user.FullName || user.name || '',
-      email: user.Email || user.email || '',
-      phoneNumber: user.PhoneNumber || '',
-      address: user.Address || '',
-      nationalID: user.NationalID || '',
-      dateOfBirth: user.DateOfBirth ? dayjs(user.DateOfBirth) : null,
-      genderID: user.GenderID || null,
-      bloodTypeID: user.BloodTypeID || null
-    });
-    setEditModalVisible(true);
+    setEditMode(true);
   };
 
-  const handleEditSubmit = async (values) => {
+  const handleSaveProfile = async () => {
     try {
       setEditLoading(true);
-      
-      // Prepare the data for API
+        // Prepare the data for API
       const updateData = {
-        FullName: values.fullName,
-        Email: values.email,
-        PhoneNumber: values.phoneNumber,
-        Address: values.address,
-        NationalID: values.nationalID,
-        DateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : null,
-        GenderID: values.genderID,
-        BloodTypeID: values.bloodTypeID
+        FullName: editValues.fullName,
+        Email: editValues.email,
+        PhoneNumber: editValues.phoneNumber,
+        Address: editValues.address,
+        NationalID: editValues.nationalID,
+        DateOfBirth: editValues.dateOfBirth,
+        GenderID: editValues.genderID,
+        BloodTypeID: editValues.bloodTypeID,
+        OccupationID: editValues.occupationID
       };
 
-      // Call the update API
-      const response = await UserAPI.updateUserProfile(user.UserID, updateData);
+      // Call the update API  
+      const userId = user.UserId || user.UserID;
+      const response = await UserAPI.updateUserProfile(userId, updateData);
       
       if (response.status === 200) {
-        message.success('Hồ sơ đã được cập nhật thành công! Bây giờ bạn có thể đăng ký hiến máu.');
-        
         // Update the local user state
         const updatedUser = { ...user, ...updateData };
         setUser(updatedUser);
@@ -190,16 +231,22 @@ const ProfilePage = () => {
         // Update localStorage as well
         localStorage.setItem("userInfo", JSON.stringify(updatedUser));
         
-        setEditModalVisible(false);
-        editForm.resetFields();
+        setEditMode(false);
+        setEditValues({});
         
-        // Clear the update required flag
-        setShowUpdateRequired(false);
-        
-        // Update URL to remove updateRequired parameter
-        const url = new URL(window.location);
-        url.searchParams.delete('updateRequired');
-        window.history.replaceState({}, '', url);
+        // Show appropriate success message based on profile completeness
+        if (isProfileComplete(updatedUser)) {
+          message.success('Hồ sơ đã được cập nhật thành công! Bây giờ bạn có thể đăng ký hiến máu.');
+          // Clear the update required flag only when profile is complete
+          setShowUpdateRequired(false);
+          
+          // Update URL to remove updateRequired parameter
+          const url = new URL(window.location);
+          url.searchParams.delete('updateRequired');
+          window.history.replaceState({}, '', url);
+        } else {
+          message.success('Hồ sơ đã được cập nhật thành công! Vui lòng hoàn thiện thông tin còn lại.');
+        }
       }
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -213,9 +260,33 @@ const ProfilePage = () => {
     }
   };
 
-  const handleEditCancel = () => {
-    setEditModalVisible(false);
-    editForm.resetFields();
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    setEditValues({});
+  };
+
+  const handleFieldChange = (field, value) => {
+    setEditValues(prev => ({
+      ...prev,
+      [field]: value
+    }));  };
+
+  // Check if profile is complete
+  const isProfileComplete = (userData) => {
+    if (!userData) return false;
+    
+    const requiredFields = [
+      userData.FullName || userData.name,
+      userData.Email || userData.email,
+      userData.PhoneNumber,
+      userData.Address,
+      userData.DateOfBirth,
+      userData.GenderId || userData.GenderID,
+      userData.BloodTypeId || userData.BloodTypeID,
+      userData.OccupationId || userData.OccupationID
+    ];
+    
+    return requiredFields.every(field => field !== null && field !== undefined && field !== '');
   };
 
   const formatDate = (dateString) => {
@@ -228,17 +299,36 @@ const ProfilePage = () => {
   };
 
   const getBloodTypeDisplay = (bloodTypeID) => {
-    const bloodType = bloodTypes.find(bt => bt.id === bloodTypeID);
+    // Handle both field name cases
+    const bloodTypeIdValue = bloodTypeID || user?.BloodTypeId || user?.BloodTypeID;
+    
+    if (!bloodTypeIdValue || bloodTypes.length === 0) return 'Not specified';
+    
+    const bloodType = bloodTypes.find(bt => bt.id === bloodTypeIdValue || bt.id === parseInt(bloodTypeIdValue));
     return bloodType ? bloodType.name : 'Not specified';
   };
 
   const getGenderDisplay = (genderID) => {
-    const genders = {
-      1: 'Male',
-      2: 'Female',
-      3: 'Other'
-    };
-    return genders[genderID] || 'Not specified';
+    // Handle both field name cases
+    const genderIdValue = genderID || user?.GenderId || user?.GenderID;
+    
+    if (!genderIdValue || genders.length === 0) return 'Not specified';
+    
+    // Handle both string and number comparison
+    const gender = genders.find(g => g.id === genderIdValue || g.id === parseInt(genderIdValue));
+    
+    return gender ? gender.name : 'Not specified';
+  };
+
+  const getOccupationDisplay = (occupationID) => {
+    // Handle both field name cases
+    const occupationIdValue = occupationID || user?.OccupationId || user?.OccupationID;
+    
+    if (!occupationIdValue || occupations.length === 0) return 'Not specified';
+    
+    // Handle both string and number comparison
+    const occupation = occupations.find(o => o.id === occupationIdValue || o.id === parseInt(occupationIdValue));
+      return occupation ? occupation.name : 'Not specified';
   };
 
   if (loading) {
@@ -264,11 +354,11 @@ const ProfilePage = () => {
       <div className="profile-page">
         <div className="profile-container">
           <Title level={2} className="profile-title">
-            <UserOutlined /> My Profile
+            <UserOutlined /> Hồ Sơ Cá Nhân
           </Title>
 
                      {/* Update Required Alert */}
-           {showUpdateRequired && (
+           {(showUpdateRequired || !isProfileComplete(user)) && user && !isProfileComplete(user) && (
              <Alert
                message="Cập nhật thông tin cá nhân cần thiết"
                description="Để có thể đăng ký hiến máu, vui lòng cập nhật đầy đủ thông tin cá nhân của bạn bao gồm: họ tên, số điện thoại, địa chỉ, ngày sinh, giới tính và nhóm máu."
@@ -295,17 +385,28 @@ const ProfilePage = () => {
                     <Text className="profile-username">@{user.UserName || user.email?.split('@')[0] || 'username'}</Text>
                     <div className="profile-tags">
                       <Tag color="red" icon={<HeartOutlined />}>
-                        {user.DonationCount || 0} Donations
+                        {user.DonationCount || 0} Lần Hiến Máu
                       </Tag>
                       <Tag color="blue">
-                        Blood Type: {getBloodTypeDisplay(user.BloodTypeID)}
+                        Nhóm máu: {getBloodTypeDisplay(user.BloodTypeID)}
                       </Tag>
                     </div>
                   </div>
                   <div className="profile-actions">
-                    <Button type="primary" icon={<EditOutlined />} onClick={handleEditProfile}>
-                      Edit Profile
-                    </Button>
+                    {!editMode ? (
+                      <Button type="primary" icon={<EditOutlined />} onClick={handleEditProfile}>
+                        Chỉnh sửa
+                      </Button>
+                    ) : (
+                      <Space>
+                        <Button onClick={handleCancelEdit}>
+                          Cancel
+                        </Button>
+                        <Button type="primary" loading={editLoading} onClick={handleSaveProfile}>
+                          Save Changes
+                        </Button>
+                      </Space>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -313,31 +414,111 @@ const ProfilePage = () => {
 
             {/* Personal Information */}
             <Col xs={24} lg={12}>
-              <Card title="Personal Information" className="profile-info-card">
-                <Descriptions column={1} size="middle">                  <Descriptions.Item 
-                    label={<span><UserOutlined /> Full Name</span>}
+              <Card title="Thông Tin Cá Nhân" className="profile-info-card">
+                <Descriptions column={1} size="middle">
+                  <Descriptions.Item 
+                    label={<span><UserOutlined /> Họ và Tên</span>}
                   >
-                    {user.FullName || user.name || 'Not specified'}
+                    {!editMode ? (
+                      user.FullName || user.name || 'Not specified'
+                    ) : (
+                      <Input 
+                        value={editValues.fullName || ''}
+                        onChange={(e) => handleFieldChange('fullName', e.target.value)}
+                        placeholder="Enter full name"
+                      />
+                    )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><CalendarOutlined /> Date of Birth</span>}
+                    label={<span><CalendarOutlined /> Ngày Sinh</span>}
                   >
-                    {formatDate(user.DateOfBirth)}
+                    {!editMode ? (
+                      formatDate(user.DateOfBirth)
+                    ) : (
+                      <DatePicker 
+                        value={editValues.dateOfBirth ? dayjs(editValues.dateOfBirth) : null}
+                        onChange={(date) => handleFieldChange('dateOfBirth', date ? date.format('YYYY-MM-DD') : null)}
+                        format="DD/MM/YYYY"
+                        style={{ width: '100%' }}
+                      />
+                    )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><TeamOutlined /> Gender</span>}
+                    label={<span><TeamOutlined /> Giới Tính</span>}
+                    key={`gender-${genders.length}`}
                   >
-                    {getGenderDisplay(user.GenderID)}
+                    {!editMode ? (
+                      getGenderDisplay(user.GenderId || user.GenderID)
+                    ) : (
+                      genders.length > 0 ? (
+                        <Select 
+                          key={`gender-select-${genders.length}-${editValues.genderID}`}
+                          value={editValues.genderID}
+                          onChange={(value) => handleFieldChange('genderID', value)}
+                          placeholder="Select gender"
+                          style={{ width: '100%' }}
+                        >
+                          {genders.map(gender => (
+                            <Option key={gender.id} value={gender.id}>
+                              {gender.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      ) : (
+                        <Select placeholder="Loading genders..." disabled style={{ width: '100%' }} />
+                      )
+                    )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><IdcardOutlined /> National ID</span>}
+                    label={<span><IdcardOutlined /> Số CMND/CCCD</span>}
                   >
-                    {user.NationalID || 'Not specified'}
+                    {!editMode ? (
+                      user.NationalId || user.NationalID || 'Not specified'
+                    ) : (
+                      <Input 
+                        value={editValues.nationalID || ''}
+                        onChange={(e) => handleFieldChange('nationalID', e.target.value)}
+                        placeholder="Enter national ID"
+                      />                    )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><EnvironmentOutlined /> Address</span>}
+                    label={<span><EnvironmentOutlined /> Địa Chỉ</span>}
                   >
-                    {user.Address || 'Not specified'}
+                    {!editMode ? (
+                      user.Address || 'Not specified'
+                    ) : (
+                      <Input.TextArea 
+                        value={editValues.address || ''}
+                        onChange={(e) => handleFieldChange('address', e.target.value)}
+                        placeholder="Enter address"
+                        rows={2}
+                      />
+                    )}
+                  </Descriptions.Item>
+                  <Descriptions.Item 
+                    label={<span><BankOutlined /> Nghề Nghiệp</span>}
+                  >
+                    {!editMode ? (
+                      getOccupationDisplay(user.OccupationId || user.OccupationID)
+                    ) : (
+                      occupations.length > 0 ? (
+                        <Select 
+                          key={`occupation-select-${occupations.length}-${editValues.occupationID}`}
+                          value={editValues.occupationID}
+                          onChange={(value) => handleFieldChange('occupationID', value)}
+                          placeholder="Select occupation"
+                          style={{ width: '100%' }}
+                        >
+                          {occupations.map(occupation => (
+                            <Option key={occupation.id} value={occupation.id}>
+                              {occupation.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      ) : (
+                        <Select placeholder="Loading occupations..." disabled style={{ width: '100%' }} />
+                      )
+                    )}
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
@@ -345,21 +526,62 @@ const ProfilePage = () => {
 
             {/* Contact & Account Information */}
             <Col xs={24} lg={12}>
-              <Card title="Contact & Account" className="profile-info-card">
+              <Card title="Liên Hệ" className="profile-info-card">
                 <Descriptions column={1} size="middle">
                   <Descriptions.Item 
                     label={<span><MailOutlined /> Email</span>}
                   >
-                    {user.email || 'Not specified'}
-                  </Descriptions.Item>                  <Descriptions.Item 
-                    label={<span><UserOutlined /> Username</span>}
-                  >
-                    {user.UserName || user.email?.split('@')[0] || 'Not specified'}
+                    {!editMode ? (
+                      user.Email || user.email || 'Not specified'
+                    ) : (
+                      <Input 
+                        value={editValues.email || ''}
+                        onChange={(e) => handleFieldChange('email', e.target.value)}
+                        placeholder="Enter email address"
+                        type="email"
+                      />
+                    )}
                   </Descriptions.Item>
                   <Descriptions.Item 
-                    label={<span><PhoneOutlined /> PhoneNumber</span>}
+                    label={<span><UserOutlined /> Username</span>}
                   >
-                    {user.PhoneNumber || 'Not specified'}
+                    {user.Username || user.UserName || user.email?.split('@')[0] || 'Not specified'}
+                  </Descriptions.Item>
+                  <Descriptions.Item 
+                    label={<span><PhoneOutlined /> Số Điện Thoại</span>}
+                  >
+                    {!editMode ? (
+                      user.PhoneNumber || 'Not specified'
+                    ) : (
+                      <Input 
+                        value={editValues.phoneNumber || ''}
+                        onChange={(e) => handleFieldChange('phoneNumber', e.target.value)}
+                        placeholder="Enter phone number"
+                      />
+                    )}
+                  </Descriptions.Item>
+                  <Descriptions.Item 
+                    label={<span><HeartOutlined /> Nhóm Máu</span>}
+                  >
+                    {!editMode ? (
+                      getBloodTypeDisplay(user.BloodTypeId || user.BloodTypeID)
+                    ) : (
+                      bloodTypes.length > 0 ? (
+                        <Select 
+                          key={`bloodtype-select-${bloodTypes.length}-${editValues.bloodTypeID}`}
+                          value={editValues.bloodTypeID}
+                          onChange={(value) => handleFieldChange('bloodTypeID', value)}
+                          placeholder="Select blood type"
+                          style={{ width: '100%' }}
+                        >
+                          {bloodTypes.map(bloodType => (
+                            <Option key={bloodType.id} value={bloodType.id}>
+                              {bloodType.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      ) : (                        <Select placeholder="Loading blood types..." disabled style={{ width: '100%' }} />
+                      )                    )}
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
@@ -372,13 +594,13 @@ const ProfilePage = () => {
                   <Col xs={24} sm={8}>
                     <div className="donation-stat">
                       <div className="stat-number">{user.DonationCount || 0}</div>
-                      <div className="stat-label">Total Donations</div>
+                      <div className="stat-label">Tổng Số Lần Hiến Máu</div>
                     </div>
                   </Col>
                   <Col xs={24} sm={8}>
                     <div className="donation-stat">
-                      <div className="stat-number">{getBloodTypeDisplay(user.BloodTypeID)}</div>
-                      <div className="stat-label">Blood Type</div>
+                      <div className="stat-number">{getBloodTypeDisplay(user.BloodTypeId || user.BloodTypeID)}</div>
+                      <div className="stat-label">Nhóm Máu</div>
                     </div>
                   </Col>
                   <Col xs={24} sm={8}>
@@ -386,7 +608,7 @@ const ProfilePage = () => {
                       <div className="stat-number">
                         {user.LastDonationDate ? formatDate(user.LastDonationDate) : 'Never'}
                       </div>
-                      <div className="stat-label">Last Donation</div>
+                      <div className="stat-label">Lần Hiến Máu Gần Nhất</div>
                     </div>
                   </Col>
                 </Row>
@@ -409,134 +631,11 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
-      <Modal
-        title="Edit Profile"
-        open={editModalVisible}
-        onCancel={handleEditCancel}
-        footer={null}
-        width={600}
-        destroyOnClose
-      >
-        <Form
-          form={editForm}
-          layout="vertical"
-          onFinish={handleEditSubmit}
-          autoComplete="off"
-        >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Full Name"
-                name="fullName"
-                rules={[
-                  { required: true, message: 'Please enter your full name!' },
-                  { min: 2, message: 'Full name must be at least 2 characters!' }
-                ]}
-              >
-                <Input placeholder="Enter full name" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Email"
-                name="email"
-                rules={[
-                  { required: true, message: 'Please enter your email!' },
-                  { type: 'email', message: 'Please enter a valid email!' }
-                ]}
-              >
-                <Input placeholder="Enter email address" />
-              </Form.Item>
-            </Col>
-          </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="PhoneNumber"
-                name="phoneNumber"
-                rules={[
-                  { pattern: /^[0-9]{10,11}$/, message: 'Please enter a valid phone number!' }
-                ]}
-              >
-                <Input placeholder="Enter phone number" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="National ID"
-                name="nationalID"
-              >
-                <Input placeholder="Enter national ID" />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item
-            label="Address"
-            name="address"
-          >
-            <Input.TextArea rows={2} placeholder="Enter address" />
-          </Form.Item>
-
-          <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item
-                label="Date of Birth"
-                name="dateOfBirth"
-              >
-                <DatePicker 
-                  style={{ width: '100%' }} 
-                  placeholder="Select date"
-                  format="DD/MM/YYYY"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                label="Gender"
-                name="genderID"
-              >
-                <Select placeholder="Select gender">
-                  <Option value={1}>Male</Option>
-                  <Option value={2}>Female</Option>
-                  <Option value={3}>Other</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item
-                label="Blood Type"
-                name="bloodTypeID"
-              >
-                <Select placeholder="Select blood type">
-                  {bloodTypes.map(bloodType => (
-                    <Option key={bloodType.id} value={bloodType.id}>
-                      {bloodType.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
-            <Space>
-              <Button onClick={handleEditCancel}>
-                Cancel
-              </Button>
-              <Button type="primary" htmlType="submit" loading={editLoading}>
-                Update Profile
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
 
       <Footer />
     </Layout>
   );
 };
 
-export default ProfilePage; 
+export default ProfilePage;
