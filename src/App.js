@@ -11,6 +11,7 @@ import BookingPage from './pages/BookingPage';
 import EligibilityFormPage from './pages/EligibilityFormPage';
 import ProfilePage from './pages/ProfilePage';
 import StaffPage from './admin/pages/StaffPage';
+import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
 import './styles/main.scss';
 
 function App() {
@@ -38,11 +39,13 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/faq" element={<FAQPage />} />
-            <Route path="/search" element={<SearchPage />} />            <Route path="/news" element={<NewsPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/news" element={<NewsPage />} />
             <Route path="/booking" element={<BookingPage />} />
             <Route path="/eligibility" element={<EligibilityFormPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/staff" element={<StaffPage />} />
+            <Route path="/staff/schedule-management" element={<ScheduleManagementPage />} />
           </Routes>
         </div>
       </Router>

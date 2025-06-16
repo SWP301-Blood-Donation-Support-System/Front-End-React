@@ -1,106 +1,118 @@
-import React from 'react';
-import { Input, Avatar, Badge, Dropdown, Menu } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Layout, Avatar, Badge, Dropdown, Menu, Space } from 'antd';
 import { 
-  SearchOutlined, 
   BellOutlined, 
-  AppstoreOutlined, 
-  SettingOutlined,
-  UserOutlined,
-  LogoutOutlined 
+  MailOutlined,
+  PoweroffOutlined,
+  MenuOutlined,
+  DownOutlined,
+  UserOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import { UserAPI } from '../../api/User';
 
-const { Search } = Input;
+const { Header } = Layout;
 
-const StaffHeader = ({ title = "Analytics", subtitle = "This is an example dashboard created using build-in elements and components." }) => {
-  const handleSearch = (value) => {
-    console.log('Search:', value);
+const StaffHeader = () => {
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  // Initialize user authentication
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+
+        if (token && userInfo) {
+          setUser(userInfo);
+        } else {
+          localStorage.removeItem("token");
+          localStorage.removeItem("userInfo");
+          setUser(null);
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        navigate("/login");
+      }
+    };
+
+    initializeAuth();
+  }, [navigate]);
+
+  // Handle logout functionality
+  const handleLogout = () => {
+    UserAPI.logout();
+    setUser(null);
+    navigate('/');
   };
 
+  // Handle menu item clicks
+  const handleMenuClick = ({ key }) => {
+    if (key === 'logout') {
+      handleLogout();
+    } else if (key === 'profile') {
+      navigate('/profile');
+    }
+  };
+
+  // User dropdown menu
   const userMenu = (
-    <Menu>
+    <Menu onClick={handleMenuClick}>
       <Menu.Item key="profile" icon={<UserOutlined />}>
         Profile
       </Menu.Item>
-      <Menu.Item key="settings" icon={<SettingOutlined />}>
+      <Menu.Item key="settings" icon={<MenuOutlined />}>
         Settings
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="logout" icon={<LogoutOutlined />}>
+      <Menu.Item key="logout" icon={<PoweroffOutlined />}>
         Logout
       </Menu.Item>
     </Menu>
   );
 
-  const notificationMenu = (
-    <Menu>
-      <Menu.Item key="1">
-        <div className="notification-item">
-          <strong>New blood donation request</strong>
-          <p>5 minutes ago</p>
-        </div>
-      </Menu.Item>
-      <Menu.Item key="2">
-        <div className="notification-item">
-          <strong>Schedule updated</strong>
-          <p>1 hour ago</p>
-        </div>
-      </Menu.Item>
-      <Menu.Item key="3">
-        <div className="notification-item">
-          <strong>New staff member added</strong>
-          <p>2 hours ago</p>
-        </div>
-      </Menu.Item>
-    </Menu>
-  );
-
   return (
-    <div className="staff-header">
-      <div className="staff-header__content">
-        <div className="staff-header__left">
-          <div className="staff-header__title-section">
-            <h1 className="staff-header__title">{title}</h1>
-            <p className="staff-header__subtitle">{subtitle}</p>
-          </div>
-        </div>
-        
-        <div className="staff-header__right">
-          <div className="staff-header__search">
-            <Search
-              placeholder="Search..."
-              allowClear
-              onSearch={handleSearch}
-              className="staff-header__search-input"
-            />
-          </div>
-          
-          <div className="staff-header__actions">
-            <div className="staff-header__action-item">
-              <AppstoreOutlined className="staff-header__action-icon" />
+    <Header className="staff-header">
+      <div className="staff-header-right">
+        <div className="staff-header-actions">
+          <Space size="middle">
+            <div className="header-icon">
+              <MailOutlined />
             </div>
-            
-            <Dropdown overlay={notificationMenu} trigger={['click']} placement="bottomRight">
-              <div className="staff-header__action-item">
-                <Badge count={3} size="small">
-                  <BellOutlined className="staff-header__action-icon" />
-                </Badge>
+
+            <Badge count={3} size="small">
+              <div className="header-icon">
+                <BellOutlined />
               </div>
-            </Dropdown>
-            
+            </Badge>
+
+            <div className="header-icon">
+              <PoweroffOutlined />
+            </div>
+
+            <div className="header-icon">
+              <MenuOutlined />
+            </div>
+
             <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
-              <div className="staff-header__user">
-                <Avatar 
-                  size={32} 
-                  icon={<UserOutlined />}
-                  className="staff-header__avatar"
+              <div className="staff-user-profile">
+                <Avatar
+                  size={32}
+                  src="/images/huy1.png"
+                  className="user-avatar"
                 />
-                <span className="staff-header__username">Staff User</span>
+                <span className="user-name">
+                  {user ? `おはよう ${user.FullName}` : 'Staff'}
+                </span>
+                <DownOutlined className="dropdown-icon" />
               </div>
             </Dropdown>
-          </div>
+          </Space>
         </div>
       </div>
-    </div>
+    </Header>
   );
 };
 
