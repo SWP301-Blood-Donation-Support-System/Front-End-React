@@ -86,7 +86,7 @@ const Navbar = () => {
     {
       key: 'dashboard',
       label: 'Dashboard',
-      onClick: () => navigate('/staff')
+      onClick: () => navigate('/staff/schedule-management')
     }
   ] : baseMenuItems;
 

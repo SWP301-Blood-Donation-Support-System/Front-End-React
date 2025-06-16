@@ -267,7 +267,7 @@ const ScheduleManagementPage = () => {
       render: (_, record) => {
         const scheduleId = record.scheduleId || record.ScheduleId || record.id || record.Id || 'N/A';
         return (
-          <span style={{ fontWeight: 'bold', color: '#1890ff' }}>
+          <span style={{ fontWeight: 'bold', color: '#cf1322' }}>
             {scheduleId}
           </span>
         );
@@ -300,7 +300,7 @@ const ScheduleManagementPage = () => {
         const isUpcoming = date >= now;
         
         return (
-          <Tag color={isUpcoming ? 'blue' : 'default'}>
+          <Tag color={isUpcoming ? 'orange' : 'default'}>
             {isUpcoming ? 'SẮP DIỄN RA' : 'ĐÃ QUA'}
           </Tag>
         );
@@ -329,7 +329,7 @@ const ScheduleManagementPage = () => {
       render: (_, record) => {
         const scheduleId = record.scheduleId || record.ScheduleId || record.ScheduleID || 'N/A';
         return (
-          <span style={{ fontWeight: 'bold', color: '#1890ff' }}>
+          <span style={{ fontWeight: 'bold', color: '#cf1322' }}>
             {scheduleId}
           </span>
         );
@@ -471,23 +471,18 @@ const ScheduleManagementPage = () => {
                     {viewTitle}
                   </Title>
                   {currentView === 'schedules' && (
-                    <>
-                      <Select
-                        value={scheduleType}
-                        onChange={(value) => {
-                          setScheduleType(value);
-                          navigate(`/staff/schedule-management?type=${value}`);
-                        }}
-                        style={{ width: 200 }}
-                      >
-                        <Option value="upcoming">Lịch Sắp Tới</Option>
-                        <Option value="past">Lịch Đã Qua</Option>
-                        <Option value="all">Tất Cả Lịch</Option>
-                      </Select>
-                      <Button onClick={fetchSchedules} loading={loading}>
-                        Làm Mới
-                      </Button>
-                    </>
+                    <Select
+                      value={scheduleType}
+                      onChange={(value) => {
+                        setScheduleType(value);
+                        navigate(`/staff/schedule-management?type=${value}`);
+                      }}
+                      style={{ width: 200 }}
+                    >
+                      <Option value="upcoming">Lịch Sắp Tới</Option>
+                      <Option value="past">Lịch Đã Qua</Option>
+                      <Option value="all">Tất Cả Lịch</Option>
+                    </Select>
                   )}
                   {currentView === 'registrations' && selectedSchedule && (
                     <div style={{ fontSize: '14px', color: '#666', marginLeft: 'auto' }}>
