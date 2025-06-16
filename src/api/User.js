@@ -76,5 +76,16 @@ export const UserAPI = {
             console.error("Error fetching blood types:", error);
             throw error;
         }
+    },
+
+    // Get genders from backend
+    getGenders: async () => {
+        try {
+            const response = await axios.get("https://localhost:7198/api/Lookup/genders");
+            return response;
+        } catch (error) {
+            console.error("Error fetching genders:", error);
+            throw error;
+        }
     }
 }
