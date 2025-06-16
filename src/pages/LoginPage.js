@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Form, Input, Button, Typography, Divider } from 'antd';
+import { Layout, Card, Form, Input, Button, Typography, Divider, Alert, message } from 'antd';
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -16,6 +16,7 @@ const LoginPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [loginError, setLoginError] = useState('');
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -62,9 +63,9 @@ const LoginPage = () => {
       navigate("/profile?updateRequired=true");
     }
   };
-
   const onFinish = async (values) => {
     setLoading(true);
+    setLoginError(''); // Clear previous errors
     console.log('Login values:', values);
     
     try{
@@ -82,18 +83,28 @@ const LoginPage = () => {
       
     }catch(error){
       console.log("error", error);
-      // You can add error handling here (show error message to user)
+      
+      // Display error message to user
+      setLoginError('Tài khoản hoặc mật khẩu sai. Vui lòng thử lại.');
+      message.error('Đăng nhập thất bại!');
     }finally{
       setLoading(false);
     }
   };
+
+  // Clear error when user starts typing
+  const handleInputChange = () => {
+    if (loginError) {
+      setLoginError('');
+    }
+  };
+
   return (
     <Layout className="auth-page">
       <Header />
       <Navbar />      
       <div className="auth-container">
-        <Card className="auth-card">
-          <div className="auth-header">
+        <Card className="auth-card">          <div className="auth-header">
             <Typography.Title className="auth-title">
               Chào Mừng Trở Lại
             </Typography.Title>
@@ -101,6 +112,17 @@ const LoginPage = () => {
               Đăng nhập để tiếp tục hành trình hiến máu cứu người
             </Typography.Text>
           </div>
+
+          {/* Display error message if login fails */}
+          {loginError && (
+            <Alert
+              message={loginError}
+              type="error"
+              closable
+              onClose={() => setLoginError('')}
+              style={{ marginBottom: 16 }}
+            />
+          )}
 
           <Form
             form={form}
@@ -129,6 +151,7 @@ const LoginPage = () => {
                 prefix={<UserOutlined />}
                 placeholder="Nhập địa chỉ email"
                 size="large"
+                onChange={handleInputChange} // Clear error on input change
               />
             </Form.Item>
 
@@ -148,6 +171,7 @@ const LoginPage = () => {
                 placeholder="Nhập mật khẩu"
                 size="large"
                 iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                onChange={handleInputChange} // Clear error on input change
               />
             </Form.Item>
 
