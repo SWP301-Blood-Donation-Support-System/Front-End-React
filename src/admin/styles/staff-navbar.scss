@@ -3,7 +3,7 @@
   background: #FFFFFF !important;
   border: none !important;
   padding: 0 24px;
-  margin: 24px 48px;
+  margin: 24px 16px; // Reduced margin to match table container alignment
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   min-height: 64px;
@@ -21,21 +21,25 @@
   .staff-nav-tabs {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 32px; // Increased gap between tabs for more spacing
+    justify-content: center; // Center the tabs within the navbar
+    width: 100%;
   }
 
   .staff-nav-tab {
     background: none;
     border: none !important;
-    padding: 12px 20px;
+    padding: 14px 28px; // Increased padding for more spacious feel
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: 15px; // Slightly larger font
     font-weight: 700 !important;
     color: #666666;
     text-decoration: none !important;
     position: relative;
+    min-width: 120px; // Ensure consistent tab widths
+    text-align: center;
     
     &::before,
     &::after {
@@ -70,7 +74,8 @@
     &.dropdown {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px; // Slightly increased gap between text and icon
     }
   }
 
@@ -80,18 +85,22 @@
 
   .navbar-dropdown {
     .ant-dropdown-trigger {
-      padding: 16px 24px;
-      margin: 0 8px;
+      padding: 14px 28px; // Match the main tab padding
+      margin: 0;
       border-radius: 8px;
       transition: all 0.3s ease;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 10px; // Match the dropdown gap
       color: #666;
       font-weight: 700 !important;
       text-decoration: none !important;
       border: none !important;
+      min-width: 120px; // Match the main tab width
+      text-align: center;
+      font-size: 15px; // Match the main tab font size
       
       &::before,
       &::after {
