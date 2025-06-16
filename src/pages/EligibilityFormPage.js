@@ -18,24 +18,21 @@ import {
   HeartOutlined, 
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  ArrowLeftOutlined,
-  CalendarOutlined
+  ArrowLeftOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { UserAPI } from '../api/User';
 
 const { Title, Text, Paragraph } = Typography;
 const { Content } = Layout;
 const { TextArea } = Input;
 
-const EligibilityFormPage = () => {
-  const [form] = Form.useForm();
+const EligibilityFormPage = () => {  const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [isEligible, setIsEligible] = useState(null);
-  const [responses, setResponses] = useState({});  const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const bookingData = location.state?.bookingData;  // Scroll to top when component mounts and check if bookingData exists
   useEffect(() => {
@@ -290,19 +287,12 @@ const EligibilityFormPage = () => {
 
     return !ineligibleConditions.some(condition => condition);
   };  const handleFormSubmit = async (values) => {
-    console.log('Form values:', values);
-    setResponses(values);
-    
     const eligible = checkEligibility(values);
-    console.log('🎯 Eligibility result:', eligible);
     
     if (eligible) {
-      console.log('✅ User is eligible - proceeding with registration');
-      
       // Nếu đủ điều kiện, gọi API ngay lập tức
       await handleDonationRegistration(values);
     } else {
-      console.log('❌ User is not eligible');
       setIsEligible(false);
       setCurrentStep(1);
       message.warning('Rất tiếc, hiện tại bạn chưa đủ điều kiện hiến máu.');
@@ -346,8 +336,7 @@ const EligibilityFormPage = () => {
       }
       
       const donationData = {
-        donorId: donorId,
-        scheduleId: scheduleId,
+        donorId: donorId,        scheduleId: scheduleId,
         timeSlotId: bookingData.timeSlotId || bookingData.TimeSlotId
       };
       
@@ -425,10 +414,7 @@ const EligibilityFormPage = () => {
     }
   };
 
-  const handleFormError = (errorInfo) => {
-    console.log('Form validation failed:', errorInfo);
-    
-    // Find the first field with error and scroll to it
+  const handleFormError = (errorInfo) => {    // Find the first field with error and scroll to it
     const firstErrorField = errorInfo.errorFields[0];
     if (firstErrorField) {
       const fieldName = firstErrorField.name[0];
@@ -453,247 +439,9 @@ const EligibilityFormPage = () => {
     }
     
     message.error('Vui lòng kiểm tra và điền đầy đủ thông tin bắt buộc!');
-  };const handleBackToBooking = () => {
+  };  const handleBackToBooking = () => {
     // Pass back the booking data to preserve form values
     navigate('/booking', { state: { preservedBookingData: bookingData } });
-  };  const handleProceedToBooking = async () => {
-    console.log('🚀 handleProceedToBooking called!');
-    
-    // Double-check authentication before completing booking
-    const user = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    
-    console.log('🔍 Authentication check - user:', user ? 'found' : 'not found');
-    console.log('🔍 Authentication check - token:', token ? 'found' : 'not found');
-    
-    if (!user || !token) {
-      message.warning('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-      navigate('/login', { 
-        state: { 
-          redirectPath: '/eligibility',
-          bookingData: bookingData 
-        }
-      });
-      return;
-    }
-
-    // Hiển thị loading
-    const loadingMessage = message.loading('Đang xử lý đăng ký hiến máu...', 0);
-
-    try {
-      console.log('📋 Booking data check:', bookingData);
-      
-      if (!bookingData) {
-        throw new Error('Không tìm thấy thông tin đặt lịch');
-      }
-      
-      // Complete the booking with eligibility confirmation
-      const userData = JSON.parse(user);
-      
-      // Kiểm tra các trường có thể có trong userData
-      const donorId = userData.UserID || userData.UserId || userData.id || userData.userId || userData.Id;
-      
-      // Lấy scheduleId từ bookingData hoặc tính toán từ ngày được chọn
-      let scheduleId = bookingData.scheduleId || bookingData.ScheduleId;
-      
-      // Nếu không có scheduleId, thử tìm từ donationDate
-      if (!scheduleId && bookingData.donationDate) {
-        console.log('🔍 Trying to find scheduleId from date:', bookingData.donationDate);
-        scheduleId = 2; // Default schedule ID
-      }
-      
-      const donationData = {
-        donorId: donorId,
-        scheduleId: scheduleId,
-        timeSlotId: bookingData.timeSlotId || bookingData.TimeSlotId
-      };
-      
-      console.log('Sending donation data:', donationData);      // Kiểm tra dữ liệu trước khi gọi API
-      if (!donorId) {
-        throw new Error('Không tìm thấy ID người dùng');
-      }
-      if (!scheduleId) {
-        throw new Error('Không tìm thấy ID lịch hiến máu');
-      }
-      if (!bookingData.timeSlotId) {
-        throw new Error('Không tìm thấy ID khung giờ');
-      }
-
-      // Kiểm tra xem user đã đăng ký cho schedule này chưa
-      console.log('🔍 Checking if user already registered...');
-      try {
-        const checkResponse = await fetch(`https://localhost:7198/api/DonationRegistration/checkRegistration?donorId=${donorId}&scheduleId=${scheduleId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (checkResponse.ok) {
-          const checkResult = await checkResponse.text();
-          console.log('Check result:', checkResult);
-            // Nếu đã đăng ký rồi
-          if (checkResult === 'true' || checkResult.includes('already registered')) {
-            loadingMessage();
-            
-            message.warning({
-              content: (
-                <div>
-                  <p><strong>🔔 Bạn đã đăng ký hiến máu cho lịch này!</strong></p>
-                  <p>🩸 Để bảo vệ sức khỏe, mỗi người chỉ được hiến máu <strong>3-4 tháng/lần</strong>.</p>
-                  <br />
-                  <p>📅 <strong>Gợi ý cho bạn:</strong></p>
-                  <p>• Chọn ngày hiến máu khác</p>
-                  <p>• Theo dõi thông báo từ trung tâm hiến máu</p>
-                  <p>• Chia sẻ thông tin hiến máu với bạn bè</p>
-                  <br />
-                  <p>☎️ <strong>Hotline hỗ trợ:</strong> 1900-xxxx</p>
-                  <p>💙 <em>Cảm ơn tinh thần hiến máu tích cực của bạn!</em></p>
-                </div>
-              ),
-              duration: 10,
-              style: { width: '420px' }
-            });
-            
-            // Tự động quay về booking page
-            setTimeout(() => {
-              navigate('/booking', { 
-                state: { 
-                  alreadyRegistered: true,
-                  fromEligibilityCheck: true
-                } 
-              });
-            }, 6000);
-            
-            return;
-          }
-        } else {
-          console.log('Check API not available or user not registered yet, proceeding...');
-        }
-      } catch (checkError) {
-        console.log('Check API not available or user not registered yet, proceeding...');
-      }
-
-      // Kiểm tra xem user đã đăng ký cho schedule này chưa
-      console.log('🔍 Checking if user already registered...');
-      try {
-        const checkResponse = await UserAPI.checkDonationRegistration(donorId, scheduleId);
-        if (checkResponse.status === 200 && checkResponse.data === true) {
-          // User đã đăng ký rồi
-          loadingMessage();
-          message.warning({
-            content: 'Bạn đã đăng ký hiến máu cho lịch này rồi. Vui lòng chọn lịch khác hoặc kiểm tra lại thông tin.',
-            duration: 8,
-          });
-          return;
-        }
-      } catch (checkError) {
-        console.log('💡 Check API not available or user not registered yet, proceeding...');
-        // Nếu API check không có hoặc user chưa đăng ký, tiếp tục
-      }
-
-      // Gọi API đăng ký hiến máu
-      const response = await fetch('https://localhost:7198/api/DonationRegistration/registerDonation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'accept': '*/*',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(donationData)
-      });
-      
-      console.log('API response status:', response.status);
-      const responseText = await response.text();
-      console.log('API response text:', responseText);
-      
-      // Đóng loading message
-      loadingMessage();
-        if (response.ok) {
-        message.success({
-          content: 'Đăng ký hiến máu thành công! Chúng tôi sẽ liên hệ với bạn trong vòng 24h để xác nhận lịch hẹn.',
-          duration: 5,
-        });
-        
-        navigate('/booking', { 
-          state: { 
-            bookingComplete: true, 
-            preservedBookingData: bookingData 
-          } 
-        });      } else {
-        // Xử lý specific error cases
-        if (response.status === 400 && responseText.includes('UNIQUE KEY constraint')) {
-          // Đóng loading message trước khi hiển thị thông báo
-          loadingMessage();
-          
-          message.warning({
-            content: (
-              <div>
-                <p><strong>⚠️ Bạn đã đăng ký hiến máu cho lịch này rồi!</strong></p>
-                <p>🩸 Để đảm bảo sức khỏe, bạn cần nghỉ ngơi ít nhất <strong>12-16 tuần</strong> giữa các lần hiến máu.</p>
-                <br />
-                <p>📅 <strong>Bạn có thể:</strong></p>
-                <p>• Chọn lịch hiến máu khác (ngày khác)</p>
-                <p>• Đăng ký lại sau 3-4 tháng</p>
-                <p>• Liên hệ hotline để được tư vấn: <strong>1900-xxxx</strong></p>
-                <br />
-                <p>💙 <em>Cảm ơn bạn đã quan tâm đến hoạt động hiến máu nhân đạo!</em></p>
-              </div>
-            ),
-            duration: 12,
-            style: { width: '400px' }
-          });
-          
-          // Sau 3 giây tự động chuyển về booking page
-          setTimeout(() => {
-            navigate('/booking', { 
-              state: { 
-                alreadyRegistered: true,
-                message: 'Bạn đã có lịch hiến máu. Vui lòng chọn ngày khác.'
-              } 
-            });
-          }, 8000);
-          
-          return; // Không throw error nữa
-          
-        } else if (response.status === 400 && responseText.includes('already registered')) {
-          loadingMessage();
-          
-          message.info({
-            content: (
-              <div>
-                <p><strong>📋 Thông tin đăng ký của bạn</strong></p>
-                <p>Bạn đã đăng ký hiến máu cho lịch này rồi.</p>
-                <p>Vui lòng kiểm tra email hoặc tin nhắn để xem thông tin chi tiết.</p>
-                <br />
-                <p>Nếu cần thay đổi thông tin, vui lòng liên hệ: <strong>1900-xxxx</strong></p>
-              </div>
-            ),
-            duration: 8,
-          });
-          
-          navigate('/booking', { 
-            state: { 
-              alreadyRegistered: true 
-            } 
-          });
-          return;
-          
-        } else {
-          throw new Error(`Có lỗi xảy ra: ${responseText || 'Vui lòng thử lại sau'}`);
-        }
-      }
-      
-    } catch (error) {
-      // Đóng loading message
-      loadingMessage();
-      
-      console.error('Error during donation registration:', error);
-      message.error({
-        content: error.message || 'Có lỗi xảy ra khi đăng ký hiến máu. Vui lòng thử lại sau.',
-        duration: 5,
-      });
-    }
   };
 
   const renderQuestion = (question) => {

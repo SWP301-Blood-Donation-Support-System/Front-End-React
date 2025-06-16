@@ -139,9 +139,7 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
         
         if (response.status === 200) {
           const scheduleData = response.data || [];
-          setDonationSchedule(scheduleData);
-          
-          // Extract unique dates from schedule
+          setDonationSchedule(scheduleData);          // Extract unique dates from schedule
           const uniqueDates = [...new Set(scheduleData.map(item => item.scheduleDate))];
           setAvailableDates(uniqueDates);
         }
@@ -181,33 +179,16 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
     
     return () => clearTimeout(timer);
   }, [form]);  const handleFormSubmit = (values) => {
-    // Manual validation for date
-    const donationDate = form.getFieldValue('donationDate');
-    if (!donationDate) {
+    console.log('✅ Form submit SUCCESS! Values:', values);
+    
+    // Check if time slot is selected
+    if (!selectedTimeSlot) {
       form.setFields([{
-        name: 'donationDate',
-        errors: ['Vui lòng chọn ngày hiến máu']
+        name: 'donationSlot',
+        errors: ['Vui lòng chọn thời gian hiến máu']
       }]);
       return;
     }
-    
-    // Validate if selected date is available in donation schedule
-    if (availableDates.length > 0) {
-      const selectedDateStr = donationDate.format('YYYY-MM-DD');
-      const isDateAvailable = availableDates.some(date => 
-        date.startsWith(selectedDateStr)
-      );
-      
-      if (!isDateAvailable) {
-        form.setFields([{
-          name: 'donationDate',
-          errors: ['Ngày được chọn không có sẵn trong lịch hiến máu. Vui lòng chọn ngày khác']
-        }]);
-        return;
-      }
-    }
-    
-    // Check if time slot is selected
     if (!selectedTimeSlot) {
       form.setFields([{
         name: 'donationSlot',
@@ -502,8 +483,7 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
       );
       
       const donationData = {
-        donorId: userData.id,
-        scheduleId: matchingSchedule ? matchingSchedule.scheduleId : 2, // Default schedule ID
+        donorId: userData.id,        scheduleId: matchingSchedule ? matchingSchedule.scheduleId : 2, // Default schedule ID
         timeSlotId: selectedTimeSlot
       };
       
@@ -704,12 +684,15 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
                 <div className="form-container">                  <Form
                     form={form}
                     layout="vertical"
-                    onFinish={handleFormSubmit}
+                    onFinish={handleFormSubmit}                    onFinishFailed={(errorInfo) => {
+                      console.log('❌ Form validation FAILED:', errorInfo);
+                      console.log('Failed fields:', errorInfo.errorFields);
+                    }}
                     onValuesChange={(changedValues, allValues) => setFormValues(allValues)}
                     requiredMark={false}
                     size="large"
                     className="donation-form"
-                  >                    <Row gutter={[24, 24]}>
+                  ><Row gutter={[24, 24]}>
                       <Col xs={24} md={12}>
                         <Form.Item
                           label="Họ và tên"
@@ -765,13 +748,29 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
                           label="Ngày hiến"
                           name="donationDate"
                           rules={[{ required: true, message: 'Vui lòng chọn ngày hiến máu' }]}
-                        >
-                          <DatePicker 
+                          normalize={(value) => {
+                            // Ensure we return a dayjs object
+                            return value && dayjs.isDayjs(value) ? value : (value ? dayjs(value) : null);
+                          }}                          getValueFromEvent={(value) => {
+                            console.log('DatePicker value received:', value);
+                            return value;
+                          }}
+                        ><DatePicker 
                             className="form-input"
                             placeholder="Chọn ngày hiến máu"
                             format="DD/MM/YYYY"
                             size="large"
-                            style={{ width: '100%' }}                            disabledDate={(current) => {
+                            style={{ width: '100%' }}
+                            onChange={(date) => {
+                              // Clear any previous errors when user selects a date
+                              if (date) {
+                                form.setFields([{
+                                  name: 'donationDate',
+                                  errors: []
+                                }]);
+                              }
+                            }}
+                            disabledDate={(current) => {
                               if (!current) return false;
                               
                               // Disable past dates  
@@ -788,26 +787,7 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
                               // If no available dates from API, allow all future dates
                               return false;
                             }}
-                          />
-                        </Form.Item>                        {availableDates.length > 0 ? (
-                          <div style={{
-                            fontSize: '12px',
-                            color: '#52c41a',
-                            marginTop: '4px'
-                          }}>
-                            <CalendarOutlined style={{ marginRight: '4px' }} />
-                            Có {availableDates.length} ngày khả dụng cho đặt lịch hiến máu
-                          </div>
-                        ) : (
-                          <div style={{
-                            fontSize: '12px',
-                            color: '#faad14',
-                            marginTop: '4px'
-                          }}>
-                            <CalendarOutlined style={{ marginRight: '4px' }} />
-                            Đang tải lịch hiến máu...
-                          </div>
-                        )}
+                          /></Form.Item>
                       </Col>
                     </Row>
 
