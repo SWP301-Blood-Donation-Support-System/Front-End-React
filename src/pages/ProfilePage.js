@@ -78,20 +78,12 @@ const ProfilePage = () => {
         if (!token || !userInfo) {
           message.error("Please login to view your profile");
           navigate('/login');
-          return;
-        }
+          return;        }
 
-        // Call the actual getUserProfile API to get latest data
-        const response = await UserAPI.getUserProfile(userInfo.UserID);
-        if (response.status === 200) {
-          const userData = response.data.result || response.data;
-          setUser(userData);
-        } else {
-          // Fallback to stored userInfo if API fails
-          setUser(userInfo);
-        }
+        // Use stored userInfo from localStorage instead of API call
+        setUser(userInfo);
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        console.error("Error loading user profile:", error);
         // Fallback to stored userInfo
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
         if (userInfo) {
