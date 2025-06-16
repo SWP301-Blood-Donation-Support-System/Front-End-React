@@ -34,7 +34,7 @@ const ScheduleManagementPage = () => {
   
   // View state - for switching between schedule list and registration details
   const [currentView, setCurrentView] = useState('schedules'); // 'schedules' or 'registrations'
-  const [viewTitle, setViewTitle] = useState('Quản Lý Lịch Hiến Máu');
+  const [viewTitle, setViewTitle] = useState('Lịch Hiến Máu');
   
   // New state for lookup data
   const [timeSlots, setTimeSlots] = useState({});
@@ -209,7 +209,7 @@ const ScheduleManagementPage = () => {
 
   const handleBackToSchedules = () => {
     setCurrentView('schedules');
-    setViewTitle('Quản Lý Lịch Hiến Máu');
+    setViewTitle('Lịch Hiến Máu');
     setCurrentPage(1);
     setSelectedSchedule(null);
     setRegistrations([]);
