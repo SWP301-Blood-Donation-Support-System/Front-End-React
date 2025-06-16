@@ -31,20 +31,13 @@ const LoginPage = () => {
       return value !== null && value !== undefined && value !== '';
     });
   };
-
   const handleSuccessfulLogin = async (decoded) => {
     try {
       // Store token and user info
       localStorage.setItem("userInfo", JSON.stringify(decoded));
       
-      // Get full user profile to check completeness
-      const profileResponse = await UserAPI.getUserProfile(decoded.UserID);
+      // Use the decoded token data directly without API call
       let userProfile = decoded;
-      
-      if (profileResponse.status === 200) {
-        userProfile = profileResponse.data.result || profileResponse.data;
-        localStorage.setItem("userInfo", JSON.stringify(userProfile));
-      }
 
       // Role-based redirection
       const userRoleId = decoded.RoleID;

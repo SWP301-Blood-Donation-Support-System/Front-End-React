@@ -8,9 +8,9 @@ import {
   Button, 
   Steps, 
   Collapse,
-  Divider,
-  Form,
-  Input,  Select,  DatePicker,
+  Divider,  Form,
+  Input,
+  DatePicker,
   Modal
 } from 'antd';
 import { 
@@ -30,14 +30,14 @@ import Footer from '../components/Footer';
 const { Title, Text, Paragraph } = Typography;
 const { Content } = Layout;
 
-const BookingPage = () => {
-  const [donationType, setDonationType] = useState('whole-blood');
+const BookingPage = () => {  const [donationType, setDonationType] = useState('whole-blood');
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const location = useLocation();
   const preservedData = location.state?.preservedBookingData;  const [formValues, setFormValues] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
-
+  const [userProfile, setUserProfile] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   // Handle navigation and scroll effects
   useEffect(() => {
     // Scroll to form when there's a hash in URL (từ trang chủ)
@@ -54,7 +54,36 @@ const BookingPage = () => {
       // Scroll to top when navigating to booking page without hash
       window.scrollTo(0, 0);
     }
-  }, []);// Restore form data when coming back from eligibility page
+  }, []);
+  // Check if user is logged in and auto-fill form
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    const userInfo = localStorage.getItem('userInfo');
+    
+    if (token && (user || userInfo)) {
+      setIsLoggedIn(true);
+      
+      // Try to get user data from either source
+      let userData = null;
+      if (userInfo) {
+        userData = JSON.parse(userInfo);
+      } else if (user) {
+        userData = JSON.parse(user);
+      }        setUserProfile(userData);
+      
+      // Auto-fill form with user information
+      // Handle different possible field names from different data sources
+      form.setFieldsValue({
+        fullName: userData.FullName || userData.fullName || userData.name || '',
+        phone: userData.PhoneNumber || userData.phone || userData.phoneNumber || '',
+        email: userData.email || userData.Email || ''
+      });
+    } else {
+      setIsLoggedIn(false);
+      setUserProfile(null);
+    }
+  }, [form]);// Restore form data when coming back from eligibility page
   useEffect(() => {
     if (preservedData) {
       // Create a copy of preserved data to avoid mutating the original
@@ -69,7 +98,7 @@ const BookingPage = () => {
         setDonationType(preservedData.donationType);
       }
     }
-  }, [preservedData, form]);const handleFormSubmit = (values) => {
+  }, [preservedData, form]);  const handleFormSubmit = (values) => {
     // Check authentication before proceeding to eligibility form
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
@@ -90,7 +119,7 @@ const BookingPage = () => {
     // Include donation type in the booking data and safely handle date
     const completeBookingData = {
       ...values,
-      donationType,
+      donationType, // Use the selected donation type from state
       userId: JSON.parse(user).id // Add user ID to booking data
     };
     
@@ -107,7 +136,7 @@ const BookingPage = () => {
     }
       // Navigate to eligibility form
     navigate('/eligibility', { state: { bookingData: completeBookingData } });
-  };  const handleLoginClick = () => {
+  };const handleLoginClick = () => {
     // Save booking data to sessionStorage before redirecting
     if (form.getFieldsValue()) {
       sessionStorage.setItem('pendingBookingData', JSON.stringify({
@@ -410,8 +439,7 @@ const BookingPage = () => {
                     requiredMark={false}
                     size="large"
                     className="donation-form"
-                  >
-                    <Row gutter={[24, 24]}>
+                  >                    <Row gutter={[24, 24]}>
                       <Col xs={24} md={12}>
                         <Form.Item
                           label="Họ và tên"
@@ -424,6 +452,7 @@ const BookingPage = () => {
                           <Input 
                             className="form-input"
                             placeholder="Nhập họ tên đầy đủ"
+                            disabled={isLoggedIn}
                           />
                         </Form.Item>
                       </Col>
@@ -440,12 +469,11 @@ const BookingPage = () => {
                           <Input 
                             className="form-input"
                             placeholder="Nhập số điện thoại"
+                            disabled={isLoggedIn}
                           />
                         </Form.Item>
                       </Col>
-                    </Row>
-
-                    <Row gutter={[24, 24]}>
+                    </Row>                    <Row gutter={[24, 24]}>
                       <Col xs={24} md={12}>
                         <Form.Item
                           label="Email"
@@ -458,6 +486,7 @@ const BookingPage = () => {
                           <Input 
                             className="form-input"
                             placeholder="Nhập địa chỉ email"
+                            disabled={isLoggedIn}
                           />
                         </Form.Item>
                       </Col>
@@ -478,69 +507,34 @@ const BookingPage = () => {
                       </Col>
                     </Row>
 
-                    <Row gutter={[24, 24]}>
-                      <Col xs={24} md={12}>                        <Form.Item
-                          label="Giới tính"
-                          name="gender"
-                          rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}
-                        >
-                          <div className="custom-radio-group radio-group-wrapper">
-                            <div 
-                              className={`gender-option ${formValues.gender === 'male' ? 'selected' : ''}`}
-                              onClick={() => {
-                                const currentValue = formValues.gender;
-                                const newValue = currentValue === 'male' ? undefined : 'male';
-                                form.setFieldsValue({ gender: newValue });
-                                setFormValues({ ...formValues, gender: newValue });
-                              }}
-                            >
-                              Nam
-                            </div>
-                            <div 
-                              className={`gender-option ${formValues.gender === 'female' ? 'selected' : ''}`}
-                              onClick={() => {
-                                const currentValue = formValues.gender;
-                                const newValue = currentValue === 'female' ? undefined : 'female';
-                                form.setFieldsValue({ gender: newValue });
-                                setFormValues({ ...formValues, gender: newValue });
-                              }}
-                            >
-                              Nữ
-                            </div>
-                            <div 
-                              className={`gender-option ${formValues.gender === 'other' ? 'selected' : ''}`}
-                              onClick={() => {
-                                const currentValue = formValues.gender;
-                                const newValue = currentValue === 'other' ? undefined : 'other';
-                                form.setFieldsValue({ gender: newValue });
-                                setFormValues({ ...formValues, gender: newValue });
-                              }}
-                            >
-                              Khác
-                            </div>
+                    {isLoggedIn && (
+                      <Row gutter={[24, 24]}>
+                        <Col xs={24}>
+                          <div style={{ 
+                            padding: '12px 16px', 
+                            backgroundColor: '#f6ffed', 
+                            border: '1px solid #b7eb8f', 
+                            borderRadius: '6px',
+                            marginBottom: '16px'
+                          }}>
+                            <Text style={{ color: '#52c41a' }}>
+                              <UserOutlined style={{ marginRight: '8px' }} />
+                              Thông tin cá nhân đã được điền tự động. 
+                              Để thay đổi thông tin, vui lòng cập nhật trong{' '}
+                              <Button 
+                                type="link" 
+                                size="small" 
+                                style={{ padding: 0, height: 'auto' }}
+                                onClick={() => navigate('/profile')}
+                              >
+                                trang cá nhân
+                              </Button>
+                              .
+                            </Text>
                           </div>
-                        </Form.Item>
-                      </Col>
-                      
-                      <Col xs={24} md={12}>
-                        <Form.Item
-                          label="Loại hiến máu"
-                          name="donationType"
-                          rules={[{ required: true, message: 'Vui lòng chọn loại hiến máu' }]}
-                          initialValue="whole-blood"
-                        >
-                          <Select 
-                            className="form-input"
-                            placeholder="Chọn loại hiến máu"
-                          >
-                            <Select.Option value="whole-blood">Hiến máu toàn phần</Select.Option>
-                            <Select.Option value="platelets">Hiến tiểu cầu</Select.Option>
-                            <Select.Option value="plasma">Hiến huyết tương</Select.Option>
-                            <Select.Option value="red-cells">Hiến hồng cầu</Select.Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                    </Row>                    <Form.Item
+                        </Col>
+                      </Row>
+                    )}<Form.Item
                       label="Thời gian hiến máu"
                       name="donationSlot"
                       rules={[{ required: true, message: 'Vui lòng chọn thời gian hiến máu' }]}
