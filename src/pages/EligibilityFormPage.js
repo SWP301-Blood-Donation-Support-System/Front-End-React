@@ -18,8 +18,7 @@ import {
   HeartOutlined, 
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  ArrowLeftOutlined,
-  CalendarOutlined
+  ArrowLeftOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
@@ -30,11 +29,10 @@ const { Title, Text, Paragraph } = Typography;
 const { Content } = Layout;
 const { TextArea } = Input;
 
-const EligibilityFormPage = () => {
-  const [form] = Form.useForm();
+const EligibilityFormPage = () => {  const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [isEligible, setIsEligible] = useState(null);
-  const [responses, setResponses] = useState({});  const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const bookingData = location.state?.bookingData;  // Scroll to top when component mounts and check if bookingData exists
   useEffect(() => {
@@ -288,26 +286,135 @@ const EligibilityFormPage = () => {
     ];
 
     return !ineligibleConditions.some(condition => condition);
-  };
-  const handleFormSubmit = (values) => {
-    console.log('Form values:', values);
-    setResponses(values);
-    
+  };  const handleFormSubmit = async (values) => {
     const eligible = checkEligibility(values);
-    setIsEligible(eligible);
-    setCurrentStep(1);
     
     if (eligible) {
-      message.success('Chúc mừng! Bạn đủ điều kiện hiến máu.');
+      // Nếu đủ điều kiện, gọi API ngay lập tức
+      await handleDonationRegistration(values);
     } else {
+      setIsEligible(false);
+      setCurrentStep(1);
       message.warning('Rất tiếc, hiện tại bạn chưa đủ điều kiện hiến máu.');
     }
   };
 
-  const handleFormError = (errorInfo) => {
-    console.log('Form validation failed:', errorInfo);
+  const handleDonationRegistration = async (formValues) => {
+    // Kiểm tra authentication
+    const user = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
     
-    // Find the first field with error and scroll to it
+    if (!user || !token) {
+      message.warning('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      navigate('/login', { 
+        state: { 
+          redirectPath: '/eligibility',
+          bookingData: bookingData 
+        }
+      });
+      return;
+    }
+
+    if (!bookingData) {
+      message.error('Không tìm thấy thông tin đặt lịch. Vui lòng thử lại.');
+      navigate('/booking');
+      return;
+    }
+
+    // Hiển thị loading
+    const loadingMessage = message.loading('Đang xử lý đăng ký hiến máu...', 0);
+
+    try {
+      // Lấy thông tin user
+      const userData = JSON.parse(user);
+      const donorId = userData.UserID || userData.UserId || userData.id || userData.userId || userData.Id;
+      
+      // Lấy scheduleId
+      let scheduleId = bookingData.scheduleId || bookingData.ScheduleId;
+      if (!scheduleId && bookingData.donationDate) {
+        scheduleId = 2; // Default fallback
+      }
+      
+      const donationData = {
+        donorId: donorId,        scheduleId: scheduleId,
+        timeSlotId: bookingData.timeSlotId || bookingData.TimeSlotId
+      };
+      
+      console.log('Sending donation data:', donationData);
+      
+      // Validation
+      if (!donorId || !scheduleId || !bookingData.timeSlotId) {
+        throw new Error('Thiếu thông tin cần thiết để đăng ký');
+      }
+
+      // Gọi API đăng ký
+      const response = await fetch('https://localhost:7198/api/DonationRegistration/registerDonation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(donationData)      });
+      
+      const responseText = await response.text();
+      console.log('API response:', response.status, responseText);
+      
+      // Đóng loading
+      loadingMessage();
+      
+      if (response.ok) {
+        // Đăng ký thành công
+        setIsEligible(true);
+        setCurrentStep(1);
+        message.success({
+          content: 'Đăng ký hiến máu thành công! Chúng tôi sẽ liên hệ với bạn trong vòng 24h để xác nhận lịch hẹn.',
+          duration: 5,
+        });
+        
+      } else if (response.status === 400) {
+        // Parse response để lấy thông tin lỗi chi tiết
+        let errorData;
+        try {
+          errorData = JSON.parse(responseText);
+        } catch (e) {
+          errorData = { msg: responseText };
+        }
+        
+        if (responseText.includes('UNIQUE KEY constraint') || 
+            (errorData.msg && errorData.msg.includes("already have an active donation registration"))) {
+          // User đã đăng ký rồi
+          setIsEligible('already_registered');
+          setCurrentStep(1);
+          message.warning({
+            content: 'Bạn đã đăng ký hiến máu rồi, vui lòng đợi cho đến thời gian phù hợp để đăng ký lại.',
+            duration: 5,
+          });
+        } else {
+          // Lỗi validation khác
+          throw new Error(errorData.msg || `Có lỗi xảy ra: ${responseText || 'Vui lòng thử lại sau'}`);
+        }
+        
+      } else {
+        // Lỗi khác
+        throw new Error(`Có lỗi xảy ra: ${responseText || 'Vui lòng thử lại sau'}`);
+      }
+      
+    } catch (error) {
+      loadingMessage();
+      console.error('Error during donation registration:', error);
+      
+      // Hiển thị form kết quả với lỗi
+      setIsEligible('error');
+      setCurrentStep(1);
+      message.error({
+        content: error.message || 'Có lỗi xảy ra khi đăng ký hiến máu. Vui lòng thử lại sau.',
+        duration: 5,
+      });
+    }
+  };
+
+  const handleFormError = (errorInfo) => {    // Find the first field with error and scroll to it
     const firstErrorField = errorInfo.errorFields[0];
     if (firstErrorField) {
       const fieldName = firstErrorField.name[0];
@@ -332,45 +439,9 @@ const EligibilityFormPage = () => {
     }
     
     message.error('Vui lòng kiểm tra và điền đầy đủ thông tin bắt buộc!');
-  };const handleBackToBooking = () => {
+  };  const handleBackToBooking = () => {
     // Pass back the booking data to preserve form values
     navigate('/booking', { state: { preservedBookingData: bookingData } });
-  };  const handleProceedToBooking = () => {
-    // Double-check authentication before completing booking
-    const user = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    
-    if (!user || !token) {
-      message.warning('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-      navigate('/login', { 
-        state: { 
-          redirectPath: '/eligibility',
-          bookingData: bookingData 
-        }
-      });
-      return;
-    }
-
-    // Complete the booking with eligibility confirmation
-    const userData = JSON.parse(user);
-    const completeBookingData = {
-      ...bookingData,
-      userId: userData.id,
-      userEmail: userData.email,
-      eligibilityResponses: responses,
-      eligibilityConfirmed: true,
-      submittedAt: new Date().toISOString()
-    };
-    
-    console.log('Complete booking data:', completeBookingData);
-    
-    // Here you would typically send the data to your API
-    message.success({
-      content: 'Đăng ký thành công! Chúng tôi sẽ liên hệ với bạn trong vòng 24h để xác nhận lịch hẹn.',
-      duration: 5,
-    });
-      // Navigate back to booking page or a confirmation page
-    navigate('/booking', { state: { bookingComplete: true, preservedBookingData: bookingData } });
   };
 
   const renderQuestion = (question) => {
@@ -568,32 +639,29 @@ const EligibilityFormPage = () => {
       </div>
     </Form>
   );
-
   const renderResult = () => (
     <div className="eligibility-result">
-      <Card className={`result-card ${isEligible ? 'eligible' : 'not-eligible'}`} bordered={false}>
+      <Card className={`result-card ${isEligible === true ? 'eligible' : 'not-eligible'}`} bordered={false}>
         <div className="result-content">
-          {isEligible ? (
+          {isEligible === true ? (
             <>
               <div className="result-icon eligible">
                 <CheckCircleOutlined />
               </div>
               <Title level={3} className="result-title">
-                Chúc mừng! Bạn đủ điều kiện hiến máu
+                🎉 Đăng ký hiến máu thành công!
               </Title>
               <Paragraph className="result-description">
-                Dựa trên thông tin bạn cung cấp, bạn đáp ứng các tiêu chí cơ bản để hiến máu. 
-                Hãy tiếp tục với quy trình đăng ký để hoàn tất việc đặt lịch hiến máu.
+                Cảm ơn bạn đã đăng ký hiến máu! Chúng tôi đã ghi nhận thông tin của bạn và sẽ liên hệ trong vòng 24h để xác nhận lịch hẹn.
               </Paragraph>
               <div className="result-actions">
                 <Button 
                   type="primary" 
                   size="large"
-                  icon={<CalendarOutlined />}
-                  onClick={handleProceedToBooking}
+                  onClick={() => navigate('/booking', { state: { bookingComplete: true } })}
                   className="proceed-button"
                 >
-                  Tiếp tục đăng ký
+                  Quay về trang chủ
                 </Button>
                 <Button 
                   type="default" 
@@ -602,6 +670,74 @@ const EligibilityFormPage = () => {
                   className="review-button"
                 >
                   Xem lại câu trả lời
+                </Button>
+              </div>
+            </>
+          ) : isEligible === 'already_registered' ? (
+            <>
+              <div className="result-icon not-eligible">
+                <ExclamationCircleOutlined />
+              </div>
+              <Title level={3} className="result-title">
+                ⚠️ Bạn đã đăng ký hiến máu gần đây rồi!
+              </Title>
+              <Paragraph className="result-description">
+                🩸 Để đảm bảo sức khỏe, bạn cần nghỉ ngơi ít nhất <strong>12-16 tuần</strong> giữa các lần hiến máu.
+                <br /><br />
+                📅 <strong>Bạn có thể:</strong><br />
+                • Đăng ký lại sau 3-4 tháng<br />
+                • Liên hệ hotline để được tư vấn: <strong>1900-xxxx</strong>
+                <br /><br />
+                💙 <em>Cảm ơn bạn đã quan tâm đến hoạt động hiến máu nhân đạo!</em>
+              </Paragraph>
+              <div className="result-actions">
+                <Button 
+                  type="primary" 
+                  size="large"
+                  onClick={() => navigate('/booking', { state: { alreadyRegistered: true } })}
+                  className="back-button"
+                  icon={<ArrowLeftOutlined />}
+                >
+                  Chọn ngày khác
+                </Button>
+                <Button 
+                  type="default" 
+                  size="large"
+                  onClick={() => setCurrentStep(0)}
+                  className="review-button"
+                >
+                  Xem lại câu trả lời
+                </Button>
+              </div>
+            </>
+          ) : isEligible === 'error' ? (
+            <>
+              <div className="result-icon not-eligible">
+                <ExclamationCircleOutlined />
+              </div>
+              <Title level={3} className="result-title">
+                Có lỗi xảy ra khi đăng ký
+              </Title>
+              <Paragraph className="result-description">
+                Rất tiếc, hệ thống gặp lỗi khi xử lý đăng ký của bạn. Vui lòng thử lại sau hoặc liên hệ với chúng tôi để được hỗ trợ.
+              </Paragraph>
+              <div className="result-actions">
+                <Button 
+                  type="primary" 
+                  size="large"
+                  onClick={() => navigate('/booking')}
+                  className="back-button"
+                  icon={<ArrowLeftOutlined />}
+                >
+                  Quay về trang đặt lịch
+                </Button>
+                <Button 
+                  type="default" 
+                  size="large"
+                  onClick={() => setCurrentStep(0)}
+                  className="review-button"
+                >
+                  Thử lại
                 </Button>
               </div>
             </>

@@ -10,8 +10,7 @@ export const UserAPI = {
             const response = await axios.post("https://localhost:7198/api/User/registerDonor", {
                 username: username,
                 email: email,
-                passwordHash: password
-            });
+                passwordHash: password            });
             console.log("Registration response:", response);
             return response;
         } catch (error) {
@@ -20,8 +19,7 @@ export const UserAPI = {
         }
     },
 
-    login: async (email, password) => {
-        const response = await axios.post("https://localhost:7198/api/User/login",
+    login: async (email, password) => {        const response = await axios.post("https://localhost:7198/api/User/login",
             {
                 email: email,
                 passwordHash: password
@@ -41,10 +39,8 @@ export const UserAPI = {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
-            });
-            return response;
-        } catch (error) {
+                }            });
+            return response;        } catch (error) {
             console.error("Error updating user profile:", error);
             throw error;
         }
@@ -53,9 +49,7 @@ export const UserAPI = {
     // Get blood types from backend
     getBloodTypes: async () => {
         try {
-            const response = await axios.get("https://localhost:7198/api/Lookup/blood-types");
-            return response;
-        } catch (error) {
+            const response = await axios.get("https://localhost:7198/api/Lookup/blood-types");            return response;        } catch (error) {
             console.error("Error fetching blood types:", error);
             throw error;
         }
@@ -70,9 +64,7 @@ export const UserAPI = {
             console.error("Error fetching genders:", error);
             throw error;
         }
-    },
-
-    // Get occupations from backend
+    },    // Get occupations from backend
     getOccupations: async () => {
         try {
             const response = await axios.get("https://localhost:7198/api/Lookup/occupations");
@@ -81,5 +73,47 @@ export const UserAPI = {
             console.error("Error fetching occupations:", error);
             throw error;
         }
-    }
+    },
+
+    // Get time slots for donation booking
+    getTimeSlots: async () => {        try {
+            const response = await axios.get("https://localhost:7198/api/TimeSlot");
+            return response;        } catch (error) {
+            throw error;
+        }
+    },
+
+    // Get donation schedule for available dates
+    getDonationSchedule: async () => {
+        try {
+            const response = await axios.get("https://localhost:7198/api/DonationSchedule");
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    },    // Register donation appointment
+    registerDonation: async (donationData) => {
+        try {
+            const token = localStorage.getItem("token");
+            console.log("API Call - Token:", token);
+            console.log("API Call - Donation Data:", donationData);
+            
+            const response = await axios.post("https://localhost:7198/api/DonationRegistration/registerDonation", donationData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log("Donation registration response:", response);
+            console.log("Response status:", response.status);
+            console.log("Response data:", response.data);
+            return response;
+        } catch (error) {
+            console.error("Error registering donation:", error);
+            console.error("Error response:", error.response);
+            console.error("Error response data:", error.response?.data);
+            console.error("Error response status:", error.response?.status);
+            throw error;
+        }
+    },
 }
