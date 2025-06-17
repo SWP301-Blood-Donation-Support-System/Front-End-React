@@ -833,7 +833,7 @@ const ProfilePage = () => {
                       className="registration-table"
                       size="large"                      columns={[
                         {
-                          title: 'Registration ID',
+                          title: 'Mã Đăng Ký (Registration ID)',
                           dataIndex: 'registrationId',
                           key: 'registrationId',
                           width: '15%',
@@ -877,7 +877,7 @@ const ProfilePage = () => {
                           }
                         },
                         {
-                          title: 'Hành động',
+                          title: 'Thao tác',
                           key: 'actions',
                           width: '16%',
                           render: (_, record) => {

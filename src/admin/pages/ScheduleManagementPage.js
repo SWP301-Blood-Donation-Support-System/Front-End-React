@@ -447,7 +447,7 @@ const ScheduleManagementPage = () => {
 
   const registrationColumns = [
     {
-      title: 'Registration ID',
+      title: 'Mã Đăng Ký (Registration ID)',
       dataIndex: 'registrationId',
       key: 'registrationId',
       width: '12%',
@@ -461,7 +461,7 @@ const ScheduleManagementPage = () => {
       },
     },
     {
-      title: 'Schedule ID',
+      title: 'Mã Lịch (Schedule ID)',
       dataIndex: 'scheduleId',
       key: 'scheduleId',
       width: '12%',
@@ -475,7 +475,7 @@ const ScheduleManagementPage = () => {
       },
     },
     {
-      title: 'Donor ID',
+      title: 'Mã Người Hiến (Donor ID)',
       dataIndex: 'donorId',
       key: 'donorId',
       width: '12%',
