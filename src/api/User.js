@@ -149,4 +149,21 @@ export const UserAPI = {
         }
 
     },
+
+    // Cancel donation registration
+    cancelDonationRegistration: async (registrationId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.put(`${BASE_URL}/api/DonationRegistration/cancelRegistration/${registrationId}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error("Error canceling donation registration:", error);
+            throw error;
+        }
+    },
 }

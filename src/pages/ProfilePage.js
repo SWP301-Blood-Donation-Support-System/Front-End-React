@@ -16,7 +16,9 @@ import {
   Select,
   DatePicker,
   Alert,
-  Table
+  Table,
+  Modal,
+  Popconfirm
 } from 'antd';
 import {
   UserOutlined,
@@ -29,7 +31,8 @@ import {
   IdcardOutlined,
   TeamOutlined,
   BankOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
@@ -399,6 +402,29 @@ const ProfilePage = () => {
     fetchRegistrations();
   };
 
+  // Handle cancel registration
+  const handleCancelRegistration = async (registrationId) => {
+    try {
+      setRegistrationsLoading(true);
+      const response = await UserAPI.cancelDonationRegistration(registrationId);
+      
+      if (response.status === 200) {
+        message.success('Đã hủy đăng ký hiến máu thành công!');
+        // Refresh the registrations list
+        await fetchRegistrations();
+      }
+    } catch (error) {
+      console.error('Error canceling registration:', error);
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Không thể hủy đăng ký. Vui lòng thử lại sau.');
+      }
+    } finally {
+      setRegistrationsLoading(false);
+    }
+  };
+
   // Check if profile is complete
   const isProfileComplete = (userData) => {
     if (!userData) return false;
@@ -419,7 +445,7 @@ const ProfilePage = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Not specified';
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -810,19 +836,19 @@ const ProfilePage = () => {
                           title: 'Registration ID',
                           dataIndex: 'registrationId',
                           key: 'registrationId',
-                          width: '20%',
+                          width: '15%',
                           render: (registrationId) => <strong>#{registrationId || 'N/A'}</strong>
                         },                        {
                           title: 'Ngày đăng kí',
                           dataIndex: 'createdAt',
                           key: 'createdAt',
-                          width: '20%',
+                          width: '18%',
                           render: (date) => formatDate(date)
                         },
                         {
                           title: 'Ngày hiến máu',
                           key: 'donationDate',
-                          width: '20%',
+                          width: '18%',
                           render: (_, record) => {
                             // Try multiple possible field names for scheduleId
                             const scheduleId = record.scheduleId || record.ScheduleId || record.scheduleID || record.ScheduleID;
@@ -833,7 +859,7 @@ const ProfilePage = () => {
                           title: 'Trạng thái',
                           dataIndex: 'registrationStatusId',
                           key: 'status',
-                          width: '20%',
+                          width: '15%',
                           render: (statusId) => (
                             <Tag color={getStatusColor(statusId)}>
                               {getStatusText(statusId)}
@@ -842,12 +868,58 @@ const ProfilePage = () => {
                         },                        {
                           title: 'Khung giờ',
                           key: 'timeslot',
-                          width: '25%',
+                          width: '18%',
                           render: (_, record) => {
                             // Try multiple possible field names
                             const timeslotId = record.timeslotId || record.timeSlotId || record.TimeslotId || record.TimeSlotId;
                             
                             return getTimeSlotDisplay(timeslotId);
+                          }
+                        },
+                        {
+                          title: 'Hành động',
+                          key: 'actions',
+                          width: '16%',
+                          render: (_, record) => {
+                            const statusId = record.registrationStatusId;
+                            const registrationId = record.registrationId;
+                            
+                            // Only allow cancellation when status is 1 (Đang chờ hiến)
+                            const canCancel = statusId === 1;
+                            
+                            if (canCancel) {
+                              return (
+                                <Popconfirm
+                                  title="Hủy đăng ký hiến máu"
+                                  description="Bạn có chắc chắn muốn hủy đăng ký này?"
+                                  onConfirm={() => handleCancelRegistration(registrationId)}
+                                  okText="Hủy đăng ký"
+                                  cancelText="Không"
+                                  okButtonProps={{ danger: true }}
+                                >
+                                  <Button 
+                                    type="primary" 
+                                    danger
+                                    size="small"
+                                    icon={<DeleteOutlined />}
+                                  >
+                                    Hủy
+                                  </Button>
+                                </Popconfirm>
+                              );
+                            } else if (statusId === 4) {
+                              return (
+                                <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
+                                  Đã huỷ
+                                </Text>
+                              );
+                            } else {
+                              return (
+                                <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
+                                  Đã xử lý
+                                </Text>
+                              );
+                            }
                           }
                         }
                       ]}
