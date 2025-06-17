@@ -622,7 +622,7 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
         <section className="donation-types-section">
           <div className="container">
             <Title level={2} className="section-title">
-              Các Loại Hiến Máu
+              Các Phương Thức Hiến Máu
             </Title>
             <Row gutter={[24, 24]}>
               {donationTypes.map((type, index) => (
