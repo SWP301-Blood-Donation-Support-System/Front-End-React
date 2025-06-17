@@ -120,8 +120,7 @@ export const UserAPI = {
             console.error("Error response status:", error.response?.status);
             throw error;
         }
-<<<<<<< Updated upstream
-=======
+
     },    // Get user's donation registrations
     getDonationRegistrations: async () => {
         try {
@@ -148,6 +147,6 @@ export const UserAPI = {
             console.error("Error fetching registration statuses:", error);
             throw error;
         }
->>>>>>> Stashed changes
+
     },
 }
