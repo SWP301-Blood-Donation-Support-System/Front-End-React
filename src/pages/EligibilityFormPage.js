@@ -345,10 +345,8 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       // Validation
       if (!donorId || !scheduleId || !bookingData.timeSlotId) {
         throw new Error('Thiếu thông tin cần thiết để đăng ký');
-      }
-
-      // Gọi API đăng ký
-      const response = await fetch('https://localhost:7198/api/DonationRegistration/registerDonation', {
+      }      // Gọi API đăng ký
+      const response = await fetch('https://api-blooddonation.purintech.id.vn/api/DonationRegistration/registerDonation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

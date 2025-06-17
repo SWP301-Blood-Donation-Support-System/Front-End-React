@@ -1,13 +1,20 @@
 import axios from "axios";
+
+const BASE_URL = "https://api-blooddonation.purintech.id.vn";
+
+// Configure axios defaults
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common['Accept'] = 'application/json';
+
 export const UserAPI = {
     getAllUser: () => {
-        const response = axios.get("https://localhost:7198/api/User")
+        const response = axios.get(`${BASE_URL}/api/User`)
         return response;
     },
 
     register: async (username, email, password) => {
         try {
-            const response = await axios.post("https://localhost:7198/api/User/registerDonor", {
+            const response = await axios.post(`${BASE_URL}/api/User/registerDonor`, {
                 username: username,
                 email: email,
                 passwordHash: password            });
@@ -16,15 +23,13 @@ export const UserAPI = {
         } catch (error) {
             console.error("Error during registration:", error);
             throw error;
-        }
-    },
+        }    },
 
-    login: async (email, password) => {        const response = await axios.post("https://localhost:7198/api/User/login",
-            {
-                email: email,
-                passwordHash: password
-            })
-        console.log("hehehehehehehe", response);
+    login: async (email, password) => {
+        const response = await axios.post(`${BASE_URL}/api/User/login`, {
+            email: email,
+            passwordHash: password
+        });
         return response;
     },
     logout: () => {
@@ -35,7 +40,7 @@ export const UserAPI = {
     updateUserProfile: async (userId, profileData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.put(`https://localhost:7198/api/User/updateDonor/${userId}`, profileData, {
+            const response = await axios.put(`${BASE_URL}/api/User/updateDonor/${userId}`, profileData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -49,7 +54,7 @@ export const UserAPI = {
     // Get blood types from backend
     getBloodTypes: async () => {
         try {
-            const response = await axios.get("https://localhost:7198/api/Lookup/blood-types");            return response;        } catch (error) {
+            const response = await axios.get(`${BASE_URL}/api/Lookup/blood-types`);            return response;        } catch (error) {
             console.error("Error fetching blood types:", error);
             throw error;
         }
@@ -58,7 +63,7 @@ export const UserAPI = {
     // Get genders from backend
     getGenders: async () => {
         try {
-            const response = await axios.get("https://localhost:7198/api/Lookup/genders");
+            const response = await axios.get(`${BASE_URL}/api/Lookup/genders`);
             return response;
         } catch (error) {
             console.error("Error fetching genders:", error);
@@ -67,7 +72,7 @@ export const UserAPI = {
     },    // Get occupations from backend
     getOccupations: async () => {
         try {
-            const response = await axios.get("https://localhost:7198/api/Lookup/occupations");
+            const response = await axios.get(`${BASE_URL}/api/Lookup/occupations`);
             return response;
         } catch (error) {
             console.error("Error fetching occupations:", error);
@@ -77,7 +82,7 @@ export const UserAPI = {
 
     // Get time slots for donation booking
     getTimeSlots: async () => {        try {
-            const response = await axios.get("https://localhost:7198/api/TimeSlot");
+            const response = await axios.get(`${BASE_URL}/api/TimeSlot`);
             return response;        } catch (error) {
             throw error;
         }
@@ -86,7 +91,7 @@ export const UserAPI = {
     // Get donation schedule for available dates
     getDonationSchedule: async () => {
         try {
-            const response = await axios.get("https://localhost:7198/api/DonationSchedule");
+            const response = await axios.get(`${BASE_URL}/api/DonationSchedule`);
             return response;
         } catch (error) {
             throw error;
@@ -98,7 +103,7 @@ export const UserAPI = {
             console.log("API Call - Token:", token);
             console.log("API Call - Donation Data:", donationData);
             
-            const response = await axios.post("https://localhost:7198/api/DonationRegistration/registerDonation", donationData, {
+            const response = await axios.post(`${BASE_URL}/api/DonationRegistration/registerDonation`, donationData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -115,5 +120,34 @@ export const UserAPI = {
             console.error("Error response status:", error.response?.status);
             throw error;
         }
+<<<<<<< Updated upstream
+=======
+    },    // Get user's donation registrations
+    getDonationRegistrations: async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${BASE_URL}/api/DonationRegistration`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error("Error fetching donation registrations:", error);
+            throw error;
+        }
+    },
+
+    // Get registration statuses from backend
+    getRegistrationStatuses: async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/api/Lookup/registration-statuses`);
+            return response;
+        } catch (error) {
+            console.error("Error fetching registration statuses:", error);
+            throw error;
+        }
+>>>>>>> Stashed changes
     },
 }
