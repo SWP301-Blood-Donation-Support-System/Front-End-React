@@ -6,7 +6,9 @@ import {
   Space, 
   Typography, 
   Select, 
-  Button
+  Button,
+  message,
+  Modal
 } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdminAPI } from '../api/admin';
@@ -40,6 +42,14 @@ const ScheduleManagementPage = () => {
   const [timeSlots, setTimeSlots] = useState({});
   const [registrationStatuses, setRegistrationStatuses] = useState({});
   
+  // State for upcoming schedules
+  const [upcomingDates, setUpcomingDates] = useState(new Set());
+  
+  // State for status change functionality
+  const [statusChanges, setStatusChanges] = useState({}); // Track status changes per registration
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState(null);
+  
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -53,9 +63,14 @@ const ScheduleManagementPage = () => {
     fetchAllDonors();
     fetchTimeSlots();
     fetchRegistrationStatuses();
-    fetchSchedules();
+    fetchUpcomingSchedules();
     setCurrentPage(1); // Reset to first page when schedule type changes
   }, [scheduleType]);
+
+  // Fetch schedules after upcoming schedules are loaded
+  useEffect(() => {
+    fetchSchedules();
+  }, [upcomingDates, scheduleType]);
 
   const fetchAllDonors = async () => {
     try {
@@ -121,18 +136,57 @@ const ScheduleManagementPage = () => {
     }
   };
 
+  const fetchUpcomingSchedules = async () => {
+    try {
+      const response = await AdminAPI.getUpcomingDonationSchedules();
+      const upcomingData = response.data || [];
+      
+      // Extract dates from upcoming schedules
+      const upcomingDateSet = new Set();
+      upcomingData.forEach(schedule => {
+        const scheduleDate = schedule.scheduleDate;
+        if (scheduleDate) {
+          // Convert to YYYY-MM-DD format for consistent comparison
+          const dateStr = new Date(scheduleDate).toISOString().split('T')[0];
+          upcomingDateSet.add(dateStr);
+        }
+      });
+      
+      console.log('Upcoming dates:', upcomingDateSet);
+      setUpcomingDates(upcomingDateSet);
+    } catch (error) {
+      console.error('Error fetching upcoming schedules:', error);
+      setUpcomingDates(new Set());
+    }
+  };
+
   const fetchSchedules = async () => {
     setLoading(true);
     try {
       const response = await AdminAPI.getDonationSchedules();
       const data = response.data || [];
-      const now = new Date();
       
       let filteredData = data;
       if (scheduleType === 'upcoming') {
-        filteredData = data.filter(schedule => new Date(schedule.scheduleDate) >= now);
+        // Filter using upcoming dates from API
+        filteredData = data.filter(schedule => {
+          const scheduleDate = schedule.scheduleDate;
+          if (scheduleDate) {
+            const dateStr = new Date(scheduleDate).toISOString().split('T')[0];
+            return upcomingDates.has(dateStr);
+          }
+          return false;
+        });
       } else if (scheduleType === 'past') {
-        filteredData = data.filter(schedule => new Date(schedule.scheduleDate) < now);
+        // Filter for past schedules (not in upcoming dates)
+        filteredData = data.filter(schedule => {
+          const scheduleDate = schedule.scheduleDate;
+          if (scheduleDate) {
+            const dateStr = new Date(scheduleDate).toISOString().split('T')[0];
+            return !upcomingDates.has(dateStr);
+          }
+          return true;
+        });
       }
       
       setSchedules(filteredData);
@@ -253,6 +307,73 @@ const ScheduleManagementPage = () => {
     }
   };
 
+  // Handle status change dropdown
+  const handleStatusChange = (registrationId, newStatusId) => {
+    setStatusChanges(prev => ({
+      ...prev,
+      [registrationId]: newStatusId
+    }));
+  };
+
+  // Handle confirm status change
+  const handleConfirmStatusChange = (registrationId) => {
+    const newStatusId = statusChanges[registrationId];
+    if (!newStatusId) {
+      message.warning('Vui lòng chọn trạng thái mới');
+      return;
+    }
+
+    setPendingStatusChange({ registrationId, newStatusId });
+    setConfirmModalVisible(true);
+  };
+
+  // Execute status update
+  const executeStatusUpdate = async () => {
+    if (!pendingStatusChange) return;
+
+    const { registrationId, newStatusId } = pendingStatusChange;
+    
+    try {
+      setLoading(true);
+      await AdminAPI.updateDonationRegistrationStatus(registrationId, newStatusId);
+      
+      // Update local state
+      setRegistrations(prev => prev.map(reg => {
+        const regId = reg.registrationId || reg.RegistrationID || reg.id;
+        if (regId == registrationId) {
+          return {
+            ...reg,
+            registrationStatusId: newStatusId,
+            RegistrationStatusID: newStatusId,
+            RegistrationStatusId: newStatusId
+          };
+        }
+        return reg;
+      }));
+
+      // Clear the status change
+      setStatusChanges(prev => {
+        const updated = { ...prev };
+        delete updated[registrationId];
+        return updated;
+      });
+
+      message.success('Cập nhật trạng thái thành công!');
+    } catch (error) {
+      console.error('Error updating status:', error);
+      message.error('Lỗi khi cập nhật trạng thái. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+      setConfirmModalVisible(false);
+      setPendingStatusChange(null);
+    }
+  };
+
+  const cancelStatusUpdate = () => {
+    setConfirmModalVisible(false);
+    setPendingStatusChange(null);
+  };
+
   const currentData = currentView === 'schedules' ? schedules : registrations;
   const totalPages = Math.ceil(currentData.length / pageSize);
   const startRecord = (currentPage - 1) * pageSize + 1;
@@ -294,10 +415,14 @@ const ScheduleManagementPage = () => {
       key: 'status',
       dataIndex: 'scheduleDate',
       width: '20%',
-      render: (_, { scheduleDate }) => {
-        const now = new Date();
-        const date = new Date(scheduleDate);
-        const isUpcoming = date >= now;
+      render: (_, record) => {
+        const scheduleDate = record.scheduleDate;
+        let isUpcoming = false;
+        
+        if (scheduleDate) {
+          const dateStr = new Date(scheduleDate).toISOString().split('T')[0];
+          isUpcoming = upcomingDates.has(dateStr);
+        }
         
         return (
           <Tag color={isUpcoming ? 'orange' : 'default'}>
@@ -322,10 +447,24 @@ const ScheduleManagementPage = () => {
 
   const registrationColumns = [
     {
+      title: 'Registration ID',
+      dataIndex: 'registrationId',
+      key: 'registrationId',
+      width: '12%',
+      render: (_, record) => {
+        const registrationId = record.registrationId || record.RegistrationID || record.id || 'N/A';
+        return (
+          <span style={{ fontWeight: 'bold', color: '#722ed1' }}>
+            {registrationId}
+          </span>
+        );
+      },
+    },
+    {
       title: 'Schedule ID',
       dataIndex: 'scheduleId',
       key: 'scheduleId',
-      width: '15%',
+      width: '12%',
       render: (_, record) => {
         const scheduleId = record.scheduleId || record.ScheduleId || record.ScheduleID || 'N/A';
         return (
@@ -339,7 +478,7 @@ const ScheduleManagementPage = () => {
       title: 'Donor ID',
       dataIndex: 'donorId',
       key: 'donorId',
-      width: '15%',
+      width: '12%',
       render: (_, record) => {
         const donorId = record.DonorID || record.donorId || record.DonorId || record.id || record.Id || 'N/A';
         return (
@@ -353,7 +492,7 @@ const ScheduleManagementPage = () => {
       title: 'Tên Người Hiến',
       dataIndex: 'donorId',
       key: 'donorName',
-      width: '25%',
+      width: '20%',
       render: (_, record) => {
         const actualDonorId = record.DonorID || record.donorId || record.DonorId || record.id || record.Id;
         const donorName = getDonorName(actualDonorId);
@@ -372,10 +511,10 @@ const ScheduleManagementPage = () => {
       },
     },
     {
-      title: 'Thời Gian Bắt Đầu - Thời Gian Kết Thúc',
+      title: 'Thời Gian',
       dataIndex: 'timeSlotId',
       key: 'timeRange',
-      width: '25%',
+      width: '18%',
       render: (_, record) => {
         const actualTimeSlotId = record.TimeSlotID || record.timeSlotId || record.TimeSlotId;
         const timeSlot = timeSlots[actualTimeSlotId];
@@ -396,16 +535,19 @@ const ScheduleManagementPage = () => {
       },
     },
     {
-      title: 'Trạng Thái',
+      title: 'Trạng Thái Người Hiến',
       key: 'status',
       dataIndex: 'registrationStatusId',
-      width: '20%',
+      width: '26%',
       render: (_, record) => {
+        const registrationId = record.registrationId || record.RegistrationID || record.id;
         const actualStatusId = record.RegistrationStatusID || record.registrationStatusId || record.RegistrationStatusId;
         const status = registrationStatuses[actualStatusId];
+        const selectedStatusId = statusChanges[registrationId] || actualStatusId;
         
+        // Get current status display
+        let currentStatusTag;
         if (status) {
-          // Map status names to colors
           const colorMap = {
             'Đang chờ xác nhận': 'blue',
             'Đã xác nhận': 'green', 
@@ -413,29 +555,67 @@ const ScheduleManagementPage = () => {
             'Đã hủy': 'red',
             'No Show': 'orange'
           };
-          
           const color = colorMap[status.name] || 'default';
-          
-          return (
-            <Tag color={color}>
+          currentStatusTag = (
+            <Tag color={color} style={{ marginBottom: 8 }}>
               {status.name.toUpperCase()}
+            </Tag>
+          );
+        } else {
+          const statusMap = {
+            1: { text: 'Đã Đăng Ký', color: 'blue' },
+            2: { text: 'Đã Xác Nhận', color: 'green' },
+            3: { text: 'Đã Hủy', color: 'red' },
+            4: { text: 'Hoàn Thành', color: 'purple' }
+          };
+          const fallbackStatus = statusMap[actualStatusId] || { text: 'Không Xác Định', color: 'default' };
+          currentStatusTag = (
+            <Tag color={fallbackStatus.color} style={{ marginBottom: 8 }}>
+              {fallbackStatus.text.toUpperCase()}
             </Tag>
           );
         }
         
-        // Fallback to old mapping if API data not available
-        const statusMap = {
-          1: { text: 'Đã Đăng Ký', color: 'blue' },
-          2: { text: 'Đã Xác Nhận', color: 'green' },
-          3: { text: 'Đã Hủy', color: 'red' },
-          4: { text: 'Hoàn Thành', color: 'purple' }
-        };
-        const fallbackStatus = statusMap[actualStatusId] || { text: 'Không Xác Định', color: 'default' };
-        
         return (
-          <Tag color={fallbackStatus.color}>
-            {fallbackStatus.text.toUpperCase()}
-          </Tag>
+          <div style={{ minWidth: 200 }}>
+            {currentStatusTag}
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <Select
+                size="small"
+                style={{ width: '100%' }}
+                placeholder="Chọn trạng thái mới"
+                value={selectedStatusId}
+                onChange={(value) => handleStatusChange(registrationId, value)}
+              >
+                {Object.entries(registrationStatuses).map(([id, statusInfo]) => (
+                  <Option key={id} value={parseInt(id)}>
+                    {statusInfo.name}
+                  </Option>
+                ))}
+              </Select>
+              
+              {statusChanges[registrationId] && statusChanges[registrationId] !== actualStatusId && (
+                <Space size={4}>
+                  <Button 
+                    size="small" 
+                    type="primary"
+                    style={{ fontSize: '10px', padding: '2px 8px' }}
+                    onClick={() => handleConfirmStatusChange(registrationId)}
+                  >
+                    Xác nhận
+                  </Button>
+                  <Button 
+                    size="small"
+                    style={{ fontSize: '10px', padding: '2px 8px' }}
+                    onClick={() => handleStatusChange(registrationId, actualStatusId)}
+                  >
+                    Từ chối
+                  </Button>
+                </Space>
+              )}
+            </div>
+          </div>
         );
       },
     },
@@ -568,6 +748,29 @@ const ScheduleManagementPage = () => {
           </Content>
         </Layout>
       </Layout>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Xác nhận thay đổi trạng thái"
+        open={confirmModalVisible}
+        onOk={executeStatusUpdate}
+        onCancel={cancelStatusUpdate}
+        okText="Xác nhận"
+        cancelText="Hủy"
+        confirmLoading={loading}
+      >
+        {pendingStatusChange && (
+          <div>
+            <p>
+              Bạn có chắc chắn muốn thay đổi trạng thái của đăng ký{' '}
+              <strong>#{pendingStatusChange.registrationId}</strong> thành{' '}
+              <strong>
+                {registrationStatuses[pendingStatusChange.newStatusId]?.name || 'Không xác định'}
+              </strong>?
+            </p>
+          </div>
+        )}
+      </Modal>
     </Layout>
   );
 };

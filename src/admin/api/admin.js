@@ -21,6 +21,24 @@ export const AdminAPI = {
     }
   },
 
+  // Get upcoming donation schedules
+  getUpcomingDonationSchedules: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/DonationSchedule/upcoming`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching upcoming donation schedules:", error);
+      throw error;
+    }
+  },
+
   // Get all donation registrations
   getDonationRegistrations: async () => {    try {
       const token = localStorage.getItem("token");
@@ -109,6 +127,24 @@ export const AdminAPI = {
       return response;
     } catch (error) {
       console.error("Error updating registration status:", error);
+      throw error;
+    }
+  },
+
+  // Update donation registration status (new endpoint for staff)
+  updateDonationRegistrationStatus: async (registrationId, statusId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(`${BASE_URL}/api/DonationRegistration/updateRegistrationStatus/${registrationId}/${statusId}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error updating donation registration status:", error);
       throw error;
     }
   },
