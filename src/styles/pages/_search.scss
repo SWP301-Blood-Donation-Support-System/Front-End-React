@@ -274,21 +274,23 @@
       .ant-select {
         width: 200px;
       }
-    }
-
-    &-result {
+    }    &-result {
       background: #f8f9fa;
       border: 2px solid $primary-color;
       border-radius: $border-radius-md;
 
-      .result-main {
-        text-align: center;
+      .ant-row {
+        align-items: flex-start !important;
+      }
 
-        .blood-type-tag {
+      .result-main {
+        text-align: center;.blood-type-tag {
           font-size: $font-size-xxl;
           padding: $spacing-md $spacing-xl;
           border-radius: $border-radius-md;
           margin-bottom: $spacing-lg;
+          color: white !important;
+          font-weight: $font-weight-bold;
 
           &.positive {
             background-color: #dc2626;
@@ -309,11 +311,18 @@
           color: $text-tertiary;
           margin-top: $spacing-xs;
         }
-      }
-
-      .compatibility-section {
+      }      .compatibility-section {
+        padding: $spacing-md $spacing-lg;
+        margin-top: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        
         h5 {
           margin-bottom: $spacing-md !important;
+          font-size: $font-size-base;
+          text-align: center;
 
           &.can-give {
             color: #52c41a !important;
@@ -321,6 +330,21 @@
 
           &.can-receive {
             color: #1890ff !important;
+          }
+        }
+        
+        .ant-space {
+          width: 100%;
+          justify-content: center !important;
+          
+          .ant-tag {
+            margin: $spacing-xs;
+            padding: $spacing-xs $spacing-sm;
+            font-size: $font-size-sm;
+            border-radius: $border-radius-sm;
+            min-width: 40px;
+            text-align: center;
+            display: inline-block;
           }
         }
       }
@@ -392,15 +416,47 @@
       color: $primary-color;
       font-size: $font-size-lg;
       font-weight: $font-weight-bold;
-    }
-
-    .ant-table {
+    }    .ant-table {
       margin-top: $spacing-xl;
-    }
-
-    .blood-type-tag {
+        // Fix table column widths to be equal
+      .ant-table-thead > tr > th,
+      .ant-table-tbody > tr > td {
+        width: 25%;
+        text-align: center;
+        padding: 40px 30px;
+        font-size: $font-size-base;
+        vertical-align: middle;
+        line-height: 1.6;
+      }
+      
+      // First column (blood type) compact
+      .ant-table-thead > tr > th:first-child,
+      .ant-table-tbody > tr > td:first-child {
+        width: 12%;
+        padding: 40px 20px;
+      }
+      
+      // Second column (population) medium
+      .ant-table-thead > tr > th:nth-child(2),
+      .ant-table-tbody > tr > td:nth-child(2) {
+        width: 20%;
+        padding: 40px 25px;
+      }
+      
+      // Make "Can Give To" and "Can Receive From" columns much wider and bigger
+      .ant-table-thead > tr > th:nth-child(3),
+      .ant-table-thead > tr > th:nth-child(4),
+      .ant-table-tbody > tr > td:nth-child(3),
+      .ant-table-tbody > tr > td:nth-child(4) {
+        width: 34%;
+        padding: 45px 35px;
+        min-height: 100px;
+      }
+    }.blood-type-tag {
       font-size: $font-size-sm;
       padding: 4px 8px;
+      color: white !important;
+      font-weight: $font-weight-semibold;
 
       &.positive {
         background-color: #1890ff;
@@ -480,6 +536,40 @@
     .search-decorative-elements {
       .blood-drop-1, .blood-drop-2, .blood-drop-3, .blood-drop-4 {
         animation: float 6s ease-in-out infinite;
+      }
+    }  }
+  
+  // Global blood type tag styling - chỉ áp dụng cho blood type tags
+  .ant-tag.blood-type-tag {
+    color: white !important;
+    font-weight: $font-weight-semibold;
+    border: none;
+    
+    &.positive {
+      background-color: #1890ff !important;
+    }
+
+    &.negative {
+      background-color: #dc2626 !important;
+    }
+  }
+  
+  // For compatibility section tags - chỉ cho blood type tags trong compatibility section
+  .compatibility-section {
+    .ant-tag {
+      // Chỉ áp dụng chữ trắng cho các tag có background màu đậm
+      &[style*="background"] {
+        color: white !important;
+        font-weight: $font-weight-medium;
+      }
+      
+      // Đảm bảo tag xanh lá và xanh dương có chữ trắng
+      &[style*="rgb(82, 196, 26)"], // green color
+      &[style*="rgb(24, 144, 255)"], // blue color  
+      &[style*="#52c41a"],
+      &[style*="#1890ff"] {
+        color: white !important;
+        font-weight: $font-weight-medium;
       }
     }
   }
