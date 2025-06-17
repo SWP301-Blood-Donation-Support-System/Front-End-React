@@ -40,10 +40,10 @@ const Header = () => {
         icon={<UserOutlined />}
         onClick={() => navigate("/profile")}
       >
-        Profile
+        Hồ Sơ Cá Nhân
       </Menu.Item>
       <Menu.Item key="settings" icon={<SettingOutlined />}>
-        Settings
+        Cài Đặt
       </Menu.Item>
       <Menu.Divider />      <Menu.Item 
         key="logout" 
@@ -61,7 +61,7 @@ const Header = () => {
           navigate("/");
         }}
       >
-        Logout
+        Đăng Xuất
       </Menu.Item>
     </Menu>
   );
@@ -82,7 +82,7 @@ const Header = () => {
                 icon={<UserOutlined />}
                 className="header-user-avatar"
               />
-              <span className="header-user-name">おはいよう {user.FullName || user.name}</span>
+              <span className="header-user-name">Xin chào {user.FullName || user.name}</span>
               <DownOutlined className="header-dropdown-icon" />
             </div>
           </Dropdown>

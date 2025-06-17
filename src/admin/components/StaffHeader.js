@@ -93,7 +93,7 @@ const StaffHeader = () => {
                   className="user-avatar"
                 />
                 <span className="user-name">
-                  {user ? `おはよう ${user.FullName}` : 'Staff'}
+                  {user ? `Xin chào ${user.FullName}` : 'Staff'}
                 </span>
                 <DownOutlined className="dropdown-icon" />
               </div>
