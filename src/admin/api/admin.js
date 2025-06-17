@@ -1,11 +1,12 @@
 import axios from "axios";
 
+const BASE_URL = "https://api-blooddonation.purintech.id.vn";
+
 export const AdminAPI = {
   // Get all donation schedules
-  getDonationSchedules: async () => {
-    try {
+  getDonationSchedules: async () => {    try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://localhost:7198/api/DonationSchedule", {
+      const response = await axios.get(`${BASE_URL}/api/DonationSchedule`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -21,10 +22,9 @@ export const AdminAPI = {
   },
 
   // Get all donation registrations
-  getDonationRegistrations: async () => {
-    try {
+  getDonationRegistrations: async () => {    try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://localhost:7198/api/DonationRegistration", {
+      const response = await axios.get(`${BASE_URL}/api/DonationRegistration`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ export const AdminAPI = {
   getDonationRegistrationsBySchedule: async (scheduleId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`https://localhost:7198/api/DonationRegistration?scheduleId=${scheduleId}`, {
+      const response = await axios.get(`${BASE_URL}/api/DonationRegistration?scheduleId=${scheduleId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -61,7 +61,7 @@ export const AdminAPI = {
   getDonationScheduleById: async (scheduleId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`https://localhost:7198/api/DonationSchedule/${scheduleId}`, {
+      const response = await axios.get(`${BASE_URL}/api/DonationSchedule/${scheduleId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -79,7 +79,7 @@ export const AdminAPI = {
   getDonationRegistrationById: async (registrationId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`https://localhost:7198/api/DonationRegistration/${registrationId}`, {
+      const response = await axios.get(`${BASE_URL}/api/DonationRegistration/${registrationId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ export const AdminAPI = {
   updateRegistrationStatus: async (registrationId, statusId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(`https://localhost:7198/api/DonationRegistration/${registrationId}/status`, {
+      const response = await axios.put(`${BASE_URL}/api/DonationRegistration/${registrationId}/status`, {
         RegistrationStatusId: statusId
       }, {
         headers: {
@@ -117,7 +117,7 @@ export const AdminAPI = {
   createDonationSchedule: async (scheduleData) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post("https://localhost:7198/api/DonationSchedule", scheduleData, {
+      const response = await axios.post(`${BASE_URL}/api/DonationSchedule`, scheduleData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -135,7 +135,7 @@ export const AdminAPI = {
   deleteDonationSchedule: async (scheduleId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.delete(`https://localhost:7198/api/DonationSchedule/${scheduleId}`, {
+      const response = await axios.delete(`${BASE_URL}/api/DonationSchedule/${scheduleId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -153,7 +153,7 @@ export const AdminAPI = {
   getDonorById: async (donorId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`https://localhost:7198/api/User/${donorId}`, {
+      const response = await axios.get(`${BASE_URL}/api/User/${donorId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -171,7 +171,7 @@ export const AdminAPI = {
   getAllDonors: async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://localhost:7198/api/User", {
+      const response = await axios.get(`${BASE_URL}/api/User`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -189,7 +189,7 @@ export const AdminAPI = {
   getTimeSlots: async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://localhost:7198/api/TimeSlot", {
+      const response = await axios.get(`${BASE_URL}/api/TimeSlot`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -207,7 +207,7 @@ export const AdminAPI = {
   getRegistrationStatuses: async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://localhost:7198/api/Lookup/registration-statuses", {
+      const response = await axios.get(`${BASE_URL}/api/Lookup/registration-statuses`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
