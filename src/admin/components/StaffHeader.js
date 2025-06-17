@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Avatar, Badge, Dropdown, Menu, Space } from 'antd';
+import { Layout, Avatar, Dropdown, Menu, Space } from 'antd';
 import { 
-  BellOutlined, 
   MailOutlined,
   PoweroffOutlined,
   MenuOutlined,
@@ -61,14 +60,14 @@ const StaffHeader = () => {
   const userMenu = (
     <Menu onClick={handleMenuClick}>
       <Menu.Item key="profile" icon={<UserOutlined />}>
-        Profile
+        Hồ Sơ
       </Menu.Item>
       <Menu.Item key="settings" icon={<MenuOutlined />}>
-        Settings
+        Cài Đặt
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="logout" icon={<PoweroffOutlined />}>
-        Logout
+        Đăng Xuất
       </Menu.Item>
     </Menu>
   );
@@ -80,16 +79,6 @@ const StaffHeader = () => {
           <Space size="middle">
             <div className="header-icon">
               <MailOutlined />
-            </div>
-
-            <Badge count={3} size="small">
-              <div className="header-icon">
-                <BellOutlined />
-              </div>
-            </Badge>
-
-            <div className="header-icon">
-              <PoweroffOutlined />
             </div>
 
             <div className="header-icon">

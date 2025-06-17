@@ -43,8 +43,8 @@ const LoginPage = () => {
       console.log("User Role ID:", userRoleId);
       
       if (userRoleId === 1 || userRoleId === 2 || userRoleId === "1" || userRoleId === "2") {
-        // Redirect to staff page for roles 1 and 2
-        navigate("/staff");
+        // Redirect to schedule management page for roles 1 and 2
+        navigate("/staff/schedule-management");
       } else {
         // Check if profile is complete for regular users
         if (!isProfileComplete(userProfile)) {
