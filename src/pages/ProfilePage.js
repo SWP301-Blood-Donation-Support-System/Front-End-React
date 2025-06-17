@@ -55,6 +55,7 @@ const ProfilePage = () => {
   const [registrationsLoading, setRegistrationsLoading] = useState(false);
   const [registrationStatuses, setRegistrationStatuses] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
+  const [donationSchedule, setDonationSchedule] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -177,13 +178,27 @@ const ProfilePage = () => {
         console.error("Error fetching time slots:", error);
         // Don't set fallback as time slots are dynamic
       }
-    };    fetchUserProfile();
+    };
+
+    const fetchDonationSchedule = async () => {
+      try {
+        const response = await UserAPI.getDonationSchedule();
+        if (response.status === 200) {
+          const scheduleData = response.data || [];
+          setDonationSchedule(scheduleData);
+        }
+      } catch (error) {
+        console.error("Error fetching donation schedule:", error);
+        // Don't set fallback as schedule is dynamic
+      }
+    };
+    fetchUserProfile();
     fetchBloodTypes();
     fetchGenders();
     fetchOccupations();
     fetchRegistrationStatuses();
     fetchTimeSlots();
-    fetchTimeSlots();
+    fetchDonationSchedule();
   }, [navigate, location]);  // Fetch user's donation registrations
   const fetchRegistrations = async () => {
     try {
@@ -369,6 +384,14 @@ const ProfilePage = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Get schedule date by scheduleId
+  const getScheduleDateById = (scheduleId) => {
+    if (!scheduleId || !donationSchedule.length) return 'N/A';
+    
+    const schedule = donationSchedule.find(s => s.scheduleId === scheduleId || s.ScheduleId === scheduleId || s.id === scheduleId);
+    return schedule ? formatDate(schedule.scheduleDate || schedule.ScheduleDate) : 'N/A';
   };
 
   // Refresh registrations data
@@ -782,37 +805,44 @@ const ProfilePage = () => {
                       rowKey="registrationId"
                       pagination={false}
                       className="registration-table"
-                      size="large"
-                      columns={[
+                      size="large"                      columns={[
                         {
-                          title: 'Schedule ID',
-                          dataIndex: 'scheduleId',
-                          key: 'scheduleId',
+                          title: 'Registration ID',
+                          dataIndex: 'registrationId',
+                          key: 'registrationId',
                           width: '20%',
-                          render: (scheduleId) => <strong>#{scheduleId || 'N/A'}</strong>
-                        },
-                        {
+                          render: (registrationId) => <strong>#{registrationId || 'N/A'}</strong>
+                        },                        {
                           title: 'Ngày đăng kí',
                           dataIndex: 'createdAt',
                           key: 'createdAt',
-                          width: '25%',
+                          width: '20%',
                           render: (date) => formatDate(date)
+                        },
+                        {
+                          title: 'Ngày hiến máu',
+                          key: 'donationDate',
+                          width: '20%',
+                          render: (_, record) => {
+                            // Try multiple possible field names for scheduleId
+                            const scheduleId = record.scheduleId || record.ScheduleId || record.scheduleID || record.ScheduleID;
+                            return getScheduleDateById(scheduleId);
+                          }
                         },
                         {
                           title: 'Trạng thái',
                           dataIndex: 'registrationStatusId',
                           key: 'status',
-                          width: '25%',
+                          width: '20%',
                           render: (statusId) => (
                             <Tag color={getStatusColor(statusId)}>
                               {getStatusText(statusId)}
                             </Tag>
                           )
-                        },
-                        {
+                        },                        {
                           title: 'Khung giờ',
                           key: 'timeslot',
-                          width: '30%',
+                          width: '25%',
                           render: (_, record) => {
                             // Try multiple possible field names
                             const timeslotId = record.timeslotId || record.timeSlotId || record.TimeslotId || record.TimeSlotId;
