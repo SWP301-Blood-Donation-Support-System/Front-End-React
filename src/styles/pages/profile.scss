@@ -9,6 +9,45 @@
   }
 }
 
+// Donation Record Detail Modal Styles
+.donation-detail-form {
+  .form-field {
+    margin-bottom: 16px;
+
+    .form-label {
+      display: block;
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 4px;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .form-value {
+      color: #333;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+      min-height: 22px;
+      
+      input[type="checkbox"] {
+        transform: scale(1.2);
+        margin: 0;
+      }
+    }
+  }
+
+  .ant-divider {
+    margin: 20px 0 16px 0;
+    
+    .ant-divider-inner-text {
+      font-weight: bold;
+      color: #333;
+      font-size: 14px;
+    }
+  }
+}
+
 .profile-container {
   max-width: 1200px;
   margin: 0 auto;

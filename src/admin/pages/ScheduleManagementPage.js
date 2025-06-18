@@ -83,12 +83,12 @@ const ScheduleManagementPage = () => {
       
       const donorMap = {};
       donorsData.forEach(donor => {
-        // Handle all possible ID field variations
-        const id = donor.DonorID || donor.donorId || donor.DonorId || donor.id || donor.Id;
+        // Handle all possible ID field variations from User API (userId) and Donor API fallback
+        const id = donor.userId || donor.UserId || donor.UserID || donor.donorId || donor.DonorId || donor.DonorID || donor.id || donor.Id;
         console.log('Processing donor:', donor, 'extracted ID:', id);
         donorMap[id] = {
-          name: donor.FullName || donor.fullName || donor.name || donor.Name || `Donor ${id}`,
-          email: donor.Email || donor.email || ''
+          name: donor.fullName || donor.FullName || donor.username || donor.Username || donor.name || donor.Name || `User ${id}`,
+          email: donor.email || ''
         };
       });
       
@@ -233,8 +233,8 @@ const ScheduleManagementPage = () => {
                 const donorData = donorResponse.data;
                 if (donorData) {
                   newDonorData[donorId] = {
-                    name: donorData.FullName || donorData.fullName || donorData.name || donorData.Name || `Donor ${donorId}`,
-                    email: donorData.Email || donorData.email || ''
+                    name: donorData.fullName || donorData.FullName || donorData.username || donorData.Username || donorData.name || donorData.Name || `User ${donorId}`,
+                    email: donorData.email || donorData.Email || ''
                   };
                 }
               } catch (error) {
@@ -374,6 +374,40 @@ const ScheduleManagementPage = () => {
     setPendingStatusChange(null);
   };
 
+  // Handle creating donation record for present donors
+  const handleCreateDonationRecord = (record) => {
+    const registrationId = record.registrationId || record.RegistrationID || record.id;
+    const donorId = record.DonorID || record.donorId || record.DonorId;
+    const timeSlotId = record.TimeSlotID || record.timeSlotId || record.TimeSlotId;
+    const donor = donors[donorId];
+    
+    // Get time slot details
+    const timeSlot = timeSlots[timeSlotId];
+    const scheduleDate = selectedSchedule?.scheduleDate;
+    
+    // Prepare pre-filled data
+    const preFilledData = {
+      registrationId: registrationId,
+      userId: donorId,
+      username: donor ? donor.name : `User ${donorId}`,
+      donationDateTime: null // Will be set in the create page based on schedule date and time slot
+    };
+
+    // Add schedule and time slot info for date calculation
+    if (scheduleDate && timeSlot) {
+      preFilledData.scheduleDate = scheduleDate;
+      preFilledData.timeSlot = timeSlot;
+    }
+    
+    // Navigate to create page with pre-filled data
+    navigate('/staff/donation-records/create', { 
+      state: { 
+        preFilledData: preFilledData,
+        fromScheduleManagement: true 
+      } 
+    });
+  };
+
   const currentData = currentView === 'schedules' ? schedules : registrations;
   const totalPages = Math.ceil(currentData.length / pageSize);
   const startRecord = (currentPage - 1) * pageSize + 1;
@@ -494,7 +528,7 @@ const ScheduleManagementPage = () => {
       key: 'donorName',
       width: '20%',
       render: (_, record) => {
-        const actualDonorId = record.DonorID || record.donorId || record.DonorId || record.id || record.Id;
+        const actualDonorId = record.donorId;
         const donorName = getDonorName(actualDonorId);
         const donor = donors[actualDonorId];
         
@@ -613,6 +647,24 @@ const ScheduleManagementPage = () => {
                     Từ chối
                   </Button>
                 </Space>
+              )}
+
+              {/* Show "Tạo hồ sơ hiến" button when status is 2 (Đã có mặt) */}
+              {actualStatusId === 2 && (
+                <Button 
+                  size="small" 
+                  type="primary"
+                  style={{ 
+                    fontSize: '10px', 
+                    padding: '2px 8px',
+                    backgroundColor: '#52c41a',
+                    borderColor: '#52c41a',
+                    marginTop: '4px'
+                  }}
+                  onClick={() => handleCreateDonationRecord(record)}
+                >
+                  Tạo hồ sơ hiến
+                </Button>
               )}
             </div>
           </div>

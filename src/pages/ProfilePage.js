@@ -18,7 +18,8 @@ import {
   Alert,
   Table,
   Modal,
-  Popconfirm
+  Popconfirm,
+  Divider
 } from 'antd';
 import {
   UserOutlined,
@@ -59,6 +60,11 @@ const ProfilePage = () => {
   const [registrationStatuses, setRegistrationStatuses] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [donationSchedule, setDonationSchedule] = useState([]);
+  const [donationRecords, setDonationRecords] = useState([]);
+  const [donationTypes, setDonationTypes] = useState({});
+  const [bloodTestResults, setBloodTestResults] = useState({});
+  const [selectedDonationRecord, setSelectedDonationRecord] = useState(null);
+  const [donationDetailVisible, setDonationDetailVisible] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -195,6 +201,52 @@ const ProfilePage = () => {
         // Don't set fallback as schedule is dynamic
       }
     };
+
+    const fetchDonationRecords = async () => {
+      try {
+        const response = await UserAPI.getUserDonationRecords();
+        if (response.status === 200) {
+          const recordsData = response.data || [];
+          setDonationRecords(recordsData);
+        }
+      } catch (error) {
+        console.error("Error fetching donation records:", error);
+        setDonationRecords([]);
+      }
+    };
+
+    const fetchDonationTypes = async () => {
+      try {
+        const response = await UserAPI.getDonationTypes();
+        if (response.status === 200) {
+          const typesData = response.data.result || response.data;
+          const typesMap = {};
+          typesData.forEach(type => {
+            typesMap[type.id] = type;
+          });
+          setDonationTypes(typesMap);
+        }
+      } catch (error) {
+        console.error("Error fetching donation types:", error);
+      }
+    };
+
+    const fetchBloodTestResults = async () => {
+      try {
+        const response = await UserAPI.getBloodTestResults();
+        if (response.status === 200) {
+          const resultsData = response.data.result || response.data;
+          const resultsMap = {};
+          resultsData.forEach(result => {
+            resultsMap[result.id] = result;
+          });
+          setBloodTestResults(resultsMap);
+        }
+      } catch (error) {
+        console.error("Error fetching blood test results:", error);
+      }
+    };
+
     fetchUserProfile();
     fetchBloodTypes();
     fetchGenders();
@@ -202,6 +254,9 @@ const ProfilePage = () => {
     fetchRegistrationStatuses();
     fetchTimeSlots();
     fetchDonationSchedule();
+    fetchDonationRecords();
+    fetchDonationTypes();
+    fetchBloodTestResults();
   }, [navigate, location]);  // Fetch user's donation registrations
   const fetchRegistrations = async () => {
     try {
@@ -565,6 +620,78 @@ const ProfilePage = () => {
     return `Slot ${timeslotId}`;
   };
 
+  // Helper functions for donation records
+  const getDonationRecordByRegistrationId = (registrationId) => {
+    return donationRecords.find(record => 
+      (record.registrationId || record.RegistrationId) === registrationId
+    );
+  };
+
+  const getDonationTypeName = (typeId) => {
+    if (!typeId || !donationTypes[typeId]) {
+      return 'N/A';
+    }
+    return donationTypes[typeId].name;
+  };
+
+  const getBloodTestResultTag = (resultId) => {
+    if (!resultId || !bloodTestResults[resultId]) {
+      return <Tag color="default">N/A</Tag>;
+    }
+
+    const result = bloodTestResults[resultId];
+    const name = result.name;
+    
+    // Color mapping based on result names
+    let color = 'default';
+    if (name.includes('Đang chờ xét nghiệm')) {
+      color = 'orange';
+    } else if (name.includes('Máu đạt')) {
+      color = 'green';
+    } else if (name.includes('Máu không đạt')) {
+      color = 'red';
+    } else if (name.includes('Chưa có kết quả')) {
+      color = 'gray';
+    }
+    
+    return <Tag color={color}>{name}</Tag>;
+  };
+
+  const formatDateTime = (dateTime) => {
+    if (!dateTime) return 'N/A';
+    try {
+      return dayjs(dateTime).format('DD/MM/YYYY HH:mm');
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
+  const formatBloodPressure = (bp) => {
+    if (!bp) return 'N/A';
+    return bp;
+  };
+
+  const handleViewDonationDetail = async (registrationId) => {
+    try {
+      const donationRecord = getDonationRecordByRegistrationId(registrationId);
+      if (!donationRecord) {
+        message.warning('Không tìm thấy hồ sơ hiến máu cho đăng ký này');
+        return;
+      }
+
+      setSelectedDonationRecord(donationRecord);
+      setDonationDetailVisible(true);
+    } catch (error) {
+      console.error('Error viewing donation detail:', error);
+      message.error('Không thể xem chi tiết hồ sơ hiến máu');
+    }
+  };
+
+  const handleCloseDonationDetail = () => {
+    setSelectedDonationRecord(null);
+    setDonationDetailVisible(false);
+  };
+
   if (loading) {
     return (
       <div className="profile-loading">
@@ -868,7 +995,7 @@ const ProfilePage = () => {
                         },                        {
                           title: 'Khung giờ',
                           key: 'timeslot',
-                          width: '18%',
+                          width: '15%',
                           render: (_, record) => {
                             // Try multiple possible field names
                             const timeslotId = record.timeslotId || record.timeSlotId || record.TimeslotId || record.TimeSlotId;
@@ -877,9 +1004,44 @@ const ProfilePage = () => {
                           }
                         },
                         {
+                          title: 'Chi tiết hiến máu',
+                          key: 'donationRecord',
+                          width: '18%',
+                          render: (_, record) => {
+                            const statusId = record.registrationStatusId;
+                            const registrationId = record.registrationId;
+                            const donationRecord = getDonationRecordByRegistrationId(registrationId);
+                            
+                            // Only show donation record details for completed donations (status 3)
+                            if (statusId === 3 && donationRecord) {
+                              return (
+                                <Button 
+                                  type="primary"
+                                  size="small"
+                                  onClick={() => handleViewDonationDetail(registrationId)}
+                                >
+                                  Xem chi tiết
+                                </Button>
+                              );
+                            } else if (statusId === 3 && !donationRecord) {
+                              return (
+                                <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
+                                  Chưa có hồ sơ
+                                </Text>
+                              );
+                            } else {
+                              return (
+                                <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
+                                  Chưa hoàn thành
+                                </Text>
+                              );
+                            }
+                          }
+                        },
+                        {
                           title: 'Thao tác',
                           key: 'actions',
-                          width: '16%',
+                          width: '14%',
                           render: (_, record) => {
                             const statusId = record.registrationStatusId;
                             const registrationId = record.registrationId;
@@ -956,7 +1118,118 @@ const ProfilePage = () => {
         </div>
       </div>
 
-
+      {/* Donation Record Detail Modal */}
+      <Modal
+        title="Chi Tiết Hồ Sơ Hiến Máu"
+        open={donationDetailVisible}
+        onCancel={handleCloseDonationDetail}
+        footer={[
+          <Button key="close" onClick={handleCloseDonationDetail}>
+            Đóng
+          </Button>
+        ]}
+        width={800}
+      >
+        {selectedDonationRecord && (
+          <div className="donation-detail-form">
+            <Row gutter={[24, 16]}>
+              <Col span={24}>
+                <div className="form-field">
+                  <label className="form-label">THỜI GIAN HIẾN MÁU</label>
+                  <div className="form-value">
+                    {formatDateTime(selectedDonationRecord.donationDateTime || selectedDonationRecord.DonationDateTime)}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+            
+            <Row gutter={[24, 16]}>
+              <Col span={8}>
+                <div className="form-field">
+                  <label className="form-label">NHIỆT ĐỘ</label>
+                  <div className="form-value">
+                    {selectedDonationRecord.donorTemperature || selectedDonationRecord.DonorTemperature || 'N/A'}
+                    {selectedDonationRecord.donorTemperature || selectedDonationRecord.DonorTemperature ? ' °C' : ''}
+                  </div>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div className="form-field">
+                  <label className="form-label">HUYẾT ÁP</label>
+                  <div className="form-value">
+                    {formatBloodPressure(selectedDonationRecord.donorBloodPressure || selectedDonationRecord.DonorBloodPressure)}
+                  </div>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div className="form-field">
+                  <label className="form-label">CÂN NẶNG</label>
+                  <div className="form-value">
+                    {selectedDonationRecord.donorWeight || selectedDonationRecord.DonorWeight || 'N/A'}
+                    {selectedDonationRecord.donorWeight || selectedDonationRecord.DonorWeight ? ' kg' : ''}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+            
+            <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
+            
+            <Row gutter={[24, 16]}>
+              <Col span={12}>
+                <div className="form-field">
+                  <label className="form-label">LOẠI HIẾN MÁU</label>
+                  <div className="form-value">
+                    {getDonationTypeName(selectedDonationRecord.donationTypeId || selectedDonationRecord.DonationTypeId)}
+                  </div>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className="form-field">
+                  <label className="form-label">THỂ TÍCH HIẾN</label>
+                  <div className="form-value">
+                    {selectedDonationRecord.volumeDonated || selectedDonationRecord.VolumeDonated || 'N/A'}
+                    {selectedDonationRecord.volumeDonated || selectedDonationRecord.VolumeDonated ? ' ml' : ''}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+            
+            <Divider orientation="left">KẾT LUẬN</Divider>
+            
+            <Row gutter={[24, 16]}>
+              <Col span={12}>
+                <div className="form-field">
+                  <label className="form-label">KẾT QUẢ XÉT NGHIỆM</label>
+                  <div className="form-value">
+                    {getBloodTestResultTag(selectedDonationRecord.bloodTestResult || selectedDonationRecord.BloodTestResult)}
+                  </div>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className="form-field">
+                  <label className="form-label">KHÔNG THỂ HIẾN MÁU</label>
+                  <div className="form-value">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedDonationRecord.cannotDonate || selectedDonationRecord.CannotDonate || false}
+                      disabled
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  </div>
+                </div>
+              </Col>
+              <Col span={24}>
+                <div className="form-field">
+                  <label className="form-label">GHI CHÚ</label>
+                  <div className="form-value">
+                    {selectedDonationRecord.note || selectedDonationRecord.Note || 'Không có ghi chú'}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        )}
+      </Modal>
 
       <Footer />
     </Layout>

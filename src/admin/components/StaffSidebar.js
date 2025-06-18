@@ -12,6 +12,8 @@ import {
   CalendarOutlined,
   HistoryOutlined,
   UnorderedListOutlined,
+  DatabaseOutlined,
+  PlusCircleOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -36,13 +38,13 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     
     switch (key) {
       case '1-1': // Lịch sắp tới
-        navigate('/staff/schedule-management?type=upcoming');
+        navigate('/staff/schedule-management?type=all');
         break;
       case '1-2': // Lịch đã qua
-        navigate('/staff/schedule-management?type=past');
+        navigate('/staff/schedule-management?type=upcoming');
         break;
       case '1-3': // Tất cả lịch
-        navigate('/staff/schedule-management?type=all');
+        navigate('/staff/schedule-management?type=past');
         break;
       case '2': // Quản lý người hiến
         // TODO: Navigate to donor management page
@@ -60,9 +62,11 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         // TODO: Navigate to pending blood management
         console.log('Navigate to pending blood management');
         break;
-      case '4': // Hồ sơ hiến máu
-        // TODO: Navigate to donation records
-        console.log('Navigate to donation records');
+      case '4-1': // Danh sách hồ sơ hiến máu
+        navigate('/staff/donation-records');
+        break;
+      case '4-2': // Tạo hồ sơ hiến máu
+        navigate('/staff/donation-records/create');
         break;
       case '5': // Báo cáo thống kê
         // TODO: Navigate to reports
@@ -76,9 +80,9 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
   // Sidebar items
   const sidebarItems = [
     getItem('Lịch đặt hiến', '1', <PieChartOutlined />, [
-      getItem('Lịch sắp tới', '1-1', <CalendarOutlined />),
-      getItem('Lịch đã qua', '1-2', <HistoryOutlined />),
-      getItem('Tất cả lịch', '1-3', <UnorderedListOutlined />),
+      getItem('Tất cả lịch', '1-1', <UnorderedListOutlined />),
+      getItem('Lịch sắp tới', '1-2', <CalendarOutlined />),
+      getItem('Lịch đã qua', '1-3', <HistoryOutlined />),
     ]),
     getItem('Quản lý người hiến', '2', <UserOutlined />),
     getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />, [
@@ -86,7 +90,10 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       getItem('Máu không đạt', '3-2', <CloseCircleOutlined />),
       getItem('Máu chờ duyệt', '3-3', <ClockCircleOutlined />),
     ]),
-    getItem('Hồ sơ hiến máu', '4', <FileOutlined />),
+    getItem('Hồ sơ người hiến', '4', <FileOutlined />, [
+      getItem('Toàn bộ hồ sơ', '4-1', <DatabaseOutlined />),
+      getItem('Tạo hồ sơ mới', '4-2', <PlusCircleOutlined />),
+    ]),
     getItem('Báo cáo thống kê', '5', <TeamOutlined />),
   ];
 
