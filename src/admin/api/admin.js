@@ -356,7 +356,16 @@ export const AdminAPI = {
   updateDonationRecord: async (recordId, recordData) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(`${BASE_URL}/api/DonationRecord/${recordId}`, recordData, {
+      
+      // Add the donationRecordId to the request body as required by the API
+      const requestBody = {
+        ...recordData,
+        donationRecordId: Number(recordId)
+      };
+      
+      console.log(`Updating donation record ${recordId} with body:`, requestBody);
+      
+      const response = await axios.put(`${BASE_URL}/api/DonationRecord/${recordId}`, requestBody, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'

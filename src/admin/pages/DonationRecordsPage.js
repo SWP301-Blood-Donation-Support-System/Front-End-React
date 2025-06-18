@@ -307,18 +307,31 @@ const DonationRecordsPage = () => {
       const recordId = selectedRecord.donationRecordId || selectedRecord.DonationRecordId || selectedRecord.id;
       const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
       
+      // Validate required fields
+      if (!recordId) {
+        message.error('Không tìm thấy mã hồ sơ. Vui lòng thử lại.');
+        return;
+      }
+
+      if (!registrationId) {
+        message.error('Không tìm thấy mã đăng ký. Vui lòng thử lại.');
+        return;
+      }
+
       const updateData = {
         registrationId: registrationId,
         donationDateTime: selectedRecord.donationDateTime || selectedRecord.DonationDateTime,
-        donorWeight: values.donorWeight || 0,
-        donorTemperature: values.donorTemperature || 0,
+        donorWeight: Number(values.donorWeight) || 0,
+        donorTemperature: Number(values.donorTemperature) || 0,
         donorBloodPressure: values.donorBloodPressure || '',
-        donationTypeId: values.donationTypeId,
-        volumeDonated: values.volumeDonated || 0,
+        donationTypeId: Number(values.donationTypeId),
+        volumeDonated: Number(values.volumeDonated) || 0,
         note: values.note || '',
-        bloodTestResult: values.bloodTestResult || 0,
-        cannotDonate: values.cannotDonate || false
+        bloodTestResult: Number(values.bloodTestResult) || 0,
+        cannotDonate: Boolean(values.cannotDonate)
       };
+
+      console.log('Sending update request with recordId:', recordId, 'and data:', updateData);
 
       await AdminAPI.updateDonationRecord(recordId, updateData);
       message.success('Cập nhật hồ sơ hiến máu thành công!');
