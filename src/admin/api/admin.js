@@ -97,7 +97,7 @@ export const AdminAPI = {
   getDonationRegistrationById: async (registrationId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${BASE_URL}/api/DonationRegistration/${registrationId}`, {
+      const response = await axios.get(`${BASE_URL}/api/DonationRegistration/getRegistrationById/${registrationId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -135,7 +135,10 @@ export const AdminAPI = {
   updateDonationRegistrationStatus: async (registrationId, statusId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(`${BASE_URL}/api/DonationRegistration/updateRegistrationStatus/${registrationId}/${statusId}`, {}, {
+      const response = await axios.put(`${BASE_URL}/api/DonationRegistration/updateRegistrationStatus`, {
+        registrationId: registrationId,
+        statusId: statusId
+      }, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -185,23 +188,7 @@ export const AdminAPI = {
     }
   },
 
-  // Get donor information by ID
-  getDonorById: async (donorId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${BASE_URL}/api/User/${donorId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
 
-      return response;
-    } catch (error) {
-      console.error("Error fetching donor by ID:", error);
-      throw error;
-    }
-  },
 
   // Get all donors (batch fetch for efficiency)
   getAllDonors: async () => {
@@ -253,6 +240,186 @@ export const AdminAPI = {
       return response;
     } catch (error) {
       console.error("Error fetching registration statuses:", error);
+      throw error;
+    }
+  },
+
+  // Get all donation records
+  getDonationRecords: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/DonationRecord`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching donation records:", error);
+      throw error;
+    }
+  },
+
+  // Get donation record by ID
+  getDonationRecordById: async (recordId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/DonationRecord/${recordId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching donation record by ID:", error);
+      throw error;
+    }
+  },
+
+  // Get donation types lookup
+  getDonationTypes: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/donation-types`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching donation types:", error);
+      throw error;
+    }
+  },
+
+  // Get blood test results lookup
+  getBloodTestResults: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/blood-test-results`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching blood test results:", error);
+      throw error;
+    }
+  },
+
+  // Create new donation record
+  createDonationRecord: async (recordData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${BASE_URL}/api/DonationRecord`, recordData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // If donation record is created successfully, update registration status based on donation eligibility
+      if (response.data && recordData.registrationId) {
+        try {
+          // If checkbox "Không thể hiến máu được" is checked, set status to "Không đủ điều kiện hiến" (id=1001)
+          // Otherwise, set status to "Đã hoàn thành" (id=3)
+          const statusId = recordData.cannotDonate ? 1001 : 3;
+          const statusMessage = recordData.cannotDonate ? 
+            "Registration status updated to 'Không đủ điều kiện hiến' successfully" : 
+            "Registration status updated to 'Đã hoàn thành' successfully";
+          
+          await AdminAPI.updateDonationRegistrationStatus(recordData.registrationId, statusId);
+          console.log(statusMessage);
+        } catch (statusUpdateError) {
+          console.warn("Donation record created but failed to update registration status:", statusUpdateError);
+          // Don't throw error here as the main operation (creating donation record) was successful
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Error creating donation record:", error);
+      throw error;
+    }
+  },
+
+  // Update donation record
+  updateDonationRecord: async (recordId, recordData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(`${BASE_URL}/api/DonationRecord/${recordId}`, recordData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // If donation record is updated successfully, update registration status based on donation eligibility
+      if (response.data && recordData.registrationId) {
+        try {
+          // If checkbox "Không thể hiến máu được" is checked, set status to "Không đủ điều kiện hiến" (id=1001)
+          // Otherwise, set status to "Đã hoàn thành" (id=3)
+          const statusId = recordData.cannotDonate ? 1001 : 3;
+          const statusMessage = recordData.cannotDonate ? 
+            "Registration status updated to 'Không đủ điều kiện hiến' successfully" : 
+            "Registration status updated to 'Đã hoàn thành' successfully";
+          
+          await AdminAPI.updateDonationRegistrationStatus(recordData.registrationId, statusId);
+          console.log(statusMessage);
+        } catch (statusUpdateError) {
+          console.warn("Donation record updated but failed to update registration status:", statusUpdateError);
+          // Don't throw error here as the main operation (updating donation record) was successful
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Error updating donation record:", error);
+      throw error;
+    }
+  },
+
+  // Get all donation registrations
+  getDonationRegistrations: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/DonationRegistration`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching donation registrations:", error);
+      throw error;
+    }
+  },
+
+  // Get donor/user by ID (using User API for consistency)
+  getDonorById: async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/User/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
       throw error;
     }
   }

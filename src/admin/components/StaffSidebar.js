@@ -12,6 +12,8 @@ import {
   CalendarOutlined,
   HistoryOutlined,
   UnorderedListOutlined,
+  DatabaseOutlined,
+  PlusCircleOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -60,9 +62,11 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         // TODO: Navigate to pending blood management
         console.log('Navigate to pending blood management');
         break;
-      case '4': // Hồ sơ hiến máu
-        // TODO: Navigate to donation records
-        console.log('Navigate to donation records');
+      case '4-1': // Danh sách hồ sơ hiến máu
+        navigate('/staff/donation-records');
+        break;
+      case '4-2': // Tạo hồ sơ hiến máu
+        navigate('/staff/donation-records/create');
         break;
       case '5': // Báo cáo thống kê
         // TODO: Navigate to reports
@@ -86,7 +90,10 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       getItem('Máu không đạt', '3-2', <CloseCircleOutlined />),
       getItem('Máu chờ duyệt', '3-3', <ClockCircleOutlined />),
     ]),
-    getItem('Hồ sơ hiến máu', '4', <FileOutlined />),
+    getItem('Hồ sơ hiến máu', '4', <FileOutlined />, [
+      getItem('Danh sách hồ sơ', '4-1', <DatabaseOutlined />),
+      getItem('Tạo hồ sơ mới', '4-2', <PlusCircleOutlined />),
+    ]),
     getItem('Báo cáo thống kê', '5', <TeamOutlined />),
   ];
 

@@ -12,6 +12,8 @@ import EligibilityFormPage from './pages/EligibilityFormPage';
 import ProfilePage from './pages/ProfilePage';
 import StaffPage from './admin/pages/StaffPage';
 import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
+import DonationRecordsPage from './admin/pages/DonationRecordsPage';
+import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
 import './styles/main.scss';
 
 function App() {
@@ -46,6 +48,8 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/staff" element={<StaffPage />} />
             <Route path="/staff/schedule-management" element={<ScheduleManagementPage />} />
+            <Route path="/staff/donation-records" element={<DonationRecordsPage />} />
+            <Route path="/staff/donation-records/create" element={<CreateDonationRecordPage />} />
           </Routes>
         </div>
       </Router>

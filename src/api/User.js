@@ -151,10 +151,13 @@ export const UserAPI = {
     },
 
     // Cancel donation registration
-    cancelDonationRegistration: async (registrationId) => {
+    cancelDonationRegistration: async (registrationId, statusId = 3) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.put(`${BASE_URL}/api/DonationRegistration/cancelRegistration/${registrationId}`, {}, {
+            const response = await axios.put(`${BASE_URL}/api/DonationRegistration/cancelRegistration`, {
+                registrationId: registrationId,
+                statusId: statusId  // Default to 3 for "Đã hủy" status
+            }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'

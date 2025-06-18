@@ -1,0 +1,567 @@
+// Donation Records Page Styles - Staff Theme
+.donation-records-page-header {
+  background: #FFFFFF;
+  border: none;
+  padding: 24px 48px;
+  margin: 24px 48px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  
+  .donation-records-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .donation-records-title {
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 700;
+    
+    .anticon {
+      color: #dc2626;
+      margin-right: 12px;
+    }
+  }
+  
+  .donation-records-refresh-btn {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #b91c1c;
+      border-color: #b91c1c;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+  }
+}
+
+// New styles matching schedule management layout
+.donation-records-content {
+  margin: 0;
+  padding: 16px;
+  min-height: calc(100vh - 240px);
+  background: #F5F5F5;
+  display: flex;
+  flex-direction: column;
+}
+
+.donation-records-container {
+  width: 100%;
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.donation-records-header-section {
+  padding: 24px 24px 16px 24px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  border-bottom: 1px solid #f0f2f5;
+  
+  .donation-records-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .donation-records-title {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 24px;
+    
+    .anticon {
+      color: #dc2626;
+      margin-right: 12px;
+    }
+  }
+}
+
+.donation-records-table-container {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px 24px 24px;
+  
+  .donation-records-wide-table {
+    width: 100%;
+    
+    .ant-table {
+      width: 100% !important;
+      background: transparent;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .ant-table-wrapper {
+      width: 100% !important;
+    }
+    
+    .ant-table-container {
+      width: 100% !important;
+    }
+    
+    .ant-table-content {
+      width: 100% !important;
+    }
+    
+    .ant-table-thead > tr > th {
+      background: #dc2626;
+      color: white;
+      font-weight: 600;
+      border: none;
+      text-align: center;
+      padding: 16px;
+      
+      &:first-child {
+        border-radius: 8px 0 0 0;
+      }
+      
+      &:last-child {
+        border-radius: 0 8px 0 0;
+      }
+    }
+    
+    .ant-table-tbody > tr {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: #fef2f2;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      > td {
+        border-bottom: 1px solid #f0f2f5;
+        text-align: center;
+        padding: 16px;
+      }
+    }
+  }
+}
+
+  .custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 16px;
+    padding: 16px 0;
+    gap: 24px;
+    flex-shrink: 0;
+    border-top: 1px solid #f0f2f5;
+    
+    .pagination-info {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .pagination-buttons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      
+      .pagination-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+        padding: 4px 8px;
+        margin: 0 4px;
+        color: #666;
+        
+        &.active {
+          border: 1px solid #d9d9d9;
+          background: #1890ff;
+          color: white;
+          border-radius: 2px;
+        }
+        
+        &.inactive {
+          border: 1px solid #d9d9d9;
+          background: white;
+          border-radius: 2px;
+          
+          &:hover {
+            background: #f5f5f5;
+          }
+        }
+        
+        &:disabled {
+          color: #ccc;
+          cursor: not-allowed;
+          background: #f5f5f5;
+          border: 1px solid #e5e5e5;
+          
+          &:hover {
+            background: #f5f5f5;
+          }
+        }
+      }
+    }
+    
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .page-size-select {
+        border: 1px solid #d9d9d9;
+        padding: 4px 8px;
+        border-radius: 2px;
+      }
+      
+      .goto-input {
+        border: 1px solid #d9d9d9;
+        padding: 4px 8px;
+        width: 60px;
+        border-radius: 2px;
+      }
+      
+      .goto-label {
+        color: #666;
+        font-size: 14px;
+      }
+    }
+  }
+
+// Detail Modal Styles
+.donation-record-detail-modal {
+  .ant-modal-header {
+    background: #dc2626;
+    border-radius: 8px 8px 0 0;
+    
+    .ant-modal-title {
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+    }
+  }
+  
+  .ant-modal-content {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .ant-modal-body {
+    padding: 24px;
+    background: #fafafa;
+  }
+  
+  .ant-modal-footer {
+    background: #fafafa;
+    border-top: 1px solid #f0f2f5;
+  }
+}
+
+.donation-record-detail-content {
+  .ant-descriptions {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    .ant-descriptions-item-label {
+      background: #f8f9fa !important;
+      font-weight: 600 !important;
+      color: #495057 !important;
+      width: 180px;
+    }
+    
+    .ant-descriptions-item-content {
+      background: white !important;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .ant-descriptions-row {
+      border-bottom: 1px solid #f0f2f5;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+}
+
+// Health info styling in table
+.donation-records-wide-table {
+  .health-info-cell {
+    font-size: 11px;
+    line-height: 1.4;
+    
+    div {
+      margin-bottom: 2px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      strong {
+        color: #666;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Donation type and volume styling
+.donation-info-cell {
+  .donation-type {
+    font-weight: 600;
+    color: #f5222d;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  
+  .donation-volume {
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
+  }
+}
+
+// Blood test result tags
+.blood-test-result {
+  .ant-tag {
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+}
+
+// Tooltip styling for notes
+.donation-notes-tooltip {
+  max-width: 300px;
+  
+  .ant-tooltip-inner {
+    background: #333;
+    color: white;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+// Detail Form Styles
+.donation-detail-form {
+  padding: 24px;
+  
+  .detail-form-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    .ant-card-head {
+      background: #dc2626;
+      border-radius: 8px 8px 0 0;
+      
+      .ant-card-head-title {
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        text-align: center;
+      }
+    }
+    
+    .ant-card-body {
+      padding: 24px;
+      background: #fafafa;
+    }
+  }
+  
+  .form-field {
+    margin-bottom: 16px;
+    
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 4px;
+    }
+    
+    .form-value {
+      display: block;
+      min-height: 32px;
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.4;
+      
+      &:empty::before {
+        content: 'N/A';
+        color: #9ca3af;
+      }
+    }
+  }
+  
+  .ant-divider {
+    margin: 24px 0 16px 0;
+    
+    .ant-divider-inner-text {
+      background: #fafafa;
+      font-weight: 600;
+      color: #dc2626;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+// Form responsive adjustments
+@media (max-width: 768px) {
+  .donation-detail-form {
+    padding: 16px;
+    
+    .detail-form-card .ant-card-body {
+      padding: 16px;
+    }
+    
+    .form-field {
+      margin-bottom: 12px;
+      
+      .form-label {
+        font-size: 11px;
+      }
+      
+      .form-value {
+        font-size: 13px;
+        min-height: 28px;
+        padding: 6px 10px;
+      }
+    }
+  }
+}
+
+// Create Donation Form Styles
+.create-donation-form {
+  padding: 0;
+  
+  .detail-form-card {
+    .ant-form-item-label > label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .ant-input,
+    .ant-input-number,
+    .ant-select-selector,
+    .ant-picker,
+    .ant-input-affix-wrapper {
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      
+      &:hover {
+        border-color: #dc2626;
+      }
+      
+      &:focus,
+      &.ant-input-focused,
+      &.ant-input-affix-wrapper-focused,
+      &.ant-select-focused .ant-select-selector,
+      &.ant-picker-focused {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+      }
+    }
+    
+    .ant-btn-primary {
+      background-color: #dc2626;
+      border-color: #dc2626;
+      
+      &:hover {
+        background-color: #b91c1c;
+        border-color: #b91c1c;
+      }
+    }
+    
+    .ant-input-number {
+      width: 100%;
+    }
+    
+    .ant-divider {
+      margin: 24px 0 16px 0;
+      
+      .ant-divider-inner-text {
+        background: white;
+        font-weight: 600;
+        color: #dc2626;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .donation-records-wide-table {
+    .ant-table-thead > tr > th,
+    .ant-table-tbody > tr > td {
+      padding: 8px 4px;
+      font-size: 12px;
+    }
+  }
+  
+  .donation-records-header-section {
+    padding: 20px 24px;
+    
+    .donation-records-title {
+      font-size: 20px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .donation-records-content {
+    padding: 16px;
+  }
+  
+  .donation-records-header-section {
+    padding: 16px 20px;
+    
+    .donation-records-controls {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    
+    .donation-records-title {
+      font-size: 18px;
+    }
+  }
+  
+  .custom-pagination {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    
+    .pagination-controls {
+      order: -1;
+    }
+  }
+} 
