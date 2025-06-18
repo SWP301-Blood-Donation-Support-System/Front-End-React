@@ -173,18 +173,19 @@ const DonationRecordsPage = () => {
               const donorResponse = await AdminAPI.getDonorById(userId);
               const donor = donorResponse.data;
               const username = donor?.fullName || donor?.FullName || donor?.username || donor?.Username || donor?.name || donor?.Name || `User ${userId}`;
+              const address = donor?.address || donor?.Address || 'Chưa cập nhật địa chỉ';
               
-              userMap[regId] = { userId, username };
+              userMap[regId] = { userId, username, address };
             } catch (donorError) {
               // If donor fetch fails, use donorId as both userId and username
-              userMap[regId] = { userId, username: `User ${userId}` };
+              userMap[regId] = { userId, username: `User ${userId}`, address: 'Không thể tải địa chỉ' };
             }
           } else {
-            userMap[regId] = { userId: 'N/A', username: 'N/A' };
+            userMap[regId] = { userId: 'N/A', username: 'N/A', address: 'N/A' };
           }
         } catch (error) {
           console.error(`Error fetching registration ${regId}:`, error);
-          userMap[regId] = { userId: 'N/A', username: 'N/A' };
+          userMap[regId] = { userId: 'N/A', username: 'N/A', address: 'N/A' };
         }
       });
 
@@ -206,7 +207,7 @@ const DonationRecordsPage = () => {
         usersSet.set(userData.userId, {
           userId: userData.userId,
           username: userData.username,
-          address: 'Cần cập nhật địa chỉ' // We'll fetch this from donor details
+          address: userData.address || 'Chưa cập nhật địa chỉ'
         });
       }
     });
@@ -787,7 +788,7 @@ const DonationRecordsPage = () => {
   // Layer 1: User list columns
   const userColumns = [
     {
-      title: 'Mã Người Dùng (UserID)',
+      title: 'Mã Người Hiến (UserID)',
       dataIndex: 'userId',
       key: 'userId',
       width: '25%',
@@ -798,7 +799,7 @@ const DonationRecordsPage = () => {
       ),
     },
     {
-      title: 'Tên Người Dùng (Username)',
+      title: 'Tên Người Hiến (Username)',
       dataIndex: 'username',
       key: 'username',
       width: '35%',
