@@ -872,6 +872,45 @@ const ProfilePage = () => {
                         onChange={(e) => handleFieldChange('fullName', e.target.value)}
                         placeholder="Enter full name"
                       />
+                    )}                  </Descriptions.Item>
+                  <Descriptions.Item 
+                    label={<span><CalendarOutlined /> Ngày Sinh</span>}
+                  >
+                    {!editMode ? (
+                      user.DateOfBirth ? dayjs(user.DateOfBirth).format('DD/MM/YYYY') : 'Not specified'
+                    ) : (
+                      <DatePicker 
+                        value={editValues.dateOfBirth ? dayjs(editValues.dateOfBirth) : null}
+                        onChange={(date) => handleFieldChange('dateOfBirth', date ? date.format('YYYY-MM-DD') : null)}
+                        placeholder="Select date of birth"
+                        style={{ width: '100%' }}
+                        format="DD/MM/YYYY"
+                      />
+                    )}
+                  </Descriptions.Item>
+                  <Descriptions.Item 
+                    label={<span><TeamOutlined /> Giới Tính</span>}
+                  >
+                    {!editMode ? (
+                      getGenderDisplay(user.GenderId || user.GenderID)
+                    ) : (
+                      genders.length > 0 ? (
+                        <Select 
+                          key={`gender-select-${genders.length}-${editValues.genderID}`}
+                          value={editValues.genderID}
+                          onChange={(value) => handleFieldChange('genderID', value)}
+                          placeholder="Select gender"
+                          style={{ width: '100%' }}
+                        >
+                          {genders.map(gender => (
+                            <Option key={gender.id} value={gender.id}>
+                              {gender.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      ) : (
+                        <Select placeholder="Loading genders..." disabled style={{ width: '100%' }} />
+                      )
                     )}
                   </Descriptions.Item>
                   <Descriptions.Item 
@@ -898,8 +937,7 @@ const ProfilePage = () => {
                         placeholder="Enter address"
                         rows={2}
                       />
-                    )}
-                  </Descriptions.Item>
+                    )}                  </Descriptions.Item>
                   <Descriptions.Item 
                     label={<span><BankOutlined /> Nghề Nghiệp</span>}
                   >
