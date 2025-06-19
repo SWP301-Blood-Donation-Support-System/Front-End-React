@@ -21,6 +21,7 @@ import {
   ArrowLeftOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { UserAPI } from '../api/User';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -32,10 +33,55 @@ const { TextArea } = Input;
 const EligibilityFormPage = () => {  const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [isEligible, setIsEligible] = useState(null);
+  const [userEligibleDate, setUserEligibleDate] = useState(null);
+  const [daysLeft, setDaysLeft] = useState(0);
+  const [isViewOnly, setIsViewOnly] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const bookingData = location.state?.bookingData;  // Scroll to top when component mounts and check if bookingData exists
+  const location = useLocation();  const bookingData = location.state?.bookingData;// Function to fetch user eligibility data
+  const fetchUserEligibilityData = async () => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      
+      if (!userInfo) {
+        console.log('No userInfo found in localStorage');
+        return;
+      }
+
+      // Get from localStorage (like ProfilePage does)
+      console.log('UserInfo from localStorage:', userInfo);
+      const eligibleDate = userInfo.nextEligibleDonationDate || userInfo.NextEligibleDonationDate;
+      
+      if (eligibleDate) {
+        console.log('Found eligible date in localStorage:', eligibleDate);
+        setUserEligibleDate(eligibleDate);
+        
+        const currentDate = new Date();
+        const nextEligibleDate = new Date(eligibleDate);
+        
+        // Đặt giờ về 0:0:0 để so sánh chỉ ngày
+        currentDate.setHours(0, 0, 0, 0);
+        nextEligibleDate.setHours(0, 0, 0, 0);
+        
+        const timeDiff = nextEligibleDate - currentDate;
+        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        setDaysLeft(daysDiff > 0 ? daysDiff : 0);
+        
+        console.log('Current date:', currentDate);
+        console.log('Next eligible date:', nextEligibleDate);
+        console.log('Days left:', daysDiff);      } else {
+        console.log('No eligible date found in localStorage, user can donate anytime');
+        setUserEligibleDate(null);
+        setDaysLeft(0);
+      }
+    } catch (error) {
+      console.error('Error fetching user eligibility data:', error);
+    }
+  };
+
+// Scroll to top when component mounts and check if bookingData exists
   useEffect(() => {
+    console.log('=== EligibilityFormPage mounted ===');
+    
     // Check if there's booking data, if not redirect to booking page
     if (!bookingData) {
       message.warning('Vui lòng điền thông tin đặt lịch trước khi tiến hành kiểm tra điều kiện hiến máu.');
@@ -44,6 +90,7 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
     }
 
     window.scrollTo(0, 0);
+    fetchUserEligibilityData(); // Fetch user eligibility data
   }, [navigate, bookingData]);
 
   // Eligibility questions data
@@ -251,11 +298,13 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       description: 'Xem kết quả đánh giá',
     }
   ];
-
   const checkEligibility = (formData) => {
+    console.log('=== CHECKING ELIGIBILITY ===');
+    console.log('Form data received:', formData);
+    
     // Eligibility rules based on responses
     const ineligibleConditions = [
-      // Question 3: Serious diseases
+      // Question 3: Serious diseases - if user selects "yes" 
       formData.seriousDiseases?.includes('yes'),
       
       // Question 4: Recent diseases/procedures in last 12 months
@@ -285,17 +334,62 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       formData.femaleQuestions?.includes('pregnancy_termination')
     ];
 
-    return !ineligibleConditions.some(condition => condition);
-  };  const handleFormSubmit = async (values) => {
-    const eligible = checkEligibility(values);
+    console.log('Ineligible conditions:', ineligibleConditions);
+    const hasIneligibleCondition = ineligibleConditions.some(condition => condition === true);
+    console.log('Has ineligible condition:', hasIneligibleCondition);
+    const result = !hasIneligibleCondition;
+    console.log('Final eligibility result:', result);
     
-    if (eligible) {
+    return result;
+  };const handleFormSubmit = async (values) => {
+    console.log('=== ELIGIBILITY CHECK ===');
+    console.log('Form values received:', values);
+    console.log('User eligible date:', userEligibleDate);
+    console.log('Days left:', daysLeft);
+    
+    // First check form eligibility
+    const formEligible = checkEligibility(values);
+    console.log('Form eligible result:', formEligible);
+    console.log('Detailed values check:');
+    console.log('- seriousDiseases:', values.seriousDiseases);
+    console.log('- last12Months:', values.last12Months);
+    console.log('- last6Months:', values.last6Months);
+    console.log('- last1Month:', values.last1Month);
+    console.log('- last14Days:', values.last14Days);
+    console.log('- last7Days:', values.last7Days);
+    console.log('- femaleQuestions:', values.femaleQuestions);
+    
+    // Then check if user is eligible based on donation date
+    let isEligibleByDate = true;
+    if (userEligibleDate) {
+      const currentDate = new Date();
+      const nextEligibleDate = new Date(userEligibleDate);
+      
+      // Đặt giờ về 0:0:0 để so sánh chỉ ngày
+      currentDate.setHours(0, 0, 0, 0);
+      nextEligibleDate.setHours(0, 0, 0, 0);
+      
+      isEligibleByDate = nextEligibleDate <= currentDate;
+      console.log('Current date (normalized):', currentDate);
+      console.log('Next eligible date (normalized):', nextEligibleDate);
+      console.log('Is eligible by date:', isEligibleByDate);
+    }
+    
+    if (formEligible && isEligibleByDate) {
+      console.log('✓ User is eligible - proceeding with registration');
       // Nếu đủ điều kiện, gọi API ngay lập tức
       await handleDonationRegistration(values);
-    } else {
+    } else if (!formEligible) {
+      console.log('✗ User failed form eligibility');
       setIsEligible(false);
       setCurrentStep(1);
       message.warning('Rất tiếc, hiện tại bạn chưa đủ điều kiện hiến máu.');
+    } else if (!isEligibleByDate) {
+      console.log('✗ User not eligible by date - need to wait');
+      // User is not eligible due to recent donation
+      setIsEligible('already_registered');
+      setCurrentStep(1);
+      message.warning(`Bạn đã hiến máu gần đây rồi. Vui lòng chờ thêm ${daysLeft} ngày để có thể hiến máu lần tiếp theo.`);
     }
   };
 
@@ -380,9 +474,8 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
         }
         
         if (responseText.includes('UNIQUE KEY constraint') || 
-            (errorData.msg && errorData.msg.includes("already have an active donation registration"))) {
-          // User đã đăng ký rồi
-          setIsEligible('already_registered');
+            (errorData.msg && errorData.msg.includes("already have an active donation registration"))) {          // User đã đăng ký rồi
+          setIsEligible('already_registered_api');
           setCurrentStep(1);
           message.warning({
             content: 'Bạn đã đăng ký hiến máu rồi, vui lòng đợi cho đến thời gian phù hợp để đăng ký lại.',
@@ -497,16 +590,28 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
               }
             </Form.Item>
           </>
-        );
-
-      case 'checkbox':
+        );      case 'checkbox':
         return (
           <>
             <Form.Item 
               name={question.key} 
               rules={[{ required: true, message: 'Vui lòng chọn ít nhất một lựa chọn!' }]}
             >
-              <Checkbox.Group className="eligibility-checkbox-group">
+              <Checkbox.Group 
+                className="eligibility-checkbox-group"
+                onChange={(checkedValues) => {
+                  // Nếu chọn "none" (Không) hoặc "no"
+                  if (checkedValues.includes('none') || checkedValues.includes('no')) {
+                    // Chỉ giữ lại "none" hoặc "no", bỏ các option khác
+                    const noneValue = checkedValues.find(val => val === 'none' || val === 'no');
+                    form.setFieldsValue({ [question.key]: [noneValue] });
+                  } else {
+                    // Nếu chọn option khác mà có "none" hoặc "no", thì bỏ "none"/"no"
+                    const filteredValues = checkedValues.filter(val => val !== 'none' && val !== 'no');
+                    form.setFieldsValue({ [question.key]: filteredValues });
+                  }
+                }}
+              >
                 {question.options.map(option => (
                   <Checkbox key={option.value} value={option.value} className="eligibility-checkbox">
                     {option.label}
@@ -538,16 +643,28 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
               </Form.Item>
             )}
           </>
-        );
-
-      case 'checkbox_multiple':
+        );      case 'checkbox_multiple':
         return (
           <>
             <Form.Item 
               name={question.key} 
               rules={[{ required: true, message: 'Vui lòng chọn ít nhất một lựa chọn!' }]}
             >
-              <Checkbox.Group className="eligibility-checkbox-group">
+              <Checkbox.Group 
+                className="eligibility-checkbox-group"
+                onChange={(checkedValues) => {
+                  // Nếu chọn "none" (Không) hoặc "no"
+                  if (checkedValues.includes('none') || checkedValues.includes('no')) {
+                    // Chỉ giữ lại "none" hoặc "no", bỏ các option khác
+                    const noneValue = checkedValues.find(val => val === 'none' || val === 'no');
+                    form.setFieldsValue({ [question.key]: [noneValue] });
+                  } else {
+                    // Nếu chọn option khác mà có "none" hoặc "no", thì bỏ "none"/"no"
+                    const filteredValues = checkedValues.filter(val => val !== 'none' && val !== 'no');
+                    form.setFieldsValue({ [question.key]: filteredValues });
+                  }
+                }}
+              >
                 <div className="checkbox-options">
                   {question.options.map(option => (
                     <Checkbox key={option.value} value={option.value} className="eligibility-checkbox">
@@ -586,15 +703,14 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       default:
         return null;
     }
-  };
-
-  const renderEligibilityForm = () => (    <Form
+  };  const renderEligibilityForm = () => (    <Form
       form={form}
       layout="vertical"
-      onFinish={handleFormSubmit}
+      onFinish={isViewOnly ? () => {} : handleFormSubmit}
       onFinishFailed={handleFormError}
-      className="eligibility-form"
-    >      <div className="eligibility-questions">
+      className={`eligibility-form ${isViewOnly ? 'view-only' : ''}`}
+      disabled={isViewOnly}
+    ><div className="eligibility-questions">
         {eligibilityQuestions.map((question, index) => (
           <Card 
             key={question.id} 
@@ -613,26 +729,35 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
             </div>
           </Card>
         ))}
-      </div>
-
-      <div className="form-actions">
-        <Button 
-          type="default" 
+      </div>      <div className="form-actions">
+        {!isViewOnly && (
+          <Button 
+            type="default" 
+            size="large"
+            icon={<ArrowLeftOutlined />}
+            onClick={handleBackToBooking}
+            className="back-button"
+          >
+            Quay về
+          </Button>
+        )}        <Button 
+          type={isViewOnly ? "default" : "primary"}
+          htmlType={isViewOnly ? "button" : "submit"}
           size="large"
-          icon={<ArrowLeftOutlined />}
-          onClick={handleBackToBooking}
-          className="back-button"
+          className={isViewOnly ? "back-to-home-button" : "submit-button"}
+          icon={isViewOnly ? <ArrowLeftOutlined /> : <CheckCircleOutlined />}          onClick={isViewOnly ? () => {
+            window.scrollTo(0, 0);
+            navigate('/');
+          } : undefined}
+          disabled={false}
+          style={isViewOnly ? {
+            backgroundColor: '#fff',
+            borderColor: '#dc2626',
+            color: '#dc2626',
+            pointerEvents: 'auto'
+          } : undefined}
         >
-          Quay về
-        </Button>
-        <Button 
-          type="primary" 
-          htmlType="submit" 
-          size="large"
-          className="submit-button"
-          icon={<CheckCircleOutlined />}
-        >
-          Tiếp tục
+          {isViewOnly ? "Quay về trang chủ" : "Tiếp tục"}
         </Button>
       </div>
     </Form>
@@ -651,20 +776,24 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
               </Title>
               <Paragraph className="result-description">
                 Cảm ơn bạn đã đăng ký hiến máu! Chúng tôi đã ghi nhận thông tin của bạn và sẽ liên hệ trong vòng 24h để xác nhận lịch hẹn.
-              </Paragraph>
-              <div className="result-actions">
+              </Paragraph>              <div className="result-actions">
                 <Button 
                   type="primary" 
                   size="large"
-                  onClick={() => navigate('/booking', { state: { bookingComplete: true } })}
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    navigate('/booking', { state: { bookingComplete: true } });
+                  }}
                   className="proceed-button"
-                >
-                  Quay về trang chủ
+                >                  Quay về trang chủ
                 </Button>
                 <Button 
                   type="default" 
                   size="large"
-                  onClick={() => setCurrentStep(0)}
+                  onClick={() => {
+                    setIsViewOnly(true);
+                    setCurrentStep(0);
+                  }}
                   className="review-button"
                 >
                   Xem lại câu trả lời
@@ -675,36 +804,64 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
             <>
               <div className="result-icon not-eligible">
                 <ExclamationCircleOutlined />
-              </div>
-              <Title level={3} className="result-title">
-                ⚠️ Bạn đã đăng ký hiến máu gần đây rồi!
+              </div>              <Title level={3} className="result-title">
+                ⚠️ Bạn chưa thể hiến máu lúc này!
               </Title>
               <Paragraph className="result-description">
                 🩸 Để đảm bảo sức khỏe, bạn cần nghỉ ngơi ít nhất <strong>12-16 tuần</strong> giữa các lần hiến máu.
                 <br /><br />
-                📅 <strong>Bạn có thể:</strong><br />
-                • Đăng ký lại sau 3-4 tháng<br />
-                • Liên hệ hotline để được tư vấn: <strong>1900-xxxx</strong>
+                📅 <strong>Thông tin hiến máu:</strong><br />
+                {daysLeft > 0 ? (
+                  <>
+                    • Bạn có thể hiến máu trở lại sau: <strong style={{color: '#ff4d4f'}}>{daysLeft} ngày nữa</strong><br />
+                    • Ngày có thể hiến máu tiếp theo: <strong>{userEligibleDate ? new Date(userEligibleDate).toLocaleDateString('vi-VN') : 'Chưa xác định'}</strong>
+                  </>
+                ) : (
+                  '• Vui lòng liên hệ hotline để được tư vấn: <strong>1900-xxxx</strong>'
+                )}
                 <br /><br />
                 💙 <em>Cảm ơn bạn đã quan tâm đến hoạt động hiến máu nhân đạo!</em>
-              </Paragraph>
-              <div className="result-actions">
+              </Paragraph>              <div className="result-actions">
                 <Button 
                   type="primary" 
                   size="large"
-                  onClick={() => navigate('/booking', { state: { alreadyRegistered: true } })}
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    navigate('/');
+                  }}
                   className="back-button"
                   icon={<ArrowLeftOutlined />}
                 >
-                  Chọn ngày khác
-                </Button>
+                  Quay về trang chủ
+                </Button>              </div>
+            </>
+          ) : isEligible === 'already_registered_api' ? (
+            <>
+              <div className="result-icon not-eligible">
+                <ExclamationCircleOutlined />
+              </div>
+              <Title level={3} className="result-title">
+                ⚠️ Bạn đã đăng ký hiến máu rồi!
+              </Title>
+              <Paragraph className="result-description">
+                🩸 Để đảm bảo sức khỏe, bạn cần nghỉ ngơi ít nhất <strong>12-16 tuần</strong> giữa các lần hiến máu.
+                <br /><br />
+                📅 <strong>Thông tin hiến máu:</strong><br />
+                • Vui lòng liên hệ hotline để được tư vấn: <strong>1900-xxxx</strong>
+                <br /><br />
+                💙 <em>Cảm ơn bạn đã quan tâm đến hoạt động hiến máu nhân đạo!</em>
+              </Paragraph>              <div className="result-actions">
                 <Button 
-                  type="default" 
+                  type="primary" 
                   size="large"
-                  onClick={() => setCurrentStep(0)}
-                  className="review-button"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    navigate('/');
+                  }}
+                  className="back-button"
+                  icon={<ArrowLeftOutlined />}
                 >
-                  Xem lại câu trả lời
+                  Quay về trang chủ
                 </Button>
               </div>
             </>
@@ -758,13 +915,15 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
                   onClick={handleBackToBooking}
                   className="back-button"
                   icon={<ArrowLeftOutlined />}
-                >
-                  Quay về trang đặt lịch
+                >                  Quay về trang đặt lịch
                 </Button>
                 <Button 
                   type="default" 
                   size="large"
-                  onClick={() => setCurrentStep(0)}
+                  onClick={() => {
+                    setIsViewOnly(true);
+                    setCurrentStep(0);
+                  }}
                   className="review-button"
                 >
                   Xem lại câu trả lời

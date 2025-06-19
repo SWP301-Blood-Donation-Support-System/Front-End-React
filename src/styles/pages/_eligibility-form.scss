@@ -165,7 +165,6 @@
       }
     }
   }
-
   // Checkbox Group Styles
   .eligibility-checkbox-group {
     width: 100%;
@@ -177,11 +176,12 @@
     }
 
     .eligibility-checkbox {
-      display: block;
+      display: flex;
+      align-items: flex-start;
       padding: 0.5rem;
       border-radius: 6px;
       transition: all 0.3s ease;
-      line-height: 1.4;
+      line-height: 1.5;
 
       &:hover {
         background-color: #f8f9fa;
@@ -189,8 +189,8 @@
 
       .ant-checkbox {
         margin-right: 0.5rem;
-        align-self: flex-start;
-        margin-top: 0.2rem;
+        margin-top: 0.1rem; // Fine-tune vertical alignment
+        flex-shrink: 0; // Prevent checkbox from shrinking
       }
 
       .ant-checkbox-checked .ant-checkbox-inner {
@@ -503,5 +503,24 @@
     border: 1px solid #ccc !important;
     margin-bottom: 1rem !important;
     page-break-inside: avoid;
+  }
+}
+
+// View-only mode styles
+.eligibility-form.view-only {
+  // Giữ nguyên tất cả tick marks màu đỏ
+  
+  .back-to-home-button {
+    &:hover {
+      background-color: #fef2f2 !important;
+      border-color: #dc2626 !important;
+      color: #dc2626 !important;
+    }
+    
+    &:focus {
+      background-color: #fff !important;
+      border-color: #dc2626 !important;
+      color: #dc2626 !important;
+    }
   }
 }
