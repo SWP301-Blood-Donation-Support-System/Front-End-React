@@ -874,48 +874,7 @@ const ProfilePage = () => {
                         </Select>
                       ) : (
                         <Select placeholder="Loading occupations..." disabled style={{ width: '100%' }} />
-                      )
-                    )}
-                  </Descriptions.Item>
-                </Descriptions>
-              </Card>
-            </Col>
-
-            {/* Contact & Account Information */}
-            <Col xs={24} lg={12}>
-              <Card title="Liên Hệ" className="profile-info-card">
-                <Descriptions column={1} size="middle">
-                  <Descriptions.Item 
-                    label={<span><MailOutlined /> Email</span>}
-                  >
-                    {!editMode ? (
-                      user.Email || user.email || 'Not specified'
-                    ) : (
-                      <Input 
-                        value={editValues.email || ''}
-                        onChange={(e) => handleFieldChange('email', e.target.value)}
-                        placeholder="Enter email address"
-                        type="email"
-                      />
-                    )}
-                  </Descriptions.Item>
-                  <Descriptions.Item 
-                    label={<span><UserOutlined /> Username</span>}
-                  >
-                    {user.Username || user.UserName || user.email?.split('@')[0] || 'Not specified'}
-                  </Descriptions.Item>
-                  <Descriptions.Item 
-                    label={<span><PhoneOutlined /> Số Điện Thoại</span>}
-                  >
-                    {!editMode ? (
-                      user.PhoneNumber || 'Not specified'
-                    ) : (
-                      <Input 
-                        value={editValues.phoneNumber || ''}
-                        onChange={(e) => handleFieldChange('phoneNumber', e.target.value)}
-                        placeholder="Enter phone number"
-                      />
-                    )}
+                      )                    )}
                   </Descriptions.Item>
                   <Descriptions.Item 
                     label={<span><HeartOutlined /> Nhóm Máu</span>}
@@ -937,12 +896,155 @@ const ProfilePage = () => {
                             </Option>
                           ))}
                         </Select>
-                      ) : (                        <Select placeholder="Loading blood types..." disabled style={{ width: '100%' }} />
-                      )                    )}
+                      ) : (
+                        <Select placeholder="Loading blood types..." disabled style={{ width: '100%' }} />
+                      )
+                    )}
                   </Descriptions.Item>
                 </Descriptions>
               </Card>
-            </Col>            {/* Registered Schedules */}
+            </Col>
+
+            {/* Contact & Account Information */}
+            <Col xs={24} lg={12}>
+              <Card title="Thông Tin Liên Hệ" className="profile-info-card">
+                <Descriptions column={1} size="middle">                  <Descriptions.Item 
+                    label={<span><MailOutlined /> Email</span>}
+                  >
+                    <span style={{ color: editMode ? '#999' : 'inherit' }}>
+                      {user.Email || user.email || 'Not specified'}
+                    </span>
+                    {editMode && (
+                      <Text type="secondary" style={{ fontSize: '12px', marginLeft: '8px' }}>
+                        (Không thể chỉnh sửa)
+                      </Text>
+                    )}
+                  </Descriptions.Item>
+                  <Descriptions.Item 
+                    label={<span><UserOutlined /> Username</span>}
+                  >
+                    {user.Username || user.UserName || user.email?.split('@')[0] || 'Not specified'}
+                  </Descriptions.Item>
+                  <Descriptions.Item 
+                    label={<span><PhoneOutlined /> Số Điện Thoại</span>}
+                  >
+                    {!editMode ? (
+                      user.PhoneNumber || 'Not specified'
+                    ) : (
+                      <Input 
+                        value={editValues.phoneNumber || ''}
+                        onChange={(e) => handleFieldChange('phoneNumber', e.target.value)}
+                        placeholder="Enter phone number"
+                      />
+                    )}                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            </Col>
+
+            {/* Donation Information */}
+            <Col span={24}>
+              <Card 
+                title={
+                  <span>
+                    <HeartOutlined style={{ marginRight: '8px', color: '#ff4d4f' }} />
+                    Thông Tin Hiến Máu
+                  </span>
+                } 
+                className="profile-donation-card"
+              >
+                <Row gutter={[24, 16]}>
+                  <Col xs={24} sm={8}>
+                    <div className="donation-stat">
+                      <div className="stat-icon">
+                        <HeartOutlined style={{ fontSize: '24px', color: '#ff4d4f' }} />
+                      </div>
+                      <div className="stat-content">
+                        <div className="stat-label">Số lần hiến máu</div>
+                        <div className="stat-value">
+                          {user.donationCount || user.DonationCount || 0} lần
+                        </div>
+                      </div>
+                    </div>
+                  </Col>
+                  
+                  <Col xs={24} sm={8}>
+                    <div className="donation-stat">
+                      <div className="stat-icon">
+                        <CalendarOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                      </div>
+                      <div className="stat-content">
+                        <div className="stat-label">Lần hiến gần nhất</div>
+                        <div className="stat-value">
+                          {user.lastDonationDate || user.LastDonationDate 
+                            ? formatDate(user.lastDonationDate || user.LastDonationDate)
+                            : 'Chưa hiến máu'
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </Col>
+                  
+                  <Col xs={24} sm={8}>
+                    <div className="donation-stat">
+                      <div className="stat-icon">
+                        <CalendarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />
+                      </div>
+                      <div className="stat-content">
+                        <div className="stat-label">Có thể hiến tiếp</div>
+                        <div className="stat-value-with-tag">
+                          <span className="stat-value">
+                            {user.nextEligibleDonationDate || user.NextEligibleDonationDate 
+                              ? formatDate(user.nextEligibleDonationDate || user.NextEligibleDonationDate)
+                              : 'Chưa xác định'
+                            }
+                          </span>
+                          {user.nextEligibleDonationDate || user.NextEligibleDonationDate ? (
+                            <span className="stat-tag">
+                              {new Date(user.nextEligibleDonationDate || user.NextEligibleDonationDate) > new Date() 
+                                ? (
+                                  <Tag color="orange">
+                                    Cần chờ thêm {Math.ceil((new Date(user.nextEligibleDonationDate || user.NextEligibleDonationDate) - new Date()) / (1000 * 60 * 60 * 24))} ngày
+                                  </Tag>
+                                ) : (
+                                  <Tag color="green">
+                                    Đã đủ điều kiện hiến máu
+                                  </Tag>
+                                )
+                              }
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+                
+                {/* Additional donation availability notice */}
+                {user.nextEligibleDonationDate || user.NextEligibleDonationDate ? (
+                  <Alert
+                    message={
+                      new Date(user.nextEligibleDonationDate || user.NextEligibleDonationDate) > new Date()
+                        ? "Bạn cần chờ thêm thời gian để có thể hiến máu tiếp theo"
+                        : "Bạn đã đủ điều kiện để hiến máu!"
+                    }
+                    description={
+                      new Date(user.nextEligibleDonationDate || user.NextEligibleDonationDate) > new Date()
+                        ? "Để đảm bảo sức khỏe, bạn cần tuân thủ khoảng cách thời gian giữa các lần hiến máu theo quy định."
+                        : "Hãy đăng ký lịch hiến máu để đóng góp vào công tác hiến máu nhân đạo!"
+                    }
+                    type={
+                      new Date(user.nextEligibleDonationDate || user.NextEligibleDonationDate) > new Date()
+                        ? "warning"
+                        : "success"
+                    }
+                    showIcon
+                    style={{ marginTop: '16px' }}
+                  />
+                ) : null}
+              </Card>
+            </Col>
+
+            {/* Registered Schedules */}
             <Col span={24}>
               <Card title="Lịch Đã Đăng Kí" className="profile-schedule-card">
                 <div className="schedule-content">
