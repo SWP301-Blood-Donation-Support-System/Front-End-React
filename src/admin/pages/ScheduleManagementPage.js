@@ -257,7 +257,14 @@ const ScheduleManagementPage = () => {
           setDonors(prev => ({ ...prev, ...newDonorData }));
         }
         
-        setRegistrations(filteredRegistrations);
+        // Sort registrations by time slot ID
+        const sortedRegistrations = filteredRegistrations.sort((a, b) => {
+          const timeSlotA = a.TimeSlotID || a.timeSlotId || a.TimeSlotId || 0;
+          const timeSlotB = b.TimeSlotID || b.timeSlotId || b.TimeSlotId || 0;
+          return timeSlotA - timeSlotB; // Sort in ascending order (slot 1, 2, 3, 4)
+        });
+        
+        setRegistrations(sortedRegistrations);
       } catch (error) {
         console.error('Error fetching registrations:', error);
         setRegistrations([]);

@@ -713,8 +713,8 @@ const DonationRecordsPage = () => {
           
           <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
           
-          <Row gutter={[24, 16]}>
-            <Col span={8}>
+                    <Row gutter={[24, 16]}>
+            <Col span={12}>
               <div className="form-field">
                 <label className="form-label">LOẠI HIẾN MÁU</label>
                 <div className="form-value">
@@ -722,33 +722,12 @@ const DonationRecordsPage = () => {
                 </div>
               </div>
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <div className="form-field">
                 <label className="form-label">THỂ TÍCH HIẾN</label>
                 <div className="form-value">
                   {selectedRecord.volumeDonated || selectedRecord.VolumeDonated || 'N/A'}
                   {selectedRecord.volumeDonated || selectedRecord.VolumeDonated ? ' ml' : ''}
-                </div>
-              </div>
-            </Col>
-            <Col span={8}>
-              <div className="form-field">
-                <label className="form-label">KHÔNG THỂ HIẾN MÁU ĐƯỢC</label>
-                <div className="form-value">
-                  <Checkbox 
-                    checked={(() => {
-                      // Check both cannotDonate field and registration status
-                      const cannotDonateField = selectedRecord.cannotDonate || false;
-                      const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
-                      const registrationStatus = registrationStatuses[registrationId];
-                      const isStatusIneligible = registrationStatus === 1001; // "Không đủ điều kiện hiến"
-                      
-                      return cannotDonateField || isStatusIneligible;
-                    })()}
-                    disabled
-                  >
-                    Không thể hiến máu được
-                  </Checkbox>
                 </div>
               </div>
             </Col>
@@ -786,26 +765,7 @@ const DonationRecordsPage = () => {
             </Col>
           </Row>
           
-          <Divider orientation="left">THÔNG TIN HỆ THỐNG</Divider>
-          
-          <Row gutter={[24, 16]}>
-            <Col span={12}>
-              <div className="form-field">
-                <label className="form-label">NGÀY TẠO</label>
-                <div className="form-value">
-                  {formatDateTime(selectedRecord.createdAt || selectedRecord.CreatedAt)}
-                </div>
-              </div>
-            </Col>
-            <Col span={12}>
-              <div className="form-field">
-                <label className="form-label">CẬP NHẬT LẦN CUỐI</label>
-                <div className="form-value">
-                  {formatDateTime(selectedRecord.updatedAt || selectedRecord.UpdatedAt)}
-                </div>
-              </div>
-            </Col>
-          </Row>
+
         </Card>
       </div>
     );
@@ -1029,15 +989,6 @@ const DonationRecordsPage = () => {
                   <Title level={3} className="donation-records-title">
                     {viewTitle}
                   </Title>
-                  {currentView === 'users' && (
-                    <Button 
-                      type="primary" 
-                      onClick={fetchDonationRecords}
-                      loading={loading}
-                    >
-                      Làm mới
-                    </Button>
-                  )}
                   <div style={{ fontSize: '14px', color: '#666', marginLeft: 'auto' }}>
                     <Text strong>
                       {currentView === 'users' && 'Tổng số người dùng:'}
