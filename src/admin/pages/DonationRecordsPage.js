@@ -40,6 +40,8 @@ const DonationRecordsPage = () => {
   const [bloodTestResults, setBloodTestResults] = useState({});
   const [registrationUsers, setRegistrationUsers] = useState({}); // Cache for registration user data
   const [registrationStatuses, setRegistrationStatuses] = useState({}); // Cache for registration status data
+  const [registrationSchedules, setRegistrationSchedules] = useState({}); // Cache for registration schedule data
+  const [timeSlots, setTimeSlots] = useState({}); // Cache for time slot data
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -59,6 +61,7 @@ const DonationRecordsPage = () => {
     fetchAllDonors();
     fetchDonationTypes();
     fetchBloodTestResults();
+    fetchTimeSlots();
     fetchDonationRecords();
   }, []);
 
@@ -136,6 +139,27 @@ const DonationRecordsPage = () => {
     }
   };
 
+  const fetchTimeSlots = async () => {
+    try {
+      const response = await AdminAPI.getTimeSlots();
+      const timeSlotsData = response.data || [];
+      
+      const timeSlotMap = {};
+      timeSlotsData.forEach(slot => {
+        const id = slot.timeSlotId || slot.TimeSlotId || slot.id;
+        timeSlotMap[id] = {
+          name: slot.timeSlotName || slot.TimeSlotName || `Slot ${id}`,
+          startTime: slot.startTime || slot.StartTime || '',
+          endTime: slot.endTime || slot.EndTime || ''
+        };
+      });
+      
+      setTimeSlots(timeSlotMap);
+    } catch (error) {
+      console.error('Error fetching time slots:', error);
+    }
+  };
+
   const fetchDonationRecords = async () => {
     setLoading(true);
     try {
@@ -156,6 +180,7 @@ const DonationRecordsPage = () => {
   const fetchUserDataForRegistrations = async (records) => {
     const userMap = {};
     const statusMap = {};
+    const scheduleMap = {};
     const registrationIds = [...new Set(records.map(record => 
       record.registrationId || record.RegistrationId
     ).filter(Boolean))];
@@ -170,6 +195,30 @@ const DonationRecordsPage = () => {
           // Store registration status
           const statusId = registration?.registrationStatusId || registration?.RegistrationStatusId || registration?.RegistrationStatusID;
           statusMap[regId] = statusId;
+          
+          // Store schedule information
+          const scheduleId = registration?.scheduleId || registration?.ScheduleId || registration?.ScheduleID;
+          const timeSlotId = registration?.timeSlotId || registration?.TimeSlotId || registration?.TimeSlotID;
+          
+          if (scheduleId) {
+            try {
+              // Fetch schedule details to get the scheduled date
+              const scheduleResponse = await AdminAPI.getDonationScheduleById(scheduleId);
+              const schedule = scheduleResponse.data;
+              const scheduleDate = schedule?.scheduleDate || schedule?.ScheduleDate;
+              
+              scheduleMap[regId] = {
+                scheduleId,
+                scheduleDate,
+                timeSlotId
+              };
+            } catch (scheduleError) {
+              console.error(`Error fetching schedule ${scheduleId}:`, scheduleError);
+              scheduleMap[regId] = { scheduleId, scheduleDate: null, timeSlotId };
+            }
+          } else {
+            scheduleMap[regId] = { scheduleId: null, scheduleDate: null, timeSlotId };
+          }
           
           if (registration && registration.donorId) {
             // Use donorId as userId and fetch donor details for username
@@ -193,12 +242,14 @@ const DonationRecordsPage = () => {
           console.error(`Error fetching registration ${regId}:`, error);
           userMap[regId] = { userId: 'N/A', username: 'N/A', address: 'N/A' };
           statusMap[regId] = null;
+          scheduleMap[regId] = { scheduleId: null, scheduleDate: null, timeSlotId: null };
         }
       });
 
       await Promise.all(registrationPromises);
       setRegistrationUsers(userMap);
       setRegistrationStatuses(statusMap);
+      setRegistrationSchedules(scheduleMap);
       
       // Create unique users list for first layer
       createUniqueUsersList(userMap);
@@ -392,6 +443,23 @@ const DonationRecordsPage = () => {
     });
   };
 
+  const formatScheduledDateTime = (registrationId) => {
+    const scheduleData = registrationSchedules[registrationId];
+    if (!scheduleData || !scheduleData.scheduleDate) return 'N/A';
+    
+    // Format the date
+    const date = new Date(scheduleData.scheduleDate).toLocaleDateString('vi-VN');
+    
+    // Get time slot info
+    const timeSlot = timeSlots[scheduleData.timeSlotId];
+    if (timeSlot && timeSlot.startTime) {
+      const startTime = timeSlot.startTime.substring(0, 5); // Remove seconds
+      return `${startTime} ${date}`;
+    }
+    
+    return date;
+  };
+
   const formatBloodPressure = (bp) => {
     if (!bp) return 'N/A';
     return bp;
@@ -500,7 +568,15 @@ const DonationRecordsPage = () => {
                 </Col>
                 <Col span={12}>
                   <div className="form-field">
-                    <label className="form-label">THỜI GIAN HIẾN MÁU</label>
+                    <label className="form-label">THỜI GIAN ĐĂNG KÝ</label>
+                    <div className="form-value">
+                      {formatScheduledDateTime(selectedRecord.registrationId || selectedRecord.RegistrationId)}
+                    </div>
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <div className="form-field">
+                    <label className="form-label">THỜI GIAN HIẾN MÁU THỰC TẾ</label>
                     <div className="form-value">
                       {formatDateTime(selectedRecord.donationDateTime || selectedRecord.DonationDateTime)}
                     </div>
@@ -672,7 +748,15 @@ const DonationRecordsPage = () => {
             </Col>
             <Col span={12}>
               <div className="form-field">
-                <label className="form-label">THỜI GIAN HIẾN MÁU</label>
+                <label className="form-label">THỜI GIAN ĐĂNG KÝ</label>
+                <div className="form-value">
+                  {formatScheduledDateTime(selectedRecord.registrationId || selectedRecord.RegistrationId)}
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div className="form-field">
+                <label className="form-label">THỜI GIAN HIẾN MÁU THỰC TẾ</label>
                 <div className="form-value">
                   {formatDateTime(selectedRecord.donationDateTime || selectedRecord.DonationDateTime)}
                 </div>
@@ -881,16 +965,17 @@ const DonationRecordsPage = () => {
       },
     },
     {
-      title: 'Thời Gian Hiến',
-      dataIndex: 'donationDateTime',
-      key: 'donationDateTime',
+      title: 'Thời Gian Đăng Ký',
+      dataIndex: 'registrationId',
+      key: 'scheduledDateTime',
       width: '20%',
       render: (_, record) => {
-        const dateTime = record.donationDateTime || record.DonationDateTime;
+        const registrationId = record.registrationId || record.RegistrationId;
+        const scheduledDateTime = formatScheduledDateTime(registrationId);
         return (
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontWeight: 'bold', color: '#52c41a' }}>
-              {formatDateTime(dateTime)}
+              {scheduledDateTime}
             </div>
           </div>
         );
