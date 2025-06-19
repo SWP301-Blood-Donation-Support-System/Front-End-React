@@ -39,6 +39,7 @@ const DonationRecordsPage = () => {
   const [donationTypes, setDonationTypes] = useState({});
   const [bloodTestResults, setBloodTestResults] = useState({});
   const [registrationUsers, setRegistrationUsers] = useState({}); // Cache for registration user data
+  const [registrationStatuses, setRegistrationStatuses] = useState({}); // Cache for registration status data
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -154,6 +155,7 @@ const DonationRecordsPage = () => {
 
   const fetchUserDataForRegistrations = async (records) => {
     const userMap = {};
+    const statusMap = {};
     const registrationIds = [...new Set(records.map(record => 
       record.registrationId || record.RegistrationId
     ).filter(Boolean))];
@@ -164,6 +166,10 @@ const DonationRecordsPage = () => {
         try {
           const response = await AdminAPI.getDonationRegistrationById(regId);
           const registration = response.data;
+          
+          // Store registration status
+          const statusId = registration?.registrationStatusId || registration?.RegistrationStatusId || registration?.RegistrationStatusID;
+          statusMap[regId] = statusId;
           
           if (registration && registration.donorId) {
             // Use donorId as userId and fetch donor details for username
@@ -186,11 +192,13 @@ const DonationRecordsPage = () => {
         } catch (error) {
           console.error(`Error fetching registration ${regId}:`, error);
           userMap[regId] = { userId: 'N/A', username: 'N/A', address: 'N/A' };
+          statusMap[regId] = null;
         }
       });
 
       await Promise.all(registrationPromises);
       setRegistrationUsers(userMap);
+      setRegistrationStatuses(statusMap);
       
       // Create unique users list for first layer
       createUniqueUsersList(userMap);
@@ -283,6 +291,13 @@ const DonationRecordsPage = () => {
   const handleEditMode = () => {
     setIsEditMode(true);
     
+    // Calculate checkbox state based on both cannotDonate field and registration status
+    const cannotDonateField = selectedRecord.cannotDonate || selectedRecord.CannotDonate || false;
+    const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
+    const registrationStatus = registrationStatuses[registrationId];
+    const isStatusIneligible = registrationStatus === 1001; // "Không đủ điều kiện hiến"
+    const shouldCheckCannotDonate = cannotDonateField || isStatusIneligible;
+    
     // Pre-fill form with current record data
     form.setFieldsValue({
       donorTemperature: selectedRecord.donorTemperature || selectedRecord.DonorTemperature,
@@ -291,7 +306,7 @@ const DonationRecordsPage = () => {
       donationTypeId: selectedRecord.donationTypeId || selectedRecord.DonationTypeId,
       volumeDonated: selectedRecord.volumeDonated || selectedRecord.VolumeDonated,
       bloodTestResult: selectedRecord.bloodTestResult || selectedRecord.BloodTestResult,
-      cannotDonate: selectedRecord.cannotDonate || selectedRecord.CannotDonate || false,
+      cannotDonate: shouldCheckCannotDonate,
       note: selectedRecord.note || selectedRecord.Note || ''
     });
   };
@@ -535,7 +550,7 @@ const DonationRecordsPage = () => {
               <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
               
               <Row gutter={[24, 16]}>
-                <Col span={12}>
+                <Col span={8}>
                   <Form.Item
                     label="LOẠI HIẾN MÁU"
                     name="donationTypeId"
@@ -550,7 +565,7 @@ const DonationRecordsPage = () => {
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col span={8}>
                   <Form.Item
                     label="THỂ TÍCH HIẾN (ml)"
                     name="volumeDonated"
@@ -562,6 +577,17 @@ const DonationRecordsPage = () => {
                       min={0}
                       max={1000}
                     />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item 
+                    label="KHÔNG THỂ HIẾN MÁU ĐƯỢC" 
+                    name="cannotDonate" 
+                    valuePropName="checked"
+                  >
+                    <div style={{ height: '40px', display: 'flex', alignItems: 'center', paddingTop: '6px' }}>
+                      <Checkbox>Không thể hiến máu được</Checkbox>
+                    </div>
                   </Form.Item>
                 </Col>
               </Row>
@@ -582,11 +608,6 @@ const DonationRecordsPage = () => {
                         </Option>
                       ))}
                     </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="cannotDonate" valuePropName="checked">
-                    <Checkbox>Không thể hiến máu được</Checkbox>
                   </Form.Item>
                 </Col>
                 <Col span={24}>
@@ -693,7 +714,7 @@ const DonationRecordsPage = () => {
           <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
           
           <Row gutter={[24, 16]}>
-            <Col span={12}>
+            <Col span={8}>
               <div className="form-field">
                 <label className="form-label">LOẠI HIẾN MÁU</label>
                 <div className="form-value">
@@ -701,12 +722,33 @@ const DonationRecordsPage = () => {
                 </div>
               </div>
             </Col>
-            <Col span={12}>
+            <Col span={8}>
               <div className="form-field">
                 <label className="form-label">THỂ TÍCH HIẾN</label>
                 <div className="form-value">
                   {selectedRecord.volumeDonated || selectedRecord.VolumeDonated || 'N/A'}
                   {selectedRecord.volumeDonated || selectedRecord.VolumeDonated ? ' ml' : ''}
+                </div>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div className="form-field">
+                <label className="form-label">KHÔNG THỂ HIẾN MÁU ĐƯỢC</label>
+                <div className="form-value">
+                  <Checkbox 
+                    checked={(() => {
+                      // Check both cannotDonate field and registration status
+                      const cannotDonateField = selectedRecord.cannotDonate || false;
+                      const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
+                      const registrationStatus = registrationStatuses[registrationId];
+                      const isStatusIneligible = registrationStatus === 1001; // "Không đủ điều kiện hiến"
+                      
+                      return cannotDonateField || isStatusIneligible;
+                    })()}
+                    disabled
+                  >
+                    Không thể hiến máu được
+                  </Checkbox>
                 </div>
               </div>
             </Col>
@@ -719,19 +761,18 @@ const DonationRecordsPage = () => {
               <div className="form-field">
                 <label className="form-label">KẾT QUẢ XÉT NGHIỆM</label>
                 <div className="form-value">
-                  {getBloodTestResultTag(selectedRecord.bloodTestResult || selectedRecord.BloodTestResult)}
-                </div>
-              </div>
-            </Col>
-            <Col span={12}>
-              <div className="form-field">
-                <div className="form-value">
-                  <Checkbox 
-                    checked={selectedRecord.cannotDonate || false}
-                    disabled
-                  >
-                    Không thể hiến máu được
-                  </Checkbox>
+                  {(() => {
+                    // Check if donor cannot donate (checkbox is checked)
+                    const cannotDonateField = selectedRecord.cannotDonate || false;
+                    const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
+                    const registrationStatus = registrationStatuses[registrationId];
+                    const isStatusIneligible = registrationStatus === 1001; // "Không đủ điều kiện hiến"
+                    const cannotDonate = cannotDonateField || isStatusIneligible;
+                    
+                    // If cannot donate, show "Không thể hiến máu" (id=5), otherwise show actual result
+                    const displayResult = cannotDonate ? 5 : (selectedRecord.bloodTestResult || selectedRecord.BloodTestResult);
+                    return getBloodTestResultTag(displayResult);
+                  })()}
                 </div>
               </div>
             </Col>
@@ -915,10 +956,19 @@ const DonationRecordsPage = () => {
       key: 'bloodTestResult',
       width: '15%',
       render: (_, record) => {
-        const result = record.bloodTestResult || record.BloodTestResult;
+        // Check if donor cannot donate (same logic as detailed view)
+        const cannotDonateField = record.cannotDonate || false;
+        const registrationId = record.registrationId || record.RegistrationId;
+        const registrationStatus = registrationStatuses[registrationId];
+        const isStatusIneligible = registrationStatus === 1001; // "Không đủ điều kiện hiến"
+        const cannotDonate = cannotDonateField || isStatusIneligible;
+        
+        // If cannot donate, show "Không thể hiến máu" (id=5), otherwise show actual result
+        const displayResult = cannotDonate ? 5 : (record.bloodTestResult || record.BloodTestResult);
+        
         return (
           <div style={{ textAlign: 'center' }}>
-            {getBloodTestResultTag(result)}
+            {getBloodTestResultTag(displayResult)}
           </div>
         );
       },
@@ -1003,7 +1053,7 @@ const DonationRecordsPage = () => {
                 {currentView === 'users' && (
                   <Table
                     columns={userColumns}
-                    dataSource={getPaginatedData()}
+                    dataSource={uniqueUsers}
                     rowKey={(user) => user.userId}
                     loading={loading}
                     pagination={false}
@@ -1015,7 +1065,7 @@ const DonationRecordsPage = () => {
                 {currentView === 'userRecords' && (
                   <Table
                     columns={userRecordColumns}
-                    dataSource={getPaginatedData()}
+                    dataSource={userDonationRecords}
                     rowKey={(record) => {
                       return record.donationRecordId || record.DonationRecordId || record.id || Math.random();
                     }}
@@ -1027,61 +1077,6 @@ const DonationRecordsPage = () => {
                 )}
                 
                 {currentView === 'recordDetail' && renderDetailForm()}
-                <div className="custom-pagination">
-                  <div className="pagination-info">
-                    {currentData.length > 0 ? 
-                      `${startRecord}-${endRecord} của ${currentData.length} ${currentView === 'records' ? 'hồ sơ hiến máu' : 'thông tin'}` : 
-                      `0 ${currentView === 'records' ? 'hồ sơ hiến máu' : 'thông tin'}`
-                    }
-                  </div>
-                  <div className="pagination-buttons">
-                    <button 
-                      className="pagination-btn" 
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage <= 1}
-                    >
-                      {'<'}
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <button 
-                        key={page}
-                        className={`pagination-btn ${page === currentPage ? 'active' : 'inactive'}`}
-                        onClick={() => handlePageChange(page)}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                    <button 
-                      className="pagination-btn" 
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage >= totalPages}
-                    >
-                      {'>'}
-                    </button>
-                  </div>
-                  <div className="pagination-controls">
-                    <select 
-                      className="page-size-select"
-                      value={pageSize}
-                      onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                    >
-                      <option value={8}>8 / page</option>
-                      <option value={16}>16 / page</option>
-                      <option value={24}>24 / page</option>
-                    </select>
-                    <input 
-                      placeholder="Go to" 
-                      className="goto-input"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          handleGoToPage(Number(e.target.value));
-                          e.target.value = '';
-                        }
-                      }}
-                    />
-                    <span className="goto-label">Page</span>
-                  </div>
-                </div>
               </div>
             </div>
           </Content>

@@ -152,6 +152,73 @@ export const AdminAPI = {
     }
   },
 
+  // Auto-update donor statuses for schedules that are "ĐÃ QUA" (not in upcoming list)
+  autoUpdateExpiredScheduleDonors: async (upcomingDates) => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      // Get all schedules and registrations
+      const [schedulesResponse, registrationsResponse] = await Promise.all([
+        AdminAPI.getDonationSchedules(),
+        AdminAPI.getDonationRegistrations()
+      ]);
+      
+      const allSchedules = schedulesResponse.data || [];
+      const allRegistrations = registrationsResponse.data || [];
+      
+      // Find schedules that are "ĐÃ QUA" (not in upcoming dates)
+      const expiredSchedules = allSchedules.filter(schedule => {
+        const scheduleDate = schedule.scheduleDate;
+        if (scheduleDate) {
+          const dateStr = new Date(scheduleDate).toISOString().split('T')[0];
+          return !upcomingDates.has(dateStr); // Not in upcoming = "ĐÃ QUA"
+        }
+        return false;
+      });
+      
+      let totalUpdated = 0;
+      
+      // For each expired schedule, update donor statuses
+      for (const schedule of expiredSchedules) {
+        const scheduleId = schedule.scheduleId || schedule.ScheduleId || schedule.id || schedule.Id;
+        
+        // Get registrations for this expired schedule
+        const scheduleRegistrations = allRegistrations.filter(reg => {
+          const regScheduleId = reg.scheduleId || reg.ScheduleId || reg.ScheduleID;
+          return regScheduleId == scheduleId;
+        });
+        
+        // Find registrations with status id=1 (registered/pending)
+        const pendingRegistrations = scheduleRegistrations.filter(reg => {
+          const statusId = reg.RegistrationStatusID || reg.registrationStatusId || reg.RegistrationStatusId;
+          return statusId == 1;
+        });
+        
+        // Update each pending registration to status id=5 (Không xuất hiện)
+        for (const reg of pendingRegistrations) {
+          const registrationId = reg.registrationId || reg.RegistrationID || reg.id;
+          try {
+            await AdminAPI.updateDonationRegistrationStatus(registrationId, 5);
+            totalUpdated++;
+            console.log(`Updated registration ${registrationId} to "Không xuất hiện" status`);
+          } catch (error) {
+            console.error(`Failed to update registration ${registrationId}:`, error);
+          }
+        }
+      }
+      
+      return {
+        success: true,
+        updatedCount: totalUpdated,
+        expiredSchedulesCount: expiredSchedules.length,
+        message: `Đã cập nhật ${totalUpdated} người hiến sang trạng thái "Không xuất hiện" cho ${expiredSchedules.length} lịch đã qua`
+      };
+    } catch (error) {
+      console.error("Error auto-updating expired schedule donors:", error);
+      throw error;
+    }
+  },
+
   // Create new donation schedule
   createDonationSchedule: async (scheduleData) => {
     try {
