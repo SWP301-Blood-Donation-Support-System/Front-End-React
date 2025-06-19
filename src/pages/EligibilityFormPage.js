@@ -37,44 +37,102 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
   const [daysLeft, setDaysLeft] = useState(0);
   const [isViewOnly, setIsViewOnly] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();  const bookingData = location.state?.bookingData;// Function to fetch user eligibility data
+  const location = useLocation();  const bookingData = location.state?.bookingData;// Function to fetch user eligibility data from API
   const fetchUserEligibilityData = async () => {
     try {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      // Get userId from localStorage
+      const user = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
       
-      if (!userInfo) {
-        console.log('No userInfo found in localStorage');
+      if (!user || !token) {
+        console.log('No user or token found in localStorage');
         return;
       }
 
-      // Get from localStorage (like ProfilePage does)
-      console.log('UserInfo from localStorage:', userInfo);
-      const eligibleDate = userInfo.nextEligibleDonationDate || userInfo.NextEligibleDonationDate;
+      const userData = JSON.parse(user);
+      const userId = userData.UserID || userData.UserId || userData.id || userData.userId || userData.Id;
       
-      if (eligibleDate) {
-        console.log('Found eligible date in localStorage:', eligibleDate);
-        setUserEligibleDate(eligibleDate);
+      if (!userId) {
+        console.log('No userId found in user data');
+        return;
+      }
+
+      console.log('Fetching eligibility data for userId:', userId);      // Call API to get latest user data
+      const response = await UserAPI.getUserById(userId);
+      console.log('API response for eligibility check:', response);
+      console.log('API response data:', response?.data);
+      
+      if (response && response.data) {
+        const userData = response.data;
+        console.log('Complete user data from API:', userData);
+        console.log('lastDonationDate:', userData.lastDonationDate);
+        console.log('nextEligibleDonationDate:', userData.nextEligibleDonationDate);
+        console.log('NextEligibleDonationDate:', userData.NextEligibleDonationDate);
         
-        const currentDate = new Date();
-        const nextEligibleDate = new Date(eligibleDate);
+        const eligibleDate = userData.nextEligibleDonationDate || userData.NextEligibleDonationDate;
         
-        // Đặt giờ về 0:0:0 để so sánh chỉ ngày
-        currentDate.setHours(0, 0, 0, 0);
-        nextEligibleDate.setHours(0, 0, 0, 0);
-        
-        const timeDiff = nextEligibleDate - currentDate;
-        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        setDaysLeft(daysDiff > 0 ? daysDiff : 0);
-        
-        console.log('Current date:', currentDate);
-        console.log('Next eligible date:', nextEligibleDate);
-        console.log('Days left:', daysDiff);      } else {
-        console.log('No eligible date found in localStorage, user can donate anytime');
-        setUserEligibleDate(null);
-        setDaysLeft(0);
+        if (eligibleDate) {
+          console.log('Found eligible date from API:', eligibleDate);
+          setUserEligibleDate(eligibleDate);
+          
+          const currentDate = new Date();
+          const nextEligibleDate = new Date(eligibleDate);
+          
+          // Đặt giờ về 0:0:0 để so sánh chỉ ngày
+          currentDate.setHours(0, 0, 0, 0);
+          nextEligibleDate.setHours(0, 0, 0, 0);
+          
+          const timeDiff = nextEligibleDate - currentDate;
+          const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+          setDaysLeft(daysDiff > 0 ? daysDiff : 0);
+          
+          console.log('Current date:', currentDate);
+          console.log('Next eligible date:', nextEligibleDate);
+          console.log('Days left:', daysDiff);
+        } else {
+          console.log('No eligible date found from API, user can donate anytime');
+          setUserEligibleDate(null);
+          setDaysLeft(0);
+        }
+      } else {
+        console.log('No response from API, fallback to localStorage');
+        // Fallback to localStorage if API fails
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo) {
+          const eligibleDate = userInfo.nextEligibleDonationDate || userInfo.NextEligibleDonationDate;
+          if (eligibleDate) {
+            setUserEligibleDate(eligibleDate);
+            const currentDate = new Date();
+            const nextEligibleDate = new Date(eligibleDate);
+            currentDate.setHours(0, 0, 0, 0);
+            nextEligibleDate.setHours(0, 0, 0, 0);
+            const timeDiff = nextEligibleDate - currentDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            setDaysLeft(daysDiff > 0 ? daysDiff : 0);
+          }
+        }
       }
     } catch (error) {
-      console.error('Error fetching user eligibility data:', error);
+      console.error('Error fetching user eligibility data from API:', error);
+      // Fallback to localStorage if API call fails
+      try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo) {
+          const eligibleDate = userInfo.nextEligibleDonationDate || userInfo.NextEligibleDonationDate;
+          if (eligibleDate) {
+            setUserEligibleDate(eligibleDate);
+            const currentDate = new Date();
+            const nextEligibleDate = new Date(eligibleDate);
+            currentDate.setHours(0, 0, 0, 0);
+            nextEligibleDate.setHours(0, 0, 0, 0);
+            const timeDiff = nextEligibleDate - currentDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            setDaysLeft(daysDiff > 0 ? daysDiff : 0);
+          }
+        }
+      } catch (fallbackError) {
+        console.error('Error in fallback to localStorage:', fallbackError);
+      }
     }
   };
 
@@ -454,8 +512,7 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       
       // Đóng loading
       loadingMessage();
-      
-      if (response.ok) {
+        if (response.ok) {
         // Đăng ký thành công
         setIsEligible(true);
         setCurrentStep(1);
@@ -464,7 +521,12 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
           duration: 5,
         });
         
-      } else if (response.status === 400) {
+        // Refetch eligibility data để cập nhật nextEligibleDonationDate
+        setTimeout(() => {
+          fetchUserEligibilityData();
+        }, 1000); // Đợi 1 giây cho API backend cập nhật dữ liệu
+        
+      }else if (response.status === 400) {
         // Parse response để lấy thông tin lỗi chi tiết
         let errorData;
         try {

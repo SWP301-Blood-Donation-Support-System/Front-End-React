@@ -242,4 +242,21 @@ export const UserAPI = {
             throw error;
         }
     },
+
+    // API để lấy thông tin user theo ID (cho thông tin hiến máu)
+    getUserById: async (userId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${BASE_URL}/api/User/${userId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error("Error fetching user by ID:", error);
+            throw error;
+        }
+    },
 }

@@ -48,6 +48,9 @@ const { Option } = Select;
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  // State riêng cho thông tin hiến máu
+  const [donationInfo, setDonationInfo] = useState(null);
+  const [donationInfoLoading, setDonationInfoLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [bloodTypes, setBloodTypes] = useState([]);
@@ -66,7 +69,88 @@ const ProfilePage = () => {
   const [selectedDonationRecord, setSelectedDonationRecord] = useState(null);
   const [donationDetailVisible, setDonationDetailVisible] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
+  const location = useLocation();  // Function để lấy thông tin hiến máu từ API getUserById
+  const fetchDonationInfo = async () => {
+    try {
+      setDonationInfoLoading(true);
+      
+      // Lấy userId từ localStorage
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      console.log("📱 LocalStorage userInfo:", userInfo);
+      
+      // Kiểm tra các trường userId có thể có
+      const userId = userInfo?.userId || userInfo?.UserId || userInfo?.UserID || userInfo?.id;
+      console.log("🔍 Extracted userId:", userId);
+      
+      if (!userInfo || !userId) {
+        console.error("❌ No user ID found in localStorage");
+        console.error("❌ Available userInfo keys:", userInfo ? Object.keys(userInfo) : "No userInfo");
+        
+        // Fallback to localStorage data immediately
+        if (userInfo) {
+          const fallbackData = {
+            donationCount: userInfo.donationCount || userInfo.DonationCount || 0,
+            lastDonationDate: userInfo.lastDonationDate || userInfo.LastDonationDate,
+            nextEligibleDonationDate: userInfo.nextEligibleDonationDate || userInfo.NextEligibleDonationDate
+          };
+          console.log("🔄 Using localStorage fallback immediately:", fallbackData);
+          setDonationInfo(fallbackData);
+        }
+        return;
+      }
+
+      console.log("🚀 Fetching donation info for user ID:", userId);
+      const response = await UserAPI.getUserById(userId);
+      console.log("📡 API Response status:", response.status);
+      console.log("📡 API Response data:", response.data);
+      
+      if (response.status === 200 && response.data) {
+        const userData = response.data;
+        console.log("✅ User data from API:", userData);
+        console.log("🩸 Donation Count from API:", userData.donationCount);
+        console.log("📅 Last Donation Date from API:", userData.lastDonationDate);
+        console.log("🗓️ Next Eligible Date from API:", userData.nextEligibleDonationDate);
+        
+        const newDonationInfo = {
+          donationCount: userData.donationCount || userData.DonationCount || 0,
+          lastDonationDate: userData.lastDonationDate || userData.LastDonationDate,
+          nextEligibleDonationDate: userData.nextEligibleDonationDate || userData.NextEligibleDonationDate
+        };
+        
+        console.log("💾 Setting donationInfo to:", newDonationInfo);
+        setDonationInfo(newDonationInfo);
+      } else {
+        console.warn("⚠️ API call successful but no data returned");
+        // Fallback to localStorage data
+        const fallbackData = {
+          donationCount: userInfo.donationCount || userInfo.DonationCount || 0,
+          lastDonationDate: userInfo.lastDonationDate || userInfo.LastDonationDate,
+          nextEligibleDonationDate: userInfo.nextEligibleDonationDate || userInfo.NextEligibleDonationDate
+        };
+        console.log("🔄 Using localStorage fallback:", fallbackData);
+        setDonationInfo(fallbackData);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching donation info:", error);
+      console.error("❌ Error details:", error.response?.data);
+      console.error("❌ Error status:", error.response?.status);
+      
+      // Fallback to localStorage data
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      if (userInfo) {
+        const fallbackData = {
+          donationCount: userInfo.donationCount || userInfo.DonationCount || 0,
+          lastDonationDate: userInfo.lastDonationDate || userInfo.LastDonationDate,
+          nextEligibleDonationDate: userInfo.nextEligibleDonationDate || userInfo.NextEligibleDonationDate
+        };
+        console.log("🔄 Error fallback to localStorage data:", fallbackData);
+        setDonationInfo(fallbackData);
+      }
+    } finally {
+      setDonationInfoLoading(false);
+      console.log("🏁 fetchDonationInfo completed");
+    }
+  };
 
   useEffect(() => {
     // Check if user was redirected here for profile update
@@ -252,12 +336,17 @@ const ProfilePage = () => {
     fetchGenders();
     fetchOccupations();
     fetchRegistrationStatuses();
-    fetchTimeSlots();
-    fetchDonationSchedule();
+    fetchTimeSlots();    fetchDonationSchedule();
     fetchDonationRecords();
     fetchDonationTypes();
-    fetchBloodTestResults();
-  }, [navigate, location]);  // Fetch user's donation registrations
+    fetchBloodTestResults();    // Fetch thông tin hiến máu từ API getUserById
+    fetchDonationInfo();
+  }, [navigate, location]);
+
+  // Debug useEffect to track donationInfo changes
+  useEffect(() => {
+    console.log("🔄 donationInfo state changed:", donationInfo);
+  }, [donationInfo]);
   const fetchRegistrations = async () => {
     try {
       setRegistrationsLoading(true);
@@ -772,8 +861,7 @@ const ProfilePage = () => {
             {/* Personal Information */}
             <Col xs={24} lg={12}>
               <Card title="Thông Tin Cá Nhân" className="profile-info-card">
-                <Descriptions column={1} size="middle">
-                  <Descriptions.Item 
+                <Descriptions column={1} size="middle">                  <Descriptions.Item 
                     label={<span><UserOutlined /> Họ và Tên</span>}
                   >
                     {!editMode ? (
@@ -784,46 +872,6 @@ const ProfilePage = () => {
                         onChange={(e) => handleFieldChange('fullName', e.target.value)}
                         placeholder="Enter full name"
                       />
-                    )}
-                  </Descriptions.Item>
-                  <Descriptions.Item 
-                    label={<span><CalendarOutlined /> Ngày Sinh</span>}
-                  >
-                    {!editMode ? (
-                      formatDate(user.DateOfBirth)
-                    ) : (
-                      <DatePicker 
-                        value={editValues.dateOfBirth ? dayjs(editValues.dateOfBirth) : null}
-                        onChange={(date) => handleFieldChange('dateOfBirth', date ? date.format('YYYY-MM-DD') : null)}
-                        format="DD/MM/YYYY"
-                        style={{ width: '100%' }}
-                      />
-                    )}
-                  </Descriptions.Item>
-                  <Descriptions.Item 
-                    label={<span><TeamOutlined /> Giới Tính</span>}
-                    key={`gender-${genders.length}`}
-                  >
-                    {!editMode ? (
-                      getGenderDisplay(user.GenderId || user.GenderID)
-                    ) : (
-                      genders.length > 0 ? (
-                        <Select 
-                          key={`gender-select-${genders.length}-${editValues.genderID}`}
-                          value={editValues.genderID}
-                          onChange={(value) => handleFieldChange('genderID', value)}
-                          placeholder="Select gender"
-                          style={{ width: '100%' }}
-                        >
-                          {genders.map(gender => (
-                            <Option key={gender.id} value={gender.id}>
-                              {gender.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      ) : (
-                        <Select placeholder="Loading genders..." disabled style={{ width: '100%' }} />
-                      )
                     )}
                   </Descriptions.Item>
                   <Descriptions.Item 
@@ -942,8 +990,7 @@ const ProfilePage = () => {
             </Col>
 
             {/* Donation Information */}
-            <Col span={24}>
-              <Card 
+            <Col span={24}>              <Card 
                 title={
                   <span>
                     <HeartOutlined style={{ marginRight: '8px', color: '#ff4d4f' }} />
@@ -951,6 +998,7 @@ const ProfilePage = () => {
                   </span>
                 } 
                 className="profile-donation-card"
+                loading={donationInfoLoading}
               >
                 <Row gutter={[24, 16]}>
                   <Col xs={24} sm={8}>
@@ -958,10 +1006,18 @@ const ProfilePage = () => {
                       <div className="stat-icon">
                         <HeartOutlined style={{ fontSize: '24px', color: '#ff4d4f' }} />
                       </div>
-                      <div className="stat-content">
-                        <div className="stat-label">Số lần hiến máu</div>
-                        <div className="stat-value">
-                          {user.donationCount || user.DonationCount || 0} lần
+                      <div className="stat-content">                        <div className="stat-label">Số lần hiến máu</div>                        <div className="stat-value">
+                          {(() => {
+                            const count = donationInfo?.donationCount ?? user?.donationCount ?? user?.DonationCount ?? 0;
+                            console.log("🎯 Display donationCount - Current state:", {
+                              donationInfo: donationInfo,
+                              donationInfoCount: donationInfo?.donationCount,
+                              userDonationCount: user?.donationCount,
+                              userDonationCountCaps: user?.DonationCount,
+                              finalValue: count
+                            });
+                            return count;
+                          })()} lần
                         </div>
                       </div>
                     </div>
@@ -975,8 +1031,8 @@ const ProfilePage = () => {
                       <div className="stat-content">
                         <div className="stat-label">Lần hiến gần nhất</div>
                         <div className="stat-value">
-                          {user.lastDonationDate || user.LastDonationDate 
-                            ? formatDate(user.lastDonationDate || user.LastDonationDate)
+                          {(donationInfo?.lastDonationDate || user?.lastDonationDate || user?.LastDonationDate)
+                            ? formatDate(donationInfo?.lastDonationDate || user?.lastDonationDate || user?.LastDonationDate)
                             : 'Chưa hiến máu'
                           }
                         </div>
@@ -993,17 +1049,17 @@ const ProfilePage = () => {
                         <div className="stat-label">Có thể hiến tiếp</div>
                         <div className="stat-value-with-tag">
                           <span className="stat-value">
-                            {user.nextEligibleDonationDate || user.NextEligibleDonationDate 
-                              ? formatDate(user.nextEligibleDonationDate || user.NextEligibleDonationDate)
+                            {(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate)
+                              ? formatDate(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate)
                               : 'Chưa xác định'
                             }
                           </span>
-                          {user.nextEligibleDonationDate || user.NextEligibleDonationDate ? (
+                          {(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate) ? (
                             <span className="stat-tag">
-                              {new Date(user.nextEligibleDonationDate || user.NextEligibleDonationDate) > new Date() 
+                              {new Date(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate) > new Date() 
                                 ? (
                                   <Tag color="orange">
-                                    Cần chờ thêm {Math.ceil((new Date(user.nextEligibleDonationDate || user.NextEligibleDonationDate) - new Date()) / (1000 * 60 * 60 * 24))} ngày
+                                    Cần chờ thêm {Math.ceil((new Date(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate) - new Date()) / (1000 * 60 * 60 * 24))} ngày
                                   </Tag>
                                 ) : (
                                   <Tag color="green">
