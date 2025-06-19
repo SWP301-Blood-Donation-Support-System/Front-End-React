@@ -14,6 +14,7 @@ import StaffPage from './admin/pages/StaffPage';
 import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
 import DonationRecordsPage from './admin/pages/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
+import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import './styles/main.scss';
 
 function App() {
@@ -46,10 +47,26 @@ function App() {
             <Route path="/booking" element={<BookingPage />} />
             <Route path="/eligibility" element={<EligibilityFormPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/staff" element={<StaffPage />} />
-            <Route path="/staff/schedule-management" element={<ScheduleManagementPage />} />
-            <Route path="/staff/donation-records" element={<DonationRecordsPage />} />
-            <Route path="/staff/donation-records/create" element={<CreateDonationRecordPage />} />
+            <Route path="/staff" element={
+              <AdminProtectedRoute>
+                <StaffPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/schedule-management" element={
+              <AdminProtectedRoute>
+                <ScheduleManagementPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/donation-records" element={
+              <AdminProtectedRoute>
+                <DonationRecordsPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/donation-records/create" element={
+              <AdminProtectedRoute>
+                <CreateDonationRecordPage />
+              </AdminProtectedRoute>
+            } />
           </Routes>
         </div>
       </Router>
