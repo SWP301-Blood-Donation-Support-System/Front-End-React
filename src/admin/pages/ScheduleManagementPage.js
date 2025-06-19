@@ -49,6 +49,7 @@ const ScheduleManagementPage = () => {
   const [statusChanges, setStatusChanges] = useState({}); // Track status changes per registration
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [pendingStatusChange, setPendingStatusChange] = useState(null);
+  const [validationMessages, setValidationMessages] = useState({}); // Track validation messages per registration
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -71,6 +72,13 @@ const ScheduleManagementPage = () => {
   useEffect(() => {
     fetchSchedules();
   }, [upcomingDates, scheduleType]);
+
+  // Auto-update expired schedules when upcoming dates are loaded
+  useEffect(() => {
+    if (upcomingDates.size > 0) {
+      autoUpdateExpiredScheduleDonors();
+    }
+  }, [upcomingDates]);
 
   const fetchAllDonors = async () => {
     try {
@@ -249,7 +257,14 @@ const ScheduleManagementPage = () => {
           setDonors(prev => ({ ...prev, ...newDonorData }));
         }
         
-        setRegistrations(filteredRegistrations);
+        // Sort registrations by time slot ID
+        const sortedRegistrations = filteredRegistrations.sort((a, b) => {
+          const timeSlotA = a.TimeSlotID || a.timeSlotId || a.TimeSlotId || 0;
+          const timeSlotB = b.TimeSlotID || b.timeSlotId || b.TimeSlotId || 0;
+          return timeSlotA - timeSlotB; // Sort in ascending order (slot 1, 2, 3, 4)
+        });
+        
+        setRegistrations(sortedRegistrations);
       } catch (error) {
         console.error('Error fetching registrations:', error);
         setRegistrations([]);
@@ -308,7 +323,27 @@ const ScheduleManagementPage = () => {
   };
 
   // Handle status change dropdown
-  const handleStatusChange = (registrationId, newStatusId) => {
+  const handleStatusChange = async (registrationId, newStatusId) => {
+    // Clear any existing validation message for this registration
+    setValidationMessages(prev => {
+      const updated = { ...prev };
+      delete updated[registrationId];
+      return updated;
+    });
+
+    // If trying to set status to "Đã hoàn thành" (id=3), validate first
+    if (newStatusId === 3) {
+      const recordExists = await checkDonationRecordExists(registrationId);
+      if (!recordExists) {
+        // Show validation message in the UI
+        setValidationMessages(prev => ({
+          ...prev,
+          [registrationId]: 'Không có hồ sơ người hiến, không thể hoàn thành'
+        }));
+        return; // Don't update the status change
+      }
+    }
+
     setStatusChanges(prev => ({
       ...prev,
       [registrationId]: newStatusId
@@ -325,6 +360,25 @@ const ScheduleManagementPage = () => {
 
     setPendingStatusChange({ registrationId, newStatusId });
     setConfirmModalVisible(true);
+  };
+
+  // Check if donation record exists for a registration
+  const checkDonationRecordExists = async (registrationId) => {
+    try {
+      const response = await AdminAPI.getDonationRecords();
+      const donationRecords = response.data || [];
+      
+      // Check if any donation record has this registrationId
+      const recordExists = donationRecords.some(record => {
+        const recordRegId = record.registrationId || record.RegistrationId || record.RegistrationID;
+        return recordRegId == registrationId;
+      });
+      
+      return recordExists;
+    } catch (error) {
+      console.error('Error checking donation record existence:', error);
+      return false;
+    }
   };
 
   // Execute status update
@@ -406,6 +460,26 @@ const ScheduleManagementPage = () => {
         fromScheduleManagement: true 
       } 
     });
+  };
+
+  // Auto-update donor statuses for schedules with status "ĐÃ QUA" 
+  const autoUpdateExpiredScheduleDonors = async () => {
+    if (upcomingDates.size === 0) return; // Wait for upcoming dates to load
+    
+    try {
+      const result = await AdminAPI.autoUpdateExpiredScheduleDonors(upcomingDates);
+      if (result.success && result.updatedCount > 0) {
+        message.info(result.message);
+        
+        // Refresh the current view if we're looking at registrations
+        if (currentView === 'registrations' && selectedSchedule) {
+          handleViewDetails(selectedSchedule);
+        }
+      }
+    } catch (error) {
+      console.error('Error auto-updating expired schedules:', error);
+      message.error('Không thể tự động cập nhật trạng thái cho các lịch đã qua');
+    }
   };
 
   const currentData = currentView === 'schedules' ? schedules : registrations;
@@ -647,6 +721,21 @@ const ScheduleManagementPage = () => {
                     Từ chối
                   </Button>
                 </Space>
+              )}
+
+              {/* Show validation message if exists */}
+              {validationMessages[registrationId] && (
+                <div style={{ 
+                  fontSize: '11px', 
+                  color: '#ff4d4f', 
+                  marginTop: '4px',
+                  padding: '2px 4px',
+                  backgroundColor: '#fff2f0',
+                  border: '1px solid #ffccc7',
+                  borderRadius: '4px'
+                }}>
+                  {validationMessages[registrationId]}
+                </div>
               )}
 
               {/* Show "Tạo hồ sơ hiến" button when status is 2 (Đã có mặt) */}

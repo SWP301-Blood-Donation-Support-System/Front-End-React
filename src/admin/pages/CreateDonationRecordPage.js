@@ -33,11 +33,9 @@ const CreateDonationRecordPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [donationTypes, setDonationTypes] = useState([]);
-  const [bloodTestResults, setBloodTestResults] = useState([]);
 
   useEffect(() => {
     fetchDonationTypes();
-    fetchBloodTestResults();
     
     // Handle pre-filled data from schedule management
     const preFilledData = location.state?.preFilledData;
@@ -91,14 +89,7 @@ const CreateDonationRecordPage = () => {
     }
   };
 
-  const fetchBloodTestResults = async () => {
-    try {
-      const response = await AdminAPI.getBloodTestResults();
-      setBloodTestResults(response.data || []);
-    } catch (error) {
-      console.error('Error fetching blood test results:', error);
-    }
-  };
+
 
 
 
@@ -113,8 +104,8 @@ const CreateDonationRecordPage = () => {
         donorBloodPressure: values.donorBloodPressure || '',
         donationTypeId: values.donationTypeId,
         volumeDonated: values.volumeDonated || 0,
-        note: values.note || '',
-        bloodTestResult: values.bloodTestResult || 0,
+        note: '',
+        bloodTestResult: 1, // Automatically set to 1 (Đang chờ xét nghiệm)
         cannotDonate: values.cannotDonate || false
       };
 
@@ -254,7 +245,7 @@ const CreateDonationRecordPage = () => {
                     <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
                     
                     <Row gutter={[24, 16]}>
-                      <Col span={12}>
+                      <Col span={8}>
                         <Form.Item
                           label="LOẠI HIẾN MÁU"
                           name="donationTypeId"
@@ -269,7 +260,7 @@ const CreateDonationRecordPage = () => {
                           </Select>
                         </Form.Item>
                       </Col>
-                      <Col span={12}>
+                      <Col span={8}>
                         <Form.Item
                           label="THỂ TÍCH HIẾN (ml)"
                           name="volumeDonated"
@@ -283,37 +274,13 @@ const CreateDonationRecordPage = () => {
                           />
                         </Form.Item>
                       </Col>
-                    </Row>
-                    
-                    <Divider orientation="left">KẾT LUẬN</Divider>
-                    
-                    <Row gutter={[24, 16]}>
-                      <Col span={12}>
-                        <Form.Item
-                          label="KẾT QUẢ XÉT NGHIỆM"
-                          name="bloodTestResult"
-                          rules={[{ required: true, message: 'Vui lòng chọn kết quả xét nghiệm!' }]}
+                      <Col span={8}>
+                        <Form.Item 
+                          label="KHÔNG THỂ HIẾN MÁU ĐƯỢC" 
+                          name="cannotDonate" 
+                          valuePropName="checked"
                         >
-                          <Select placeholder="Chọn kết quả xét nghiệm">
-                            {bloodTestResults.map(result => (
-                              <Option key={result.id || result.Id} value={result.id || result.Id}>
-                                {result.name || result.Name}
-                              </Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="cannotDonate" valuePropName="checked">
                           <Checkbox>Không thể hiến máu được</Checkbox>
-                        </Form.Item>
-                      </Col>
-                      <Col span={24}>
-                        <Form.Item label="GHI CHÚ" name="note">
-                          <Input.TextArea 
-                            rows={3}
-                            placeholder="Nhập ghi chú (không bắt buộc)"
-                          />
                         </Form.Item>
                       </Col>
                     </Row>
