@@ -251,4 +251,30 @@ export const UserAPI = {
             throw error;
         }
     },
+
+    // Check-in donor using National ID (CCCD)
+    checkinDonor: async (nationalId) => {
+        try {
+            const token = localStorage.getItem("token");
+            console.log("API Call - Checkin with National ID:", nationalId);
+            
+            const response = await axios.put(`${BASE_URL}/api/DonationRegistration/checkin/${nationalId}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            console.log("Checkin response:", response);
+            console.log("Response status:", response.status);
+            console.log("Response data:", response.data);
+            return response;
+        } catch (error) {
+            console.error("Error during donor checkin:", error);
+            console.error("Error response:", error.response);
+            console.error("Error response data:", error.response?.data);
+            console.error("Error response status:", error.response?.status);
+            throw error;
+        }
+    },
 }

@@ -825,7 +825,7 @@ const ProfilePage = () => {
               <Card className="profile-header-card">
                 <div className="profile-header">                  <Avatar
                     size={120}
-                    src={user.picture || "/images/huy1.png"} // Use Google profile picture if available
+                    src={user.picture || "/images/huy.png"} // Use Google profile picture if available
                     icon={<UserOutlined />}
                     className="profile-avatar"
                   />
