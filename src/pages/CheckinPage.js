@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Form, Input, Button, Typography } from 'antd';
-import { IdcardOutlined } from '@ant-design/icons';
+import { Layout, Card, Form, Input, Button, Typography, message, Modal } from 'antd';
+import { IdcardOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { UserAPI } from '../api/User';
 
 const CheckinPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -16,14 +19,30 @@ const CheckinPage = () => {
     console.log('CCCD entered:', values.cccd);
     
     try {
-      // TODO: Add your checkin logic here
-      // For now, just log the CCCD value
-      setTimeout(() => {
-        console.log('Processing CCCD:', values.cccd);
-        setLoading(false);
-      }, 1000);
+      const response = await UserAPI.checkinDonor(values.cccd);
+      
+      if (response.status === 200) {
+        console.log('Checkin successful:', response.data);
+        // Clear the form after successful checkin
+        form.resetFields();
+        // Show success modal
+        setSuccessModalVisible(true);
+      }
     } catch (error) {
       console.error('Error during checkin:', error);
+      
+      // Handle different error scenarios
+      if (error.response?.status === 404) {
+        // Show error modal for National ID not found
+        setErrorModalVisible(true);
+      } else if (error.response?.status === 400) {
+        message.error('Dữ liệu không hợp lệ hoặc đã check-in rồi!');
+      } else if (error.response?.status === 401) {
+        message.error('Không có quyền truy cập!');
+      } else {
+        message.error('Có lỗi xảy ra trong quá trình check-in!');
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -116,6 +135,122 @@ const CheckinPage = () => {
           </Form>
         </Card>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        open={successModalVisible}
+        onCancel={() => setSuccessModalVisible(false)}
+        footer={[
+          <Button 
+            key="ok" 
+            type="primary" 
+            onClick={() => setSuccessModalVisible(false)}
+            style={{
+              background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '600'
+            }}
+          >
+            Đóng
+          </Button>
+        ]}
+        centered
+        width={400}
+        style={{
+          borderRadius: '16px'
+        }}
+        bodyStyle={{
+          textAlign: 'center',
+          padding: '40px 20px'
+        }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <CheckCircleOutlined 
+            style={{ 
+              fontSize: '80px', 
+              color: '#52c41a',
+              marginBottom: '20px'
+            }} 
+          />
+          <Typography.Title 
+            level={3} 
+            style={{ 
+              color: '#000000',
+              marginBottom: '16px',
+              fontWeight: '700'
+            }}
+          >
+            Bạn đã check-in thành công
+          </Typography.Title>
+          <Typography.Text 
+            style={{ 
+              color: '#666666',
+              fontSize: '16px'
+            }}
+          >
+            Cảm ơn bạn đã tham gia hiến máu cứu người!
+                     </Typography.Text>
+         </div>
+       </Modal>
+
+      {/* Error Modal for National ID not found */}
+      <Modal
+        open={errorModalVisible}
+        onCancel={() => setErrorModalVisible(false)}
+        footer={[
+          <Button 
+            key="ok" 
+            type="primary" 
+            onClick={() => setErrorModalVisible(false)}
+            style={{
+              background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '600'
+            }}
+          >
+            Đóng
+          </Button>
+        ]}
+        centered
+        width={400}
+        style={{
+          borderRadius: '16px'
+        }}
+        bodyStyle={{
+          textAlign: 'center',
+          padding: '40px 20px'
+        }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <ExclamationCircleOutlined 
+            style={{ 
+              fontSize: '80px', 
+              color: '#ff4d4f',
+              marginBottom: '20px'
+            }} 
+          />
+          <Typography.Title 
+            level={3} 
+            style={{ 
+              color: '#000000',
+              marginBottom: '16px',
+              fontWeight: '700'
+            }}
+          >
+            CCCD không tồn tại
+          </Typography.Title>
+          <Typography.Text 
+            style={{ 
+              color: '#666666',
+              fontSize: '16px'
+            }}
+          >
+            Vui lòng nhập lại số CCCD chính xác
+          </Typography.Text>
+        </div>
+      </Modal>
     </Layout>
   );
 };
