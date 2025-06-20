@@ -50,18 +50,10 @@ const CreateDonationRecordPage = () => {
           username: preFilledData.username
         };
 
-        // Calculate donation date time based on schedule date and time slot
-        if (preFilledData.scheduleDate && preFilledData.timeSlot) {
-          const scheduleDate = dayjs(preFilledData.scheduleDate);
-          const startTime = preFilledData.timeSlot.startTime; // Format: "HH:mm:ss"
-          const [hours, minutes] = startTime.split(':');
-          
-          // Set the donation time to the start of the time slot
-          const donationDateTime = scheduleDate
-            .hour(parseInt(hours))
-            .minute(parseInt(minutes))
-            .second(0);
-          
+        // Use the schedule date directly 
+        if (preFilledData.scheduleDate) {
+          // Use the schedule date without adding time - just the date from the schedule
+          const donationDateTime = dayjs(preFilledData.scheduleDate);
           formValues.donationDateTime = donationDateTime;
         }
 
@@ -70,13 +62,6 @@ const CreateDonationRecordPage = () => {
         // Show success message
         message.success('Đã điền sẵn thông tin từ lịch hiến máu!');
       }, 500); // Small delay to ensure form is ready
-    } else {
-      // For normal cases (not from schedule management), auto-fill current date/time
-      setTimeout(() => {
-        form.setFieldsValue({
-          donationDateTime: dayjs() // Current date and time
-        });
-      }, 300);
     }
   }, [location.state, form]);
 
@@ -168,7 +153,7 @@ const CreateDonationRecordPage = () => {
                     onFinish={handleSubmit}
                     requiredMark={false}
                   >
-                    <Row gutter={[24, 16]}>
+                                        <Row gutter={[24, 16]}>
                       <Col span={8}>
                         <Form.Item
                           label="MÃ ĐĂNG KÝ"
@@ -187,9 +172,12 @@ const CreateDonationRecordPage = () => {
                           <Input disabled />
                         </Form.Item>
                       </Col>
+                    </Row>
+                    
+                    <Row gutter={[24, 16]}>
                       <Col span={12}>
                         <Form.Item
-                          label="THỜI GIAN HIẾN MÁU"
+                          label="NGÀY HIẾN MÁU"
                           name="donationDateTime"
                         >
                           <DatePicker 

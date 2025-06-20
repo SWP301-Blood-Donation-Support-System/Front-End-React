@@ -10,6 +10,7 @@ import NewsPage from './pages/NewsPage';
 import BookingPage from './pages/BookingPage';
 import EligibilityFormPage from './pages/EligibilityFormPage';
 import ProfilePage from './pages/ProfilePage';
+import CheckinPage from './pages/CheckinPage';
 import StaffPage from './admin/pages/StaffPage';
 import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
 import DonationRecordsPage from './admin/pages/DonationRecordsPage';
@@ -47,6 +48,7 @@ function App() {
             <Route path="/booking" element={<BookingPage />} />
             <Route path="/eligibility" element={<EligibilityFormPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/checkin" element={<CheckinPage />} />
             <Route path="/staff" element={
               <AdminProtectedRoute>
                 <StaffPage />

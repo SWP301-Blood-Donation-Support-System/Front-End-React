@@ -40,6 +40,7 @@ const DonationRecordsPage = () => {
   const [bloodTestResults, setBloodTestResults] = useState({});
   const [registrationUsers, setRegistrationUsers] = useState({}); // Cache for registration user data
   const [registrationStatuses, setRegistrationStatuses] = useState({}); // Cache for registration status data
+  const [scheduleData, setScheduleData] = useState({}); // Cache for schedule data
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -47,7 +48,7 @@ const DonationRecordsPage = () => {
   
   // View state - for switching between user list, user records, and record details
   const [currentView, setCurrentView] = useState('users'); // 'users' | 'userRecords' | 'recordDetail'
-  const [viewTitle, setViewTitle] = useState('Danh Sách Người Hiến Máu');
+  const [viewTitle, setViewTitle] = useState('Hồ Sơ Người Hiến Máu');
   const [selectedUser, setSelectedUser] = useState(null);
   const [userDonationRecords, setUserDonationRecords] = useState([]);
   
@@ -156,11 +157,16 @@ const DonationRecordsPage = () => {
   const fetchUserDataForRegistrations = async (records) => {
     const userMap = {};
     const statusMap = {};
+    const scheduleMap = {};
     const registrationIds = [...new Set(records.map(record => 
       record.registrationId || record.RegistrationId
     ).filter(Boolean))];
 
     try {
+      // Fetch all schedules once to lookup schedule dates
+      const schedulesResponse = await AdminAPI.getDonationSchedules();
+      const allSchedules = schedulesResponse.data || [];
+      
       // Fetch registration details for each unique registrationId
       const registrationPromises = registrationIds.map(async (regId) => {
         try {
@@ -170,6 +176,18 @@ const DonationRecordsPage = () => {
           // Store registration status
           const statusId = registration?.registrationStatusId || registration?.RegistrationStatusId || registration?.RegistrationStatusID;
           statusMap[regId] = statusId;
+          
+          // Find the schedule for this registration to get the correct date
+          const scheduleId = registration?.scheduleId || registration?.ScheduleId || registration?.ScheduleID;
+          const schedule = allSchedules.find(s => 
+            (s.scheduleId || s.ScheduleId || s.id) == scheduleId
+          );
+          if (schedule) {
+            scheduleMap[regId] = {
+              scheduleDate: schedule.scheduleDate,
+              scheduleId: scheduleId
+            };
+          }
           
           if (registration && registration.donorId) {
             // Use donorId as userId and fetch donor details for username
@@ -199,6 +217,7 @@ const DonationRecordsPage = () => {
       await Promise.all(registrationPromises);
       setRegistrationUsers(userMap);
       setRegistrationStatuses(statusMap);
+      setScheduleData(scheduleMap);
       
       // Create unique users list for first layer
       createUniqueUsersList(userMap);
@@ -264,7 +283,7 @@ const DonationRecordsPage = () => {
   // Layer 2 → Layer 1: Back to users list
   const handleBackToUsers = () => {
     setCurrentView('users');
-    setViewTitle('Danh Sách Người Hiến Máu');
+    setViewTitle('Hồ Sơ Người Hiến Máu');
     setCurrentPage(1);
     setSelectedUser(null);
     setUserDonationRecords([]);
@@ -500,9 +519,24 @@ const DonationRecordsPage = () => {
                 </Col>
                 <Col span={12}>
                   <div className="form-field">
-                    <label className="form-label">THỜI GIAN HIẾN MÁU</label>
+                    <label className="form-label">NGÀY HIẾN MÁU</label>
                     <div className="form-value">
-                      {formatDateTime(selectedRecord.donationDateTime || selectedRecord.DonationDateTime)}
+                      {(() => {
+                        const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
+                        const scheduleInfo = scheduleData[registrationId];
+                        
+                        // Use schedule date if available, otherwise fall back to stored donation date
+                        let displayDate;
+                        if (scheduleInfo && scheduleInfo.scheduleDate) {
+                          // Use the schedule date from the donation schedule
+                          displayDate = scheduleInfo.scheduleDate;
+                        } else {
+                          // Fall back to stored donationDateTime
+                          displayDate = selectedRecord.donationDateTime || selectedRecord.DonationDateTime;
+                        }
+                        
+                        return formatDateTime(displayDate);
+                      })()}
                     </div>
                   </div>
                 </Col>
@@ -672,9 +706,24 @@ const DonationRecordsPage = () => {
             </Col>
             <Col span={12}>
               <div className="form-field">
-                <label className="form-label">THỜI GIAN HIẾN MÁU</label>
+                <label className="form-label">NGÀY HIẾN MÁU</label>
                 <div className="form-value">
-                  {formatDateTime(selectedRecord.donationDateTime || selectedRecord.DonationDateTime)}
+                  {(() => {
+                    const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
+                    const scheduleInfo = scheduleData[registrationId];
+                    
+                    // Use schedule date if available, otherwise fall back to stored donation date
+                    let displayDate;
+                    if (scheduleInfo && scheduleInfo.scheduleDate) {
+                      // Use the schedule date from the donation schedule
+                      displayDate = scheduleInfo.scheduleDate;
+                    } else {
+                      // Fall back to stored donationDateTime
+                      displayDate = selectedRecord.donationDateTime || selectedRecord.DonationDateTime;
+                    }
+                    
+                    return formatDateTime(displayDate);
+                  })()}
                 </div>
               </div>
             </Col>
@@ -824,17 +873,6 @@ const DonationRecordsPage = () => {
       ),
     },
     {
-      title: 'Địa Chỉ',
-      dataIndex: 'address',
-      key: 'address',
-      width: '30%',
-      render: (text) => (
-        <span style={{ color: '#666' }}>
-          {text}
-        </span>
-      ),
-    },
-    {
       title: 'Chi Tiết',
       key: 'actions',
       width: '10%',
@@ -881,16 +919,28 @@ const DonationRecordsPage = () => {
       },
     },
     {
-      title: 'Thời Gian Hiến',
+      title: 'Ngày hiến máu',
       dataIndex: 'donationDateTime',
       key: 'donationDateTime',
       width: '20%',
       render: (_, record) => {
-        const dateTime = record.donationDateTime || record.DonationDateTime;
+        const registrationId = record.registrationId || record.RegistrationId;
+        const scheduleInfo = scheduleData[registrationId];
+        
+        // Use schedule date if available, otherwise fall back to stored donation date
+        let displayDate;
+        if (scheduleInfo && scheduleInfo.scheduleDate) {
+          // Use the schedule date from the donation schedule
+          displayDate = scheduleInfo.scheduleDate;
+        } else {
+          // Fall back to stored donationDateTime
+          displayDate = record.donationDateTime || record.DonationDateTime;
+        }
+        
         return (
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontWeight: 'bold', color: '#52c41a' }}>
-              {formatDateTime(dateTime)}
+              {formatDateTime(displayDate)}
             </div>
           </div>
         );
@@ -991,7 +1041,7 @@ const DonationRecordsPage = () => {
                   </Title>
                   <div style={{ fontSize: '14px', color: '#666', marginLeft: 'auto' }}>
                     <Text strong>
-                      {currentView === 'users' && 'Tổng số người dùng:'}
+                      {currentView === 'users' && 'Tổng số hồ sơ:'}
                       {currentView === 'userRecords' && 'Tổng số hồ sơ:'}
                       {currentView === 'recordDetail' && 'Chi tiết hồ sơ:'}
                     </Text> {currentView === 'users' ? uniqueUsers.length : 
