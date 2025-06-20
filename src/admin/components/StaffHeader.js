@@ -81,10 +81,6 @@ const StaffHeader = () => {
               <MailOutlined />
             </div>
 
-            <div className="header-icon">
-              <MenuOutlined />
-            </div>
-
             <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
               <div className="staff-user-profile">
                 <Avatar
