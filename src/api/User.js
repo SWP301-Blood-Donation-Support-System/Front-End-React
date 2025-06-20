@@ -259,4 +259,22 @@ export const UserAPI = {
             throw error;
         }
     },
+
+    // API để lấy certificate theo ID (trả về file)
+    getCertificateById: async (certificateId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${BASE_URL}/api/Certificate/by-id/${certificateId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Accept': '*/*'
+                },
+                responseType: 'blob' // Important: để nhận file blob
+            });
+            return response;
+        } catch (error) {
+            console.error("Error fetching certificate by ID:", error);
+            throw error;
+        }
+    },
 }
