@@ -60,12 +60,11 @@ const ProfilePage = () => {
   const [showUpdateRequired, setShowUpdateRequired] = useState(false);
   const [editValues, setEditValues] = useState({});
   const [registrations, setRegistrations] = useState([]);
-  const [registrationsLoading, setRegistrationsLoading] = useState(false);
-  const [registrationStatuses, setRegistrationStatuses] = useState([]);
+  const [registrationsLoading, setRegistrationsLoading] = useState(false);  const [registrationStatuses, setRegistrationStatuses] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [donationSchedule, setDonationSchedule] = useState([]);
-  const [donationRecords, setDonationRecords] = useState([]);
-  const [donationTypes, setDonationTypes] = useState({});  const [bloodTestResults, setBloodTestResults] = useState({});
+  const [donationTypes, setDonationTypes] = useState({});
+  const [bloodTestResults, setBloodTestResults] = useState({});
   const [selectedDonationRecord, setSelectedDonationRecord] = useState(null);
   const [donationDetailVisible, setDonationDetailVisible] = useState(false);
   const [certificateDownloading, setCertificateDownloading] = useState(false);
@@ -307,23 +306,9 @@ const ProfilePage = () => {
         if (response.status === 200) {
           const scheduleData = response.data || [];
           setDonationSchedule(scheduleData);
-        }
-      } catch (error) {
+        }      } catch (error) {
         console.error("Error fetching donation schedule:", error);
         // Don't set fallback as schedule is dynamic
-      }
-    };
-
-    const fetchDonationRecords = async () => {
-      try {
-        const response = await UserAPI.getUserDonationRecords();
-        if (response.status === 200) {
-          const recordsData = response.data || [];
-          setDonationRecords(recordsData);
-        }
-      } catch (error) {
-        console.error("Error fetching donation records:", error);
-        setDonationRecords([]);
       }
     };
 
@@ -361,21 +346,18 @@ const ProfilePage = () => {
 
     fetchUserProfile();
     fetchBloodTypes();
-    fetchGenders();
-    fetchOccupations();
+    fetchGenders();    fetchOccupations();
     fetchRegistrationStatuses();
     fetchTimeSlots();    fetchDonationSchedule();
-    fetchDonationRecords();
     fetchDonationTypes();
-    fetchBloodTestResults();    // Fetch thông tin hiến máu từ API getUserById
+    fetchBloodTestResults();// Fetch thông tin hiến máu từ API getUserById
     fetchDonationInfo();
   }, [navigate, location]);
 
   // Debug useEffect to track donationInfo changes
   useEffect(() => {
     console.log("🔄 donationInfo state changed:", donationInfo);
-  }, [donationInfo]);
-  const fetchRegistrations = async () => {
+  }, [donationInfo]);  const fetchRegistrations = async () => {
     try {
       setRegistrationsLoading(true);
       const token = localStorage.getItem("token");
@@ -389,45 +371,19 @@ const ProfilePage = () => {
         return;
       }
 
-      console.log("Calling API to get all registrations");
-      const response = await UserAPI.getDonationRegistrations();
+      const userId = userInfo.UserId || userInfo.UserID || userInfo.id;
+      console.log("Current user ID:", userId);
+
+      console.log("Calling API to get registrations by donor ID:", userId);
+      const response = await UserAPI.getDonationRegistrationsByDonorId(userId);
       console.log("Registrations API response:", response);
       console.log("Registrations API response status:", response.status);
       console.log("Registrations API response data:", response.data);
-        if (response.status === 200) {
-        // Filter registrations for current user
-        const userId = userInfo.UserId || userInfo.UserID || userInfo.id;
-        console.log("Current user ID:", userId);
-        console.log("User ID type:", typeof userId);
-        
-        const allRegistrations = response.data || [];
-        console.log("All registrations:", allRegistrations);
-        console.log("Total registrations count:", allRegistrations.length);
-        
-        // Log some sample donorIds to see the format
-        if (allRegistrations.length > 0) {
-          console.log("Sample donorIds:", allRegistrations.slice(0, 5).map(reg => ({
-            registrationId: reg.registrationId,
-            donorId: reg.donorId,
-            donorIdType: typeof reg.donorId
-          })));
-        }
-        
-        // Filter by donorId matching current user - try both string and number comparison
-        const userRegistrations = allRegistrations.filter(reg => {
-          const donorId = reg.donorId || reg.DonorId || reg.donorID || reg.DonorID;
-          const match = donorId === userId || 
-                       donorId === parseInt(userId) || 
-                       donorId === String(userId) ||
-                       parseInt(donorId) === parseInt(userId);
-          
-          if (match) {
-            console.log("Found matching registration:", reg);
-          }
-          
-          return match;
-        });        console.log("User registrations after filtering:", userRegistrations);
-        console.log("Filtered registrations count:", userRegistrations.length);
+      
+      if (response.status === 200) {
+        const userRegistrations = response.data || [];
+        console.log("User registrations:", userRegistrations);
+        console.log("Registrations count:", userRegistrations.length);
         setRegistrations(userRegistrations);
       }
     } catch (error) {
@@ -589,54 +545,49 @@ const ProfilePage = () => {
     } finally {
       setRegistrationsLoading(false);
     }
-  };
-  // Function to handle certificate download
+  };  // Function to handle certificate download
   const handleDownloadCertificate = async (registrationId) => {
     try {
       setCertificateDownloading(true);
       
-      // Get the donation record to find the actual certificate ID
-      const donationRecord = getDonationRecordByRegistrationId(registrationId);
-      if (!donationRecord) {
-        message.error('Không tìm thấy hồ sơ hiến máu cho đăng ký này');
-        return;
-      }
+      console.log('Downloading certificate for registration ID:', registrationId);
       
-      // Get the actual certificate ID from donation record
-      const certificateId = donationRecord.certificateId || donationRecord.CertificateId || donationRecord.CertificateID;
-      
-      if (!certificateId) {
-        message.error('Chưa có giấy chứng nhận cho lần hiến máu này');
-        return;
-      }
-      
-      console.log('Downloading certificate with ID:', certificateId);
-      
-      // Debug: Log donation record structure
-      console.log('🔍 Donation record structure:', donationRecord);
-      console.log('🔍 Available certificate fields:', {
-        certificateId: donationRecord.certificateId,
-        CertificateId: donationRecord.CertificateId,
-        CertificateID: donationRecord.CertificateID,
-        certificate_id: donationRecord.certificate_id,
-        allKeys: Object.keys(donationRecord)
+      // Use the new API that directly takes registrationId
+      const response = await UserAPI.getCertificateByRegistrationId(registrationId);
+        // Create blob and download file
+      const blob = new Blob([response.data], { 
+        type: response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
       });
-      
-      const response = await UserAPI.getCertificateById(certificateId);
-      
-      // Create blob and download file
-      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
+        // Set filename from response header or use default with user's full name
+      const contentDisposition = response.headers['content-disposition'];      // Get user's full name for filename
+      const userFullName = user?.FullName || user?.fullName || 'User';
       
-      // Set filename from response header or use default
-      const contentDisposition = response.headers['content-disposition'];
-      let filename = `certificate_${registrationId}.pdf`;
+      // Function to remove Vietnamese diacritics
+      const removeVietnameseDiacritics = (str) => {
+        const from = 'àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñç·/_,:;';
+        const to   = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiuuuuuuuuuuuoooooooooooooooooiiiiiaeiiouunc------';
+        for (let i = 0, l = from.length; i < l; i++) {
+          str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+        }
+        return str;
+      };
+      
+      // Remove diacritics and clean the full name to be safe for filename
+      const nameWithoutDiacritics = removeVietnameseDiacritics(userFullName);
+      const cleanFullName = nameWithoutDiacritics.replace(/[^\w\s-]/g, '').replace(/\s+/g, '_');
+      
+      let filename = `blood-donation-certificate_${cleanFullName}.docx`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
         if (filenameMatch && filenameMatch[1]) {
-          filename = filenameMatch[1].replace(/['"]/g, '');
+          const serverFilename = filenameMatch[1].replace(/['"]/g, '');
+          // If server provides filename, still append user's name
+          const nameWithoutExt = serverFilename.replace(/\.[^/.]+$/, "");
+          const ext = serverFilename.split('.').pop();
+          filename = `${nameWithoutExt}_${cleanFullName}.${ext}`;
         }
       }
       
@@ -746,11 +697,25 @@ const ProfilePage = () => {
     
     return `Slot ${timeslotId}`;
   };
+  const getDonationRecordByRegistrationId = async (registrationId) => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      const userId = userInfo?.UserId || userInfo?.UserID || userInfo?.id;
+      
+      if (!userId) return null;
 
-  const getDonationRecordByRegistrationId = (registrationId) => {
-    return donationRecords.find(record => 
-      (record.registrationId || record.RegistrationId) === registrationId
-    );
+      const response = await UserAPI.getDonationRecordsByDonorId(userId);
+      if (response.status === 200) {
+        const records = response.data || [];
+        return records.find(record => 
+          (record.registrationId || record.RegistrationId) === registrationId
+        );
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching donation record:", error);
+      return null;
+    }
   };
 
   const getDonationTypeName = (typeId) => {
@@ -795,10 +760,9 @@ const ProfilePage = () => {
     if (!bp) return 'N/A';
     return bp;
   };
-
   const handleViewDonationDetail = async (registrationId) => {
     try {
-      const donationRecord = getDonationRecordByRegistrationId(registrationId);
+      const donationRecord = await getDonationRecordByRegistrationId(registrationId);
       if (!donationRecord) {
         message.warning('Không tìm thấy hồ sơ hiến máu cho đăng ký này');
         return;
@@ -1241,12 +1205,11 @@ const ProfilePage = () => {
                           render: (_, record) => {
                             const statusId = record.registrationStatusId;
                             const registrationId = record.registrationId;
-                            const donationRecord = getDonationRecordByRegistrationId(registrationId);
                             
-                            // Only show donation record details for completed donations (status 3)
-                            if (statusId === 3 && donationRecord) {
-                              const certificateId = donationRecord.certificateId || donationRecord.CertificateId || donationRecord.CertificateID;
-                              
+                            // Check if status is "Đã hoàn thành" (status 3 or status with name containing "hoàn thành")
+                            const status = registrationStatuses.find(s => s.id === statusId);
+                            const isCompleted = statusId === 3 || 
+                                              (status && status.name && status.name.toLowerCase().includes('hoàn thành'));                            if (isCompleted) {
                               return (
                                 <Space direction="vertical" size="small">
                                   <Button 
@@ -1256,28 +1219,16 @@ const ProfilePage = () => {
                                   >
                                     Xem chi tiết
                                   </Button>
-                                  {certificateId ? (
-                                    <Button 
-                                      type="default"
-                                      size="small"
-                                      icon={<DownloadOutlined />}
-                                      loading={certificateDownloading}
-                                      onClick={() => handleDownloadCertificate(registrationId)}
-                                    >
-                                      Tải chứng nhận
-                                    </Button>
-                                  ) : (
-                                    <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
-                                      Chưa có chứng nhận
-                                    </Text>
-                                  )}
+                                  <Button 
+                                    type="default"
+                                    size="small"
+                                    icon={<DownloadOutlined />}
+                                    loading={certificateDownloading}
+                                    onClick={() => handleDownloadCertificate(registrationId)}
+                                  >
+                                    Tải chứng nhận
+                                  </Button>
                                 </Space>
-                              );
-                            } else if (statusId === 3 && !donationRecord) {
-                              return (
-                                <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
-                                  Chưa có hồ sơ
-                                </Text>
                               );
                             } else {
                               return (

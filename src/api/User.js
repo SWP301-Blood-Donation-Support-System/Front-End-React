@@ -119,26 +119,7 @@ export const UserAPI = {
             console.error("Error response data:", error.response?.data);
             console.error("Error response status:", error.response?.status);
             throw error;
-        }
-
-    },    // Get user's donation registrations
-    getDonationRegistrations: async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get(`${BASE_URL}/api/DonationRegistration`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            return response;
-        } catch (error) {
-            console.error("Error fetching donation registrations:", error);
-            throw error;
-        }
-    },
-
-    // Get registration statuses from backend
+        }    },    // Get registration statuses from backend
     getRegistrationStatuses: async () => {
         try {
             const response = await axios.get(`${BASE_URL}/api/Lookup/registration-statuses`);
@@ -167,25 +148,7 @@ export const UserAPI = {
         } catch (error) {
             console.error("Error canceling donation registration:", error);
             throw error;
-        }
-    },
-
-    // Get user's donation records
-    getUserDonationRecords: async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get(`${BASE_URL}/api/DonationRecord`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            return response;
-        } catch (error) {
-            console.error("Error fetching user donation records:", error);
-            throw error;
-        }
-    },
+        }    },
 
     // Get donation record by ID
     getDonationRecordById: async (recordId) => {
@@ -223,25 +186,7 @@ export const UserAPI = {
         } catch (error) {
             console.error("Error fetching blood test results:", error);
             throw error;
-        }
-    },
-
-    // Get donation registration by ID
-    getDonationRegistrationById: async (registrationId) => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await axios.get(`${BASE_URL}/api/DonationRegistration/getRegistrationById/${registrationId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            return response;
-        } catch (error) {
-            console.error("Error fetching donation registration by ID:", error);
-            throw error;
-        }
-    },
+        }    },
 
     // API để lấy thông tin user theo ID (cho thông tin hiến máu)
     getUserById: async (userId) => {
@@ -258,13 +203,11 @@ export const UserAPI = {
             console.error("Error fetching user by ID:", error);
             throw error;
         }
-    },
-
-    // API để lấy certificate theo ID (trả về file)
-    getCertificateById: async (certificateId) => {
+    },    // API để lấy certificate theo registration ID (trả về file)
+    getCertificateByRegistrationId: async (registrationId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.get(`${BASE_URL}/api/Certificate/by-id/${certificateId}`, {
+            const response = await axios.get(`${BASE_URL}/api/Certificate/generate/${registrationId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Accept': '*/*'
@@ -273,7 +216,38 @@ export const UserAPI = {
             });
             return response;
         } catch (error) {
-            console.error("Error fetching certificate by ID:", error);
+            console.error("Error fetching certificate by registration ID:", error);
+            throw error;
+        }
+    },
+
+    // Get user's donation registrations by donor ID
+    getDonationRegistrationsByDonorId: async (donorId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${BASE_URL}/api/DonationRegistration/getRegistrationsByDonorId/${donorId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error("Error fetching donation registrations by donor ID:", error);
+            throw error;
+        }    },    // Get user's donation records by donor ID
+    getDonationRecordsByDonorId: async (donorId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${BASE_URL}/api/DonationRecord/user/${donorId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error("Error fetching donation records by donor ID:", error);
             throw error;
         }
     },
