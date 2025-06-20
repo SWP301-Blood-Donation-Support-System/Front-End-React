@@ -1002,29 +1002,205 @@ const DonationRecordsPage = () => {
 
               <div className="donation-records-table-container">
                 {currentView === 'users' && (
-                  <Table
-                    columns={userColumns}
-                    dataSource={uniqueUsers}
-                    rowKey={(user) => user.userId}
-                    loading={loading}
-                    pagination={false}
-                    size="large"
-                    className="donation-records-wide-table"
-                  />
+                  <>
+                    <Table
+                      columns={userColumns}
+                      dataSource={getPaginatedData()}
+                      rowKey={(user) => user.userId}
+                      loading={loading}
+                      pagination={false}
+                      size="large"
+                      className="donation-records-wide-table"
+                    />
+                    
+                    {/* Custom Pagination Controls */}
+                    {currentData.length > 0 && (
+                      <div className="donation-records-pagination">
+                        <div className="pagination-info">
+                          <Text>
+                            Hiển thị {startRecord}-{endRecord} của {currentData.length} người dùng
+                          </Text>
+                        </div>
+                        
+                        <div className="pagination-controls">
+                          <Space>
+                            <Text>Số bản ghi mỗi trang:</Text>
+                            <Select
+                              value={pageSize}
+                              onChange={handlePageSizeChange}
+                              style={{ width: 80 }}
+                            >
+                              <Option value={5}>5</Option>
+                              <Option value={8}>8</Option>
+                              <Option value={10}>10</Option>
+                              <Option value={20}>20</Option>
+                              <Option value={50}>50</Option>
+                            </Select>
+                          </Space>
+                          
+                          <div className="pagination-buttons">
+                            <Button 
+                              disabled={currentPage === 1}
+                              onClick={() => handlePageChange(1)}
+                            >
+                              ❮❮
+                            </Button>
+                            <Button 
+                              disabled={currentPage === 1}
+                              onClick={() => handlePageChange(currentPage - 1)}
+                            >
+                              ❮
+                            </Button>
+                            
+                            {/* Page numbers */}
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                              const pageStart = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                              const pageNum = pageStart + i;
+                              
+                              if (pageNum <= totalPages) {
+                                return (
+                                  <Button
+                                    key={pageNum}
+                                    type={currentPage === pageNum ? "primary" : "default"}
+                                    onClick={() => handlePageChange(pageNum)}
+                                  >
+                                    {pageNum}
+                                  </Button>
+                                );
+                              }
+                              return null;
+                            })}
+                            
+                            <Button 
+                              disabled={currentPage === totalPages}
+                              onClick={() => handlePageChange(currentPage + 1)}
+                            >
+                              ❯
+                            </Button>
+                            <Button 
+                              disabled={currentPage === totalPages}
+                              onClick={() => handlePageChange(totalPages)}
+                            >
+                              ❯❯
+                            </Button>
+                          </div>
+                          
+                          <div className="goto-page">
+                            <Text>Đến trang:</Text>
+                            <InputNumber
+                              min={1}
+                              max={totalPages}
+                              value={currentPage}
+                              onChange={(value) => value && handleGoToPage(value)}
+                              style={{ width: 60, marginLeft: 8 }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
                 
                 {currentView === 'userRecords' && (
-                  <Table
-                    columns={userRecordColumns}
-                    dataSource={userDonationRecords}
-                    rowKey={(record) => {
-                      return record.donationRecordId || record.DonationRecordId || record.id || Math.random();
-                    }}
-                    loading={loading}
-                    pagination={false}
-                    size="large"
-                    className="donation-records-wide-table"
-                  />
+                  <>
+                    <Table
+                      columns={userRecordColumns}
+                      dataSource={getPaginatedData()}
+                      rowKey={(record) => {
+                        return record.donationRecordId || record.DonationRecordId || record.id || Math.random();
+                      }}
+                      loading={loading}
+                      pagination={false}
+                      size="large"
+                      className="donation-records-wide-table"
+                    />
+                    
+                    {/* Custom Pagination Controls */}
+                    {currentData.length > 0 && (
+                      <div className="donation-records-pagination">
+                        <div className="pagination-info">
+                          <Text>
+                            Hiển thị {startRecord}-{endRecord} của {currentData.length} hồ sơ
+                          </Text>
+                        </div>
+                        
+                        <div className="pagination-controls">
+                          <Space>
+                            <Text>Số bản ghi mỗi trang:</Text>
+                            <Select
+                              value={pageSize}
+                              onChange={handlePageSizeChange}
+                              style={{ width: 80 }}
+                            >
+                              <Option value={5}>5</Option>
+                              <Option value={8}>8</Option>
+                              <Option value={10}>10</Option>
+                              <Option value={20}>20</Option>
+                              <Option value={50}>50</Option>
+                            </Select>
+                          </Space>
+                          
+                          <div className="pagination-buttons">
+                            <Button 
+                              disabled={currentPage === 1}
+                              onClick={() => handlePageChange(1)}
+                            >
+                              ❮❮
+                            </Button>
+                            <Button 
+                              disabled={currentPage === 1}
+                              onClick={() => handlePageChange(currentPage - 1)}
+                            >
+                              ❮
+                            </Button>
+                            
+                            {/* Page numbers */}
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                              const pageStart = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                              const pageNum = pageStart + i;
+                              
+                              if (pageNum <= totalPages) {
+                                return (
+                                  <Button
+                                    key={pageNum}
+                                    type={currentPage === pageNum ? "primary" : "default"}
+                                    onClick={() => handlePageChange(pageNum)}
+                                  >
+                                    {pageNum}
+                                  </Button>
+                                );
+                              }
+                              return null;
+                            })}
+                            
+                            <Button 
+                              disabled={currentPage === totalPages}
+                              onClick={() => handlePageChange(currentPage + 1)}
+                            >
+                              ❯
+                            </Button>
+                            <Button 
+                              disabled={currentPage === totalPages}
+                              onClick={() => handlePageChange(totalPages)}
+                            >
+                              ❯❯
+                            </Button>
+                          </div>
+                          
+                          <div className="goto-page">
+                            <Text>Đến trang:</Text>
+                            <InputNumber
+                              min={1}
+                              max={totalPages}
+                              value={currentPage}
+                              onChange={(value) => value && handleGoToPage(value)}
+                              style={{ width: 60, marginLeft: 8 }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
                 
                 {currentView === 'recordDetail' && renderDetailForm()}

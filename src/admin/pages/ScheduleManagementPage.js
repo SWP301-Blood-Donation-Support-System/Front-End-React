@@ -8,7 +8,8 @@ import {
   Select, 
   Button,
   message,
-  Modal
+  Modal,
+  InputNumber
 } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdminAPI } from '../api/admin';
@@ -307,7 +308,11 @@ const ScheduleManagementPage = () => {
   };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    const currentData = currentView === 'schedules' ? schedules : registrations;
+    const totalPages = Math.ceil(currentData.length / pageSize);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   const handlePageSizeChange = (newPageSize) => {
@@ -316,7 +321,8 @@ const ScheduleManagementPage = () => {
   };
 
   const handleGoToPage = (page) => {
-    const totalPages = Math.ceil(schedules.length / pageSize);
+    const currentData = currentView === 'schedules' ? schedules : registrations;
+    const totalPages = Math.ceil(currentData.length / pageSize);
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
@@ -829,61 +835,92 @@ const ScheduleManagementPage = () => {
                   size="large"
                   className="schedule-wide-table"
                 />
-                <div className="custom-pagination">
-                  <div className="pagination-info">
-                    {currentData.length > 0 ? 
-                      `${startRecord}-${endRecord} của ${currentData.length} ${currentView === 'schedules' ? 'lịch hiến máu' : 'đăng ký'}` : 
-                      `0 ${currentView === 'schedules' ? 'lịch hiến máu' : 'đăng ký'}`
-                    }
+                
+                {/* Enhanced Pagination Controls */}
+                {currentData.length > 0 && (
+                  <div className="schedule-pagination">
+                    <div className="pagination-info">
+                      <Text>
+                        Hiển thị {startRecord}-{endRecord} của {currentData.length} {currentView === 'schedules' ? 'lịch hiến máu' : 'đăng ký'}
+                      </Text>
+                    </div>
+                    
+                    <div className="pagination-controls">
+                      <Space>
+                        <Text>Số bản ghi mỗi trang:</Text>
+                        <Select
+                          value={pageSize}
+                          onChange={handlePageSizeChange}
+                          style={{ width: 80 }}
+                        >
+                          <Option value={5}>5</Option>
+                          <Option value={8}>8</Option>
+                          <Option value={10}>10</Option>
+                          <Option value={20}>20</Option>
+                          <Option value={50}>50</Option>
+                        </Select>
+                      </Space>
+                      
+                      <div className="pagination-buttons">
+                        <Button 
+                          disabled={currentPage === 1}
+                          onClick={() => handlePageChange(1)}
+                        >
+                          ❮❮
+                        </Button>
+                        <Button 
+                          disabled={currentPage === 1}
+                          onClick={() => handlePageChange(currentPage - 1)}
+                        >
+                          ❮
+                        </Button>
+                        
+                        {/* Page numbers */}
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          const pageStart = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                          const pageNum = pageStart + i;
+                          
+                          if (pageNum <= totalPages) {
+                            return (
+                              <Button
+                                key={pageNum}
+                                type={currentPage === pageNum ? "primary" : "default"}
+                                onClick={() => handlePageChange(pageNum)}
+                              >
+                                {pageNum}
+                              </Button>
+                            );
+                          }
+                          return null;
+                        })}
+                        
+                        <Button 
+                          disabled={currentPage === totalPages}
+                          onClick={() => handlePageChange(currentPage + 1)}
+                        >
+                          ❯
+                        </Button>
+                        <Button 
+                          disabled={currentPage === totalPages}
+                          onClick={() => handlePageChange(totalPages)}
+                        >
+                          ❯❯
+                        </Button>
+                      </div>
+                      
+                      <div className="goto-page">
+                        <Text>Đến trang:</Text>
+                        <InputNumber
+                          min={1}
+                          max={totalPages}
+                          value={currentPage}
+                          onChange={(value) => value && handleGoToPage(value)}
+                          style={{ width: 60, marginLeft: 8 }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="pagination-buttons">
-                    <button 
-                      className="pagination-btn" 
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage <= 1}
-                    >
-                      {'<'}
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <button 
-                        key={page}
-                        className={`pagination-btn ${page === currentPage ? 'active' : 'inactive'}`}
-                        onClick={() => handlePageChange(page)}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                    <button 
-                      className="pagination-btn" 
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage >= totalPages}
-                    >
-                      {'>'}
-                    </button>
-                  </div>
-                  <div className="pagination-controls">
-                    <select 
-                      className="page-size-select"
-                      value={pageSize}
-                      onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                    >
-                      <option value={8}>8 / page</option>
-                      <option value={16}>16 / page</option>
-                      <option value={24}>24 / page</option>
-                    </select>
-                    <input 
-                      placeholder="Go to" 
-                      className="goto-input"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          handleGoToPage(Number(e.target.value));
-                          e.target.value = '';
-                        }
-                      }}
-                    />
-                    <span className="goto-label">Page</span>
-                  </div>
-                </div>
+                )}
               </div>
              </div>
           </Content>

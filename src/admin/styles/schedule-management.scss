@@ -388,6 +388,124 @@
   }
 }
 
+// Enhanced Pagination Styles
+.schedule-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #f0f2f5;
+  
+  .pagination-info {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    .ant-space {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .pagination-buttons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      
+      .ant-btn {
+        min-width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        
+        &:not(.ant-btn-primary) {
+          border-color: #d9d9d9;
+          color: #666;
+          
+          &:hover {
+            border-color: #dc2626;
+            color: #dc2626;
+          }
+        }
+        
+        &.ant-btn-primary {
+          background-color: #dc2626;
+          border-color: #dc2626;
+          
+          &:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+          }
+        }
+        
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+          
+          &:hover {
+            border-color: #d9d9d9;
+            color: #ccc;
+          }
+        }
+      }
+    }
+    
+    .goto-page {
+      display: flex;
+      align-items: center;
+      color: #666;
+      font-size: 14px;
+      
+      .ant-input-number {
+        border-radius: 4px;
+        border-color: #d9d9d9;
+        
+        &:hover {
+          border-color: #dc2626;
+        }
+        
+        &:focus,
+        &.ant-input-number-focused {
+          border-color: #dc2626;
+          box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments for schedule pagination
+@media (max-width: 768px) {
+  .schedule-pagination {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    
+    .pagination-info {
+      text-align: center;
+    }
+    
+    .pagination-controls {
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      
+      .pagination-buttons {
+        justify-content: center;
+      }
+      
+      .goto-page {
+        justify-content: center;
+      }
+    }
+  }
+}
+
 // Modal table styling to match main table
 .ant-modal {
   .schedule-wide-table {
