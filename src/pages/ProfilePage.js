@@ -1084,7 +1084,7 @@ const ProfilePage = () => {
                         <CalendarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />
                       </div>
                       <div className="stat-content">
-                        <div className="stat-label">Có thể hiến tiếp</div>
+                        <div className="stat-label">Thời gian có thể hiến máu lại</div>
                         <div className="stat-value-with-tag">
                           <span className="stat-value">
                             {(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate)
