@@ -33,7 +33,8 @@ import {
   TeamOutlined,
   BankOutlined,
   ExclamationCircleOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  DownloadOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
@@ -64,12 +65,39 @@ const ProfilePage = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [donationSchedule, setDonationSchedule] = useState([]);
   const [donationRecords, setDonationRecords] = useState([]);
-  const [donationTypes, setDonationTypes] = useState({});
-  const [bloodTestResults, setBloodTestResults] = useState({});
+  const [donationTypes, setDonationTypes] = useState({});  const [bloodTestResults, setBloodTestResults] = useState({});
   const [selectedDonationRecord, setSelectedDonationRecord] = useState(null);
   const [donationDetailVisible, setDonationDetailVisible] = useState(false);
+  const [certificateDownloading, setCertificateDownloading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();  // Function để lấy thông tin hiến máu từ API getUserById
+  const location = useLocation();
+
+  // Helper functions
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      return dayjs(dateString).format('DD/MM/YYYY');
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
+  const isProfileComplete = (userProfile) => {
+    if (!userProfile) return false;
+    
+    const requiredFields = [
+      userProfile.FullName || userProfile.name,
+      userProfile.PhoneNumber,
+      userProfile.Address,
+      userProfile.DateOfBirth,
+      userProfile.GenderId || userProfile.GenderID,
+      userProfile.BloodTypeId || userProfile.BloodTypeID
+    ];
+    
+    return requiredFields.every(field => field != null && field !== '');
+  };
+
+  // Function để lấy thông tin hiến máu từ API getUserById
   const fetchDonationInfo = async () => {
     try {
       setDonationInfoLoading(true);
@@ -538,13 +566,7 @@ const ProfilePage = () => {
     if (!scheduleId || !donationSchedule.length) return 'N/A';
     
     const schedule = donationSchedule.find(s => s.scheduleId === scheduleId || s.ScheduleId === scheduleId || s.id === scheduleId);
-    return schedule ? formatDate(schedule.scheduleDate || schedule.ScheduleDate) : 'N/A';
-  };
-
-  // Refresh registrations data
-  const refreshRegistrations = () => {
-    fetchRegistrations();
-  };
+    return schedule ? formatDate(schedule.scheduleDate || schedule.ScheduleDate) : 'N/A';  };
 
   // Handle cancel registration
   const handleCancelRegistration = async (registrationId) => {
@@ -568,36 +590,78 @@ const ProfilePage = () => {
       setRegistrationsLoading(false);
     }
   };
-
-  // Check if profile is complete
-  const isProfileComplete = (userData) => {
-    if (!userData) return false;
-    
-    const requiredFields = [
-      userData.FullName || userData.name,
-      userData.Email || userData.email,
-      userData.PhoneNumber,
-      userData.Address,
-      userData.DateOfBirth,
-      userData.GenderId || userData.GenderID,
-      userData.BloodTypeId || userData.BloodTypeID,
-      userData.OccupationId || userData.OccupationID
-    ];
-    
-    return requiredFields.every(field => field !== null && field !== undefined && field !== '');
+  // Function to handle certificate download
+  const handleDownloadCertificate = async (registrationId) => {
+    try {
+      setCertificateDownloading(true);
+      
+      // Get the donation record to find the actual certificate ID
+      const donationRecord = getDonationRecordByRegistrationId(registrationId);
+      if (!donationRecord) {
+        message.error('Không tìm thấy hồ sơ hiến máu cho đăng ký này');
+        return;
+      }
+      
+      // Get the actual certificate ID from donation record
+      const certificateId = donationRecord.certificateId || donationRecord.CertificateId || donationRecord.CertificateID;
+      
+      if (!certificateId) {
+        message.error('Chưa có giấy chứng nhận cho lần hiến máu này');
+        return;
+      }
+      
+      console.log('Downloading certificate with ID:', certificateId);
+      
+      // Debug: Log donation record structure
+      console.log('🔍 Donation record structure:', donationRecord);
+      console.log('🔍 Available certificate fields:', {
+        certificateId: donationRecord.certificateId,
+        CertificateId: donationRecord.CertificateId,
+        CertificateID: donationRecord.CertificateID,
+        certificate_id: donationRecord.certificate_id,
+        allKeys: Object.keys(donationRecord)
+      });
+      
+      const response = await UserAPI.getCertificateById(certificateId);
+      
+      // Create blob and download file
+      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Set filename from response header or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `certificate_${registrationId}.pdf`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      
+      message.success('Đã tải xuống giấy chứng nhận hiến máu thành công!');
+    } catch (error) {
+      console.error('Error downloading certificate:', error);
+      if (error.response?.status === 404) {
+        message.error('Không tìm thấy giấy chứng nhận cho lần hiến máu này');
+      } else {
+        message.error('Không thể tải xuống giấy chứng nhận. Vui lòng thử lại sau.');
+      }    } finally {
+      setCertificateDownloading(false);
+    }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Not specified';
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
+  // Additional helper functions
   const getBloodTypeDisplay = (bloodTypeID) => {
-    // Handle both field name cases
     const bloodTypeIdValue = bloodTypeID || user?.BloodTypeId || user?.BloodTypeID;
     
     if (!bloodTypeIdValue || bloodTypes.length === 0) return 'Not specified';
@@ -607,29 +671,24 @@ const ProfilePage = () => {
   };
 
   const getGenderDisplay = (genderID) => {
-    // Handle both field name cases
     const genderIdValue = genderID || user?.GenderId || user?.GenderID;
     
     if (!genderIdValue || genders.length === 0) return 'Not specified';
     
-    // Handle both string and number comparison
     const gender = genders.find(g => g.id === genderIdValue || g.id === parseInt(genderIdValue));
-    
     return gender ? gender.name : 'Not specified';
   };
 
   const getOccupationDisplay = (occupationID) => {
-    // Handle both field name cases
     const occupationIdValue = occupationID || user?.OccupationId || user?.OccupationID;
     
     if (!occupationIdValue || occupations.length === 0) return 'Not specified';
     
-    // Handle both string and number comparison
     const occupation = occupations.find(o => o.id === occupationIdValue || o.id === parseInt(occupationIdValue));
     return occupation ? occupation.name : 'Not specified';
-  };  // Helper functions for registration status
+  };
+
   const getStatusColor = (statusId) => {
-    // Get status name from lookup array
     const status = registrationStatuses.find(s => s.id === statusId);
     const statusName = status ? status.name.toLowerCase() : '';
     
@@ -645,71 +704,49 @@ const ProfilePage = () => {
       return 'volcano';
     }
     
-    // Fallback colors based on ID
     switch (statusId) {
-      case 1:
-        return 'orange'; // Đang chờ xác nhận
-      case 2:
-        return 'green'; // Đã xác nhận
-      case 3:
-        return 'blue'; // Đã hoàn thành
-      case 4:
-        return 'red'; // Đã hủy
-      case 5:
-        return 'volcano'; // No Show
-      default:
-        return 'default';
+      case 1: return 'orange';
+      case 2: return 'green';
+      case 3: return 'blue';
+      case 4: return 'red';
+      case 5: return 'volcano';
+      default: return 'default';
     }
   };
 
   const getStatusText = (statusId) => {
-    // Get status name from lookup array
     const status = registrationStatuses.find(s => s.id === statusId);
-    if (status) {
-      return status.name;
-    }
+    if (status) return status.name;
     
-    // Fallback text based on ID
     switch (statusId) {
-      case 1:
-        return 'Đang chờ xác nhận';
-      case 2:
-        return 'Đã xác nhận';
-      case 3:
-        return 'Đã hoàn thành';
-      case 4:
-        return 'Đã hủy';
-      case 5:
-        return 'No Show';
-      default:
-        return 'Không xác định';
+      case 1: return 'Đang chờ xác nhận';
+      case 2: return 'Đã xác nhận';
+      case 3: return 'Đã hoàn thành';
+      case 4: return 'Đã hủy';
+      case 5: return 'No Show';
+      default: return 'Không xác định';
     }
-  };  // Helper function for timeslot display with short format
+  };
+
   const getTimeSlotDisplay = (timeslotId) => {
     if (!timeslotId) return 'N/A';
     
-    // Find timeslot from lookup array
     const timeSlot = timeSlots.find(ts => ts.id === timeslotId || ts.timeSlotId === timeslotId);
     
     if (timeSlot) {
-      // Try different possible field names for time display
       const timeDisplay = timeSlot.timeRange || timeSlot.time || timeSlot.name || 
                          `${timeSlot.startTime} - ${timeSlot.endTime}` ||
                          `${timeSlot.StartTime} - ${timeSlot.EndTime}`;
       
       if (timeDisplay && !timeDisplay.includes('undefined')) {
-        // Format time to short format (HH:mm - HH:mm)
-        // Remove seconds from time format: 10:00:00 -> 10:00
         const formatted = timeDisplay.replace(/:\d{2}(?=\s*[-\s]|$)/g, '');
         return formatted;
       }
     }
     
-    // Fallback to slot ID if no time info found
     return `Slot ${timeslotId}`;
   };
 
-  // Helper functions for donation records
   const getDonationRecordByRegistrationId = (registrationId) => {
     return donationRecords.find(record => 
       (record.registrationId || record.RegistrationId) === registrationId
@@ -731,7 +768,6 @@ const ProfilePage = () => {
     const result = bloodTestResults[resultId];
     const name = result.name;
     
-    // Color mapping based on result names
     let color = 'default';
     if (name.includes('Đang chờ xét nghiệm')) {
       color = 'orange';
@@ -1198,8 +1234,7 @@ const ProfilePage = () => {
                             
                             return getTimeSlotDisplay(timeslotId);
                           }
-                        },
-                        {
+                        },                        {
                           title: 'Chi tiết hiến máu',
                           key: 'donationRecord',
                           width: '18%',
@@ -1210,14 +1245,33 @@ const ProfilePage = () => {
                             
                             // Only show donation record details for completed donations (status 3)
                             if (statusId === 3 && donationRecord) {
+                              const certificateId = donationRecord.certificateId || donationRecord.CertificateId || donationRecord.CertificateID;
+                              
                               return (
-                                <Button 
-                                  type="primary"
-                                  size="small"
-                                  onClick={() => handleViewDonationDetail(registrationId)}
-                                >
-                                  Xem chi tiết
-                                </Button>
+                                <Space direction="vertical" size="small">
+                                  <Button 
+                                    type="primary"
+                                    size="small"
+                                    onClick={() => handleViewDonationDetail(registrationId)}
+                                  >
+                                    Xem chi tiết
+                                  </Button>
+                                  {certificateId ? (
+                                    <Button 
+                                      type="default"
+                                      size="small"
+                                      icon={<DownloadOutlined />}
+                                      loading={certificateDownloading}
+                                      onClick={() => handleDownloadCertificate(registrationId)}
+                                    >
+                                      Tải chứng nhận
+                                    </Button>
+                                  ) : (
+                                    <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
+                                      Chưa có chứng nhận
+                                    </Text>
+                                  )}
+                                </Space>
                               );
                             } else if (statusId === 3 && !donationRecord) {
                               return (
