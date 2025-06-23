@@ -225,7 +225,7 @@ export const UserAPI = {
     getDonationRegistrationsByDonorId: async (donorId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.get(`${BASE_URL}/api/DonationRegistration/getRegistrationsByDonorId/${donorId}`, {
+            const response = await axios.get(`${BASE_URL}/api/DonationRegistration/by-donor/${donorId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
