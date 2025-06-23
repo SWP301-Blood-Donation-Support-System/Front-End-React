@@ -97,7 +97,7 @@ export const AdminAPI = {
   getDonationRegistrationById: async (registrationId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${BASE_URL}/api/DonationRegistration/getRegistrationById/${registrationId}`, {
+      const response = await axios.get(`${BASE_URL}/api/DonationRegistration/registration/${registrationId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -115,8 +115,9 @@ export const AdminAPI = {
   updateRegistrationStatus: async (registrationId, statusId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(`${BASE_URL}/api/DonationRegistration/${registrationId}/status`, {
-        RegistrationStatusId: statusId
+      const response = await axios.put(`${BASE_URL}/api/DonationRegistration/registration-status`, {
+        registrationId: registrationId,
+        statusId: statusId
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -135,7 +136,7 @@ export const AdminAPI = {
   updateDonationRegistrationStatus: async (registrationId, statusId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(`${BASE_URL}/api/DonationRegistration/updateRegistrationStatus`, {
+      const response = await axios.put(`${BASE_URL}/api/DonationRegistration/registration-status`, {
         registrationId: registrationId,
         statusId: statusId
       }, {
