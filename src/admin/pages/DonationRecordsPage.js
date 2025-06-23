@@ -851,7 +851,7 @@ const DonationRecordsPage = () => {
   // Layer 1: User list columns
   const userColumns = [
     {
-      title: 'Mã Người Hiến (UserID)',
+      title: 'Mã Người Hiến (DonorID)',
       dataIndex: 'userId',
       key: 'userId',
       width: '25%',
@@ -862,7 +862,7 @@ const DonationRecordsPage = () => {
       ),
     },
     {
-      title: 'Tên Người Hiến (Username)',
+      title: 'Tên Người Hiến',
       dataIndex: 'username',
       key: 'username',
       width: '35%',

@@ -14,6 +14,7 @@ import {
   UnorderedListOutlined,
   DatabaseOutlined,
   PlusCircleOutlined,
+  MedicineBoxOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -47,20 +48,19 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         navigate('/staff/schedule-management?type=past');
         break;
       case '2': // Quản lý người hiến
-        // TODO: Navigate to donor management page
-        console.log('Navigate to donor management');
+        navigate('/staff/user-management');
         break;
-      case '3-1': // Máu đạt
-        // TODO: Navigate to qualified blood management
-        console.log('Navigate to qualified blood management');
+      case '3-1': // Tất cả túi máu
+        navigate('/staff/blood-bag-management?status=all');
         break;
-      case '3-2': // Máu không đạt
-        // TODO: Navigate to disqualified blood management
-        console.log('Navigate to disqualified blood management');
+      case '3-2': // Túi máu đạt
+        navigate('/staff/blood-bag-management?status=qualified');
         break;
-      case '3-3': // Máu chờ duyệt
-        // TODO: Navigate to pending blood management
-        console.log('Navigate to pending blood management');
+      case '3-3': // Túi máu không đạt
+        navigate('/staff/blood-bag-management?status=disqualified');
+        break;
+      case '3-4': // Túi máu chờ duyệt
+        navigate('/staff/blood-bag-management?status=pending');
         break;
       case '4-1': // Danh sách hồ sơ hiến máu
         navigate('/staff/donation-records');
@@ -86,9 +86,10 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     ]),
     getItem('Quản lý người hiến', '2', <UserOutlined />),
     getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />, [
-      getItem('Máu đạt', '3-1', <CheckCircleOutlined />),
-      getItem('Máu không đạt', '3-2', <CloseCircleOutlined />),
-      getItem('Máu chờ duyệt', '3-3', <ClockCircleOutlined />),
+      getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
+      getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
+      getItem('Túi máu không đạt', '3-3', <CloseCircleOutlined />),
+      getItem('Túi máu chờ duyệt', '3-4', <ClockCircleOutlined />),
     ]),
     getItem('Hồ sơ người hiến', '4', <FileOutlined />, [
       getItem('Toàn bộ hồ sơ', '4-1', <DatabaseOutlined />),

@@ -1,0 +1,432 @@
+// User Management Page Styles - Staff Theme (Based on Schedule Management)
+.user-page-header {
+  background: #FFFFFF;
+  border: none;
+  padding: 24px 48px;
+  margin: 24px 48px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  
+  .user-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .user-title {
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 700;
+    
+    .anticon {
+      color: #dc2626;
+      margin-right: 12px;
+    }
+  }
+  
+  .user-refresh-btn {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #b91c1c;
+      border-color: #b91c1c;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+  }
+}
+
+.user-card {
+  background: #FFFFFF;
+  border: 1px solid #f0f2f5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  
+  .ant-card-body {
+    padding: 24px;
+  }
+}
+
+.user-filters {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.user-table {
+  .ant-table {
+    background: transparent;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .ant-table-thead > tr > th {
+    background: #dc2626;
+    color: white;
+    font-weight: 600;
+    border: none;
+    text-align: center;
+    
+    &:first-child {
+      border-radius: 8px 0 0 0;
+    }
+    
+    &:last-child {
+      border-radius: 0 8px 0 0;
+    }
+  }
+  
+  .ant-table-tbody > tr {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #fef2f2;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    > td {
+      border-bottom: 1px solid #f0f2f5;
+      text-align: center;
+      padding: 16px;
+    }
+  }
+}
+
+// Simple pagination fix - just center it at the bottom
+.user-table {
+  .ant-pagination {
+    text-align: center !important;
+    margin-top: 24px !important;
+    padding: 16px !important;
+    background: #fafafa !important;
+    border-top: 1px solid #f0f2f5 !important;
+    border-radius: 0 0 8px 8px !important;
+  }
+}
+
+.user-detail-modal {
+  .ant-modal-header {
+    background: #dc2626;
+    border-radius: 8px 8px 0 0;
+    
+    .ant-modal-title {
+      color: white;
+      font-weight: 600;
+    }
+  }
+  
+  .ant-modal-content {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .ant-modal-body {
+    padding: 24px;
+    background: #fafafa;
+  }
+}
+
+.user-detail-content {
+  .ant-descriptions {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    .ant-descriptions-item-label {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    .ant-descriptions-item-content {
+      background: white;
+    }
+  }
+  
+  .ant-table {
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    .ant-table-thead > tr > th {
+      background: #dc2626;
+      color: white;
+      font-weight: 600;
+    }
+    
+    .ant-table-tbody > tr:hover > td {
+      background: #fef2f2;
+    }
+  }
+}
+
+// Staff header user profile styles
+.staff-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(220, 38, 38, 0.1);
+  }
+  
+  .user-avatar {
+    border: 2px solid #dc2626;
+  }
+  
+  .user-name {
+    color: #374151;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  .dropdown-icon {
+    color: #9ca3af;
+    font-size: 12px;
+  }
+}
+
+// New styles for table layout within layout bounds
+.user-management-content {
+  margin: 0;
+  padding: 16px;
+  min-height: calc(100vh - 240px); // Match staff-content min-height
+  background: #F5F5F5;
+  display: flex;
+  flex-direction: column;
+  
+  .user-management-container {
+    width: 100%;
+    flex: 1;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    
+    .user-header-section {
+      padding: 24px 24px 16px 24px;
+      margin-bottom: 0;
+      flex-shrink: 0; // Prevent header from shrinking
+      border-bottom: 1px solid #f0f2f5;
+      
+      .user-management-title {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 700;
+      }
+      
+      .user-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+    }
+    
+    .user-table-container {
+      width: 100%;
+      flex: 1; // Fill remaining space
+      display: flex;
+      flex-direction: column;
+      padding: 16px 24px 24px 24px;
+      
+      .user-wide-table {
+        width: 100%;
+        
+        .ant-table {
+          width: 100% !important;
+          background: transparent;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        
+        .ant-table-wrapper {
+          width: 100% !important;
+        }
+        
+        .ant-table-container {
+          width: 100% !important;
+        }
+        
+        .ant-table-content {
+          width: 100% !important;
+        }
+        
+        .ant-table-thead > tr > th {
+          background: #dc2626;
+          color: white;
+          font-weight: 600;
+          border: none;
+          text-align: center;
+          padding: 16px;
+          
+          &:first-child {
+            border-radius: 8px 0 0 0;
+          }
+          
+          &:last-child {
+            border-radius: 0 8px 0 0;
+          }
+        }
+        
+        .ant-table-tbody > tr {
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: #fef2f2;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+          
+          > td {
+            border-bottom: 1px solid #f0f2f5;
+            text-align: center;
+            padding: 16px;
+          }
+        }
+      }
+      
+      // Pagination styling
+      .user-pagination {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 24px;
+        padding: 16px 0;
+        border-top: 1px solid #f0f2f5;
+        background: #fafafa;
+        border-radius: 0 0 8px 8px;
+        
+        .pagination-info {
+          color: #666;
+          font-size: 14px;
+        }
+        
+        .pagination-controls {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          
+          .page-navigation {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            .ant-btn {
+              border: 1px solid #d9d9d9;
+              background: white;
+              color: #595959;
+              
+              &:hover:not(:disabled) {
+                border-color: #dc2626;
+                color: #dc2626;
+              }
+              
+              &:disabled {
+                background: #f5f5f5;
+                border-color: #d9d9d9;
+                color: #bfbfbf;
+              }
+            }
+            
+            .page-indicator {
+              margin: 0 8px;
+              font-weight: 500;
+              color: #262626;
+            }
+          }
+          
+          .goto-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            .ant-input-number {
+              border-color: #d9d9d9;
+              
+              &:hover,
+              &:focus {
+                border-color: #dc2626;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 1200px) {
+  .user-management-content {
+    padding: 12px;
+    
+    .user-management-container {
+      .user-header-section {
+        padding: 16px 16px 12px 16px;
+      }
+      
+      .user-table-container {
+        padding: 12px 16px 16px 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user-management-content {
+    padding: 8px;
+    
+    .user-management-container {
+      .user-header-section {
+        padding: 12px;
+        
+        .user-controls {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+      }
+      
+      .user-table-container {
+        padding: 8px 12px 12px 12px;
+        
+        .user-wide-table {
+          .ant-table-thead > tr > th,
+          .ant-table-tbody > tr > td {
+            padding: 8px;
+            font-size: 12px;
+          }
+        }
+        
+        .user-pagination {
+          flex-direction: column;
+          gap: 12px;
+          text-align: center;
+          
+          .pagination-controls {
+            flex-direction: column;
+            gap: 12px;
+          }
+        }
+      }
+    }
+  }
+} 

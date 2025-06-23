@@ -34,7 +34,9 @@ import {
   BankOutlined,
   ExclamationCircleOutlined,
   DeleteOutlined,
-  DownloadOutlined
+  DownloadOutlined,
+  CommentOutlined,
+  StarOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
@@ -68,6 +70,9 @@ const ProfilePage = () => {
   const [selectedDonationRecord, setSelectedDonationRecord] = useState(null);
   const [donationDetailVisible, setDonationDetailVisible] = useState(false);
   const [certificateDownloading, setCertificateDownloading] = useState(false);
+  const [feedbackVisible, setFeedbackVisible] = useState(false);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -833,6 +838,43 @@ const ProfilePage = () => {
     setDonationDetailVisible(false);
   };
 
+  const handleOpenFeedback = () => {
+    setFeedbackVisible(true);
+    setFeedbackText('');
+  };
+
+  const handleCloseFeedback = () => {
+    setFeedbackVisible(false);
+    setFeedbackText('');
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!feedbackText.trim()) {
+      message.error('Vui lòng nhập nội dung phản hồi');
+      return;
+    }
+
+    try {
+      setFeedbackLoading(true);
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      const userId = userInfo?.userId || userInfo?.UserId || userInfo?.UserID || userInfo?.id;
+
+      if (!userId) {
+        message.error('Không tìm thấy thông tin người dùng');
+        return;
+      }
+
+      await UserAPI.submitFeedback(feedbackText, userId);
+      message.success('Gửi phản hồi thành công! Cảm ơn bạn đã chia sẻ trải nghiệm.');
+      handleCloseFeedback();
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      message.error('Có lỗi xảy ra khi gửi phản hồi. Vui lòng thử lại sau.');
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="profile-loading">
@@ -1271,7 +1313,7 @@ const ProfilePage = () => {
                         },                        {
                           title: 'Chi tiết hiến máu',
                           key: 'donationRecord',
-                          width: '18%',
+                          width: '16%',
                           render: (_, record) => {
                             const statusId = record.registrationStatusId;
                             const registrationId = record.registrationId;
@@ -1310,9 +1352,45 @@ const ProfilePage = () => {
                           }
                         },
                         {
+                          title: 'Phản hồi',
+                          key: 'feedback',
+                          width: '12%',
+                          render: (_, record) => {
+                            const statusId = record.registrationStatusId;
+                            
+                            // Check if status is "Đã hoàn thành" (status 3 or status with name containing "hoàn thành")
+                            const status = registrationStatuses.find(s => s.id === statusId);
+                            const isCompleted = statusId === 3 || 
+                                              (status && status.name && status.name.toLowerCase().includes('hoàn thành'));
+                            
+                            if (isCompleted) {
+                              return (
+                                <Button 
+                                  type="default"
+                                  size="small"
+                                  icon={<CommentOutlined />}
+                                  onClick={handleOpenFeedback}
+                                  style={{ 
+                                    color: '#52c41a',
+                                    borderColor: '#52c41a'
+                                  }}
+                                >
+                                  Gửi phản hồi
+                                </Button>
+                              );
+                            } else {
+                              return (
+                                <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
+                                  Chưa khả dụng
+                                </Text>
+                              );
+                            }
+                          }
+                        },
+                        {
                           title: 'Thao tác',
                           key: 'actions',
-                          width: '14%',
+                          width: '12%',
                           render: (_, record) => {
                             const statusId = record.registrationStatusId;
                             const registrationId = record.registrationId;
@@ -1500,6 +1578,67 @@ const ProfilePage = () => {
             </Row>
           </div>
         )}
+      </Modal>
+
+      {/* Feedback Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <StarOutlined style={{ color: '#ffa940' }} />
+            Gửi Phản Hồi Trải Nghiệm Hiến Máu
+          </div>
+        }
+        open={feedbackVisible}
+        onCancel={handleCloseFeedback}
+        footer={[
+          <Button key="cancel" onClick={handleCloseFeedback}>
+            Hủy
+          </Button>,
+          <Button 
+            key="submit" 
+            type="primary" 
+            loading={feedbackLoading}
+            onClick={handleSubmitFeedback}
+            icon={<CommentOutlined />}
+          >
+            Gửi Phản Hồi
+          </Button>
+        ]}
+        width={600}
+      >
+        <div style={{ padding: '16px 0' }}>
+          <Text style={{ 
+            display: 'block', 
+            marginBottom: '16px', 
+            color: '#666',
+            fontSize: '14px'
+          }}>
+            Trải nghiệm hiến máu của bạn như thế nào? Hãy chia sẻ để giúp chúng tôi cải thiện dịch vụ tốt hơn.
+          </Text>
+          <Input.TextArea
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+            placeholder="Chia sẻ trải nghiệm của bạn về quy trình hiến máu, thái độ phục vụ, cơ sở vật chất... (tối thiểu 10 ký tự)"
+            rows={6}
+            maxLength={1000}
+            showCount
+            style={{
+              resize: 'none',
+              borderRadius: '8px'
+            }}
+          />
+          <div style={{ 
+            marginTop: '12px', 
+            fontSize: '12px', 
+            color: '#999',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <StarOutlined />
+            Phản hồi của bạn sẽ giúp chúng tôi cải thiện chất lượng dịch vụ
+          </div>
+        </div>
       </Modal>
 
       <Footer />
