@@ -9,10 +9,27 @@
   &-section {
     line-height: 2;
   }
-
   &-section-title {
     color: $background-white !important;
     margin-bottom: $spacing-xxl !important;
+    
+    .anticon {
+      margin-right: $spacing-sm;
+    }
+  }
+
+  &-contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: $spacing-md;
+
+    .anticon {
+      flex-shrink: 0;
+    }
+
+    .footer-text {
+      flex: 1;
+    }
   }
 
   &-link {
@@ -55,19 +72,20 @@
       margin-bottom: $spacing-lg;
     }
   }
-
   &-social-icons {
     gap: $spacing-lg;
+    margin-top: $spacing-lg;
 
     .anticon {
-      font-size: $spacing-xl;
-      color: #bdc3c7;
+      font-size: 20px;
       cursor: pointer;
       transition: $transition-normal;
+      padding: $spacing-sm;
+      border-radius: $border-radius-sm;
 
       &:hover {
-        color: $background-white;
         transform: scale(1.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
     }
   }
