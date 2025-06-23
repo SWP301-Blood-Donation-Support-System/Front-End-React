@@ -317,4 +317,33 @@ export const UserAPI = {
       throw error;
     }
   },
+
+  // Submit feedback for donation experience
+  submitFeedback: async (feedbackInfo, userId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post(
+        `${BASE_URL}/api/Feedback`,
+        {
+          feedbackInfo: feedbackInfo,
+          userId: userId
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error response status:", error.response?.status);
+      throw error;
+    }
+  },
 };

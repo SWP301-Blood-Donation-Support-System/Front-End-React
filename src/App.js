@@ -13,6 +13,8 @@ import ProfilePage from './pages/ProfilePage';
 import CheckinPage from './pages/CheckinPage';
 import StaffPage from './admin/pages/StaffPage';
 import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
+import UserManagementPage from './admin/pages/UserManagementPage';
+import BloodBagManagementPage from './admin/pages/BloodBagManagementPage';
 import DonationRecordsPage from './admin/pages/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
@@ -57,6 +59,16 @@ function App() {
             <Route path="/staff/schedule-management" element={
               <AdminProtectedRoute>
                 <ScheduleManagementPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/user-management" element={
+              <AdminProtectedRoute>
+                <UserManagementPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/blood-bag-management" element={
+              <AdminProtectedRoute>
+                <BloodBagManagementPage />
               </AdminProtectedRoute>
             } />
             <Route path="/staff/donation-records" element={

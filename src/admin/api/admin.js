@@ -499,5 +499,77 @@ export const AdminAPI = {
       console.error("Error fetching user by ID:", error);
       throw error;
     }
+  },
+
+  // Get users by role ID
+  getUsersByRole: async (roleId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/User/by-role/${roleId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching users by role:", error);
+      throw error;
+    }
+  },
+
+  // Get all blood units
+  getBloodUnits: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/BloodUnit`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching blood units:", error);
+      throw error;
+    }
+  },
+
+  // Get blood components lookup
+  getBloodComponents: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/blood-components`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching blood components:", error);
+      throw error;
+    }
+  },
+
+  // Get blood types lookup (if not already exists)
+  getBloodTypesLookup: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/blood-types`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching blood types lookup:", error);
+      throw error;
+    }
   }
 }; 
