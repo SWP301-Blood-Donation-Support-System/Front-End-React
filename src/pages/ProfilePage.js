@@ -52,13 +52,13 @@ const ProfilePage = () => {
   // State riêng cho thông tin hiến máu
   const [donationInfo, setDonationInfo] = useState(null);
   const [donationInfoLoading, setDonationInfoLoading] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [editLoading, setEditLoading] = useState(false);
+  const [editMode, setEditMode] = useState(false);  const [editLoading, setEditLoading] = useState(false);
   const [bloodTypes, setBloodTypes] = useState([]);
   const [genders, setGenders] = useState([]);
   const [occupations, setOccupations] = useState([]);
   const [showUpdateRequired, setShowUpdateRequired] = useState(false);
   const [editValues, setEditValues] = useState({});
+  const [validationErrors, setValidationErrors] = useState({});
   const [registrations, setRegistrations] = useState([]);
   const [registrationsLoading, setRegistrationsLoading] = useState(false);  const [registrationStatuses, setRegistrationStatuses] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -447,11 +447,32 @@ const ProfilePage = () => {
       });
     }
   }, [editMode, user, genders, bloodTypes, occupations]);
-
   const handleSaveProfile = async () => {
     try {
       setEditLoading(true);
-        // Prepare the data for API
+      
+      // Check for validation errors
+      const hasValidationErrors = Object.values(validationErrors).some(error => error !== null);
+      if (hasValidationErrors) {
+        message.error('Vui lòng sửa các lỗi trong biểu mẫu trước khi lưu');
+        setEditLoading(false);
+        return;
+      }
+
+      // Validate required fields
+      if (editValues.nationalID && !/^\d{12}$/.test(editValues.nationalID)) {
+        message.error('Số CCCD phải có đúng 12 chữ số');
+        setEditLoading(false);
+        return;
+      }
+
+      if (editValues.phoneNumber && !/^\d{10}$/.test(editValues.phoneNumber)) {
+        message.error('Số điện thoại phải có đúng 10 chữ số');
+        setEditLoading(false);
+        return;
+      }
+        
+      // Prepare the data for API
       const updateData = {
         FullName: editValues.fullName,
         Email: editValues.email,
@@ -462,22 +483,25 @@ const ProfilePage = () => {
         GenderID: editValues.genderID,
         BloodTypeID: editValues.bloodTypeID,
         OccupationID: editValues.occupationID
-      };
-
-      // Call the update API  
+      };      // Call the update API  
       const userId = user.UserId || user.UserID;
-      const response = await UserAPI.updateUserProfile(userId, updateData);
+      
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+      
+      const response = await UserAPI.updateDonor(userId, updateData);
       
       if (response.status === 200) {
         // Update the local user state
         const updatedUser = { ...user, ...updateData };
         setUser(updatedUser);
-        
-        // Update localStorage as well
+          // Update localStorage as well
         localStorage.setItem("userInfo", JSON.stringify(updatedUser));
         
         setEditMode(false);
         setEditValues({});
+        setValidationErrors({});
         
         // Show appropriate success message based on profile completeness
         if (isProfileComplete(updatedUser)) {
@@ -504,13 +528,41 @@ const ProfilePage = () => {
       setEditLoading(false);
     }
   };
-
   const handleCancelEdit = () => {
     setEditMode(false);
     setEditValues({});
+    setValidationErrors({});
   };
-
   const handleFieldChange = (field, value) => {
+    // Clear previous validation error for this field
+    setValidationErrors(prev => ({
+      ...prev,
+      [field]: null
+    }));
+
+    // Validate based on field type
+    let validationError = null;
+    
+    if (field === 'nationalID') {
+      // CCCD must be exactly 12 digits
+      if (value && !/^\d{12}$/.test(value)) {
+        validationError = 'Số CCCD phải có đúng 12 chữ số';
+      }
+    } else if (field === 'phoneNumber') {
+      // Phone number must be exactly 10 digits
+      if (value && !/^\d{10}$/.test(value)) {
+        validationError = 'Số điện thoại phải có 10 chữ số';
+      }
+    }
+
+    // Set validation error if any
+    if (validationError) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [field]: validationError
+      }));
+    }
+
     setEditValues(prev => ({
       ...prev,
       [field]: value
@@ -912,18 +964,27 @@ const ProfilePage = () => {
                         <Select placeholder="Loading genders..." disabled style={{ width: '100%' }} />
                       )
                     )}
-                  </Descriptions.Item>
-                  <Descriptions.Item 
+                  </Descriptions.Item>                  <Descriptions.Item 
                     label={<span><IdcardOutlined /> Số CMND/CCCD</span>}
                   >
                     {!editMode ? (
                       user.NationalId || user.NationalID || 'Not specified'
                     ) : (
-                      <Input 
-                        value={editValues.nationalID || ''}
-                        onChange={(e) => handleFieldChange('nationalID', e.target.value)}
-                        placeholder="Enter national ID"
-                      />                    )}
+                      <div>
+                        <Input 
+                          value={editValues.nationalID || ''}
+                          onChange={(e) => handleFieldChange('nationalID', e.target.value)}
+                          placeholder="Enter national ID (12 digits)"
+                          status={validationErrors.nationalID ? 'error' : ''}
+                          maxLength={12}
+                        />
+                        {validationErrors.nationalID && (
+                          <Text type="danger" style={{ fontSize: '12px' }}>
+                            {validationErrors.nationalID}
+                          </Text>
+                        )}
+                      </div>
+                    )}
                   </Descriptions.Item>
                   <Descriptions.Item 
                     label={<span><EnvironmentOutlined /> Địa Chỉ</span>}
@@ -1010,19 +1071,28 @@ const ProfilePage = () => {
                     label={<span><UserOutlined /> Username</span>}
                   >
                     {user.Username || user.UserName || user.email?.split('@')[0] || 'Not specified'}
-                  </Descriptions.Item>
-                  <Descriptions.Item 
+                  </Descriptions.Item>                  <Descriptions.Item 
                     label={<span><PhoneOutlined /> Số Điện Thoại</span>}
                   >
                     {!editMode ? (
                       user.PhoneNumber || 'Not specified'
                     ) : (
-                      <Input 
-                        value={editValues.phoneNumber || ''}
-                        onChange={(e) => handleFieldChange('phoneNumber', e.target.value)}
-                        placeholder="Enter phone number"
-                      />
-                    )}                  </Descriptions.Item>
+                      <div>
+                        <Input 
+                          value={editValues.phoneNumber || ''}
+                          onChange={(e) => handleFieldChange('phoneNumber', e.target.value)}
+                          placeholder="Enter phone number (10 digits)"
+                          status={validationErrors.phoneNumber ? 'error' : ''}
+                          maxLength={10}
+                        />
+                        {validationErrors.phoneNumber && (
+                          <Text type="danger" style={{ fontSize: '12px' }}>
+                            {validationErrors.phoneNumber}
+                          </Text>
+                        )}
+                      </div>
+                    )}
+                  </Descriptions.Item>
                 </Descriptions>
               </Card>
             </Col>

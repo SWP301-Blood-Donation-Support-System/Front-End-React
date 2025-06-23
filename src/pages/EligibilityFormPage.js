@@ -493,26 +493,18 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       };
       
       console.log('Sending donation data:', donationData);
-      
-      // Validation
+        // Validation
       if (!donorId || !scheduleId || !bookingData.timeSlotId) {
         throw new Error('Thiếu thông tin cần thiết để đăng ký');
-      }      // Gọi API đăng ký
-      const response = await fetch('https://api-blooddonation.purintech.id.vn/api/DonationRegistration/registerDonation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'accept': '*/*',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(donationData)      });
+      }
+
+      // Gọi API đăng ký sử dụng UserAPI
+      const response = await UserAPI.registerDonation(donationData);
       
-      const responseText = await response.text();
-      console.log('API response:', response.status, responseText);
+      console.log('API response:', response.status, response.data);
       
       // Đóng loading
-      loadingMessage();
-        if (response.ok) {
+      loadingMessage();      if (response.status === 200 || response.status === 201) {
         // Đăng ký thành công
         setIsEligible(true);
         setCurrentStep(1);
@@ -526,35 +518,44 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
           fetchUserEligibilityData();
         }, 1000); // Đợi 1 giây cho API backend cập nhật dữ liệu
         
-      }else if (response.status === 400) {
-        // Parse response để lấy thông tin lỗi chi tiết
-        let errorData;
-        try {
-          errorData = JSON.parse(responseText);
-        } catch (e) {
-          errorData = { msg: responseText };
-        }
-        
-        if (responseText.includes('UNIQUE KEY constraint') || 
-            (errorData.msg && errorData.msg.includes("already have an active donation registration"))) {          // User đã đăng ký rồi
-          setIsEligible('already_registered_api');
-          setCurrentStep(1);
-          message.warning({
-            content: 'Bạn đã đăng ký hiến máu rồi, vui lòng đợi cho đến thời gian phù hợp để đăng ký lại.',
-            duration: 5,
-          });
-        } else {
-          // Lỗi validation khác
-          throw new Error(errorData.msg || `Có lỗi xảy ra: ${responseText || 'Vui lòng thử lại sau'}`);
-        }
-        
       } else {
         // Lỗi khác
-        throw new Error(`Có lỗi xảy ra: ${responseText || 'Vui lòng thử lại sau'}`);
+        throw new Error('Có lỗi xảy ra khi đăng ký hiến máu. Vui lòng thử lại sau.');
       }
       
     } catch (error) {
       loadingMessage();
+      console.error('Error during donation registration:', error);
+      
+      // Kiểm tra lỗi từ response
+      if (error.response) {
+        const errorData = error.response.data;
+        const errorMessage = errorData?.message || errorData?.msg || 'Có lỗi xảy ra';
+        
+        if (error.response.status === 400) {
+          // Parse response để lấy thông tin lỗi chi tiết
+          if (errorMessage.includes('UNIQUE KEY constraint') || 
+              errorMessage.includes('already have an active donation registration')) {
+            // User đã đăng ký rồi
+            setIsEligible('already_registered_api');
+            setCurrentStep(1);
+            message.warning({
+              content: 'Bạn đã đăng ký hiến máu rồi, vui lòng đợi cho đến thời gian phù hợp để đăng ký lại.',
+              duration: 5,
+            });
+            return;
+          } else {
+            // Lỗi validation khác
+            setIsEligible('error');
+            setCurrentStep(1);
+            message.error({
+              content: errorMessage,
+              duration: 5,
+            });
+            return;
+          }
+        }
+      }
       console.error('Error during donation registration:', error);
       
       // Hiển thị form kết quả với lỗi
