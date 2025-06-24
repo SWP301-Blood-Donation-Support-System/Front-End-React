@@ -323,11 +323,19 @@ export const UserAPI = {
     try {
       const token = localStorage.getItem("token");
 
+      // Ensure registrationId is a number as per API requirement
+      const regId = parseInt(registrationId, 10);
+      
+      console.log("Submitting feedback:", {
+        feedbackInfo,
+        registrationId: regId
+      });
+
       const response = await axios.post(
         `${BASE_URL}/api/Feedback`,
         {
           feedbackInfo: feedbackInfo,
-          registrationId: registrationId
+          registrationId: regId
         },
         {
           headers: {
@@ -337,6 +345,7 @@ export const UserAPI = {
         }
       );
 
+      console.log("Feedback submission response:", response);
       return response;
     } catch (error) {
       console.error("Error submitting feedback:", error);
@@ -351,9 +360,14 @@ export const UserAPI = {
   getFeedbackByRegistrationId: async (registrationId) => {
     try {
       const token = localStorage.getItem("token");
+      
+      // Ensure registrationId is a number as per API requirement
+      const regId = parseInt(registrationId, 10);
+      
+      console.log("Fetching feedback for registration ID:", regId);
 
       const response = await axios.get(
-        `${BASE_URL}/api/Feedback/registration/${registrationId}`,
+        `${BASE_URL}/api/Feedback/registration/${regId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -362,34 +376,10 @@ export const UserAPI = {
         }
       );
 
+      console.log("Get feedback response:", response);
       return response;
     } catch (error) {
       console.error("Error fetching feedback by registration ID:", error);
-      console.error("Error response:", error.response);
-      console.error("Error response data:", error.response?.data);
-      console.error("Error response status:", error.response?.status);
-      throw error;
-    }
-  },
-
-  // Get all feedbacks for a user (by user ID)
-  getFeedbacksByUserId: async (userId) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${BASE_URL}/api/Feedback/user/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      return response;
-    } catch (error) {
-      console.error("Error fetching feedbacks by user ID:", error);
       console.error("Error response:", error.response);
       console.error("Error response data:", error.response?.data);
       console.error("Error response status:", error.response?.status);
