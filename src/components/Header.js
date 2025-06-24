@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Button, Avatar, Dropdown, Menu } from "antd";
+import { Layout, Button, Avatar, Dropdown, Menu, notification } from "antd";
 import { UserOutlined, DownOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { UserAPI } from "../api/User";
@@ -7,6 +7,7 @@ import { UserAPI } from "../api/User";
 const { Header: AntHeader } = Layout;
 
 const Header = () => {
+  const [api, contextHolder] = notification.useNotification();
   const navigate = useNavigate();
   const [user, setUser] = useState();
   
@@ -49,6 +50,8 @@ const Header = () => {
         key="logout" 
         icon={<LogoutOutlined />}
         onClick={() => {
+          const userName = user.FullName || user.name;
+          
           UserAPI.logout();
           setUser(null);
           
@@ -57,6 +60,14 @@ const Header = () => {
           localStorage.removeItem("user");
           localStorage.removeItem("userInfo");
           sessionStorage.removeItem("pendingBookingData");
+          
+          // Show logout notification
+          api.success({
+            message: 'Đăng xuất thành công!',
+            description: `Tạm biệt ${userName}! Hẹn gặp lại bạn sau.`,
+            placement: 'topRight',
+            duration: 3,
+          });
           
           navigate("/");
         }}
@@ -68,6 +79,7 @@ const Header = () => {
 
   return (
     <AntHeader className="header-container">
+      {contextHolder}
       {/* Logo using new-logo.png - clickable to go home */}
       <div onClick={() => navigate("/")} className="header-logo">
         <img src="/images/new-logo.png" alt="Blood Services Logo" />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Layout,
   Table, 
@@ -9,7 +9,8 @@ import {
   Button,
   message,
   Modal,
-  InputNumber
+  InputNumber,
+  notification
 } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdminAPI } from '../api/admin';
@@ -23,6 +24,7 @@ const { Text, Title } = Typography;
 const { Option } = Select;
 
 const ScheduleManagementPage = () => {
+  const [api, contextHolder] = notification.useNotification();
   const [collapsed, setCollapsed] = useState(false);
   const [schedules, setSchedules] = useState([]);
   const [registrations, setRegistrations] = useState([]);
@@ -54,6 +56,27 @@ const ScheduleManagementPage = () => {
   
   const location = useLocation();
   const navigate = useNavigate();
+  const notificationShown = useRef(false);
+
+  // Handle login notification from navigation state
+  useEffect(() => {
+    if (location.state?.loginNotification && !notificationShown.current) {
+      notificationShown.current = true;
+      
+      api.success({
+        message: location.state.loginNotification.message,
+        description: location.state.loginNotification.description,
+        placement: 'topRight',
+        duration: 3,
+      });
+      
+      // Clear the notification from state to prevent showing it again
+      navigate(location.pathname + location.search, { 
+        state: { ...location.state, loginNotification: null }, 
+        replace: true 
+      });
+    }
+  }, [location.state?.loginNotification, api, navigate, location.pathname, location.search]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -770,6 +793,7 @@ const ScheduleManagementPage = () => {
 
   return (
     <Layout className="staff-layout">
+      {contextHolder}
       <StaffSidebar
         collapsed={collapsed}
         onCollapse={value => setCollapsed(value)}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Form, Input, Button, Typography, Divider, Alert, message } from 'antd';
+import { Layout, Card, Form, Input, Button, Typography, Divider, Alert, message, notification } from 'antd';
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -12,6 +12,7 @@ import { UserAPI } from '../api/User';
 const clientId = ''; // Thay bằng client ID bạn lấy từ Google Cloud
 
 const LoginPage = () => {
+  const [api, contextHolder] = notification.useNotification();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -42,17 +43,23 @@ const LoginPage = () => {
       const userRoleId = decoded.RoleID;
       console.log("User Role ID:", userRoleId);
       
+      // Prepare login success notification data
+      const loginNotification = {
+        message: 'Đăng nhập thành công!',
+        description: `Chào mừng ${decoded.FullName || decoded.name} trở lại!`,
+      };
+      
       if (userRoleId === 1 || userRoleId === 2 || userRoleId === "1" || userRoleId === "2") {
         // Redirect to schedule management page for roles 1 and 2
-        navigate("/staff/schedule-management");
+        navigate("/staff/schedule-management", { state: { loginNotification } });
       } else {
         // Check if profile is complete for regular users
         if (!isProfileComplete(userProfile)) {
           // Redirect to profile page with update required flag
-          navigate("/profile?updateRequired=true");
+          navigate("/profile?updateRequired=true", { state: { loginNotification } });
         } else {
           // Redirect to homepage if profile is complete
-          navigate("/");
+          navigate("/", { state: { loginNotification } });
         }
       }    } catch (error) {
       console.error("Error checking user profile:", error);
@@ -96,6 +103,7 @@ const LoginPage = () => {
 
   return (
     <Layout className="auth-page">
+      {contextHolder}
       <Header />
       <Navbar />      
       <div className="auth-container">
