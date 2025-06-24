@@ -25,6 +25,7 @@ const UserManagementPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState(3); // Default to role 3 (donors)
+  const [bloodTypes, setBloodTypes] = useState({});
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,10 +40,24 @@ const UserManagementPage = () => {
     2: { name: 'Nhân viên', color: 'blue' },
     3: { name: 'Người hiến máu', color: 'green' }
   };
-
   useEffect(() => {
     fetchUsersByRole(selectedRole);
+    fetchBloodTypes();
   }, [selectedRole]);
+
+  const fetchBloodTypes = async () => {
+    try {
+      const response = await AdminAPI.getBloodTypesLookup();
+      const typesData = response.data || [];
+      const typesMap = {};
+      typesData.forEach(type => {
+        typesMap[type.id] = type;
+      });
+      setBloodTypes(typesMap);
+    } catch (error) {
+      console.error('Error fetching blood types:', error);
+    }
+  };
 
   const fetchUsersByRole = async (roleId) => {
     setLoading(true);
@@ -168,24 +183,32 @@ const UserManagementPage = () => {
           {formatDate(date)}
         </span>
       ),
-    },
-    {
+    },    {
       title: 'Nhóm Máu',
-      dataIndex: 'bloodType',
-      key: 'bloodType',
+      dataIndex: 'bloodTypeId',
+      key: 'bloodTypeId',
       width: '10%',
-      render: (bloodType) => {
-        if (bloodType) {
+      render: (bloodTypeId, record) => {
+        // Try to get blood type from bloodTypeId or fallback to bloodType field
+        const bloodType = bloodTypes[bloodTypeId];
+        const displayName = bloodType?.name || record.bloodType || 'N/A';
+        
+        if (displayName !== 'N/A') {
           const bloodTypeColors = {
+            'A+': 'red', 'A-': 'volcano',
+            'B+': 'blue', 'B-': 'geekblue', 
+            'AB+': 'purple', 'AB-': 'magenta',
+            'O+': 'green', 'O-': 'lime',
+            // Fallback for basic types without +/-
             'A': 'red',
-            'B': 'blue', 
+            'B': 'blue',
             'AB': 'purple',
             'O': 'green'
           };
-          const color = bloodTypeColors[bloodType] || 'default';
+          const color = bloodTypeColors[displayName] || 'default';
           return (
             <Tag color={color}>
-              {bloodType}
+              {displayName}
             </Tag>
           );
         }
