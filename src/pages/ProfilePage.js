@@ -79,6 +79,10 @@ const ProfilePage = () => {
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
+  const [selectedRegistrationId, setSelectedRegistrationId] = useState(null);
+  const [feedbackViewVisible, setFeedbackViewVisible] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [submittedFeedbacks, setSubmittedFeedbacks] = useState(new Set()); // Track which registrations have feedback
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -405,10 +409,11 @@ const ProfilePage = () => {
     } finally {
       setRegistrationsLoading(false);
     }
-  };// Fetch registrations when user data is available
+  };  // Fetch registrations when user data is available
   useEffect(() => {
     if (user) {
       fetchRegistrations();
+      fetchExistingFeedbacks();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -844,7 +849,8 @@ const ProfilePage = () => {
     setDonationDetailVisible(false);
   };
 
-  const handleOpenFeedback = () => {
+  const handleOpenFeedback = (registrationId) => {
+    setSelectedRegistrationId(registrationId);
     setFeedbackVisible(true);
     setFeedbackText('');
   };
@@ -852,6 +858,53 @@ const ProfilePage = () => {
   const handleCloseFeedback = () => {
     setFeedbackVisible(false);
     setFeedbackText('');
+    setSelectedRegistrationId(null);
+  };
+
+  // Fetch existing feedbacks to track which registrations have feedback
+  const fetchExistingFeedbacks = async () => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      const userId = userInfo?.userId || userInfo?.UserId || userInfo?.UserID || userInfo?.id;
+
+      if (!userId) return;
+
+      const response = await UserAPI.getFeedbacksByUserId(userId);
+      if (response.status === 200 && response.data) {
+        const feedbacks = response.data;
+        const submittedSet = new Set();
+        
+        feedbacks.forEach(feedback => {
+          const regId = feedback.registrationId || feedback.RegistrationId;
+          if (regId) {
+            submittedSet.add(regId);
+          }
+        });
+        
+        setSubmittedFeedbacks(submittedSet);
+      }
+    } catch (error) {
+      console.error('Error fetching existing feedbacks:', error);
+      // Don't show error message as this might be normal for users without feedback
+    }
+  };
+
+  const handleViewFeedback = async (registrationId) => {
+    try {
+      const response = await UserAPI.getFeedbackByRegistrationId(registrationId);
+      if (response.status === 200 && response.data) {
+        setSelectedFeedback(response.data);
+        setFeedbackViewVisible(true);
+      }
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+      message.error('Không thể tải phản hồi. Vui lòng thử lại sau.');
+    }
+  };
+
+  const handleCloseFeedbackView = () => {
+    setFeedbackViewVisible(false);
+    setSelectedFeedback(null);
   };
 
   const handleSubmitFeedback = async () => {
@@ -860,17 +913,19 @@ const ProfilePage = () => {
       return;
     }
 
+    if (!selectedRegistrationId) {
+      message.error('Không tìm thấy thông tin đăng ký');
+      return;
+    }
+
     try {
       setFeedbackLoading(true);
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      const userId = userInfo?.userId || userInfo?.UserId || userInfo?.UserID || userInfo?.id;
 
-      if (!userId) {
-        message.error('Không tìm thấy thông tin người dùng');
-        return;
-      }
-
-      await UserAPI.submitFeedback(feedbackText, userId);
+      await UserAPI.submitFeedback(feedbackText, selectedRegistrationId);
+      
+      // Add the registration to submitted feedbacks set
+      setSubmittedFeedbacks(prev => new Set([...prev, selectedRegistrationId]));
+      
       message.success('Gửi phản hồi thành công! Cảm ơn bạn đã chia sẻ trải nghiệm.');
       handleCloseFeedback();
     } catch (error) {
@@ -1364,6 +1419,7 @@ const ProfilePage = () => {
                           width: '12%',
                           render: (_, record) => {
                             const statusId = record.registrationStatusId;
+                            const registrationId = record.registrationId;
                             
                             // Check if status is "Đã hoàn thành" (status 3 or status with name containing "hoàn thành")
                             const status = registrationStatuses.find(s => s.id === statusId);
@@ -1371,20 +1427,39 @@ const ProfilePage = () => {
                                               (status && status.name && status.name.toLowerCase().includes('hoàn thành'));
                             
                             if (isCompleted) {
-                              return (
-                                <Button 
-                                  type="default"
-                                  size="small"
-                                  icon={<CommentOutlined />}
-                                  onClick={handleOpenFeedback}
-                                  style={{ 
-                                    color: '#52c41a',
-                                    borderColor: '#52c41a'
-                                  }}
-                                >
-                                  Gửi phản hồi
-                                </Button>
-                              );
+                              const hasFeedback = submittedFeedbacks.has(registrationId);
+                              
+                              if (hasFeedback) {
+                                return (
+                                  <Button 
+                                    type="default"
+                                    size="small"
+                                    icon={<CommentOutlined />}
+                                    onClick={() => handleViewFeedback(registrationId)}
+                                    style={{ 
+                                      color: '#1890ff',
+                                      borderColor: '#1890ff'
+                                    }}
+                                  >
+                                    Xem phản hồi
+                                  </Button>
+                                );
+                              } else {
+                                return (
+                                  <Button 
+                                    type="default"
+                                    size="small"
+                                    icon={<CommentOutlined />}
+                                    onClick={() => handleOpenFeedback(registrationId)}
+                                    style={{ 
+                                      color: '#52c41a',
+                                      borderColor: '#52c41a'
+                                    }}
+                                  >
+                                    Gửi phản hồi
+                                  </Button>
+                                );
+                              }
                             } else {
                               return (
                                 <Text style={{ color: '#8c8c8c', fontSize: '12px' }}>
@@ -1646,6 +1721,73 @@ const ProfilePage = () => {
             Phản hồi của bạn sẽ giúp chúng tôi cải thiện chất lượng dịch vụ
           </div>
         </div>
+      </Modal>
+
+      {/* View Feedback Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CommentOutlined style={{ color: '#1890ff' }} />
+            Xem Phản Hồi
+          </div>
+        }
+        open={feedbackViewVisible}
+        onCancel={handleCloseFeedbackView}
+        footer={[
+          <Button key="close" onClick={handleCloseFeedbackView}>
+            Đóng
+          </Button>
+        ]}
+        width={600}
+      >
+        {selectedFeedback && (
+          <div style={{ padding: '16px 0' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <Text strong style={{ color: '#666', fontSize: '14px' }}>
+                Mã đăng ký: #{selectedFeedback.registrationId || selectedFeedback.RegistrationId}
+              </Text>
+            </div>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <Text style={{ color: '#666', fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+                Ngày gửi phản hồi:
+              </Text>
+              <Text style={{ fontSize: '14px' }}>
+                {selectedFeedback.createdAt ? formatDateTime(selectedFeedback.createdAt) : 
+                 selectedFeedback.CreatedAt ? formatDateTime(selectedFeedback.CreatedAt) : 'N/A'}
+              </Text>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <Text style={{ color: '#666', fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+                Nội dung phản hồi:
+              </Text>
+              <div style={{ 
+                background: '#f5f5f5', 
+                padding: '16px', 
+                borderRadius: '8px',
+                minHeight: '100px',
+                lineHeight: '1.6'
+              }}>
+                <Text style={{ whiteSpace: 'pre-wrap' }}>
+                  {selectedFeedback.feedbackInfo || selectedFeedback.FeedbackInfo || 'Không có nội dung'}
+                </Text>
+              </div>
+            </div>
+
+            <div style={{ 
+              fontSize: '12px', 
+              color: '#999',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              marginTop: '16px'
+            }}>
+              <StarOutlined />
+              Cảm ơn bạn đã chia sẻ trải nghiệm hiến máu!
+            </div>
+          </div>
+        )}
       </Modal>
 
       <Footer />

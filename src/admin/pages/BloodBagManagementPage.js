@@ -74,8 +74,6 @@ const BloodBagManagementPage = () => {
     try {
       const response = await AdminAPI.getBloodUnits();
       const bloodUnitsData = response.data || [];
-      console.log('Blood Units Data:', bloodUnitsData);
-      console.log('Sample Blood Unit:', bloodUnitsData[0]);
       setBloodUnits(bloodUnitsData);
     } catch (error) {
       console.error('Error fetching blood units:', error);
@@ -118,8 +116,6 @@ const BloodBagManagementPage = () => {
     try {
       const response = await AdminAPI.getDonationRecords();
       const donationRecords = response.data || [];
-      console.log('Raw Donation Records:', donationRecords);
-      console.log('Sample Donation Record:', donationRecords[0]);
       
       const recordsMap = {};
       
@@ -128,19 +124,12 @@ const BloodBagManagementPage = () => {
         const donationRecordId = record.donationRecordId || record.DonationRecordId || record.id;
         const registrationId = record.registrationId || record.RegistrationId || record.RegistrationID;
         
-        console.log('Processing record:', {
-          donationRecordId,
-          registrationId,
-          originalRecord: record
-        });
-        
         if (donationRecordId && registrationId) {
           recordsMap[donationRecordId] = registrationId;
         }
       });
       
       setDonationRecordsMap(recordsMap);
-      console.log('Final Donation Records Mapping:', recordsMap);
     } catch (error) {
       console.error('Error fetching donation records mapping:', error);
     }
@@ -278,13 +267,7 @@ const BloodBagManagementPage = () => {
         // If registrationId is not directly available, try to map from donationRecordId
         let displayRegistrationId = text;
         
-        console.log('Rendering Registration ID for record:', {
-          directRegistrationId: text,
-          donationRecordId: record.donationRecordId,
-          fullRecord: record,
-          mappingAvailable: donationRecordsMap,
-          mappedValue: donationRecordsMap[record.donationRecordId]
-        });
+
         
         if (!displayRegistrationId && record.donationRecordId) {
           displayRegistrationId = donationRecordsMap[record.donationRecordId];

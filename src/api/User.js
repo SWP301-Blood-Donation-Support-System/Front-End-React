@@ -319,7 +319,7 @@ export const UserAPI = {
   },
 
   // Submit feedback for donation experience
-  submitFeedback: async (feedbackInfo, userId) => {
+  submitFeedback: async (feedbackInfo, registrationId) => {
     try {
       const token = localStorage.getItem("token");
 
@@ -327,7 +327,7 @@ export const UserAPI = {
         `${BASE_URL}/api/Feedback`,
         {
           feedbackInfo: feedbackInfo,
-          userId: userId
+          registrationId: registrationId
         },
         {
           headers: {
@@ -340,6 +340,56 @@ export const UserAPI = {
       return response;
     } catch (error) {
       console.error("Error submitting feedback:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error response status:", error.response?.status);
+      throw error;
+    }
+  },
+
+  // Get feedback by registration ID
+  getFeedbackByRegistrationId: async (registrationId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        `${BASE_URL}/api/Feedback/registration/${registrationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching feedback by registration ID:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error response status:", error.response?.status);
+      throw error;
+    }
+  },
+
+  // Get all feedbacks for a user (by user ID)
+  getFeedbacksByUserId: async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        `${BASE_URL}/api/Feedback/user/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching feedbacks by user ID:", error);
       console.error("Error response:", error.response);
       console.error("Error response data:", error.response?.data);
       console.error("Error response status:", error.response?.status);
