@@ -291,15 +291,16 @@ export const UserAPI = {
       console.error("Error fetching donation records by donor ID:", error);
       throw error;
     }
-  },
-  // Check-in donor using National ID (CCCD)
+  },  // Check-in donor using National ID (CCCD)
   checkinDonor: async (nationalId) => {
     try {
       const token = localStorage.getItem("token");
 
       const response = await axios.put(
-        `${BASE_URL}/api/DonationRegistration/check-in/${nationalId}`,
-        {},
+        `${BASE_URL}/api/DonationRegistration/check-in`,
+        {
+          nationalId: nationalId
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
