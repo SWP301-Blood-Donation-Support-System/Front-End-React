@@ -174,7 +174,6 @@ const BloodBagManagementPage = () => {
     setSelectedStatus(status);
     navigate(`/staff/blood-bag-management?status=${status}`);
   };
-
   // Format date function
   const formatDateTime = (dateString) => {
     if (!dateString) return 'N/A';
@@ -185,6 +184,20 @@ const BloodBagManagementPage = () => {
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
+      });
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
+  // Format date only function (without time)
+  const formatDateOnly = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      return new Date(dateString).toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
       });
     } catch (error) {
       return 'N/A';
@@ -362,22 +375,21 @@ const BloodBagManagementPage = () => {
           {volume || 'N/A'} ml
         </span>
       ),
-    },
-    {
+    },    {
       title: 'Ngày Thu Thập',
       dataIndex: 'collectedDateTime',
       key: 'collectedDateTime',
       width: '10%',
       render: (date) => (
         <span style={{ color: '#374151' }}>
-          {formatDateTime(date)}
+          {formatDateOnly(date)}
         </span>
       ),
     },
     {
       title: 'Ngày Hết Hạn',
-      dataIndex: 'expirationTime',
-      key: 'expirationTime',
+      dataIndex: 'expiryDateTime',
+      key: 'expiryDateTime',
       width: '10%',
       render: (date) => {
         const isExpired = date && new Date(date) < new Date();
@@ -386,7 +398,7 @@ const BloodBagManagementPage = () => {
             color: isExpired ? '#f5222d' : '#374151',
             fontWeight: isExpired ? 'bold' : 'normal'
           }}>
-            {formatDateTime(date)}
+            {formatDateOnly(date)}
           </span>
         );
       },

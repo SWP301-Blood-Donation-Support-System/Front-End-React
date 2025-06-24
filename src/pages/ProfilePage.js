@@ -621,10 +621,9 @@ const ProfilePage = () => {
       console.log('Downloading certificate for registration ID:', registrationId);
       
       // Use the new API that directly takes registrationId
-      const response = await UserAPI.getCertificateByRegistrationId(registrationId);
-        // Create blob and download file
+      const response = await UserAPI.getCertificateByRegistrationId(registrationId);      // Create blob and download file
       const blob = new Blob([response.data], { 
-        type: response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+        type: response.headers['content-type'] || 'application/pdf' 
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -647,7 +646,7 @@ const ProfilePage = () => {
       const nameWithoutDiacritics = removeVietnameseDiacritics(userFullName);
       const cleanFullName = nameWithoutDiacritics.replace(/[^\w\s-]/g, '').replace(/\s+/g, '_');
       
-      let filename = `blood-donation-certificate_${cleanFullName}.docx`;
+      let filename = `blood-donation-certificate_${cleanFullName}.pdf`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
         if (filenameMatch && filenameMatch[1]) {
