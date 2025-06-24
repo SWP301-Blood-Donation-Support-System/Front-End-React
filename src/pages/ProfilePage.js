@@ -54,6 +54,12 @@ const ProfilePage = () => {
   // State riêng cho thông tin hiến máu
   const [donationInfo, setDonationInfo] = useState(null);
   const [donationInfoLoading, setDonationInfoLoading] = useState(false);
+  
+  // Function to count completed donations from front-end registrations
+  const getCompletedDonationCount = () => {
+    if (!registrations || registrations.length === 0) return 0;
+    return registrations.filter(registration => registration.registrationStatusId === 3).length;
+  };
   const [editMode, setEditMode] = useState(false);  const [editLoading, setEditLoading] = useState(false);
   const [bloodTypes, setBloodTypes] = useState([]);
   const [genders, setGenders] = useState([]);
@@ -1158,15 +1164,13 @@ const ProfilePage = () => {
                       </div>
                       <div className="stat-content">                        <div className="stat-label">Số lần hiến máu</div>                        <div className="stat-value">
                           {(() => {
-                            const count = donationInfo?.donationCount ?? user?.donationCount ?? user?.DonationCount ?? 0;
-                            console.log("🎯 Display donationCount - Current state:", {
-                              donationInfo: donationInfo,
-                              donationInfoCount: donationInfo?.donationCount,
-                              userDonationCount: user?.donationCount,
-                              userDonationCountCaps: user?.DonationCount,
-                              finalValue: count
+                            const frontEndCount = getCompletedDonationCount();
+                            console.log("🎯 Display donationCount - Front-end calculation:", {
+                              registrations: registrations,
+                              completedRegistrations: registrations?.filter(r => r.registrationStatusId === 3),
+                              frontEndCount: frontEndCount
                             });
-                            return count;
+                            return frontEndCount;
                           })()} lần
                         </div>
                       </div>
@@ -1268,33 +1272,36 @@ const ProfilePage = () => {
                       className="registration-table"
                       size="large"                      columns={[
                         {
-                          title: 'Mã Đăng Ký (Registration ID)',
-                          dataIndex: 'registrationId',
-                          key: 'registrationId',
-                          width: '15%',
-                          render: (registrationId) => <strong>#{registrationId || 'N/A'}</strong>
-                        },                        {
                           title: 'Ngày đăng kí',
                           dataIndex: 'createdAt',
                           key: 'createdAt',
-                          width: '18%',
-                          render: (date) => formatDate(date)
+                          width: '20%',
+                          render: (date) => (
+                            <span style={{ color: 'black', fontWeight: 'bold' }}>
+                              {formatDate(date)}
+                            </span>
+                          )
                         },
                         {
                           title: 'Ngày hiến máu',
                           key: 'donationDate',
-                          width: '18%',
+                          width: '20%',
                           render: (_, record) => {
                             // Try multiple possible field names for scheduleId
                             const scheduleId = record.scheduleId || record.ScheduleId || record.scheduleID || record.ScheduleID;
-                            return getScheduleDateById(scheduleId);
+                            const dateText = getScheduleDateById(scheduleId);
+                            return (
+                              <span style={{ color: 'black', fontWeight: 'bold' }}>
+                                {dateText}
+                              </span>
+                            );
                           }
                         },
                         {
                           title: 'Trạng thái',
                           dataIndex: 'registrationStatusId',
                           key: 'status',
-                          width: '15%',
+                          width: '18%',
                           render: (statusId) => (
                             <Tag color={getStatusColor(statusId)}>
                               {getStatusText(statusId)}
@@ -1303,7 +1310,7 @@ const ProfilePage = () => {
                         },                        {
                           title: 'Khung giờ',
                           key: 'timeslot',
-                          width: '15%',
+                          width: '18%',
                           render: (_, record) => {
                             // Try multiple possible field names
                             const timeslotId = record.timeslotId || record.timeSlotId || record.TimeslotId || record.TimeSlotId;
