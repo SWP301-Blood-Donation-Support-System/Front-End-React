@@ -33,6 +33,7 @@ const BloodBagManagementPage = () => {
   const [selectedStatus, setSelectedStatus] = useState('all'); // 'all', 'qualified', 'disqualified', 'pending'
   const [bloodComponents, setBloodComponents] = useState({});
   const [bloodTypes, setBloodTypes] = useState({});
+  const [donationRecordsMap, setDonationRecordsMap] = useState({}); // Map donationRecordId to registrationId
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,6 +62,7 @@ const BloodBagManagementPage = () => {
     fetchBloodUnits();
     fetchBloodComponents();
     fetchBloodTypes();
+    fetchDonationRecordsMapping();
   }, [location.search]);
 
   useEffect(() => {
@@ -72,6 +74,8 @@ const BloodBagManagementPage = () => {
     try {
       const response = await AdminAPI.getBloodUnits();
       const bloodUnitsData = response.data || [];
+      console.log('Blood Units Data:', bloodUnitsData);
+      console.log('Sample Blood Unit:', bloodUnitsData[0]);
       setBloodUnits(bloodUnitsData);
     } catch (error) {
       console.error('Error fetching blood units:', error);
@@ -107,6 +111,38 @@ const BloodBagManagementPage = () => {
       setBloodTypes(typesMap);
     } catch (error) {
       console.error('Error fetching blood types:', error);
+    }
+  };
+
+  const fetchDonationRecordsMapping = async () => {
+    try {
+      const response = await AdminAPI.getDonationRecords();
+      const donationRecords = response.data || [];
+      console.log('Raw Donation Records:', donationRecords);
+      console.log('Sample Donation Record:', donationRecords[0]);
+      
+      const recordsMap = {};
+      
+      // Create mapping from donationRecordId to registrationId
+      donationRecords.forEach(record => {
+        const donationRecordId = record.donationRecordId || record.DonationRecordId || record.id;
+        const registrationId = record.registrationId || record.RegistrationId || record.RegistrationID;
+        
+        console.log('Processing record:', {
+          donationRecordId,
+          registrationId,
+          originalRecord: record
+        });
+        
+        if (donationRecordId && registrationId) {
+          recordsMap[donationRecordId] = registrationId;
+        }
+      });
+      
+      setDonationRecordsMap(recordsMap);
+      console.log('Final Donation Records Mapping:', recordsMap);
+    } catch (error) {
+      console.error('Error fetching donation records mapping:', error);
     }
   };
 
@@ -223,10 +259,60 @@ const BloodBagManagementPage = () => {
 
   const bloodUnitColumns = [
     {
-      title: 'Mã Túi Máu',
+      title: 'Mã Người Hiến',
+      dataIndex: 'donorId',
+      key: 'donorId',
+      width: '10%',
+      render: (text) => (
+        <span style={{ fontWeight: 'bold', color: '#722ed1' }}>
+          #{text || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      title: 'Mã Đăng Ký',
+      dataIndex: 'registrationId',
+      key: 'registrationId',
+      width: '10%',
+      render: (text, record) => {
+        // If registrationId is not directly available, try to map from donationRecordId
+        let displayRegistrationId = text;
+        
+        console.log('Rendering Registration ID for record:', {
+          directRegistrationId: text,
+          donationRecordId: record.donationRecordId,
+          fullRecord: record,
+          mappingAvailable: donationRecordsMap,
+          mappedValue: donationRecordsMap[record.donationRecordId]
+        });
+        
+        if (!displayRegistrationId && record.donationRecordId) {
+          displayRegistrationId = donationRecordsMap[record.donationRecordId];
+        }
+        
+        return (
+          <span style={{ fontWeight: 'bold', color: '#13c2c2' }}>
+            #{displayRegistrationId || 'N/A'}
+          </span>
+        );
+      },
+    },
+    {
+      title: 'Mã Hồ Sơ',
+      dataIndex: 'donationRecordId',
+      key: 'donationRecordId',
+      width: '10%',
+      render: (text) => (
+        <span style={{ fontWeight: 'bold', color: '#fa541c' }}>
+          #{text || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      title: 'Mã Túi Máu (BloodUnitID)',
       dataIndex: 'bloodUnitId',
       key: 'bloodUnitId',
-      width: '12%',
+      width: '8%',
       render: (text) => (
         <span style={{ fontWeight: 'bold', color: '#dc2626' }}>
           #{text || 'N/A'}
@@ -237,7 +323,7 @@ const BloodBagManagementPage = () => {
       title: 'Nhóm Máu',
       dataIndex: 'bloodTypeName',
       key: 'bloodTypeName',
-      width: '10%',
+      width: '8%',
       render: (text, record) => {
         const bloodTypeId = record.bloodTypeId;
         const bloodType = bloodTypes[bloodTypeId];
@@ -257,10 +343,10 @@ const BloodBagManagementPage = () => {
       },
     },
     {
-      title: 'Thành Phần',
+      title: 'Loại Hiến Máu',
       dataIndex: 'componentName',
       key: 'componentName',
-      width: '15%',
+      width: '10%',
       render: (text, record) => {
         const componentId = record.componentId;
         const component = bloodComponents[componentId];
@@ -273,26 +359,21 @@ const BloodBagManagementPage = () => {
       },
     },
     {
-      title: 'Người Hiến',
+      title: 'Tên Người Hiến',
       dataIndex: 'donorName',
       key: 'donorName',
-      width: '15%',
-      render: (text, record) => (
-        <div>
-          <div style={{ fontWeight: 'bold', color: '#1890ff' }}>
-            {text || `ID: ${record.donorId || 'N/A'}`}
-          </div>
-          <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
-            ID: {record.donorId || 'N/A'}
-          </div>
-        </div>
+      width: '12%',
+      render: (text) => (
+        <span style={{ fontWeight: 'bold', color: '#1890ff' }}>
+          {text || 'N/A'}
+        </span>
       ),
     },
     {
       title: 'Thể Tích (ml)',
       dataIndex: 'volume',
       key: 'volume',
-      width: '10%',
+      width: '8%',
       render: (volume) => (
         <span style={{ color: '#374151', fontWeight: '500' }}>
           {volume || 'N/A'} ml
@@ -303,7 +384,7 @@ const BloodBagManagementPage = () => {
       title: 'Ngày Thu Thập',
       dataIndex: 'collectedDateTime',
       key: 'collectedDateTime',
-      width: '13%',
+      width: '10%',
       render: (date) => (
         <span style={{ color: '#374151' }}>
           {formatDateTime(date)}
@@ -314,7 +395,7 @@ const BloodBagManagementPage = () => {
       title: 'Ngày Hết Hạn',
       dataIndex: 'expirationTime',
       key: 'expirationTime',
-      width: '13%',
+      width: '10%',
       render: (date) => {
         const isExpired = date && new Date(date) < new Date();
         return (
@@ -331,7 +412,7 @@ const BloodBagManagementPage = () => {
       title: 'Trạng Thái',
       dataIndex: 'statusName',
       key: 'statusName',
-      width: '12%',
+      width: '8%',
       render: (status) => (
         <Tag color={getStatusColor(status)}>
           {status || 'N/A'}
