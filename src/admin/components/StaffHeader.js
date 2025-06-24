@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Avatar, Dropdown, Menu, Space } from 'antd';
+import { Layout, Avatar, Dropdown, Menu, Space, notification } from 'antd';
 import { 
   MailOutlined,
   PoweroffOutlined,
@@ -13,6 +13,7 @@ import { UserAPI } from '../../api/User';
 const { Header } = Layout;
 
 const StaffHeader = () => {
+  const [api, contextHolder] = notification.useNotification();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -42,8 +43,19 @@ const StaffHeader = () => {
 
   // Handle logout functionality
   const handleLogout = () => {
+    const userName = user?.FullName || user?.name || 'Staff';
+    
     UserAPI.logout();
     setUser(null);
+    
+    // Show logout notification
+    api.success({
+      message: 'Đăng xuất thành công!',
+      description: `Tạm biệt ${userName}! Hẹn gặp lại bạn sau.`,
+      placement: 'topRight',
+      duration: 3,
+    });
+    
     navigate('/');
   };
 
@@ -74,6 +86,7 @@ const StaffHeader = () => {
 
   return (
     <Header className="staff-header">
+      {contextHolder}
       <div className="staff-header-right">
         <div className="staff-header-actions">
           <Space size="middle">

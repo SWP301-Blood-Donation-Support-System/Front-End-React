@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Card, 
   Row, 
@@ -11,6 +11,7 @@ import {
   Space,
   Spin,
   message,
+  notification,
   Layout,
   Input,
   Select,
@@ -36,7 +37,7 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   CommentOutlined,
-  StarOutlined
+  EyeOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
@@ -49,6 +50,7 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 
 const ProfilePage = () => {
+  const [api, contextHolder] = notification.useNotification();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   // State riêng cho thông tin hiến máu
@@ -82,8 +84,30 @@ const ProfilePage = () => {
   const [selectedRegistrationId, setSelectedRegistrationId] = useState(null);
   const [feedbackViewVisible, setFeedbackViewVisible] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [feedbackExistence, setFeedbackExistence] = useState({}); // Track feedback existence for each registration
   const navigate = useNavigate();
   const location = useLocation();
+  const notificationShown = useRef(false);
+
+  // Handle login notification from navigation state
+  useEffect(() => {
+    if (location.state?.loginNotification && !notificationShown.current) {
+      notificationShown.current = true;
+      
+      api.success({
+        message: location.state.loginNotification.message,
+        description: location.state.loginNotification.description,
+        placement: 'topRight',
+        duration: 3,
+      });
+      
+      // Clear the notification from state to prevent showing it again
+      navigate(location.pathname + location.search, { 
+        state: { ...location.state, loginNotification: null }, 
+        replace: true 
+      });
+    }
+  }, [location.state?.loginNotification, api, navigate, location.pathname, location.search]);
 
   // Helper functions
   const formatDate = (dateString) => {
@@ -191,6 +215,35 @@ const ProfilePage = () => {
       setDonationInfoLoading(false);
       console.log("🏁 fetchDonationInfo completed");
     }
+  };
+
+  // Function to check feedback existence for all completed registrations
+  const checkFeedbackExistence = async (registrationsList) => {
+    console.log('🔍 Checking feedback existence for registrations...');
+    const feedbackMap = {};
+    
+    // Only check for completed registrations (status 3)
+    const completedRegistrations = registrationsList.filter(reg => reg.registrationStatusId === 3);
+    
+    for (const registration of completedRegistrations) {
+      try {
+        const response = await UserAPI.getFeedbackByRegistrationId(registration.registrationId);
+        
+        // Check if response contains valid feedback data
+        if (response.status === 200 && response.data) {
+          const feedbackData = Array.isArray(response.data) ? response.data[0] : response.data;
+          feedbackMap[registration.registrationId] = !!(feedbackData && feedbackData.feedbackInfo);
+        } else {
+          feedbackMap[registration.registrationId] = false;
+        }
+      } catch (error) {
+        // Any error (including 404) means no feedback exists
+        feedbackMap[registration.registrationId] = false;
+      }
+    }
+    
+    console.log('📊 Feedback existence map:', feedbackMap);
+    setFeedbackExistence(feedbackMap);
   };
 
   useEffect(() => {
@@ -399,6 +452,9 @@ const ProfilePage = () => {
         console.log("User registrations:", userRegistrations);
         console.log("Registrations count:", userRegistrations.length);
         setRegistrations(userRegistrations);
+        
+        // Check feedback existence for completed registrations
+        await checkFeedbackExistence(userRegistrations);
       }
     } catch (error) {
       console.error("Error fetching registrations:", error);
@@ -859,7 +915,6 @@ const ProfilePage = () => {
       
       // If we get a successful response with data, show the view modal
       if (response.status === 200 && response.data) {
-        console.log('✅ Feedback data found, showing view modal');
         console.log('📋 Raw response.data:', response.data);
         
         // API returns an array, get the first element
@@ -868,8 +923,17 @@ const ProfilePage = () => {
         console.log('📋 feedbackInfo:', feedbackData?.feedbackInfo);
         console.log('📋 registrationId:', feedbackData?.registrationId);
         
-        setSelectedFeedback(feedbackData);
-        setFeedbackViewVisible(true);
+        // Check if we actually have valid feedback data
+        if (feedbackData && feedbackData.feedbackInfo) {
+          console.log('✅ Valid feedback data found, showing view modal');
+          setSelectedFeedback(feedbackData);
+          setFeedbackViewVisible(true);
+        } else {
+          console.log('📝 No valid feedback data (empty array or no feedbackInfo), opening submission modal');
+          setSelectedRegistrationId(registrationId);
+          setFeedbackVisible(true);
+          setFeedbackText('');
+        }
       } else {
         console.log('📝 No feedback data, opening submission modal');
         setSelectedRegistrationId(registrationId);
@@ -919,19 +983,34 @@ const ProfilePage = () => {
     
     if (!feedbackText.trim()) {
       console.log("❌ Validation failed: Empty feedback text");
-      message.error('Vui lòng nhập nội dung phản hồi');
+      api.error({
+        message: 'Thiếu nội dung!',
+        description: 'Vui lòng nhập nội dung phản hồi',
+        placement: 'topRight',
+        duration: 3,
+      });
       return;
     }
 
     if (!selectedRegistrationId) {
       console.log("❌ Validation failed: No registration ID");
-      message.error('Không tìm thấy thông tin đăng ký');
+      api.error({
+        message: 'Lỗi hệ thống!',
+        description: 'Không tìm thấy thông tin đăng ký',
+        placement: 'topRight',
+        duration: 3,
+      });
       return;
     }
 
     if (feedbackText.trim().length < 5) {
       console.log("❌ Validation failed: Feedback too short");
-      message.error('Phản hồi phải có ít nhất 5 ký tự');
+      api.error({
+        message: 'Nội dung quá ngắn!',
+        description: 'Phản hồi phải có ít nhất 5 ký tự',
+        placement: 'topRight',
+        duration: 3,
+      });
       return;
     }
 
@@ -941,27 +1020,36 @@ const ProfilePage = () => {
       console.log("📡 Submitting feedback to API...");
       const response = await UserAPI.submitFeedback(feedbackText, selectedRegistrationId);
       console.log("✅ Feedback submitted successfully:", response);
+      console.log("📊 Response status:", response.status);
+      console.log("📊 Response data:", response.data);
       
       if (response.status === 200 || response.status === 201) {
-        // Show success modal and automatically view the feedback
-        Modal.success({
-          title: 'Gửi phản hồi thành công!',
-          content: 'Cảm ơn bạn đã chia sẻ trải nghiệm hiến máu. Phản hồi của bạn sẽ giúp chúng tôi cải thiện chất lượng dịch vụ tốt hơn.',
-          okText: 'Xem phản hồi',
-          onOk: async () => {
-            handleCloseFeedback();
-            // Automatically fetch and show the submitted feedback
-            try {
-              const feedbackResponse = await UserAPI.getFeedbackByRegistrationId(selectedRegistrationId);
-              if (feedbackResponse.status === 200 && feedbackResponse.data) {
-                setSelectedFeedback(feedbackResponse.data);
-                setFeedbackViewVisible(true);
-              }
-            } catch (error) {
-              console.error('Error fetching submitted feedback:', error);
-              message.error('Không thể hiển thị phản hồi vừa gửi. Vui lòng thử lại sau.');
-            }
-          }
+        console.log("🎉 Entering success block - showing modal...");
+        // Update feedback existence state
+        setFeedbackExistence(prev => ({
+          ...prev,
+          [selectedRegistrationId]: true
+        }));
+        
+        // Close feedback modal
+        handleCloseFeedback();
+        
+        // Show simple success notification that auto-disappears
+        console.log("🔔 About to show notification...");
+        api.success({
+          message: 'Gửi phản hồi thành công!',
+          description: 'Cảm ơn bạn đã gửi phản hồi cho chúng tôi',
+          placement: 'topRight',
+          duration: 3,
+        });
+        console.log("🔔 Notification called!");
+      } else {
+        console.log("⚠️ Unexpected response status:", response.status);
+        api.error({
+          message: 'Lỗi!',
+          description: 'Có lỗi xảy ra khi gửi phản hồi. Vui lòng thử lại sau.',
+          placement: 'topRight',
+          duration: 3,
         });
       }
     } catch (error) {
@@ -974,11 +1062,26 @@ const ProfilePage = () => {
           okText: 'Đã hiểu'
         });
       } else if (error.response && error.response.status === 400) {
-        message.error('Thông tin phản hồi không hợp lệ. Vui lòng kiểm tra lại.');
+        api.error({
+          message: 'Thông tin không hợp lệ!',
+          description: 'Thông tin phản hồi không hợp lệ. Vui lòng kiểm tra lại.',
+          placement: 'topRight',
+          duration: 3,
+        });
       } else if (error.response && error.response.status === 401) {
-        message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        api.error({
+          message: 'Phiên đăng nhập hết hạn!',
+          description: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+          placement: 'topRight',
+          duration: 3,
+        });
       } else {
-        message.error('Có lỗi xảy ra khi gửi phản hồi. Vui lòng thử lại sau.');
+        api.error({
+          message: 'Lỗi!',
+          description: 'Có lỗi xảy ra khi gửi phản hồi. Vui lòng thử lại sau.',
+          placement: 'topRight',
+          duration: 3,
+        });
       }
     } finally {
       setFeedbackLoading(false);
@@ -1003,6 +1106,7 @@ const ProfilePage = () => {
 
   return (
     <Layout>
+      {contextHolder}
       <Header />
       <Navbar />
       <div className="profile-page">
@@ -1476,18 +1580,23 @@ const ProfilePage = () => {
                                               (status && status.name && status.name.toLowerCase().includes('hoàn thành'));
                             
                             if (isCompleted) {
+                              // Check if feedback exists for this registration
+                              const feedbackExists = feedbackExistence[registrationId];
+                              const buttonText = feedbackExists ? 'Xem phản hồi' : 'Gửi phản hồi';
+                              const buttonIcon = feedbackExists ? <EyeOutlined /> : <CommentOutlined />;
+                              
                               return (
                                 <Button 
                                   type="default"
                                   size="small"
-                                  icon={<CommentOutlined />}
+                                  icon={buttonIcon}
                                   onClick={() => handleOpenFeedback(registrationId)}
                                   style={{ 
-                                    color: '#1890ff',
-                                    borderColor: '#1890ff'
+                                    color: feedbackExists ? '#52c41a' : '#52c41a',
+                                    borderColor: feedbackExists ? '#52c41a' : '#52c41a'
                                   }}
                                 >
-                                  Phản hồi
+                                  {buttonText}
                                 </Button>
                               );
                             } else {
@@ -1696,7 +1805,7 @@ const ProfilePage = () => {
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <StarOutlined style={{ color: '#ffa940' }} />
+            <CommentOutlined style={{ color: '#ffa940' }} />
             Gửi Phản Hồi Trải Nghiệm Hiến Máu
           </div>
         }
@@ -1747,7 +1856,7 @@ const ProfilePage = () => {
             alignItems: 'center',
             gap: '4px'
           }}>
-            <StarOutlined />
+            <CommentOutlined />
             Phản hồi của bạn sẽ giúp chúng tôi cải thiện chất lượng dịch vụ
           </div>
         </div>
@@ -1773,11 +1882,7 @@ const ProfilePage = () => {
         {selectedFeedback && (
           <div style={{ padding: '16px 0' }}>
             {console.log('🔍 Rendering view modal with selectedFeedback:', selectedFeedback)}
-            <div style={{ marginBottom: '16px' }}>
-              <Text strong style={{ color: '#666', fontSize: '14px' }}>
-                Mã đăng ký: #{selectedFeedback.registrationId || selectedFeedback.RegistrationId}
-              </Text>
-            </div>
+
             
 
 
@@ -1806,7 +1911,7 @@ const ProfilePage = () => {
               gap: '4px',
               marginTop: '16px'
             }}>
-              <StarOutlined />
+              <HeartOutlined />
               Cảm ơn bạn đã chia sẻ trải nghiệm hiến máu!
             </div>
           </div>
