@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   DesktopOutlined,
   FileOutlined,
@@ -17,7 +17,7 @@ import {
   MedicineBoxOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const { Sider } = Layout;
 
@@ -32,20 +32,61 @@ function getItem(label, key, icon, children) {
 
 const StaffSidebar = ({ collapsed, onCollapse }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [openKeys, setOpenKeys] = useState([]);
+
+  // Function to get selected key based on current path
+  const getSelectedKey = () => {
+    const pathname = location.pathname;
+    const search = location.search;
+    
+    if (pathname.includes('/staff/schedule-management')) {
+      return ['1'];
+    } else if (pathname.includes('/staff/user-management')) {
+      return ['2'];
+    } else if (pathname.includes('/staff/blood-bag-management')) {
+      if (search.includes('status=all')) return ['3-1'];
+      if (search.includes('status=qualified')) return ['3-2'];
+      if (search.includes('status=disqualified')) return ['3-3'];
+      if (search.includes('status=pending')) return ['3-4'];
+      return ['3-1']; // default to all
+    } else if (pathname.includes('/staff/donation-records')) {
+      if (pathname.includes('/create')) return ['4-2'];
+      return ['4-1'];
+    } else if (pathname.includes('/staff/reports')) {
+      return ['5'];
+    }
+    
+    return ['1']; // default to schedule management
+  };
+
+  // Function to get which submenus should be open based on current path
+  const getOpenKeys = () => {
+    const pathname = location.pathname;
+    const currentOpenKeys = [...openKeys]; // Copy current open keys
+    
+    // Add the current page's parent submenu to open keys if not already there
+    if (pathname.includes('/staff/blood-bag-management') && !currentOpenKeys.includes('3')) {
+      currentOpenKeys.push('3');
+    } else if (pathname.includes('/staff/donation-records') && !currentOpenKeys.includes('4')) {
+      currentOpenKeys.push('4');
+    }
+    
+    return currentOpenKeys;
+  };
+
+  // Handle submenu open/close
+  const onOpenChange = (keys) => {
+    setOpenKeys(keys);
+  };
 
   // Handle menu item clicks
   const handleMenuClick = ({ key }) => {
     console.log('Menu item clicked:', key);
     
     switch (key) {
-      case '1-1': // Lịch sắp tới
+      case '1': // Lịch đặt hiến - prioritize upcoming schedules
         navigate('/staff/schedule-management?type=all');
-        break;
-      case '1-2': // Lịch đã qua
-        navigate('/staff/schedule-management?type=upcoming');
-        break;
-      case '1-3': // Tất cả lịch
-        navigate('/staff/schedule-management?type=past');
         break;
       case '2': // Quản lý người hiến
         navigate('/staff/user-management');
@@ -79,11 +120,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
 
   // Sidebar items
   const sidebarItems = [
-    getItem('Lịch đặt hiến', '1', <PieChartOutlined />, [
-      getItem('Tất cả lịch', '1-1', <UnorderedListOutlined />),
-      getItem('Lịch sắp tới', '1-2', <CalendarOutlined />),
-      getItem('Lịch đã qua', '1-3', <HistoryOutlined />),
-    ]),
+    getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
     getItem('Quản lý người hiến', '2', <UserOutlined />),
     getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />, [
       getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
@@ -117,7 +154,9 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       </div>
       <Menu 
         theme="dark"
-        defaultSelectedKeys={['1']} 
+        selectedKeys={getSelectedKey()}
+        openKeys={getOpenKeys()}
+        onOpenChange={onOpenChange}
         mode="inline" 
         items={sidebarItems}
         className="staff-menu"
