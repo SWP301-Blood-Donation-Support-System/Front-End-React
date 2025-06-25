@@ -191,17 +191,23 @@ const DonationSchedulePage = () => {
         if (registration.registrationStatusId === 3) {
           try {
             const response = await UserAPI.getFeedbackByRegistrationId(registration.registrationId);
-            feedbackChecks[registration.registrationId] = true;
+            // Check if response has actual feedback data, not just empty array or null
+            const hasValidFeedback = response.status === 200 && 
+                                   response.data && 
+                                   (Array.isArray(response.data) ? response.data.length > 0 : true) &&
+                                   response.data !== null &&
+                                   response.data !== undefined;
+            
+            feedbackChecks[registration.registrationId] = hasValidFeedback;
+            console.log(`Feedback check for registration ${registration.registrationId}: response =`, response.data, `exists = ${hasValidFeedback}`);
           } catch (error) {
-            if (error.response && error.response.status === 404) {
-              feedbackChecks[registration.registrationId] = false;
-            } else {
-              feedbackChecks[registration.registrationId] = false;
-            }
+            feedbackChecks[registration.registrationId] = false;
+            console.log(`Feedback check for registration ${registration.registrationId}: error = ${error.response?.status || 'unknown'}, exists = false`);
           }
         }
       }
       
+      console.log('Feedback existence state:', feedbackChecks);
       setFeedbackExistence(feedbackChecks);
     } catch (error) {
       console.error('Error checking feedback existence:', error);
@@ -616,10 +622,13 @@ const DonationSchedulePage = () => {
     setSelectedRegistrationId(registrationId);
     
     const feedbackExists = feedbackExistence[registrationId];
+    console.log(`Opening feedback for registration ${registrationId}: feedbackExists = ${feedbackExists}`);
     
     if (feedbackExists) {
+      console.log('Opening view feedback modal');
       await handleViewFeedback(registrationId);
     } else {
+      console.log('Opening submit feedback modal');
       setFeedbackText('');
       setFeedbackVisible(true);
     }
@@ -634,27 +643,54 @@ const DonationSchedulePage = () => {
   const handleViewFeedback = async (registrationId) => {
     try {
       const response = await UserAPI.getFeedbackByRegistrationId(registrationId);
+      console.log('View feedback response:', response);
       
-      if (response.status === 200 && response.data) {
+      // Check if response has valid feedback data
+      const hasValidFeedback = response.status === 200 && 
+                             response.data && 
+                             (Array.isArray(response.data) ? response.data.length > 0 : true) &&
+                             response.data !== null &&
+                             response.data !== undefined;
+      
+      if (hasValidFeedback) {
         const feedbackData = Array.isArray(response.data) ? response.data[0] : response.data;
-        setSelectedFeedback(feedbackData);
-        setFeedbackViewVisible(true);
+        // Additional check to ensure feedbackData has actual content
+        if (feedbackData && (feedbackData.feedbackInfo || feedbackData.FeedbackInfo || feedbackData.content || feedbackData.Content)) {
+          setSelectedFeedback(feedbackData);
+          setFeedbackViewVisible(true);
+        } else {
+          console.log('Feedback data exists but has no content, showing submit modal');
+          // If feedback data exists but has no content, show submit modal
+          setFeedbackExistence(prev => ({
+            ...prev,
+            [registrationId]: false
+          }));
+          setSelectedRegistrationId(registrationId);
+          setFeedbackText('');
+          setFeedbackVisible(true);
+        }
       } else {
-        api.warning({
-          message: 'Không tìm thấy phản hồi!',
-          description: 'Không tìm thấy phản hồi cho đăng ký này',
-          placement: 'topRight',
-          duration: 3,
-        });
+        console.log('No valid feedback found, showing submit modal');
+        // If no feedback found, update the feedback existence state and show submit modal instead
+        setFeedbackExistence(prev => ({
+          ...prev,
+          [registrationId]: false
+        }));
+        setSelectedRegistrationId(registrationId);
+        setFeedbackText('');
+        setFeedbackVisible(true);
       }
     } catch (error) {
       console.error('Error fetching feedback:', error);
-      api.error({
-        message: 'Lỗi!',
-        description: 'Có lỗi xảy ra khi tải phản hồi',
-        placement: 'topRight',
-        duration: 3,
-      });
+      console.log('Feedback fetch failed, showing submit modal');
+      // Any error means no valid feedback, show submit modal
+      setFeedbackExistence(prev => ({
+        ...prev,
+        [registrationId]: false
+      }));
+      setSelectedRegistrationId(registrationId);
+      setFeedbackText('');
+      setFeedbackVisible(true);
     }
   };
 
@@ -1007,8 +1043,8 @@ const DonationSchedulePage = () => {
                                   icon={buttonIcon}
                                   onClick={() => handleOpenFeedback(registrationId)}
                                   style={{ 
-                                    color: feedbackExists ? '#52c41a' : '#52c41a',
-                                    borderColor: feedbackExists ? '#52c41a' : '#52c41a'
+                                    color: feedbackExists ? '#52c41a' : '#1890ff',
+                                    borderColor: feedbackExists ? '#52c41a' : '#1890ff'
                                   }}
                                 >
                                   {buttonText}
@@ -1190,19 +1226,7 @@ const DonationSchedulePage = () => {
                   </div>
                 </div>
               </Col>
-              <Col span={12}>
-                <div className="form-field">
-                  <label className="form-label">KHÔNG THỂ HIẾN MÁU</label>
-                  <div className="form-value">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedDonationRecord.cannotDonate || selectedDonationRecord.CannotDonate || false}
-                      disabled
-                      style={{ pointerEvents: 'none' }}
-                    />
-                  </div>
-                </div>
-              </Col>
+
               <Col span={24}>
                 <div className="form-field">
                   <label className="form-label">GHI CHÚ</label>
@@ -1323,6 +1347,12 @@ const DonationSchedulePage = () => {
                    'Không có nội dung'}
                 </Text>
               </div>
+            </div>
+            
+            <div style={{ marginTop: '16px' }}>
+              <Text>
+                <HeartOutlined /> Cảm ơn bạn đã chia sẻ trải nghiệm hiến máu!
+              </Text>
             </div>
           </div>
         )}
