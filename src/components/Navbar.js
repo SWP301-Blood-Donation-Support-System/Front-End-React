@@ -39,6 +39,8 @@ const Navbar = () => {
         return ['home'];
       case '/booking':
         return ['schedule'];
+      case '/donation-schedule':
+        return ['donation-schedule'];
       case '/search':
         return ['search'];
       case '/news':
@@ -62,6 +64,11 @@ const Navbar = () => {
       key: 'schedule',
       label: 'Đặt Lịch Hiến Máu',
       onClick: () => navigate('/booking')
+    },
+    {
+      key: 'donation-schedule',
+      label: 'Lịch Hiến Của Bạn',
+      onClick: () => navigate('/donation-schedule')
     },
     {
       key: 'search',
