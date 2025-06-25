@@ -18,6 +18,7 @@ import UserManagementPage from './admin/pages/UserManagementPage';
 import BloodBagManagementPage from './admin/pages/BloodBagManagementPage';
 import DonationRecordsPage from './admin/pages/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
+import StaffProfilePage from './admin/pages/StaffProfilePage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import './styles/main.scss';
 
@@ -77,6 +78,11 @@ function App() {
             <Route path="/staff/donation-records/create" element={
               <AdminProtectedRoute>
                 <CreateDonationRecordPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/profile" element={
+              <AdminProtectedRoute>
+                <StaffProfilePage />
               </AdminProtectedRoute>
             } />
           </Routes>
