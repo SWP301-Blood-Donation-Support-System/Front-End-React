@@ -638,11 +638,6 @@ const ScheduleManagementPage = () => {
         return (
           <div>
             <div style={{ fontWeight: 'bold' }}>{donorName}</div>
-            {donor?.email && (
-              <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
-                {donor.email}
-              </div>
-            )}
           </div>
         );
       },
