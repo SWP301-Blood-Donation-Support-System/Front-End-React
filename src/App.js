@@ -12,7 +12,7 @@ import EligibilityFormPage from './pages/EligibilityFormPage';
 import ProfilePage from './pages/ProfilePage';
 import DonationSchedulePage from './pages/DonationSchedulePage';
 import CheckinPage from './pages/CheckinPage';
-import StaffPage from './admin/pages/StaffPage';
+
 import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
 import UserManagementPage from './admin/pages/UserManagementPage';
 import BloodBagManagementPage from './admin/pages/BloodBagManagementPage';
@@ -53,11 +53,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/donation-schedule" element={<DonationSchedulePage />} />
             <Route path="/checkin" element={<CheckinPage />} />
-            <Route path="/staff" element={
-              <AdminProtectedRoute>
-                <StaffPage />
-              </AdminProtectedRoute>
-            } />
+
             <Route path="/staff/schedule-management" element={
               <AdminProtectedRoute>
                 <ScheduleManagementPage />
