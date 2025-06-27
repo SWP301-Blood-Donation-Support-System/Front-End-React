@@ -12,12 +12,13 @@ import EligibilityFormPage from './pages/EligibilityFormPage';
 import ProfilePage from './pages/ProfilePage';
 import DonationSchedulePage from './pages/DonationSchedulePage';
 import CheckinPage from './pages/CheckinPage';
-import StaffPage from './admin/pages/StaffPage';
+
 import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
 import UserManagementPage from './admin/pages/UserManagementPage';
 import BloodBagManagementPage from './admin/pages/BloodBagManagementPage';
 import DonationRecordsPage from './admin/pages/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
+import StaffProfilePage from './admin/pages/StaffProfilePage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import './styles/main.scss';
 
@@ -53,11 +54,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/donation-schedule" element={<DonationSchedulePage />} />
             <Route path="/checkin" element={<CheckinPage />} />
-            <Route path="/staff" element={
-              <AdminProtectedRoute>
-                <StaffPage />
-              </AdminProtectedRoute>
-            } />
+
             <Route path="/staff/schedule-management" element={
               <AdminProtectedRoute>
                 <ScheduleManagementPage />
@@ -81,6 +78,11 @@ function App() {
             <Route path="/staff/donation-records/create" element={
               <AdminProtectedRoute>
                 <CreateDonationRecordPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/profile" element={
+              <AdminProtectedRoute>
+                <StaffProfilePage />
               </AdminProtectedRoute>
             } />
           </Routes>

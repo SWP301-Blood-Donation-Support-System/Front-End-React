@@ -64,7 +64,7 @@ const StaffHeader = () => {
     if (key === 'logout') {
       handleLogout();
     } else if (key === 'profile') {
-      navigate('/profile');
+      navigate('/staff/profile');
     }
   };
 

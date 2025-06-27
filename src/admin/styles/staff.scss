@@ -1,17 +1,11 @@
-// Staff Page Main Styles - This file has been cleaned up!
-// All component styles have been moved to their respective files:
+// Staff Module Common Styles
+// Component-specific styles are in their respective files:
 // - staff-layout.scss - Layout and general structure
 // - staff-sidebar.scss - Sidebar styles
 // - staff-navbar.scss - Navigation bar
-// - staff-stats.scss - Statistics cards
-// - staff-charts.scss - Charts and timeline
-// - staff-metrics.scss - Metrics section
-// - staff-header.scss - Header component (existing)
+// - staff-header.scss - Header component
 
-// This file now serves as documentation for the staff module organization
-// Individual component styles are imported through main.scss 
-
-// Staff Page Main Styles
+// Common Staff Layout Styles
 .staff-layout {
   min-height: 100vh;
   background: #F5F5F5; // Light gray background
@@ -33,14 +27,7 @@
   background: #F5F5F5; // Light gray background
 }
 
-.staff-content-container {
-  background: transparent;
-}
-
 // Additional component styles are imported from separate files:
 // - staff-layout.scss - Additional layout styles
 // - staff-sidebar.scss - Sidebar styles  
-// - staff-navbar.scss - Navigation bar
-// - staff-stats.scss - Statistics cards
-// - staff-charts.scss - Charts and timeline
-// - staff-metrics.scss - Metrics section 
+// - staff-navbar.scss - Navigation bar 

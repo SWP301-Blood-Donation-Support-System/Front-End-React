@@ -30,7 +30,7 @@ const ScheduleManagementPage = () => {
   const [registrations, setRegistrations] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [scheduleType, setScheduleType] = useState('upcoming');
+  const [scheduleType, setScheduleType] = useState('all');
   const [donors, setDonors] = useState({});
   
   // Pagination state
@@ -80,7 +80,7 @@ const ScheduleManagementPage = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const type = params.get('type') || 'upcoming';
+    const type = params.get('type') || 'all';
     setScheduleType(type);
   }, [location.search]);
 
@@ -218,6 +218,29 @@ const ScheduleManagementPage = () => {
             return !upcomingDates.has(dateStr);
           }
           return true;
+        });
+      } else if (scheduleType === 'all') {
+        // Show all schedules but prioritize upcoming ones first
+        filteredData = data.sort((a, b) => {
+          const dateA = a.scheduleDate;
+          const dateB = b.scheduleDate;
+          
+          if (dateA && dateB) {
+            const dateStrA = new Date(dateA).toISOString().split('T')[0];
+            const dateStrB = new Date(dateB).toISOString().split('T')[0];
+            
+            const isUpcomingA = upcomingDates.has(dateStrA);
+            const isUpcomingB = upcomingDates.has(dateStrB);
+            
+            // Prioritize upcoming schedules first
+            if (isUpcomingA && !isUpcomingB) return -1;
+            if (!isUpcomingA && isUpcomingB) return 1;
+            
+            // Within the same category (upcoming or past), sort by date
+            return new Date(dateA) - new Date(dateB);
+          }
+          
+          return 0;
         });
       }
       
@@ -637,7 +660,7 @@ const ScheduleManagementPage = () => {
         
         return (
           <div>
-            <div style={{ fontWeight: 'bold' }}>{donorName}</div>
+            <div>{donorName}</div>
           </div>
         );
       },
