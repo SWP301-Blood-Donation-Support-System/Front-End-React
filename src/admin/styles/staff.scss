@@ -8,7 +8,7 @@
 // Common Staff Layout Styles
 .staff-layout {
   min-height: 100vh;
-  background: #F5F5F5; // Light gray background
+  background: #f8fafc; // Lighter, more modern background
 }
 
 .staff-main-layout {
@@ -17,14 +17,14 @@
 
 // Content Layout
 .staff-content-layout {
-  background: #F5F5F5; // Light gray background
+  background: #f8fafc; // Lighter, more modern background
 }
 
 .staff-content {
   margin: 0;
-  padding: $spacing-xl $spacing-xl;
+  padding: 24px 24px;
   min-height: calc(100vh - 240px);
-  background: #F5F5F5; // Light gray background
+  background: #f8fafc; // Lighter, more modern background
 }
 
 // Additional component styles are imported from separate files:

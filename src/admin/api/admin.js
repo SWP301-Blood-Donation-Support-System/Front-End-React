@@ -555,7 +555,7 @@ export const AdminAPI = {
     }
   },
 
-  // Get blood types lookup (if not already exists)
+  // Get blood types lookup
   getBloodTypesLookup: async () => {
     try {
       const token = localStorage.getItem("token");
@@ -571,5 +571,119 @@ export const AdminAPI = {
       console.error("Error fetching blood types lookup:", error);
       throw error;
     }
+  },
+
+  // Get genders lookup
+  getGendersLookup: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/genders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching genders lookup:", error);
+      throw error;
+    }
+  },
+
+  // Get occupations lookup
+  getOccupationsLookup: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/occupations`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching occupations lookup:", error);
+      throw error;
+    }
+  },
+
+  // Get user by ID for admin purposes
+  getUserById: async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/User/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      throw error;
+    }
+  },
+
+  // Update donor information (for admin use)
+  updateDonor: async (userId, profileData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${BASE_URL}/api/User/donor/${userId}`,
+        profileData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Error updating donor:", error);
+      throw error;
+    }
+  },
+
+  // Update staff information (for staff profile)
+  updateStaff: async (userId, profileData) => {
+    try {
+      const token = localStorage.getItem("token");
+      // Try different endpoints that might work for staff
+      const endpoints = [
+        `${BASE_URL}/api/User/${userId}`,
+        `${BASE_URL}/api/User/staff/${userId}`,
+        `${BASE_URL}/api/User/donor/${userId}`, // Fallback to donor endpoint
+      ];
+
+      let lastError;
+      for (const endpoint of endpoints) {
+        try {
+          const response = await axios.put(
+            endpoint,
+            profileData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          return response;
+        } catch (error) {
+          lastError = error;
+          console.warn(`Failed to update using endpoint ${endpoint}:`, error.response?.status);
+        }
+      }
+      
+      throw lastError;
+    } catch (error) {
+      console.error("Error updating staff:", error);
+      throw error;
+    }
   }
-}; 
+};

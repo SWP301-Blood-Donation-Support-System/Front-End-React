@@ -37,6 +37,8 @@ export const UserAPI = {
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userInfo");
+    // Clear staff sidebar dropdown state on logout
+    localStorage.removeItem("staffSidebar_openKeys");
   }, // Update donor information
   updateDonor: async (userId, profileData) => {
     try {
