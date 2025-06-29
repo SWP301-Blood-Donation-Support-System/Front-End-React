@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   DesktopOutlined,
   FileOutlined,
@@ -9,9 +9,6 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   ClockCircleOutlined,
-  CalendarOutlined,
-  HistoryOutlined,
-  UnorderedListOutlined,
   DatabaseOutlined,
   PlusCircleOutlined,
   MedicineBoxOutlined,
@@ -33,7 +30,38 @@ function getItem(label, key, icon, children) {
 const StaffSidebar = ({ collapsed, onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [openKeys, setOpenKeys] = useState([]);
+  const autoOpenedRef = useRef(new Set()); // Track which submenus were auto-opened
+  const [openKeys, setOpenKeys] = useState(() => {
+    // Try to load from localStorage first
+    const savedOpenKeys = localStorage.getItem('staffSidebar_openKeys');
+    if (savedOpenKeys) {
+      try {
+        const parsed = JSON.parse(savedOpenKeys);
+        return parsed;
+      } catch (error) {
+        console.warn('Failed to parse saved openKeys:', error);
+      }
+    }
+    
+    // Initialize openKeys based on current path
+    const pathname = location.pathname;
+    const initialOpenKeys = [];
+    
+    if (pathname.includes('/staff/blood-bag-management')) {
+      initialOpenKeys.push('3');
+      autoOpenedRef.current.add('3'); // Mark as auto-opened
+    } else if (pathname.includes('/staff/donation-records')) {
+      initialOpenKeys.push('4');
+      autoOpenedRef.current.add('4'); // Mark as auto-opened
+    }
+    
+    return initialOpenKeys;
+  });
+
+  // Save openKeys to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('staffSidebar_openKeys', JSON.stringify(openKeys));
+  }, [openKeys]);
 
   // Function to get selected key based on current path
   const getSelectedKey = () => {
@@ -60,30 +88,40 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     return ['1']; // default to schedule management
   };
 
-  // Function to get which submenus should be open based on current path
-  const getOpenKeys = () => {
-    const pathname = location.pathname;
-    const currentOpenKeys = [...openKeys]; // Copy current open keys
-    
-    // Add the current page's parent submenu to open keys if not already there
-    if (pathname.includes('/staff/blood-bag-management') && !currentOpenKeys.includes('3')) {
-      currentOpenKeys.push('3');
-    } else if (pathname.includes('/staff/donation-records') && !currentOpenKeys.includes('4')) {
-      currentOpenKeys.push('4');
-    }
-    
-    return currentOpenKeys;
-  };
-
-  // Handle submenu open/close
+  // Simple handler - just update openKeys, no auto-reopening logic
   const onOpenChange = (keys) => {
     setOpenKeys(keys);
   };
 
+  // Auto-open relevant submenu when navigating to child pages (only opens, never closes)
+  useEffect(() => {
+    const pathname = location.pathname;
+    
+    // Auto-open submenu for blood bag management pages
+    if (pathname.includes('/staff/blood-bag-management')) {
+      setOpenKeys(prev => {
+        if (!prev.includes('3')) {
+          autoOpenedRef.current.add('3');
+          return [...prev, '3'];
+        }
+        return prev;
+      });
+    }
+    // Auto-open submenu for donation records pages  
+    else if (pathname.includes('/staff/donation-records')) {
+      setOpenKeys(prev => {
+        if (!prev.includes('4')) {
+          autoOpenedRef.current.add('4');
+          return [...prev, '4'];
+        }
+        return prev;
+      });
+    }
+    // For other pages, do nothing - preserve current open state
+  }, [location.pathname]);
+
   // Handle menu item clicks
   const handleMenuClick = ({ key }) => {
-    console.log('Menu item clicked:', key);
-    
     switch (key) {
       case '1': // Lịch đặt hiến - prioritize upcoming schedules
         navigate('/staff/schedule-management?type=all');
@@ -111,10 +149,9 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         break;
       case '5': // Báo cáo thống kê
         // TODO: Navigate to reports
-        console.log('Navigate to reports');
         break;
       default:
-        console.log('Unknown menu item:', key);
+        break;
     }
   };
 
@@ -155,7 +192,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       <Menu 
         theme="dark"
         selectedKeys={getSelectedKey()}
-        openKeys={getOpenKeys()}
+        openKeys={openKeys}
         onOpenChange={onOpenChange}
         mode="inline" 
         items={sidebarItems}
