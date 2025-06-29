@@ -73,12 +73,32 @@ const StaffProfilePage = () => {
           return;
         }
 
-        // Use stored userInfo from localStorage instead of API call
+        // Always start with localStorage data as fallback
         setUser(userInfo);
-        console.log('Loaded user info from localStorage:', userInfo);
-      } catch (error) {
-        console.error("Error loading user profile:", error);
-        // Fallback to stored userInfo
+
+        // Try to get fresh data from API
+        try {
+          const userId = userInfo.UserId || userInfo.UserID || userInfo.id;
+          
+          if (userId) {
+            const response = await UserAPI.getUserById(userId);
+            
+            if (response.status === 200 && response.data) {
+              const userData = response.data.result || response.data;
+              
+              // Only update if we got valid data
+              if (userData && (userData.FullName || userData.Email || userData.UserId || userData.UserID)) {
+                setUser(userData);
+                localStorage.setItem("userInfo", JSON.stringify(userData));
+              }
+            }
+          }
+        } catch (apiError) {
+          console.error("API call failed, using localStorage data:", apiError);
+          // Keep using localStorage data as fallback
+        }        } catch (error) {
+        console.error("Error in fetchUserProfile:", error);
+        // Final fallback to stored userInfo
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
         if (userInfo) {
           setUser(userInfo);
@@ -93,12 +113,14 @@ const StaffProfilePage = () => {
     const fetchBloodTypes = async () => {
       try {
         const response = await UserAPI.getBloodTypes();
+        
         if (response.status === 200) {
-          setBloodTypes(response.data.result || response.data);
+          const bloodTypeData = response.data.result || response.data;
+          setBloodTypes(bloodTypeData);
         }
       } catch (error) {
         console.error("Error fetching blood types:", error);
-        setBloodTypes([
+        const fallbackBloodTypes = [
           { id: 1, name: 'A+' },
           { id: 2, name: 'A-' },
           { id: 3, name: 'B+' },
@@ -107,31 +129,50 @@ const StaffProfilePage = () => {
           { id: 6, name: 'AB-' },
           { id: 7, name: 'O+' },
           { id: 8, name: 'O-' }
-        ]);
+        ];
+        setBloodTypes(fallbackBloodTypes);
       }
     };
 
     const fetchGenders = async () => {
       try {
         const response = await UserAPI.getGenders();
+        
         if (response.status === 200) {
           const genderData = response.data.result || response.data;
           setGenders(genderData);
         }
       } catch (error) {
         console.error("Error fetching genders:", error);
+        // Add some fallback genders
+        const fallbackGenders = [
+          { id: 1, name: 'Nam' },
+          { id: 2, name: 'Nữ' },
+          { id: 3, name: 'Khác' }
+        ];
+        setGenders(fallbackGenders);
       }
     };
 
     const fetchOccupations = async () => {
       try {
         const response = await UserAPI.getOccupations();
+        
         if (response.status === 200) {
           const occupationData = response.data.result || response.data;
           setOccupations(occupationData);
         }
       } catch (error) {
         console.error("Error fetching occupations:", error);
+        // Add some fallback occupations
+        const fallbackOccupations = [
+          { id: 1, name: 'Sinh viên' },
+          { id: 2, name: 'Nhân viên văn phòng' },
+          { id: 3, name: 'Giáo viên' },
+          { id: 4, name: 'Bác sĩ' },
+          { id: 5, name: 'Kỹ sư' }
+        ];
+        setOccupations(fallbackOccupations);
       }
     };
 
@@ -142,9 +183,7 @@ const StaffProfilePage = () => {
   }, [navigate]);
 
   const handleEditProfile = () => {
-    // Check if user data is available before proceeding
     if (!user) {
-      console.warn('User data not available yet, cannot enable edit mode');
       return;
     }
 
@@ -154,9 +193,9 @@ const StaffProfilePage = () => {
   // Initialize edit values when edit mode is enabled
   useEffect(() => {
     if (editMode && user && genders.length > 0 && bloodTypes.length > 0 && occupations.length > 0) {
-      const genderIdValue = user.GenderId || user.GenderID;
-      const bloodTypeIdValue = user.BloodTypeId || user.BloodTypeID;
-      const occupationIdValue = user.OccupationId || user.OccupationID;
+      const genderIdValue = user.GenderId || user.GenderID || user.genderId;
+      const bloodTypeIdValue = user.BloodTypeId || user.BloodTypeID || user.bloodTypeId;
+      const occupationIdValue = user.OccupationId || user.OccupationID || user.occupationId;
       
       // Ensure IDs are numbers for proper matching
       const parsedGenderId = genderIdValue ? parseInt(genderIdValue) : null;
@@ -164,11 +203,11 @@ const StaffProfilePage = () => {
       const parsedOccupationId = occupationIdValue ? parseInt(occupationIdValue) : null;
       
       setEditValues({
-        fullName: user.FullName || user.name || '',
-        phoneNumber: user.PhoneNumber || '',
-        address: user.Address || '',
-        nationalID: user.NationalId || user.NationalID || '',
-        dateOfBirth: user.DateOfBirth || null,
+        fullName: user.fullName || user.FullName || user.name || user.username || '',
+        phoneNumber: user.PhoneNumber || user.phoneNumber || '',
+        address: user.Address || user.address || '',
+        nationalID: user.NationalId || user.NationalID || user.nationalId || '',
+        dateOfBirth: user.DateOfBirth || user.dateOfBirth || null,
         genderID: parsedGenderId,
         bloodTypeID: parsedBloodTypeId,
         occupationID: parsedOccupationId
@@ -236,28 +275,38 @@ const StaffProfilePage = () => {
         updateData.OccupationID = editValues.occupationID;
       }
 
-      console.log('Update data being sent:', updateData);
-      console.log('Current user data:', user);
-      console.log('Edit values:', editValues);
-
-      // Call the update API  
-      const userId = user.UserId || user.UserID;
+// Call the update API  
+      const userId = user.UserId || user.UserID || user.userId;
       
       if (!userId) {
         throw new Error("User ID not found");
       }
       
-      console.log('Updating user with ID:', userId);
-      
       const response = await UserAPI.updateDonor(userId, updateData);
       
       if (response.status === 200) {
-        // Update the local user state
-        const updatedUser = { ...user, ...updateData };
-        setUser(updatedUser);
-        
-        // Update localStorage
-        localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+        // Fetch fresh user data from API to ensure we have all fields
+        try {
+          const freshDataResponse = await UserAPI.getUserById(userId);
+          if (freshDataResponse.status === 200 && freshDataResponse.data) {
+            const freshUserData = freshDataResponse.data.result || freshDataResponse.data;
+            
+            // Update both state and localStorage with fresh data
+            setUser(freshUserData);
+            localStorage.setItem("userInfo", JSON.stringify(freshUserData));
+          } else {
+            // Fallback: carefully merge update data with existing user data
+            const updatedUser = { ...user, ...updateData };
+            setUser(updatedUser);
+            localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+          }
+        } catch (fetchError) {
+          console.error('Failed to fetch fresh data after update:', fetchError);
+          // Fallback: carefully merge update data with existing user data
+          const updatedUser = { ...user, ...updateData };
+          setUser(updatedUser);
+          localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+        }
         
         setEditMode(false);
         setEditValues({});
@@ -271,9 +320,7 @@ const StaffProfilePage = () => {
         });
       }
     } catch (error) {
-      console.error('Full error object:', error);
-      console.error('Error response:', error.response);
-      console.error('Error data:', error.response?.data);
+      console.error('Update profile error:', error);
       
       let errorMessage = 'Có lỗi xảy ra khi cập nhật thông tin';
       if (error.response?.status === 400) {
@@ -339,18 +386,57 @@ const StaffProfilePage = () => {
   };
 
   const getBloodTypeDisplay = (bloodTypeID) => {
-    const bloodType = bloodTypes.find(bt => bt.id === bloodTypeID || bt.Id === bloodTypeID);
-    return bloodType ? bloodType.name || bloodType.Name : 'N/A';
+    if (!bloodTypeID || bloodTypes.length === 0) {
+      return 'N/A';
+    }
+    
+    // Convert to number for comparison
+    const numericID = parseInt(bloodTypeID);
+    
+    // Try to find with different field names and both string and number comparison
+    const bloodType = bloodTypes.find(bt => 
+      (bt.id && (bt.id === bloodTypeID || bt.id === numericID)) || 
+      (bt.Id && (bt.Id === bloodTypeID || bt.Id === numericID)) ||
+      (bt.ID && (bt.ID === bloodTypeID || bt.ID === numericID))
+    );
+    
+    return bloodType ? (bloodType.name || bloodType.Name || bloodType.NAME) : 'N/A';
   };
 
   const getGenderDisplay = (genderID) => {
-    const gender = genders.find(g => g.id === genderID || g.Id === genderID);
-    return gender ? gender.name || gender.Name : 'N/A';
+    if (!genderID || genders.length === 0) {
+      return 'N/A';
+    }
+    
+    // Convert to number for comparison
+    const numericID = parseInt(genderID);
+    
+    // Try to find with different field names and both string and number comparison
+    const gender = genders.find(g => 
+      (g.id && (g.id === genderID || g.id === numericID)) || 
+      (g.Id && (g.Id === genderID || g.Id === numericID)) ||
+      (g.ID && (g.ID === genderID || g.ID === numericID))
+    );
+    
+    return gender ? (gender.name || gender.Name || gender.NAME) : 'N/A';
   };
 
   const getOccupationDisplay = (occupationID) => {
-    const occupation = occupations.find(o => o.id === occupationID || o.Id === occupationID);
-    return occupation ? occupation.name || occupation.Name : 'N/A';
+    if (!occupationID || occupations.length === 0) {
+      return 'N/A';
+    }
+    
+    // Convert to number for comparison
+    const numericID = parseInt(occupationID);
+    
+    // Try to find with different field names and both string and number comparison
+    const occupation = occupations.find(o => 
+      (o.id && (o.id === occupationID || o.id === numericID)) || 
+      (o.Id && (o.Id === occupationID || o.Id === numericID)) ||
+      (o.ID && (o.ID === occupationID || o.ID === numericID))
+    );
+    
+    return occupation ? (occupation.name || occupation.Name || occupation.NAME) : 'N/A';
   };
 
   if (loading) {
@@ -438,7 +524,10 @@ const StaffProfilePage = () => {
                           <Avatar size={120} icon={<UserOutlined />} className="profile-avatar" />
                           <div className="profile-basic-info">
                             <Title level={4} className="profile-name">
-                              {user?.FullName || user?.name || 'N/A'}
+                              {(() => {
+                                const displayName = user?.fullName || user?.FullName || user?.name || user?.username || 'N/A';
+                                return displayName;
+                              })()}
                             </Title>
                             <Text className="profile-role">
                               <TeamOutlined /> Nhân viên
@@ -572,54 +661,57 @@ const StaffProfilePage = () => {
                             <Descriptions.Item label="Email" span={2}>
                               <Space>
                                 <MailOutlined />
-                                {user?.Email || user?.email || 'N/A'}
+                                {(() => {
+                                  const email = user?.Email || user?.email || 'N/A';
+                                  return email;
+                                })()}
                               </Space>
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Số điện thoại">
                               <Space>
                                 <PhoneOutlined />
-                                {user?.PhoneNumber || 'N/A'}
+                                {user?.PhoneNumber || user?.phoneNumber || 'N/A'}
                               </Space>
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Số CMND/CCCD">
                               <Space>
                                 <IdcardOutlined />
-                                {user?.NationalId || user?.NationalID || 'N/A'}
+                                {user?.NationalId || user?.NationalID || user?.nationalId || 'N/A'}
                               </Space>
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Ngày sinh">
                               <Space>
                                 <CalendarOutlined />
-                                {formatDate(user?.DateOfBirth)}
+                                {formatDate(user?.DateOfBirth || user?.dateOfBirth)}
                               </Space>
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Giới tính">
                               <TeamOutlined style={{ marginRight: 8 }} />
-                              {getGenderDisplay(user?.GenderId || user?.GenderID)}
+                              {genders.length > 0 ? getGenderDisplay(user?.GenderId || user?.GenderID || user?.genderId) : 'Đang tải...'}
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Địa chỉ" span={2}>
                               <Space>
                                 <EnvironmentOutlined />
-                                {user?.Address || 'N/A'}
+                                {user?.Address || user?.address || 'N/A'}
                               </Space>
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Nhóm máu">
                               <Space>
                                 <HeartOutlined />
-                                {getBloodTypeDisplay(user?.BloodTypeId || user?.BloodTypeID)}
+                                {bloodTypes.length > 0 ? getBloodTypeDisplay(user?.BloodTypeId || user?.BloodTypeID || user?.bloodTypeId) : 'Đang tải...'}
                               </Space>
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Nghề nghiệp">
                               <Space>
                                 <BankOutlined />
-                                {getOccupationDisplay(user?.OccupationId || user?.OccupationID)}
+                                {occupations.length > 0 ? getOccupationDisplay(user?.OccupationId || user?.OccupationID || user?.occupationId) : 'Đang tải...'}
                               </Space>
                             </Descriptions.Item>
                           </Descriptions>
