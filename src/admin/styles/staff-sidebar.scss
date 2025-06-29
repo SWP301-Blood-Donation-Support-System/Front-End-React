@@ -1,39 +1,83 @@
-// Staff Sidebar Component Styles
+// Staff Sidebar Component Styles - Modern Clean Design
 .staff-sidebar {
+  // Force white background for all sidebar elements
+  // Override any Ant Design default dark backgrounds
+  .ant-layout-sider,
+  .ant-layout-sider-children,
+  .ant-layout-sider-trigger {
+    background-color: #ffffff !important;
+  }
+  
+  // Ensure no dark overlays or pseudo-elements
   .ant-layout-sider {
-    background: #D91D1D !important; // User specified red background
-    border-right: none !important;
-    padding-top: 24px !important; // Add top padding to the sidebar
+    &::before,
+    &::after {
+      display: none !important;
+      background: transparent !important;
+    }
+  }
+  
+  // Remove any dark theme classes
+  &.ant-layout-sider-dark {
+    background: #ffffff !important;
+    
+    .ant-layout-sider-trigger {
+      background: #dc2626 !important;
+    }
+  }
+
+  .ant-layout-sider {
+    background: #ffffff !important; // Clean white background
+    border-right: 1px solid #f0f0f0 !important; // Subtle border
+    padding-top: 16px !important;
     position: sticky !important;
     top: 0 !important;
     height: 100vh !important;
     align-self: flex-start !important;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04) !important; // Subtle shadow
+    margin: 8px 0 8px 8px !important; // Add margin for rounded effect
+    border-radius: 12px !important; // Rounded corners
+    overflow: hidden !important;
+    
+    // Override any dark theme background
+    &::before,
+    &::after {
+      background: #ffffff !important;
+    }
   }
 
   .ant-layout-sider-trigger {
-    background: #D91D1D !important;
-    color: #ffffff !important;
-    transition: $transition-normal;
+    background: #dc2626 !important; // Same red as selected items
+    color: #ffffff !important; // White text
+    transition: all 0.3s ease !important;
     border: none !important;
-    border-top: none !important;
-    border-bottom: none !important;
+    border-top: 1px solid #f0f0f0 !important;
     box-shadow: none !important;
     position: sticky !important;
-    bottom: 0 !important;
+    bottom: 8px !important; // Match the margin
+    left: 8px !important; // Keep it inside the sidebar frame
+    right: 8px !important; // Keep it inside the sidebar frame
     z-index: 100 !important;
+    margin: 0 8px !important; // Remove bottom margin to prevent overflow
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: calc(100% - 16px) !important; // Ensure it stays within bounds
 
     &::before {
       display: none !important;
     }
 
     &:hover {
-      background: #dc2626 !important; // Original darker red on hover
+      background: #b91c1c !important; // Darker red on hover
       color: #ffffff !important;
     }
     
     .anticon {
       color: #ffffff !important;
-      font-weight: bold !important;
+      font-weight: 600 !important;
+      font-size: 16px !important;
     }
     
     &:hover .anticon {
@@ -59,7 +103,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #D91D1D;
+    background: #ffffff; // Clean white background
     border: none !important;
     
     &::before,
@@ -68,123 +112,230 @@
     }
   }
 
-  // Dark theme adjustments for red sidebar
-  .ant-menu-dark {
-    background: #D91D1D; // User specified red background
+  // Light theme adjustments for clean sidebar
+  .ant-menu-light {
+    background: #ffffff; // Clean white background
 
     .ant-menu-item-group-title {
-      color: rgba(255, 255, 255, 0.67);
+      color: #9ca3af;
+      font-weight: 500;
     }
 
     .ant-menu-item-selected {
-      background-color: rgba(255, 255, 255, 0.15) !important;
+      background-color: #f3f4f6 !important; // Light gray selection
+      border-radius: 8px !important;
+      margin: 2px 8px !important;
     }
 
     .ant-menu-submenu-selected > .ant-menu-submenu-title {
-      color: #ffffff;
+      color: #374151;
+      background-color: #f3f4f6 !important;
+      border-radius: 8px !important;
+      margin: 2px 8px !important;
     }
   }
 
   // Responsive adjustments
   @media (max-width: 768px) {
     .ant-layout-sider-children {
-      background: #D91D1D;
+      background: #ffffff;
     }
   }
+  
+  // Smooth transitions for all elements
+  * {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  // Collapsed state adjustments
+  &.ant-layout-sider-collapsed {
+    .staff-logo {
+      padding: 16px 8px;
+      
+      .healthcare-logo {
+        max-width: 32px;
+        max-height: 32px;
+      }
+    }
+    
+    .staff-menu {
+      .ant-menu-item,
+      .ant-menu-submenu-title {
+        padding-left: 24px !important;
+        text-align: center;
+      }
+      
+      .anticon {
+        margin-right: 0 !important;
+      }
+    }
+  }
+  
+  // Hover effects for better UX
+  .ant-layout-sider:hover {
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08) !important;
+  }
+  
+  // Active menu item glow effect
+  .ant-menu-item-selected {
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2) !important; // Red glow effect
+  }
+}
+
+// Scrollbar styling for sidebar
+.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar {
+  width: 4px;
+}
+
+.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 2px;
+}
+
+.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
 }
 
 .staff-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px;
-  background: #D91D1D;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 16px;
+  background: #ffffff; // Clean white background
+  border-bottom: 1px solid #f0f0f0; // Subtle border
+  margin-bottom: 8px;
   
   .healthcare-logo {
-    max-width: 180px;
-    max-height: 90px;
+    max-width: 160px; // Slightly smaller for cleaner look
+    max-height: 80px;
     width: auto;
     height: auto;
     object-fit: contain;
+    filter: brightness(0.8); // Slightly darker for better contrast on white
   }
 }
 
 .staff-menu {
   flex: 1;
   border: none;
-  background: #D91D1D !important; // User specified red background
+  background: #ffffff !important; // Clean white background
   margin-top: 0 !important;
-  padding-top: 0 !important; // No top padding needed since logo provides spacing
+  padding: 0 8px !important; // Add horizontal padding for rounded items
 
   .ant-menu-item {
-    margin: 0;
-    border-radius: 0;
-    padding-left: $spacing-xl !important;
-    transition: $transition-normal;
-    color: #ffffff !important; // White text
-    font-size: $font-size-sm;
-    font-weight: $font-weight-bold !important;
+    margin: 2px 0 !important; // Small vertical margin
+    border-radius: 8px !important; // Rounded menu items
+    padding-left: 16px !important;
+    transition: all 0.3s ease !important;
+    color: #374151 !important; // Dark gray text
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    height: 42px !important; // Slightly more compact
+    line-height: 42px !important;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1) !important; // Light overlay on hover
-      color: #ffffff !important;
+      background-color: #f9fafb !important; // Very light gray on hover
+      color: #1f2937 !important; // Darker on hover
     }
 
     &.ant-menu-item-selected {
-      background-color: rgba(255, 255, 255, 0.15) !important; // Selected state
-      color: #ffffff !important;
+      background-color: #dc2626 !important; // Red accent for selected (matching blood donation theme)
+      color: #ffffff !important; // White text on selected
+      font-weight: 600 !important;
 
       &::after {
         display: none;
+      }
+      
+      .anticon {
+        color: #ffffff !important;
       }
     }
   }
 
   .ant-menu-submenu {
+    margin: 2px 0 !important;
+    
     .ant-menu-submenu-title {
-      padding-left: $spacing-xl !important;
-      transition: $transition-normal;
-      color: #ffffff !important;
-      font-size: $font-size-sm;
-      font-weight: $font-weight-bold !important;
+      padding-left: 16px !important;
+      transition: all 0.3s ease !important;
+      color: #374151 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      border-radius: 8px !important;
+      height: 42px !important;
+      line-height: 42px !important;
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        color: #ffffff !important;
+        background-color: #f9fafb !important;
+        color: #1f2937 !important;
       }
+      
+      &:active {
+        background-color: #f3f4f6 !important;
+      }
+    }
+
+    &.ant-menu-submenu-open > .ant-menu-submenu-title,
+    &.ant-menu-submenu-selected > .ant-menu-submenu-title {
+      background-color: #f3f4f6 !important;
+      color: #1f2937 !important;
     }
 
     .ant-menu-sub {
-      background: #D91D1D !important; // Match sidebar red background
+      background: #ffffff !important; // Match sidebar white background
+      padding: 4px 0 !important;
     }
 
     .ant-menu-item {
-      padding-left: $spacing-3xl !important;
-      background: #D91D1D !important; // Match sidebar red background
-      color: #ffffff !important;
+      padding-left: 40px !important; // More indentation for sub-items
+      background: #ffffff !important;
+      color: #6b7280 !important; // Lighter gray for sub-items
+      font-size: 13px !important;
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        color: #ffffff !important;
+        background-color: #f9fafb !important;
+        color: #374151 !important;
       }
 
       &.ant-menu-item-selected {
-        background-color: rgba(255, 255, 255, 0.15) !important;
+        background-color: #dc2626 !important; // Red accent for submenu items
         color: #ffffff !important;
       }
     }
   }
 
   .anticon {
-    font-size: $font-size-sm;
-    margin-right: $spacing-sm;
+    font-size: 16px !important;
+    margin-right: 12px !important;
     opacity: 0.8;
-    color: #ffffff; // White icons
+    color: #6b7280 !important; // Gray icons
     
-    // Red sidebar themed icon colors
     &:hover {
-      color: #ffffff;
+      color: #374151 !important;
     }
   }
-} 
+  
+  // Selected item icon color
+  .ant-menu-item-selected .anticon {
+    color: #ffffff !important;
+    opacity: 1;
+  }
+  
+  // Submenu selected icon color  
+  .ant-menu-submenu-selected .anticon {
+    color: #374151 !important;
+    opacity: 1;
+  }
+}
+
+// Additional global override for sidebar container
+.ant-layout-has-sider {
+  .ant-layout-sider {
+    background: #ffffff !important;
+  }
+}

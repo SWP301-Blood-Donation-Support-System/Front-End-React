@@ -31,6 +31,9 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const autoOpenedRef = useRef(new Set()); // Track which submenus were auto-opened
+  const previousCollapsedRef = useRef(collapsed); // Track previous collapsed state
+  const savedOpenKeysRef = useRef([]); // Store openKeys before collapsing
+  
   const [openKeys, setOpenKeys] = useState(() => {
     // Try to load from localStorage first
     const savedOpenKeys = localStorage.getItem('staffSidebar_openKeys');
@@ -58,10 +61,33 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     return initialOpenKeys;
   });
 
-  // Save openKeys to localStorage whenever it changes
+  // Handle sidebar collapse/expand state change
   useEffect(() => {
-    localStorage.setItem('staffSidebar_openKeys', JSON.stringify(openKeys));
-  }, [openKeys]);
+    // If sidebar is being collapsed
+    if (collapsed && !previousCollapsedRef.current) {
+      // Save current openKeys before collapsing
+      savedOpenKeysRef.current = [...openKeys];
+      // Close all dropdowns when collapsing
+      setOpenKeys([]);
+    }
+    // If sidebar is being expanded
+    else if (!collapsed && previousCollapsedRef.current) {
+      // Restore previously saved openKeys when expanding
+      if (savedOpenKeysRef.current.length > 0) {
+        setOpenKeys(savedOpenKeysRef.current);
+      }
+    }
+    
+    // Update previous state
+    previousCollapsedRef.current = collapsed;
+  }, [collapsed, openKeys]);
+
+  // Save openKeys to localStorage whenever it changes (but only when sidebar is expanded)
+  useEffect(() => {
+    if (!collapsed) {
+      localStorage.setItem('staffSidebar_openKeys', JSON.stringify(openKeys));
+    }
+  }, [openKeys, collapsed]);
 
   // Function to get selected key based on current path
   const getSelectedKey = () => {
@@ -88,13 +114,18 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     return ['1']; // default to schedule management
   };
 
-  // Simple handler - just update openKeys, no auto-reopening logic
+  // Simple handler - just update openKeys when sidebar is expanded
   const onOpenChange = (keys) => {
-    setOpenKeys(keys);
+    // Only allow opening/closing dropdowns when sidebar is expanded
+    if (!collapsed) {
+      setOpenKeys(keys);
+    }
   };
 
-  // Auto-open relevant submenu when navigating to child pages (only opens, never closes)
+  // Auto-open relevant submenu when navigating to child pages (only when sidebar is expanded)
   useEffect(() => {
+    if (collapsed) return; // Don't auto-open when sidebar is collapsed
+    
     const pathname = location.pathname;
     
     // Auto-open submenu for blood bag management pages
@@ -118,7 +149,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       });
     }
     // For other pages, do nothing - preserve current open state
-  }, [location.pathname]);
+  }, [location.pathname, collapsed]);
 
   // Handle menu item clicks
   const handleMenuClick = ({ key }) => {
@@ -190,7 +221,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         <img src="/images/new-logo.png" alt="Healthcare Logo" className="healthcare-logo" />
       </div>
       <Menu 
-        theme="dark"
+        theme="light"
         selectedKeys={getSelectedKey()}
         openKeys={openKeys}
         onOpenChange={onOpenChange}
