@@ -1196,88 +1196,76 @@
   }
   // Time slot styling
   .time-slot-wrapper {
-    display: flex;
-    justify-content: center;
     width: 100%;
-    margin: $spacing-xl 0;
+    margin: $spacing-lg 0;
 
-    .time-slot-group {
-      width: 100%;
-      max-width: 600px;
+    .time-slot-subtitle {
+      font-size: $font-size-sm;
+      color: #666;
+      font-weight: $font-weight-medium;
+      margin-bottom: $spacing-md;
+      margin-left: $spacing-xs;
+      text-align: left;
+    }
+
+    .time-slot-options {
       display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-md;
       justify-content: center;
 
-      .time-slot-options {
-        display: flex;
-        gap: $spacing-xl;
-        width: 100%;
-        justify-content: center;      .ant-radio-button-wrapper {
-        flex: 1;
-        max-width: 280px;
-        min-width: 240px;
-        height: auto !important;
-        padding: $spacing-xl $spacing-lg !important;
-        border: 2px solid #e9ecef !important;
-        border-radius: $border-radius-xl !important;
-        background: $background-white;
-        transition: $transition-normal;
-        text-align: center;
-        line-height: $line-height-normal !important;
-        font-size: $font-size-base !important;
-        font-weight: $font-weight-medium !important;
-        position: relative;
+      @media (max-width: 768px) {
+        justify-content: center;
+      }
+    }
+
+    .time-slot-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: $spacing-lg $spacing-xl;
+      border: 2px solid #e9ecef;
+      border-radius: $border-radius-lg;
+      background: $background-white;
+      cursor: pointer;
+      transition: $transition-normal;
+      min-width: 140px;
+      flex: 0 0 auto;
+
+      &:hover {
+        border-color: $primary-color;
+        background: rgba($primary-color, 0.05);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($primary-color, 0.15);
+      }
+
+      &.selected {
+        border-color: $primary-color;
+        background: linear-gradient(135deg, $primary-color, $primary-hover);
+        color: $background-white;
+        box-shadow: 0 6px 16px rgba($primary-color, 0.25);
+        transform: translateY(-1px);
 
         &:hover {
-          border-color: $primary-color !important;
-          background: rgba($primary-color, 0.05) !important;
-          transform: translateY(-4px);
-          box-shadow: 0 8px 20px rgba($primary-color, 0.15);
-          color: $primary-color !important;
-        }        &.ant-radio-button-wrapper-checked {
-          border-color: $primary-color !important;
-          background: linear-gradient(135deg, $primary-color, $primary-hover) !important;
-          color: $background-white !important;
-          box-shadow: 0 8px 25px rgba($primary-color, 0.3);
-          transform: translateY(-2px);
-
-          &:hover {
-            background: linear-gradient(135deg, $primary-hover, $primary-active) !important;
-            border-color: $primary-hover !important;
-            transform: translateY(-6px);
-            box-shadow: 0 12px 30px rgba($primary-color, 0.4);
-          }
-        }
-
-        // Remove Ant Design default borders/lines
-        &::before,
-        &::after {
-          display: none !important;
-        }
-
-        &:not(:first-child)::before {
-          display: none !important;
-        }
-
-        &:focus {
-          outline: none !important;
-          box-shadow: 0 0 0 2px rgba($primary-color, 0.2) !important;
-        }
-
-          .time-slot-content {
-            .time-slot-title {
-              display: block;
-              font-weight: $font-weight-semibold;
-              margin-bottom: $spacing-xs;
-            }
-
-            .time-slot-time {
-              display: block;
-              font-size: $font-size-sm;
-              opacity: 0.9;
-            }
-          }
+          background: linear-gradient(135deg, $primary-hover, $primary-active);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba($primary-color, 0.3);
         }
       }
+
+      .time-slot-time {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        text-align: center;
+        transition: color 0.3s ease;
+      }
+    }
+
+    .time-slot-loading {
+      text-align: center;
+      padding: $spacing-xl;
+      color: #999;
+      width: 100%;
     }
   }
 

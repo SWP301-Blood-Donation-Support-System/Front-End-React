@@ -29,7 +29,7 @@
 // 5. Page styles
 @import 'pages/homepage';
 @import 'pages/auth';
-@import 'pages/booking';
+@import 'pages/_booking';
 @import 'pages/search';
 @import 'pages/news';
 @import 'pages/faq';
@@ -43,6 +43,8 @@
 @import 'components/stories';
 @import 'components/hero-section';
 @import 'components/after-donation-section';
+@import 'components/eligibility-criteria-section';
+@import 'components/important-notes-section';
 // @import 'components/buttons';
 // @import 'components/cards';
 // @import 'components/forms';

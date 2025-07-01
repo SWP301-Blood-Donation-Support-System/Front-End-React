@@ -247,6 +247,12 @@ const LoginPage = () => {
                     onClick={() => {
                       googleLogout();
                       setUser(null);
+                      
+                      // Clear localStorage and dispatch logout event
+                      localStorage.removeItem("token");
+                      localStorage.removeItem("user");
+                      localStorage.removeItem("userInfo");
+                      window.dispatchEvent(new CustomEvent('userLogout'));
                     }}
                     className="auth-submit-btn"
                     style={{ width: 'auto', padding: '0 24px' }}
