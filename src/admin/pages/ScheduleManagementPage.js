@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdminAPI } from '../api/admin';
-import StaffNavbar from '../components/StaffNavbar';
+
 import StaffSidebar from '../components/StaffSidebar';
 import StaffHeader from '../components/StaffHeader';
 import '../styles/schedule-management.scss';
@@ -821,7 +821,7 @@ const ScheduleManagementPage = () => {
         <StaffHeader />
 
         <Layout className="staff-content-layout">
-          <StaffNavbar />
+
           
                     <Content className="schedule-management-content">
             <div className="schedule-management-container">

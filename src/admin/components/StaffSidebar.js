@@ -211,15 +211,34 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       className="staff-sidebar"
       width={280}
       collapsedWidth={80}
-      trigger={
-        <div className="custom-trigger">
+      trigger={null}
+    >
+      <div className="staff-header">
+        {!collapsed && (
+          <div className="staff-logo">
+            <img src="/images/new-logo.png" alt="Healthcare Logo" className="healthcare-logo" />
+          </div>
+        )}
+        <div 
+          className="hamburger-trigger" 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onCollapse(!collapsed);
+          }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onCollapse(!collapsed);
+            }
+          }}
+        >
           <MenuOutlined />
         </div>
-      }
-    >
-      <div className="staff-logo">
-        <img src="/images/new-logo.png" alt="Healthcare Logo" className="healthcare-logo" />
       </div>
+      
       <Menu 
         theme="light"
         selectedKeys={getSelectedKey()}

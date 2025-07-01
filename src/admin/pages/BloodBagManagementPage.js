@@ -16,7 +16,7 @@ import {
 } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdminAPI } from '../api/admin';
-import StaffNavbar from '../components/StaffNavbar';
+
 import StaffSidebar from '../components/StaffSidebar';
 import StaffHeader from '../components/StaffHeader';
 import '../styles/blood-bag-management.scss';
@@ -427,8 +427,6 @@ const BloodBagManagementPage = () => {
         <StaffHeader />
 
         <Layout className="staff-content-layout">
-          <StaffNavbar />
-          
           <Content className="blood-bag-content">
             <div className="blood-bag-container">
               {/* Statistics Cards */}

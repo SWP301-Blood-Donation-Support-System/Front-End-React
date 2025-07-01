@@ -11,7 +11,7 @@ import {
   InputNumber
 } from 'antd';
 import { AdminAPI } from '../api/admin';
-import StaffNavbar from '../components/StaffNavbar';
+
 import StaffSidebar from '../components/StaffSidebar';
 import StaffHeader from '../components/StaffHeader';
 import '../styles/user-management.scss';
@@ -239,7 +239,7 @@ const UserManagementPage = () => {
         <StaffHeader />
 
         <Layout className="staff-content-layout">
-          <StaffNavbar />
+
           
           <Content className="user-management-content">
             <div className="user-management-container">

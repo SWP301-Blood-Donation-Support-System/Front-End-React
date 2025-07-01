@@ -19,7 +19,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 import StaffSidebar from '../components/StaffSidebar';
 import StaffHeader from '../components/StaffHeader';
-import StaffNavbar from '../components/StaffNavbar';
+
 import { AdminAPI } from '../api/admin';
 
 const { Content } = Layout;
@@ -135,8 +135,6 @@ const CreateDonationRecordPage = () => {
         <StaffHeader />
 
         <Layout className="staff-content-layout">
-          <StaffNavbar />
-          
           <Content className="donation-records-content">
             <div className="donation-records-container">
               <div className="donation-records-header-section">
