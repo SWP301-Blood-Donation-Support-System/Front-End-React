@@ -5,10 +5,9 @@ import {
   Typography, 
   Row, 
   Col, 
-  Card, 
   Button, 
   Collapse,
-  Divider,  Form,
+  Form,
   Input,
   DatePicker,
   Modal,
@@ -17,7 +16,6 @@ import {
 import { 
   HeartOutlined, 
   CalendarOutlined, 
-  ClockCircleOutlined,
   QuestionCircleOutlined,
   UserOutlined,
   LoginOutlined
@@ -32,7 +30,7 @@ import { UserAPI } from '../api/User';
 const { Title, Text, Paragraph } = Typography;
 const { Content } = Layout;
 
-const BookingPage = () => {  const [donationType, setDonationType] = useState('whole-blood');
+const BookingPage = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();  const location = useLocation();
   const preservedData = location.state?.preservedBookingData;
@@ -160,10 +158,6 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
       // Skip date field to avoid validation issues - user will need to re-select date
       delete formData.donationDate;
         form.setFieldsValue(formData);
-      // Also set donation type if it was preserved
-      if (preservedData.donationType) {
-        setDonationType(preservedData.donationType);
-      }
       // Also restore selected time slot if it was preserved
       if (preservedData.timeSlotId) {
         setSelectedTimeSlot(preservedData.timeSlotId);
@@ -203,7 +197,6 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
     if (!user || !token) {      // Store form data temporarily for after login
       sessionStorage.setItem('pendingBookingData', JSON.stringify({
         ...values,
-        donationType,
         timeSlotId: selectedTimeSlot
       }));
       
@@ -214,7 +207,6 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
     // Include donation type and time slot in the booking data and safely handle date
     const completeBookingData = {
       ...values,
-      donationType, // Use the selected donation type from state
       timeSlotId: selectedTimeSlot, // Include selected time slot ID
       userId: JSON.parse(user).id // Add user ID to booking data
     };
@@ -254,7 +246,6 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
     if (form.getFieldsValue()) {
       sessionStorage.setItem('pendingBookingData', JSON.stringify({
         ...form.getFieldsValue(),
-        donationType,
         timeSlotId: selectedTimeSlot
       }));
     }
@@ -274,45 +265,6 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
   const handleCloseModal = () => {
     setShowLoginModal(false);
   };
-
-  const donationTypes = [
-    {
-      key: 'whole-blood',
-      title: 'Hiến Máu Toàn Phần',
-      description: 'Phù hợp với người hiến máu lần đầu. Quy trình đơn giản, an toàn và được sử dụng phổ biến nhất.',
-      duration: '45-60 phút',
-      volume: '450ml',
-      frequency: 'Mỗi 3 tháng',
-      benefits: ['Phù hợp với người hiến máu lần đầu', 'Quy trình đơn giản', 'Thời gian ngắn']
-    },
-    {
-      key: 'platelets',
-      title: 'Hiến Tiểu Cầu',
-      description: 'Dành cho việc cứu chữa bệnh nhân ung thư, bỏng nặng. Cơ thể phục hồi nhanh sau khi hiến.',
-      duration: '2-3 giờ',
-      volume: 'Tùy theo trọng lượng',
-      frequency: 'Mỗi 2 tuần',
-      benefits: ['Giúp bệnh nhân ung thư', 'Phục hồi nhanh', 'Có thể hiến thường xuyên']
-    },
-    {
-      key: 'plasma',
-      title: 'Hiến Huyết Tương',
-      description: 'Giúp điều trị bệnh nhân bỏng nặng, suy gan. Ít ảnh hưởng đến sức khỏe người hiến.',
-      duration: '1.5-2 giờ',
-      volume: '600-880ml',
-      frequency: 'Mỗi 4 tuần',
-      benefits: ['Giúp điều trị bỏng nặng', 'Hỗ trợ bệnh nhân suy gan', 'Ít ảnh hưởng đến sức khỏe']
-    },
-    {
-      key: 'red-cells',
-      title: 'Hiến Hồng Cầu',
-      description: 'Hiệu quả cao cho bệnh nhân cần truyền máu thường xuyên. Đặc biệt phù hợp với nhóm máu hiếm.',
-      duration: '1.5-2 giờ',
-      volume: 'Tương đương 2 đơn vị máu',
-      frequency: 'Mỗi 4 tháng',
-      benefits: ['Hiệu quả cao cho bệnh nhân', 'Phù hợp với nhóm máu hiếm', 'Lượng thu được nhiều']
-    }
-  ];
 
   const faqData = [
     {
@@ -440,7 +392,6 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
         // Store form data temporarily for after login
         sessionStorage.setItem('pendingBookingData', JSON.stringify({
           ...values,
-          donationType,
           timeSlotId: selectedTimeSlot
         }));
         
@@ -476,7 +427,6 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
             // Reset form
             form.resetFields();
             setSelectedTimeSlot(null);
-            setDonationType('whole-blood');
             
             // Navigate to profile or home page
             navigate('/profile');
@@ -574,54 +524,6 @@ const BookingPage = () => {  const [donationType, setDonationType] = useState('w
       </div>
 
       <Content className="booking-content">
-        {/* Các loại hiến máu */}
-        <section className="donation-types-section">
-          <div className="container">
-            <Title level={2} className="section-title">
-              Các Phương Thức Hiến Máu
-            </Title>
-            <Row gutter={[24, 24]}>
-              {donationTypes.map((type, index) => (
-                <Col xs={24} md={12} lg={6} key={type.key}>
-                  <Card
-                    hoverable
-                    className={`donation-type-card ${donationType === type.key ? 'selected' : ''}`}
-                    onClick={() => setDonationType(type.key)}
-                  >
-                    <div className="card-header">
-                      <HeartOutlined className="card-icon" />
-                      <Title level={4}>{type.title}</Title>
-                    </div>
-                    <Paragraph className="card-description">
-                      {type.description}
-                    </Paragraph>
-                    <div className="card-details">
-                      <div className="detail-item">
-                        <ClockCircleOutlined /> <strong>Thời gian:</strong> {type.duration}
-                      </div>
-                      <div className="detail-item">
-                        <strong>Lượng máu:</strong> {type.volume}
-                      </div>
-                      <div className="detail-item">
-                        <strong>Tần suất:</strong> {type.frequency}
-                      </div>
-                      <Divider />
-                      <div className="benefits">
-                        <Text strong>Lợi ích:</Text>
-                        <ul>
-                          {type.benefits.map((benefit, index) => (
-                            <li key={index}>{benefit}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </div>
-        </section>
-
         {/* Form đăng ký hiến máu */}
         <section className="registration-form-section" id="booking-form">
           <div className="container">
