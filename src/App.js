@@ -20,6 +20,7 @@ import DonationRecordsPage from './admin/pages/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
 import StaffProfilePage from './admin/pages/StaffProfilePage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
+import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
 
 function App() {
@@ -49,10 +50,22 @@ function App() {
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/news" element={<NewsPage />} />
-            <Route path="/booking" element={<BookingPage />} />
+            <Route path="/booking" element={
+              <UserProtectedRoute>
+                <BookingPage />
+              </UserProtectedRoute>
+            } />
             <Route path="/eligibility" element={<EligibilityFormPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/donation-schedule" element={<DonationSchedulePage />} />
+            <Route path="/profile" element={
+              <UserProtectedRoute>
+                <ProfilePage />
+              </UserProtectedRoute>
+            } />
+            <Route path="/donation-schedule" element={
+              <UserProtectedRoute>
+                <DonationSchedulePage />
+              </UserProtectedRoute>
+            } />
             <Route path="/checkin" element={<CheckinPage />} />
 
             <Route path="/staff/schedule-management" element={

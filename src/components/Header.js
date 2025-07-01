@@ -61,6 +61,9 @@ const Header = () => {
           localStorage.removeItem("userInfo");
           sessionStorage.removeItem("pendingBookingData");
           
+          // Dispatch custom event to notify other components about logout
+          window.dispatchEvent(new CustomEvent('userLogout'));
+          
           // Show logout notification
           api.success({
             message: 'Đăng xuất thành công!',

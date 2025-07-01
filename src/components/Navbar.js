@@ -16,13 +16,52 @@ const Navbar = () => {
 
         if (token && userInfo) {
           setUser(userInfo);
+        } else {
+          setUser(null);
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
+        setUser(null);
       }
     };
 
     initializeAuth();
+  }, []);
+
+  // Listen for storage changes to update user state when logout happens
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'token' || e.key === 'userInfo') {
+        const token = localStorage.getItem("token");
+        const userInfo = localStorage.getItem("userInfo");
+        
+        if (!token || !userInfo) {
+          setUser(null);
+        } else {
+          try {
+            setUser(JSON.parse(userInfo));
+          } catch (error) {
+            console.error("Error parsing userInfo:", error);
+            setUser(null);
+          }
+        }
+      }
+    };
+
+    // Listen for localStorage changes from other tabs/windows
+    window.addEventListener('storage', handleStorageChange);
+
+    // Listen for custom logout event from same window
+    const handleLogout = () => {
+      setUser(null);
+    };
+
+    window.addEventListener('userLogout', handleLogout);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userLogout', handleLogout);
+    };
   }, []);
 
   // Check if user is staff (role 1 or 2)
@@ -65,11 +104,14 @@ const Navbar = () => {
       label: 'Đặt Lịch Hiến Máu',
       onClick: () => navigate('/booking')
     },
-    {
-      key: 'donation-schedule',
-      label: 'Lịch Hiến Của Bạn',
-      onClick: () => navigate('/donation-schedule')
-    },
+    // Only show "Lịch Hiến Của Bạn" for logged-in users
+    ...(user ? [
+      {
+        key: 'donation-schedule',
+        label: 'Lịch Hiến Của Bạn',
+        onClick: () => navigate('/donation-schedule')
+      }
+    ] : []),
     {
       key: 'search',
       label: 'Tra Cứu',

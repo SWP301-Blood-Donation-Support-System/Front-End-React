@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
-import StoriesSection from '../components/StoriesSection';
+import BloodDonationProcessSection from '../components/BloodDonationProcessSection';
 import AfterDonationSection from '../components/AfterDonationSection';
 import Footer from '../components/Footer';
 
@@ -42,7 +42,7 @@ const Homepage = () => {
       <Header />
       <Navbar />      <Content>
         <HeroSection />
-        <StoriesSection />
+        <BloodDonationProcessSection />
         <AfterDonationSection />
       </Content>
       <Footer />
