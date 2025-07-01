@@ -104,11 +104,11 @@ const Navbar = () => {
       label: 'Đặt Lịch Hiến Máu',
       onClick: () => navigate('/booking')
     },
-    // Only show "Lịch Hiến Của Bạn" for logged-in users
+    // Only show "Lịch Sử Đặt Hẹn" for logged-in users
     ...(user ? [
       {
         key: 'donation-schedule',
-        label: 'Lịch Hiến Của Bạn',
+        label: 'Lịch Sử Đặt Hẹn',
         onClick: () => navigate('/donation-schedule')
       }
     ] : []),

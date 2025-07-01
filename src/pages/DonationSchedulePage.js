@@ -806,7 +806,7 @@ const DonationSchedulePage = () => {
       <div className="donation-schedule-page">
         <div className="donation-schedule-container">
           <Title level={2} className="donation-schedule-title">
-            <HeartOutlined /> Lịch Hiến Của Bạn
+            <HeartOutlined /> Lịch Sử Đặt Hẹn
           </Title>
 
           <Row gutter={[24, 24]}>
@@ -838,7 +838,7 @@ const DonationSchedulePage = () => {
                         <CalendarOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
                       </div>
                       <div className="stat-content">
-                        <div className="stat-label">Lần hiến máu cuối</div>
+                        <div className="stat-label">Lần hiến máu gần nhất</div>
                         <div className="stat-value">
                           {donationInfoLoading || registrationsLoading ? (
                             <Spin size="small" />

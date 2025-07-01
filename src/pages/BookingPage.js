@@ -80,8 +80,11 @@ const BookingPage = () => {
       form.setFieldsValue({
         fullName: userData.FullName || userData.fullName || userData.name || '',
         phone: userData.PhoneNumber || userData.phone || userData.phoneNumber || '',
-        email: userData.email || userData.Email || ''
+        email: userData.email || userData.Email || '',
+        nationalId: userData.NationalId || userData.NationalID || userData.nationalId || userData.citizenId || ''
       });
+      
+      console.log('User data for auto-fill:', userData);
     } else {
       setIsLoggedIn(false);
       setUserProfile(null);
@@ -404,49 +407,6 @@ const BookingPage = () => {
       <Header />
       <Navbar />
 
-      {/* Hero Section */}
-      <div className="booking-hero-wrapper">
-        <div className="hero-section-compact">
-          <div className="booking-hero-container">
-            <Row align="middle" gutter={[60, 32]} className="booking-hero-row">
-              <Col xs={24} md={12}>
-                <div className="booking-hero-content">
-                  <Title level={1} className="booking-hero-title">
-                    Hiến Máu, Cứu Sống Người
-                  </Title>
-                  
-                  <Paragraph className="booking-hero-description">
-                    Sự đóng góp của bạn có thể giúp cứu sống tới 3 người. Quy trình hiến 
-                    máu an toàn, đơn giản và chỉ mất không quá một giờ từ đầu đến cuối.
-                  </Paragraph>
-                  
-                  <Button 
-                    size="large"
-                    className="hero-button"
-                    icon={<CalendarOutlined />}
-                    onClick={() => document.getElementById('booking-form').scrollIntoView({ behavior: 'smooth' })}
-                  >
-                    ĐẶT LỊCH HIẾN MÁU NGAY
-                  </Button>
-                  
-                  
-                </div>
-              </Col>
-              
-              <Col xs={24} md={12}>
-                <div className="booking-hero-image-container">
-                  <img 
-                    src="/images/hero_banner_2.jpg" 
-                    alt="Hiến máu cứu người"
-                    className="booking-hero-image"
-                  />
-                </div>
-              </Col>
-            </Row>
-          </div>
-        </div>
-      </div>
-
       <Content className="booking-content">
         {/* Form đăng ký hiến máu */}
         <section className="registration-form-section" id="booking-form">
@@ -526,18 +486,40 @@ const BookingPage = () => {
                         </Form.Item>
                       </Col>
                       
-                      <Col xs={24} md={12}>                        <Form.Item
-                          label="Ngày hiến"
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Số CMND/CCCD"
+                          name="nationalId"
+                          rules={[
+                            { required: true, message: 'Vui lòng nhập số căn cước công dân' },
+                            { pattern: /^[0-9]{12}$/, message: 'Số căn cước công dân phải có 12 chữ số' }
+                          ]}
+                        >
+                          <Input 
+                            className="form-input"
+                            placeholder="Nhập số căn cước công dân"
+                            disabled={isLoggedIn}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+
+                    <Row gutter={[24, 24]}>
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Chọn ngày hiến"
                           name="donationDate"
                           rules={[{ required: true, message: 'Vui lòng chọn ngày hiến máu' }]}
                           normalize={(value) => {
                             // Ensure we return a dayjs object
                             return value && dayjs.isDayjs(value) ? value : (value ? dayjs(value) : null);
-                          }}                          getValueFromEvent={(value) => {
+                          }}
+                          getValueFromEvent={(value) => {
                             console.log('DatePicker value received:', value);
                             return value;
                           }}
-                        ><DatePicker 
+                        >
+                          <DatePicker 
                             className="form-input"
                             placeholder="Chọn ngày hiến máu"
                             format="DD/MM/YYYY"
@@ -551,6 +533,10 @@ const BookingPage = () => {
                                   errors: []
                                 }]);
                               }
+                              
+                              // Reset time slot selection when date changes
+                              setSelectedTimeSlot(null);
+                              form.setFieldsValue({ donationSlot: null });
                             }}
                             disabledDate={(current) => {
                               if (!current) return false;
@@ -569,7 +555,12 @@ const BookingPage = () => {
                               // If no available dates from API, allow all future dates
                               return false;
                             }}
-                          /></Form.Item>
+                          />
+                        </Form.Item>
+                      </Col>
+                      
+                      <Col xs={24} md={12}>
+                        {/* Empty column for layout balance */}
                       </Col>
                     </Row>
 
@@ -600,21 +591,28 @@ const BookingPage = () => {
                           </div>
                         </Col>
                       </Row>
-                    )}                    <Form.Item
-                      label="Thời gian hiến máu"
-                      name="donationSlot"
-                      rules={[{ required: true, message: 'Vui lòng chọn thời gian hiến máu' }]}
-                    >
-                      <div className="time-slot-group time-slot-wrapper">                        <div className="time-slot-options">
+                    )}                    {/* Only show time slots after date is selected */}
+                    {form.getFieldValue('donationDate') && (
+                      <Form.Item
+                        label="Chọn khung giờ hiến máu"
+                        name="donationSlot"
+                        rules={[{ required: true, message: 'Vui lòng chọn khung giờ hiến máu' }]}
+                      >
+                      <div className="time-slot-wrapper">
+                        <div className="time-slot-subtitle">
+                          Thời gian nhận hồ sơ
+                        </div>
+                        <div className="time-slot-options">
                           {timeSlots.length === 0 && (
-                            <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                            <div className="time-slot-loading">
                               Đang tải khung giờ hiến máu...
                             </div>
                           )}
                           {timeSlots.map((slot) => {
                             return (<div 
                                 key={slot.timeSlotId}
-                                className={`time-slot-option ${selectedTimeSlot === slot.timeSlotId ? 'selected' : ''}`}                                onClick={() => {
+                                className={`time-slot-item ${selectedTimeSlot === slot.timeSlotId ? 'selected' : ''}`}
+                                onClick={() => {
                                   const currentValue = selectedTimeSlot;
                                   const newValue = currentValue === slot.timeSlotId ? null : slot.timeSlotId;
                                   setSelectedTimeSlot(newValue);
@@ -627,14 +625,11 @@ const BookingPage = () => {
                                   }
                                 }}
                               >
-                                <div className="time-slot-content">
-                                  <div className="time-slot-title">{slot.timeSlotName}</div>
-                                  <div className="time-slot-time">
-                                    {slot.startTime && slot.endTime ? 
-                                      `${slot.startTime.substring(0,5)} - ${slot.endTime.substring(0,5)}` :
-                                      'Thời gian chưa xác định'
-                                    }
-                                  </div>
+                                <div className="time-slot-time">
+                                  {slot.startTime && slot.endTime ? 
+                                    `${slot.startTime.substring(0,5)} - ${slot.endTime.substring(0,5)}` :
+                                    'Thời gian chưa xác định'
+                                  }
                                 </div>
                               </div>
                             );
@@ -642,6 +637,7 @@ const BookingPage = () => {
                         </div>
                       </div>
                     </Form.Item>
+                    )}
 
                     <div className="form-submit-section">
                       <Button 
