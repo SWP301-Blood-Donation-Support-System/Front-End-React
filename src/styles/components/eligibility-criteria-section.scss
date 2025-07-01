@@ -1,0 +1,232 @@
+.eligibility-criteria-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  position: relative;
+  overflow: hidden;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .criteria-header {
+    text-align: center;
+    margin-bottom: 60px;
+
+    .criteria-title-card {
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(45deg, #ff6b35, #f7931e);
+      padding: 20px 40px;
+      border-radius: 25px;
+      box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      &:hover::before {
+        left: 100%;
+      }
+
+      h2 {
+        color: white;
+        font-size: 2.2rem;
+        font-weight: bold;
+        margin: 0;
+        margin-right: 15px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .heart-icon {
+        font-size: 2rem;
+        animation: heartbeat 2s infinite;
+      }
+    }
+  }
+
+  .criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    
+    @media (max-width: 992px) {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto;
+    }
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+  }
+
+  .criteria-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 180px;      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(45deg, #dc2626, #b91c1c);
+      }      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border-color: #dc2626;
+      }      .criteria-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: #dc2626;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        .anticon {
+          font-size: 2.5rem;
+        }
+      }
+
+    .criteria-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+
+      p {
+        color: #333;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 0;
+        font-weight: 500;
+        text-align: center;
+      }
+    }
+  }
+
+  // Add some floating elements for visual interest
+  &::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 5%;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 10%;
+    right: 5%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite reverse;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 50%, 100% {
+    transform: scale(1);
+  }
+  25%, 75% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 992px) {
+  .eligibility-criteria-section {
+    .criteria-grid {
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 600px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .eligibility-criteria-section {
+    padding: 60px 0;
+
+    .criteria-header {
+      margin-bottom: 40px;
+
+      .criteria-title-card {
+        padding: 15px 25px;
+        flex-direction: column;
+        text-align: center;
+
+        h2 {
+          font-size: 1.8rem;
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+
+        .heart-icon {
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    .criteria-grid {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .criteria-card {
+      padding: 20px;
+      min-height: 160px;
+
+      .criteria-icon {
+        font-size: 2rem;
+        margin-bottom: 12px;
+        
+        .anticon {
+          font-size: 2rem;
+        }
+      }
+
+      .criteria-content p {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}

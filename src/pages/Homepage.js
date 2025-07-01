@@ -5,6 +5,8 @@ import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
 import BloodDonationProcessSection from '../components/BloodDonationProcessSection';
+import EligibilityCriteriaSection from '../components/EligibilityCriteriaSection';
+import ImportantNotesSection from '../components/ImportantNotesSection';
 import AfterDonationSection from '../components/AfterDonationSection';
 import Footer from '../components/Footer';
 
@@ -34,7 +36,7 @@ const Homepage = () => {
         replace: true 
       });
     }
-  }, [location.state?.loginNotification, api, navigate, location.pathname]);
+  }, [location.state, api, navigate, location.pathname]);
 
   return (
     <Layout className="homepage">
@@ -43,6 +45,8 @@ const Homepage = () => {
       <Navbar />      <Content>
         <HeroSection />
         <BloodDonationProcessSection />
+        <EligibilityCriteriaSection />
+        <ImportantNotesSection />
         <AfterDonationSection />
       </Content>
       <Footer />
