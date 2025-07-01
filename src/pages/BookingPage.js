@@ -6,7 +6,6 @@ import {
   Row, 
   Col, 
   Button, 
-  Collapse,
   Form,
   Input,
   DatePicker,
@@ -16,7 +15,6 @@ import {
 import { 
   HeartOutlined, 
   CalendarOutlined, 
-  QuestionCircleOutlined,
   UserOutlined,
   LoginOutlined
 } from '@ant-design/icons';
@@ -266,81 +264,7 @@ const BookingPage = () => {
     setShowLoginModal(false);
   };
 
-  const faqData = [
-    {
-      key: '1',
-      label: 'Có đau khi hiến máu không?',
-      children: (
-        <div>
-          <p>
-          Hầu hết người hiến máu chỉ cảm thấy hơi đau khi kim được đưa vào. 
-          Trong suốt quá trình hiến máu, bạn sẽ chỉ cảm thấy khó chịu rất ít. 
-          Đội ngũ nhân viên được đào tạo của chúng tôi có kỹ năng đảm bảo quá trình hiến máu của bạn được thoải mái nhất có thể.
-          </p>
-        </div>
-      )
-    },
-    {
-      key: '2',
-      label: 'Hiến máu mất bao nhiêu thời gian?',
-      children: (
-        <div>
-          <p>
-          Toàn bộ quá trình mất khoảng một giờ từ đầu đến cuối. 
-          Việc hiến máu thực tế thường kéo dài khoảng 8-10 phút, 
-          nhưng bạn nên dành thời gian cho đăng ký, kiểm tra tiền sử sức khỏe, 
-          kiểm tra thể chất cơ bản, và thời gian nghỉ ngơi sau khi hiến máu.
-          </p>
-        </div>
-      )
-    },
-    {
-      key: '3',
-      label: 'Sau khi hiến máu tôi cần lưu ý gì?',
-      children: (
-        <div>
-          <ul>
-            <li>Giữ băng gạc ít nhất từ 4 đến 6 giờ</li>
-            <li>Tránh các hoạt động nặng, gắng sức trong vòng 24 giờ</li>
-            <li>Ăn uống đầy đủ dưỡng chất và uống nhiều nước</li>
-            <li>Không hút thuốc lá trong 2 đến 3 giờ</li>
-            <li>Nếu bạn cảm thấy chóng mặt, hãy nằm xuống với chân nâng cao</li>
-            <li>Hãy liên hệ với trung tâm y tế nếu có gì bất thường</li>
-          </ul>
-        </div>
-      )
-    },
-    {
-      key: '4',
-      label: 'Hiến máu có an toàn không?',
-      children: (
-        <div>
-          <p>Hiến máu hoàn toàn an toàn khi được thực hiện tại các cơ sở y tế có đủ điều kiện:</p>
-          <ul>
-            <li>Dụng cụ y tế vô trùng, dùng một lần</li>
-            <li>Quy trình nghiêm ngặt theo tiêu chuẩn WHO</li>
-            <li>Có bác sĩ và điều dưỡng chuyên nghiệp</li>
-            <li>Kiểm tra sức khỏe kỹ lưỡng trước khi hiến</li>
-          </ul>
-        </div>
-      )
-    },
-    {
-      key: '5',
-      label: 'Tôi có thể hiến máu bao lâu một lần?',
-      children: (
-        <div>
-          <p>Khoảng cách hiến máu tùy thuộc vào loại hiến máu:</p>
-          <ul>
-            <li><strong>Máu toàn phần:</strong> Ít nhất 3 tháng</li>
-            <li><strong>Tiểu cầu:</strong> Ít nhất 2 tuần</li>
-            <li><strong>Huyết tương:</strong> Ít nhất 4 tuần</li>
-            <li><strong>Hồng cầu:</strong> Ít nhất 4 tháng</li>
-          </ul>
-        </div>
-      )
-    }
-  ];
+
 
   // Handle direct donation registration
   const handleDonationRegistration = async (values) => {
@@ -738,24 +662,6 @@ const BookingPage = () => {
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section className="faq-section">
-          <div className="container">
-            <Title level={2} className="section-title">
-              <QuestionCircleOutlined /> Câu Hỏi Thường Gặp
-            </Title>
-            <Row justify="center">
-              <Col xs={24} lg={20}>
-                <Collapse
-                  items={faqData}
-                  defaultActiveKey={['1']}
-                  className="faq-collapse"
-                  size="large"
-                />
-              </Col>
-            </Row>
-          </div>
-        </section>
       </Content>
 
       <Footer />      {/* Modal thông báo đăng nhập */}
