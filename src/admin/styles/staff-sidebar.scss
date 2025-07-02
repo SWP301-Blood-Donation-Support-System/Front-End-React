@@ -309,16 +309,16 @@
       color: #374151 !important;
     }
 
-    // Group styling
-    .ant-menu-item-group {
-      .ant-menu-item-group-title {
-        color: #9ca3af !important;
-        font-size: 11px !important;
-        font-weight: 600 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        padding: 16px 16px 8px 16px !important;
-        margin: 0 !important;
+         // Group styling
+     .ant-menu-item-group {
+       .ant-menu-item-group-title {
+         color: #9ca3af !important;
+         font-size: 13px !important;
+         font-weight: 600 !important;
+         text-transform: uppercase !important;
+         letter-spacing: 0.5px !important;
+         padding: 16px 16px 8px 16px !important;
+         margin: 0 !important;
         
         &:not(:first-child) {
           margin-top: 48px !important;
@@ -343,11 +343,10 @@
     }
   }
 
-  // Logout button
-  .sidebar-logout {
-    padding: 20px 8px 12px 8px;
-    border-top: 1px solid #f0f0f0;
-    margin-top: auto;
+     // Logout button
+   .sidebar-logout {
+     padding: 20px 8px 12px 8px;
+     margin-top: auto;
     
     .logout-button {
       height: 48px !important;
@@ -377,39 +376,63 @@
     }
   }
 
-  // Logout button in collapsed state - perfect alignment
-  &.ant-layout-sider-collapsed {
-    .sidebar-logout {
-      padding: 12px 8px !important;
-      
-      .logout-button {
-        width: 48px !important;
-        height: 48px !important;
-        margin: 0 auto !important;
-        padding: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        
-        // Hide text content
-        span:not(.anticon) {
-          display: none !important;
-        }
-        
-        .anticon {
-          position: static !important;
-          transform: none !important;
-          margin: 0 !important;
-          font-size: 16px !important;
-          color: #6b7280 !important;
-        }
-        
-        &:hover .anticon {
-          color: #dc2626 !important;
-        }
-      }
-    }
-  }
+     // Logout button in collapsed state - perfect alignment
+   &.ant-layout-sider-collapsed {
+     .sidebar-logout {
+       padding: 12px 8px !important;
+       
+       .logout-button {
+         width: 48px !important;
+         height: 48px !important;
+         margin: 0 auto !important;
+         padding: 0 !important;
+         display: flex !important;
+         align-items: center !important;
+         justify-content: center !important;
+         border: none !important;
+         background: transparent !important;
+         
+         // Target the Ant Design button icon specifically
+         .anticon-logout {
+           position: static !important;
+           transform: none !important;
+           margin: 0 !important;
+           font-size: 16px !important;
+           color: #6b7280 !important;
+           opacity: 1 !important;
+           display: block !important;
+         }
+         
+         // Also target any anticon class
+         .anticon {
+           position: static !important;
+           transform: none !important;
+           margin: 0 !important;
+           font-size: 16px !important;
+           color: #6b7280 !important;
+           opacity: 1 !important;
+           display: block !important;
+         }
+         
+         // The conditional text is already handled by React ({!collapsed && 'Đăng xuất'})
+         // so we don't need to hide it with CSS
+         
+         &:hover {
+           background: #fee2e2 !important;
+           
+           .anticon-logout,
+           .anticon {
+             color: #dc2626 !important;
+           }
+         }
+         
+         &:focus {
+           outline: none !important;
+           box-shadow: none !important;
+         }
+       }
+     }
+   }
 
   // Light theme overrides
   .ant-menu-light {

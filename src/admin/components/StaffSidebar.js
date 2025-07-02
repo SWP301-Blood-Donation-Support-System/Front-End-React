@@ -243,7 +243,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     },
     {
       type: 'group',
-      label: 'TÀI KHOẢN',
+      label: 'HỒ SƠ CÁ NHÂN',
       children: [
         getItem('Hồ sơ', '6', <UserOutlined />),
         getItem('Cài đặt', '7', <SettingOutlined />),
