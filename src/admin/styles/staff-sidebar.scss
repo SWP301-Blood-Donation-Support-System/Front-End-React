@@ -249,31 +249,44 @@
         display: none !important;
       }
       
-      // Center just the icons, not the entire menu item
+      // Apply strongest specificity to ensure perfect alignment
       .ant-menu-item,
-      .ant-menu-submenu-title {
+      .ant-menu-submenu-title,
+      .ant-menu-item-group-list .ant-menu-item,
+      .ant-menu-item-group-list .ant-menu-submenu-title {
         position: relative !important;
+        padding: 0 !important;
+        margin: 0 !important;
         
-        // Hide text content in collapsed state
-        .ant-menu-title-content {
+        // Hide ALL text content
+        .ant-menu-title-content,
+        span:not(.anticon):not(.ant-menu-item-icon) {
           display: none !important;
         }
         
+        // Target ALL possible icon elements with maximum specificity
         .ant-menu-item-icon,
-        .anticon {
+        .ant-menu-submenu-arrow, 
+        .anticon,
+        > .anticon,
+        > span > .anticon {
           position: absolute !important;
           left: 50% !important;
           top: 50% !important;
           transform: translate(-50%, -50%) !important;
           font-size: 16px !important;
           color: #6b7280 !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
         
-        &:hover .anticon {
+        &:hover .anticon,
+        &:hover .ant-menu-item-icon {
           color: #374151 !important;
         }
         
-        &.ant-menu-item-selected .anticon {
+        &.ant-menu-item-selected .anticon,
+        &.ant-menu-item-selected .ant-menu-item-icon {
           color: #374151 !important;
         }
       }
@@ -458,9 +471,18 @@
     padding: 12px 4px !important;
     
     .logout-button {
-      text-align: center !important;
+      position: relative !important;
+      
+      // Hide text content in collapsed state  
+      span:not(.anticon) {
+        display: none !important;
+      }
       
       .anticon {
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
         font-size: 16px !important;
         color: #6b7280 !important;
       }

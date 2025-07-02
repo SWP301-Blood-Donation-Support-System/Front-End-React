@@ -37,6 +37,8 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
   const [daysLeft, setDaysLeft] = useState(0);
   const [isViewOnly, setIsViewOnly] = useState(false);
   const navigate = useNavigate();
+  const [donationRegistrations, setDonationRegistrations] = useState([]);
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
   const location = useLocation();  const bookingData = location.state?.bookingData;// Function to fetch user eligibility data from API
   const fetchUserEligibilityData = async () => {
     try {
@@ -135,6 +137,80 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       }
     }
   };
+  // Function to fetch user's donation registrations for "Đang chờ hiến" status only
+  const fetchUserDonationRegistrations = async () => {
+    try {
+      setLoadingRegistrations(true);
+      
+      // Get userId from localStorage
+      const user = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      
+      if (!user || !token) {
+        console.log('No user or token found in localStorage');
+        return;
+      }
+
+      const userData = JSON.parse(user);
+      const userId = userData.UserID || userData.UserId || userData.id || userData.userId || userData.Id;
+      
+      if (!userId) {
+        console.log('No userId found in user data');
+        return;
+      }
+
+      console.log('Fetching donation registrations for userId:', userId);
+      
+      // Fetch both donation registrations and time slots in parallel
+      const [registrationsResponse, timeSlotsResponse, donationScheduleResponse] = await Promise.all([
+        UserAPI.getDonationRegistrationsByDonorId(userId),
+        UserAPI.getTimeSlots(),
+        UserAPI.getDonationSchedule()
+      ]);
+      
+      console.log('Donation registrations response:', registrationsResponse);
+      console.log('Time slots response:', timeSlotsResponse);
+      console.log('Donation schedule response:', donationScheduleResponse);
+      
+      if (registrationsResponse && registrationsResponse.data) {
+        // Filter registrations to show only "Đang chờ hiến" status
+        const waitingRegistrations = registrationsResponse.data.filter(registration => 
+          registration.registrationStatusId === 1 // "Đang chờ hiến" - Confirmed/Waiting for donation
+        );
+        
+        // Create time slots lookup map
+        const timeSlotsMap = {};
+        if (timeSlotsResponse && timeSlotsResponse.data) {
+          timeSlotsResponse.data.forEach(timeSlot => {
+            timeSlotsMap[timeSlot.timeSlotId] = timeSlot;
+          });
+        }
+        
+        // Create donation schedule lookup map
+        const donationScheduleMap = {};
+        if (donationScheduleResponse && donationScheduleResponse.data) {
+          donationScheduleResponse.data.forEach(schedule => {
+            donationScheduleMap[schedule.scheduleId] = schedule;
+          });
+        }
+        
+        // Map the registrations with their time slot and schedule details
+        const mappedRegistrations = waitingRegistrations.map(registration => ({
+          ...registration,
+          timeSlotDetails: timeSlotsMap[registration.timeSlotId] || null,
+          scheduleDetails: donationScheduleMap[registration.scheduleId] || null
+        }));
+        
+        setDonationRegistrations(mappedRegistrations);
+        console.log('Mapped waiting donation registrations:', mappedRegistrations);
+      }
+    } catch (error) {
+      console.error('Error fetching user donation registrations:', error);
+    } finally {
+      setLoadingRegistrations(false);
+    }
+  };
+
 
 // Scroll to top when component mounts and check if bookingData exists
   useEffect(() => {
@@ -148,7 +224,8 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
     }
 
     window.scrollTo(0, 0);
-    fetchUserEligibilityData(); // Fetch user eligibility data
+    fetchUserEligibilityData();
+    fetchUserDonationRegistrations(); // Fetch user eligibility data
   }, [navigate, bookingData]);
 
   // Eligibility questions data
@@ -904,13 +981,56 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
                 <ExclamationCircleOutlined />
               </div>
               <Title level={3} className="result-title">
-                ⚠️ Bạn đã đăng ký hiến máu rồi!
+                ⚠️ Bạn đã đăng ký lịch hiến máu gần đây rồi!
               </Title>
               <Paragraph className="result-description">
-                🩸 Để đảm bảo sức khỏe, bạn cần nghỉ ngơi ít nhất <strong>12-16 tuần</strong> giữa các lần hiến máu.
+                🩸 Vui lòng đợi tới ngày hiến hoặc huỷ lịch hiện tại để đăng ký lại.
                 <br /><br />
-                📅 <strong>Thông tin hiến máu:</strong><br />
-                • Vui lòng liên hệ hotline để được tư vấn: <strong>1900-xxxx</strong>
+                📅 <strong>Thông tin về lịch hiến máu đã đăng ký của bạn:</strong><br />
+                {loadingRegistrations ? (
+                  <div style={{textAlign: 'center', margin: '15px 0', color: '#666'}}>
+                    Đang tải thông tin...
+                  </div>
+                ) : donationRegistrations.length > 0 ? (
+                  <div style={{marginTop: '10px'}}>
+                    {donationRegistrations.map((registration, index) => (
+                      <div key={registration.registrationId || index} style={{
+                        backgroundColor: '#f0f9ff',
+                        padding: '12px',
+                        borderRadius: '6px',
+                        margin: '8px 0',
+                        border: '1px solid #bfdbfe',
+                        borderLeft: '4px solid #3b82f6'
+                      }}>
+                                                 <div style={{marginBottom: '5px'}}>
+                           📅 <strong>Ngày hiến máu:</strong> <span style={{color: '#1f2937', fontWeight: '600'}}>
+                             {registration.scheduleDetails?.scheduleDate 
+                               ? new Date(registration.scheduleDetails.scheduleDate).toLocaleDateString('vi-VN')
+                               : 'Chưa xác định'}
+                           </span>
+                         </div>
+                         <div style={{marginBottom: '5px'}}>
+                           ⏰ <strong>Thời gian bắt đầu:</strong> <span style={{color: '#1f2937', fontWeight: '600'}}>
+                             {registration.timeSlotDetails?.startTime
+                               ? registration.timeSlotDetails.startTime.substring(0, 5)
+                               : 'Chưa xác định'}
+                           </span>
+                         </div>
+                         <div>
+                           🕐 <strong>Thời gian kết thúc:</strong> <span style={{color: '#1f2937', fontWeight: '600'}}>
+                             {registration.timeSlotDetails?.endTime
+                               ? registration.timeSlotDetails.endTime.substring(0, 5)
+                               : 'Chưa xác định'}
+                           </span>
+                         </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{textAlign: 'center', margin: '15px 0', color: '#666'}}>
+                    Không có lịch hiến máu đang chờ.
+                  </div>
+                )}
                 <br /><br />
                 💙 <em>Cảm ơn bạn đã quan tâm đến hoạt động hiến máu nhân đạo!</em>
               </Paragraph>              <div className="result-actions">
