@@ -31,7 +31,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { UserAPI } from '../../api/User';
 import StaffHeader from '../components/StaffHeader';
-import StaffNavbar from '../components/StaffNavbar';
+
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -445,7 +445,6 @@ const StaffProfilePage = () => {
         <Layout className="staff-main-layout">
           <StaffHeader />
           <Layout className="staff-content-layout">
-            <StaffNavbar />
             <Content className="staff-content" style={{ padding: '0 48px' }}>
               <div style={{ textAlign: 'center', marginTop: '100px' }}>
                 <Spin size="large" />
@@ -463,7 +462,6 @@ const StaffProfilePage = () => {
         <Layout className="staff-main-layout">
           <StaffHeader />
           <Layout className="staff-content-layout">
-            <StaffNavbar />
             <Content className="staff-content" style={{ padding: '0 48px' }}>
               <div style={{ textAlign: 'center', marginTop: '100px' }}>
                 <Text type="danger">Failed to load user profile</Text>
@@ -481,7 +479,6 @@ const StaffProfilePage = () => {
       <Layout className="staff-main-layout">
         <StaffHeader />
         <Layout className="staff-content-layout">
-          <StaffNavbar />
           <Content className="staff-content" style={{ padding: '0 48px' }}>
             <div className="profile-container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
               <Title level={2} className="profile-title">

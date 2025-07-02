@@ -1,339 +1,492 @@
-// Staff Sidebar Component Styles - Modern Clean Design
+// Staff Sidebar - Clean Design with Perfect Icon Alignment
 .staff-sidebar {
-  // Force white background for all sidebar elements
-  // Override any Ant Design default dark backgrounds
-  .ant-layout-sider,
-  .ant-layout-sider-children,
-  .ant-layout-sider-trigger {
-    background-color: #ffffff !important;
-  }
+  // Sidebar width settings
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+  flex: 0 0 280px !important;
   
-  // Ensure no dark overlays or pseudo-elements
-  .ant-layout-sider {
-    &::before,
-    &::after {
-      display: none !important;
-      background: transparent !important;
-    }
-  }
-  
-  // Remove any dark theme classes
-  &.ant-layout-sider-dark {
-    background: #ffffff !important;
-    
-    .ant-layout-sider-trigger {
-      background: #dc2626 !important;
-    }
+  &.ant-layout-sider-collapsed {
+    width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+    flex: 0 0 64px !important;
   }
 
+  // Main sidebar container
   .ant-layout-sider {
-    background: #ffffff !important; // Clean white background
-    border-right: 1px solid #f0f0f0 !important; // Subtle border
-    padding-top: 16px !important;
+    background: #ffffff !important;
+    border-right: 1px solid #f0f0f0 !important;
     position: sticky !important;
     top: 0 !important;
     height: 100vh !important;
-    align-self: flex-start !important;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04) !important; // Subtle shadow
-    margin: 8px 0 8px 8px !important; // Add margin for rounded effect
-    border-radius: 12px !important; // Rounded corners
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04) !important;
+    margin: 8px 0 8px 8px !important;
+    border-radius: 12px !important;
     overflow: hidden !important;
+  }
+
+  // Header with logo and hamburger
+  .staff-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: #ffffff !important;
+    min-height: 60px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 16px;
+  }
+
+  // Logo styling
+  .staff-logo {
+    display: flex;
+    align-items: center;
+    flex: 1;
     
-    // Override any dark theme background
-    &::before,
-    &::after {
-      background: #ffffff !important;
+    .healthcare-logo {
+      max-width: 120px;
+      max-height: 40px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      filter: brightness(0.8);
     }
   }
 
-  .ant-layout-sider-trigger {
-    background: #dc2626 !important; // Same red as selected items
-    color: #ffffff !important; // White text
-    transition: all 0.3s ease !important;
+  // Hamburger trigger - consistent centering
+  .hamburger-trigger {
+    width: 32px !important;
+    height: 32px !important;
+    background: transparent !important;
     border: none !important;
-    border-top: 1px solid #f0f0f0 !important;
-    box-shadow: none !important;
-    position: sticky !important;
-    bottom: 8px !important; // Match the margin
-    left: 8px !important; // Keep it inside the sidebar frame
-    right: 8px !important; // Keep it inside the sidebar frame
-    z-index: 100 !important;
-    margin: 0 8px !important; // Remove bottom margin to prevent overflow
-    border-radius: 8px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: calc(100% - 16px) !important; // Ensure it stays within bounds
+    flex-shrink: 0 !important;
+    
+    &:hover {
+      background: #f3f4f6 !important;
+    }
+    
+    .anticon {
+      color: #000000 !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+    }
+  }
 
-    &::before {
+  // Collapsed state header - perfect centering
+  &.ant-layout-sider-collapsed {
+    .staff-header {
+      padding: 12px 0 !important;
+      justify-content: center !important;
+      min-height: 48px !important;
+      margin-bottom: 12px !important;
+    }
+    
+    .staff-logo {
       display: none !important;
     }
-
-    &:hover {
-      background: #b91c1c !important; // Darker red on hover
-      color: #ffffff !important;
-    }
     
-    .anticon {
-      color: #ffffff !important;
-      font-weight: 600 !important;
-      font-size: 16px !important;
-    }
-    
-    &:hover .anticon {
-      color: #ffffff !important;
-    }
-  }
-  
-  .custom-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    color: #ffffff;
-    font-size: 16px;
-    
-    .anticon {
-      color: #ffffff !important;
+    .hamburger-trigger {
+      margin: 0 !important;
+      
+      .anticon {
+        font-size: 16px !important;
+      }
     }
   }
 
+  // Sidebar children container
   .ant-layout-sider-children {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #ffffff; // Clean white background
+    background: #ffffff !important;
+  }
+
+  // Main menu styling
+  .staff-menu {
+    flex: 1;
     border: none !important;
+    background: #ffffff !important;
+    padding: 16px 8px !important;
+    overflow-y: auto;
+
+         // COLLAPSED STATE - Perfect Icon Alignment
+     &.ant-menu-inline-collapsed {
+       width: 64px !important;
+       
+       // Hide group titles
+       .ant-menu-item-group-title {
+         display: none !important;
+       }
+       
+       // Perfect alignment for ALL menu elements with maximum specificity
+       .ant-menu-item,
+       .ant-menu-submenu-title,
+       .ant-menu-item-group-list .ant-menu-item,
+       .ant-menu-item-group-list .ant-menu-submenu-title,
+       li.ant-menu-item,
+       li.ant-menu-submenu > .ant-menu-submenu-title {
+         width: 48px !important;
+         height: 48px !important;
+         margin: 8px auto !important;
+         padding: 0 !important;
+         display: flex !important;
+         align-items: center !important;
+         justify-content: center !important;
+         border-radius: 8px !important;
+         position: relative !important;
+         
+         // Hide all text content with maximum specificity
+         .ant-menu-title-content,
+         .ant-menu-submenu-arrow,
+         span:not(.anticon):not(.ant-menu-item-icon),
+         > span:not(.anticon):not(.ant-menu-item-icon) {
+           display: none !important;
+         }
+         
+         // Center icons using flexbox (same as hamburger) with maximum specificity
+         .ant-menu-item-icon,
+         .anticon,
+         > .anticon,
+         > span > .anticon,
+         > .ant-menu-item-icon,
+         > span > .ant-menu-item-icon {
+           position: static !important;
+           transform: none !important;
+           left: auto !important;
+           top: auto !important;
+           font-size: 16px !important;
+           color: #6b7280 !important;
+           margin: 0 !important;
+           padding: 0 !important;
+           width: auto !important;
+           height: auto !important;
+         }
+         
+         &:hover {
+           background: #f3f4f6 !important;
+           
+           .anticon,
+           .ant-menu-item-icon,
+           > .anticon,
+           > span > .anticon,
+           > .ant-menu-item-icon,
+           > span > .ant-menu-item-icon {
+             color: #374151 !important;
+           }
+         }
+         
+         &.ant-menu-item-selected,
+         &.ant-menu-submenu-selected {
+           background: #f3f4f6 !important;
+           
+           .anticon,
+           .ant-menu-item-icon,
+           > .anticon,
+           > span > .anticon,
+           > .ant-menu-item-icon,
+           > span > .ant-menu-item-icon {
+             color: #374151 !important;
+           }
+         }
+       }
+       
+       // Extra specificity for stubborn submenu items
+       .ant-menu-submenu {
+         margin: 8px auto !important;
+         width: 48px !important;
+         
+         .ant-menu-submenu-title {
+           width: 48px !important;
+           height: 48px !important;
+           margin: 0 !important;
+           padding: 0 !important;
+           display: flex !important;
+           align-items: center !important;
+           justify-content: center !important;
+         }
+       }
+     }
+
+    // EXPANDED STATE - Normal menu styling
+    .ant-menu-item {
+      margin: 6px 0 !important;
+      border-radius: 8px !important;
+      padding-left: 16px !important;
+      color: #374151 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      height: 48px !important;
+      line-height: 48px !important;
+      transition: all 0.3s ease !important;
+
+      &:hover {
+        color: #1f2937 !important;
+      }
+
+      &.ant-menu-item-selected {
+        background-color: #f3f4f6 !important;
+        color: #374151 !important;
+        font-weight: 600 !important;
+
+        &::after {
+          display: none;
+        }
+      }
+    }
+
+    .ant-menu-submenu {
+      margin: 6px 0 !important;
+      
+      .ant-menu-submenu-title {
+        padding-left: 16px !important;
+        color: #374151 !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        border-radius: 8px !important;
+        height: 48px !important;
+        line-height: 48px !important;
+        transition: all 0.3s ease !important;
+
+        &:hover {
+          background-color: #f9fafb !important;
+          color: #1f2937 !important;
+        }
+      }
+
+      &.ant-menu-submenu-open > .ant-menu-submenu-title,
+      &.ant-menu-submenu-selected > .ant-menu-submenu-title {
+        background-color: #f3f4f6 !important;
+        color: #1f2937 !important;
+      }
+
+      .ant-menu-sub {
+        background: #ffffff !important;
+        padding: 4px 0 !important;
+      }
+
+      .ant-menu-item {
+        padding-left: 40px !important;
+        background: #ffffff !important;
+        color: #6b7280 !important;
+        font-size: 13px !important;
+
+        &:hover {
+          background-color: #f9fafb !important;
+          color: #374151 !important;
+        }
+
+        &.ant-menu-item-selected {
+          background-color: #dc2626 !important;
+          color: #ffffff !important;
+        }
+      }
+    }
+
+    // Icon styling
+    .anticon {
+      font-size: 16px !important;
+      margin-right: 12px !important;
+      color: #6b7280 !important;
+      
+      &:hover {
+        color: #374151 !important;
+      }
+    }
     
-    &::before,
-    &::after {
-      display: none !important;
+    .ant-menu-item-selected .anticon {
+      color: #374151 !important;
+    }
+    
+    .ant-menu-submenu-selected .anticon {
+      color: #374151 !important;
+    }
+
+         // Group styling
+     .ant-menu-item-group {
+       .ant-menu-item-group-title {
+         color: #9ca3af !important;
+         font-size: 13px !important;
+         font-weight: 600 !important;
+         text-transform: uppercase !important;
+         letter-spacing: 0.5px !important;
+         padding: 16px 16px 8px 16px !important;
+         margin: 0 !important;
+        
+        &:not(:first-child) {
+          margin-top: 48px !important;
+        }
+      }
+
+      .ant-menu-item-group-list {
+        .ant-menu-item {
+          margin: 6px 0 !important;
+        }
+        
+        .ant-menu-submenu {
+          margin: 6px 0 !important;
+        }
+      }
+
+      &:first-child {
+        .ant-menu-item-group-list {
+          margin-bottom: 24px !important;
+        }
+      }
     }
   }
 
-  // Light theme adjustments for clean sidebar
+     // Logout button
+   .sidebar-logout {
+     padding: 20px 8px 12px 8px;
+     margin-top: auto;
+    
+    .logout-button {
+      height: 48px !important;
+      border-radius: 8px !important;
+      font-weight: 500 !important;
+      color: #374151 !important;
+      transition: all 0.3s ease !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      padding-left: 16px !important;
+      
+      &:hover {
+        background-color: #fee2e2 !important;
+        color: #dc2626 !important;
+        
+        .anticon {
+          color: #dc2626 !important;
+        }
+      }
+      
+      .anticon {
+        color: #6b7280 !important;
+        font-size: 16px !important;
+        margin-right: 12px !important;
+      }
+    }
+  }
+
+     // Logout button in collapsed state - perfect alignment
+   &.ant-layout-sider-collapsed {
+     .sidebar-logout {
+       padding: 12px 8px !important;
+       
+       .logout-button {
+         width: 48px !important;
+         height: 48px !important;
+         margin: 0 auto !important;
+         padding: 0 !important;
+         display: flex !important;
+         align-items: center !important;
+         justify-content: center !important;
+         border: none !important;
+         background: transparent !important;
+         
+         // Target the Ant Design button icon specifically
+         .anticon-logout {
+           position: static !important;
+           transform: none !important;
+           margin: 0 !important;
+           font-size: 16px !important;
+           color: #6b7280 !important;
+           opacity: 1 !important;
+           display: block !important;
+         }
+         
+         // Also target any anticon class
+         .anticon {
+           position: static !important;
+           transform: none !important;
+           margin: 0 !important;
+           font-size: 16px !important;
+           color: #6b7280 !important;
+           opacity: 1 !important;
+           display: block !important;
+         }
+         
+         // The conditional text is already handled by React ({!collapsed && 'Đăng xuất'})
+         // so we don't need to hide it with CSS
+         
+         &:hover {
+           background: #fee2e2 !important;
+           
+           .anticon-logout,
+           .anticon {
+             color: #dc2626 !important;
+           }
+         }
+         
+         &:focus {
+           outline: none !important;
+           box-shadow: none !important;
+         }
+       }
+     }
+   }
+
+  // Light theme overrides
   .ant-menu-light {
-    background: #ffffff; // Clean white background
+    background: #ffffff !important;
 
     .ant-menu-item-group-title {
-      color: #9ca3af;
-      font-weight: 500;
+      color: #9ca3af !important;
+      font-weight: 500 !important;
     }
 
     .ant-menu-item-selected {
-      background-color: #f3f4f6 !important; // Light gray selection
+      background-color: #f3f4f6 !important;
       border-radius: 8px !important;
       margin: 2px 8px !important;
     }
 
     .ant-menu-submenu-selected > .ant-menu-submenu-title {
-      color: #374151;
+      color: #374151 !important;
       background-color: #f3f4f6 !important;
       border-radius: 8px !important;
       margin: 2px 8px !important;
     }
   }
 
-  // Responsive adjustments
-  @media (max-width: 768px) {
-    .ant-layout-sider-children {
-      background: #ffffff;
-    }
+  // Scrollbar styling
+  .ant-layout-sider-children::-webkit-scrollbar {
+    width: 4px;
   }
-  
-  // Smooth transitions for all elements
+
+  .ant-layout-sider-children::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .ant-layout-sider-children::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 2px;
+  }
+
+  .ant-layout-sider-children::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+  }
+
+  // Smooth transitions
   * {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
-  
-  // Collapsed state adjustments
-  &.ant-layout-sider-collapsed {
-    .staff-logo {
-      padding: 16px 8px;
-      
-      .healthcare-logo {
-        max-width: 32px;
-        max-height: 32px;
-      }
-    }
-    
-    .staff-menu {
-      .ant-menu-item,
-      .ant-menu-submenu-title {
-        padding-left: 24px !important;
-        text-align: center;
-      }
-      
-      .anticon {
-        margin-right: 0 !important;
-      }
-    }
-  }
-  
-  // Hover effects for better UX
+
+  // Hover effects
   .ant-layout-sider:hover {
     box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08) !important;
   }
-  
-  // Active menu item glow effect
-  .ant-menu-item-selected {
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2) !important; // Red glow effect
-  }
 }
 
-// Scrollbar styling for sidebar
-.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar {
-  width: 4px;
-}
-
-.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 2px;
-}
-
-.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
-}
-
-.staff-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 16px;
-  background: #ffffff; // Clean white background
-  border-bottom: 1px solid #f0f0f0; // Subtle border
-  margin-bottom: 8px;
-  
-  .healthcare-logo {
-    max-width: 160px; // Slightly smaller for cleaner look
-    max-height: 80px;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    filter: brightness(0.8); // Slightly darker for better contrast on white
-  }
-}
-
-.staff-menu {
-  flex: 1;
-  border: none;
-  background: #ffffff !important; // Clean white background
-  margin-top: 0 !important;
-  padding: 0 8px !important; // Add horizontal padding for rounded items
-
-  .ant-menu-item {
-    margin: 2px 0 !important; // Small vertical margin
-    border-radius: 8px !important; // Rounded menu items
-    padding-left: 16px !important;
-    transition: all 0.3s ease !important;
-    color: #374151 !important; // Dark gray text
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    height: 42px !important; // Slightly more compact
-    line-height: 42px !important;
-
-    &:hover {
-      background-color: #f9fafb !important; // Very light gray on hover
-      color: #1f2937 !important; // Darker on hover
-    }
-
-    &.ant-menu-item-selected {
-      background-color: #dc2626 !important; // Red accent for selected (matching blood donation theme)
-      color: #ffffff !important; // White text on selected
-      font-weight: 600 !important;
-
-      &::after {
-        display: none;
-      }
-      
-      .anticon {
-        color: #ffffff !important;
-      }
-    }
-  }
-
-  .ant-menu-submenu {
-    margin: 2px 0 !important;
-    
-    .ant-menu-submenu-title {
-      padding-left: 16px !important;
-      transition: all 0.3s ease !important;
-      color: #374151 !important;
-      font-size: 14px !important;
-      font-weight: 500 !important;
-      border-radius: 8px !important;
-      height: 42px !important;
-      line-height: 42px !important;
-
-      &:hover {
-        background-color: #f9fafb !important;
-        color: #1f2937 !important;
-      }
-      
-      &:active {
-        background-color: #f3f4f6 !important;
-      }
-    }
-
-    &.ant-menu-submenu-open > .ant-menu-submenu-title,
-    &.ant-menu-submenu-selected > .ant-menu-submenu-title {
-      background-color: #f3f4f6 !important;
-      color: #1f2937 !important;
-    }
-
-    .ant-menu-sub {
-      background: #ffffff !important; // Match sidebar white background
-      padding: 4px 0 !important;
-    }
-
-    .ant-menu-item {
-      padding-left: 40px !important; // More indentation for sub-items
-      background: #ffffff !important;
-      color: #6b7280 !important; // Lighter gray for sub-items
-      font-size: 13px !important;
-
-      &:hover {
-        background-color: #f9fafb !important;
-        color: #374151 !important;
-      }
-
-      &.ant-menu-item-selected {
-        background-color: #dc2626 !important; // Red accent for submenu items
-        color: #ffffff !important;
-      }
-    }
-  }
-
-  .anticon {
-    font-size: 16px !important;
-    margin-right: 12px !important;
-    opacity: 0.8;
-    color: #6b7280 !important; // Gray icons
-    
-    &:hover {
-      color: #374151 !important;
-    }
-  }
-  
-  // Selected item icon color
-  .ant-menu-item-selected .anticon {
-    color: #ffffff !important;
-    opacity: 1;
-  }
-  
-  // Submenu selected icon color  
-  .ant-menu-submenu-selected .anticon {
-    color: #374151 !important;
-    opacity: 1;
-  }
-}
-
-// Additional global override for sidebar container
+// Global overrides
 .ant-layout-has-sider {
   .ant-layout-sider {
     background: #ffffff !important;

@@ -21,7 +21,7 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import { AdminAPI } from '../api/admin';
-import StaffNavbar from '../components/StaffNavbar';
+
 import StaffSidebar from '../components/StaffSidebar';
 import StaffHeader from '../components/StaffHeader';
 import '../styles/donation-records.scss';
@@ -1012,7 +1012,7 @@ const DonationRecordsPage = () => {
         <StaffHeader />
 
         <Layout className="staff-content-layout">
-          <StaffNavbar />
+
           
           <Content className="donation-records-content">
             <div className="donation-records-container">

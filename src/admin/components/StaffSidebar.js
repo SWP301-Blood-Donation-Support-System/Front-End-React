@@ -12,9 +12,13 @@ import {
   DatabaseOutlined,
   PlusCircleOutlined,
   MedicineBoxOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Button, notification } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { UserAPI } from '../../api/User';
 
 const { Sider } = Layout;
 
@@ -30,6 +34,7 @@ function getItem(label, key, icon, children) {
 const StaffSidebar = ({ collapsed, onCollapse }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [api, contextHolder] = notification.useNotification();
   const autoOpenedRef = useRef(new Set()); // Track which submenus were auto-opened
   const previousCollapsedRef = useRef(collapsed); // Track previous collapsed state
   const savedOpenKeysRef = useRef([]); // Store openKeys before collapsing
@@ -109,9 +114,29 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return ['4-1'];
     } else if (pathname.includes('/staff/reports')) {
       return ['5'];
+    } else if (pathname.includes('/staff/profile')) {
+      return ['6'];
     }
     
     return ['1']; // default to schedule management
+  };
+
+  // Handle logout functionality
+  const handleLogout = () => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    const userName = userInfo?.FullName || userInfo?.name || 'Staff';
+    
+    UserAPI.logout();
+    
+    // Show logout notification
+    api.success({
+      message: 'Đăng xuất thành công!',
+      description: `Tạm biệt ${userName}! Hẹn gặp lại bạn sau.`,
+      placement: 'topRight',
+      duration: 3,
+    });
+    
+    navigate('/');
   };
 
   // Simple handler - just update openKeys when sidebar is expanded
@@ -181,26 +206,50 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       case '5': // Báo cáo thống kê
         // TODO: Navigate to reports
         break;
+      case '6': // Hồ sơ
+        navigate('/staff/profile');
+        break;
+      case '7': // Cài đặt 
+        // TODO: Navigate to settings page
+        break;
+      case '8': // Trợ giúp
+        // TODO: Navigate to help page
+        break;
       default:
         break;
     }
   };
 
-  // Sidebar items
+  // Sidebar items with sections
   const sidebarItems = [
-    getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
-    getItem('Quản lý người hiến', '2', <UserOutlined />),
-    getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />, [
-      getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
-      getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
-      getItem('Túi máu không đạt', '3-3', <CloseCircleOutlined />),
-      getItem('Túi máu chờ duyệt', '3-4', <ClockCircleOutlined />),
-    ]),
-    getItem('Hồ sơ người hiến', '4', <FileOutlined />, [
-      getItem('Toàn bộ hồ sơ', '4-1', <DatabaseOutlined />),
-      getItem('Tạo hồ sơ mới', '4-2', <PlusCircleOutlined />),
-    ]),
-    getItem('Báo cáo thống kê', '5', <TeamOutlined />),
+    {
+      type: 'group',
+      label: 'QUẢN LÝ',
+      children: [
+        getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
+        getItem('Quản lý người hiến', '2', <UserOutlined />),
+        getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />, [
+          getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
+          getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
+          getItem('Túi máu không đạt', '3-3', <CloseCircleOutlined />),
+          getItem('Túi máu chờ duyệt', '3-4', <ClockCircleOutlined />),
+        ]),
+        getItem('Hồ sơ người hiến', '4', <FileOutlined />, [
+          getItem('Toàn bộ hồ sơ', '4-1', <DatabaseOutlined />),
+          getItem('Tạo hồ sơ mới', '4-2', <PlusCircleOutlined />),
+        ]),
+        getItem('Báo cáo thống kê', '5', <TeamOutlined />),
+      ]
+    },
+    {
+      type: 'group',
+      label: 'HỒ SƠ CÁ NHÂN',
+      children: [
+        getItem('Hồ sơ', '6', <UserOutlined />),
+        getItem('Cài đặt', '7', <SettingOutlined />),
+        getItem('Trợ giúp', '8', <QuestionCircleOutlined />),
+      ]
+    }
   ];
 
   return (
@@ -210,26 +259,59 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       onCollapse={onCollapse}
       className="staff-sidebar"
       width={280}
-      collapsedWidth={80}
-      trigger={
-        <div className="custom-trigger">
+      collapsedWidth={64}
+      trigger={null}
+    >
+      {contextHolder}
+      <div className="staff-header">
+        {!collapsed && (
+          <div className="staff-logo">
+            <img src="/images/new-logo.png" alt="Healthcare Logo" className="healthcare-logo" />
+          </div>
+        )}
+        <div 
+          className="hamburger-trigger" 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onCollapse(!collapsed);
+          }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onCollapse(!collapsed);
+            }
+          }}
+        >
           <MenuOutlined />
         </div>
-      }
-    >
-      <div className="staff-logo">
-        <img src="/images/new-logo.png" alt="Healthcare Logo" className="healthcare-logo" />
       </div>
+      
       <Menu 
         theme="light"
         selectedKeys={getSelectedKey()}
         openKeys={openKeys}
         onOpenChange={onOpenChange}
         mode="inline" 
+        inlineCollapsed={collapsed}
         items={sidebarItems}
         className="staff-menu"
         onClick={handleMenuClick}
       />
+
+      <div className="sidebar-logout">
+        <Button 
+          type="text" 
+          icon={<LogoutOutlined />}
+          onClick={handleLogout}
+          className="logout-button"
+          block
+        >
+          {!collapsed && 'Đăng xuất'}
+        </Button>
+      </div>
     </Sider>
   );
 };
