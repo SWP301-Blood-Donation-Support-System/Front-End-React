@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Avatar, Dropdown, Menu, Space, notification } from 'antd';
+import { Layout, Avatar, Space } from 'antd';
 import { 
   MailOutlined,
-  PoweroffOutlined,
-  MenuOutlined,
-  DownOutlined,
-  UserOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { UserAPI } from '../../api/User';
 
 const { Header } = Layout;
 
 const StaffHeader = () => {
-  const [api, contextHolder] = notification.useNotification();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -41,52 +35,8 @@ const StaffHeader = () => {
     initializeAuth();
   }, [navigate]);
 
-  // Handle logout functionality
-  const handleLogout = () => {
-    const userName = user?.FullName || user?.name || 'Staff';
-    
-    UserAPI.logout();
-    setUser(null);
-    
-    // Show logout notification
-    api.success({
-      message: 'Đăng xuất thành công!',
-      description: `Tạm biệt ${userName}! Hẹn gặp lại bạn sau.`,
-      placement: 'topRight',
-      duration: 3,
-    });
-    
-    navigate('/');
-  };
-
-  // Handle menu item clicks
-  const handleMenuClick = ({ key }) => {
-    if (key === 'logout') {
-      handleLogout();
-    } else if (key === 'profile') {
-      navigate('/staff/profile');
-    }
-  };
-
-  // User dropdown menu
-  const userMenu = (
-    <Menu onClick={handleMenuClick}>
-      <Menu.Item key="profile" icon={<UserOutlined />}>
-        Hồ Sơ
-      </Menu.Item>
-      <Menu.Item key="settings" icon={<MenuOutlined />}>
-        Cài Đặt
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" icon={<PoweroffOutlined />}>
-        Đăng Xuất
-      </Menu.Item>
-    </Menu>
-  );
-
   return (
     <Header className="staff-header">
-      {contextHolder}
       <div className="staff-header-right">
         <div className="staff-header-actions">
           <Space size="middle">
@@ -94,19 +44,16 @@ const StaffHeader = () => {
               <MailOutlined />
             </div>
 
-            <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
-              <div className="staff-user-profile">
-                <Avatar
-                  size={32}
-                  src="/images/huy1.png"
-                  className="user-avatar"
-                />
-                <span className="user-name">
-                  {user ? `Xin chào ${user.FullName}` : 'Staff'}
-                </span>
-                <DownOutlined className="dropdown-icon" />
-              </div>
-            </Dropdown>
+            <div className="staff-user-profile">
+              <Avatar
+                size={32}
+                src="/images/huy1.png"
+                className="user-avatar"
+              />
+              <span className="user-name">
+                {user ? `Xin chào ${user.FullName}` : 'Staff'}
+              </span>
+            </div>
           </Space>
         </div>
       </div>
