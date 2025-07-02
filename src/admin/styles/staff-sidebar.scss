@@ -1,86 +1,52 @@
-// Staff Sidebar Component Styles - Modern Clean Design
+// Staff Sidebar - Clean Design with Perfect Icon Alignment
 .staff-sidebar {
-  // Set expanded width to accommodate full Vietnamese text
+  // Sidebar width settings
   width: 280px !important;
   min-width: 280px !important;
   max-width: 280px !important;
   flex: 0 0 280px !important;
   
-  // Override collapsed width - match Ant Design standard
   &.ant-layout-sider-collapsed {
     width: 64px !important;
     min-width: 64px !important;
     max-width: 64px !important;
     flex: 0 0 64px !important;
   }
-  // Force white background for all sidebar elements
-  // Override any Ant Design default dark backgrounds
-  .ant-layout-sider,
-  .ant-layout-sider-children,
-  .ant-layout-sider-trigger {
-    background-color: #ffffff !important;
-  }
-  
-  // Ensure no dark overlays or pseudo-elements
-  .ant-layout-sider {
-    &::before,
-    &::after {
-      display: none !important;
-      background: transparent !important;
-    }
-  }
-  
-  // Remove any dark theme classes
-  &.ant-layout-sider-dark {
-    background: #ffffff !important;
-    
-    .ant-layout-sider-trigger {
-      background: #dc2626 !important;
-    }
-  }
 
+  // Main sidebar container
   .ant-layout-sider {
-    background: #ffffff !important; // Clean white background
-    border-right: 1px solid #f0f0f0 !important; // Subtle border
-    padding-top: 8px !important; // Reduced padding for header
+    background: #ffffff !important;
+    border-right: 1px solid #f0f0f0 !important;
     position: sticky !important;
     top: 0 !important;
     height: 100vh !important;
-    align-self: flex-start !important;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04) !important; // Subtle shadow
-    margin: 8px 0 8px 8px !important; // Add margin for rounded effect
-    border-radius: 12px !important; // Rounded corners
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04) !important;
+    margin: 8px 0 8px 8px !important;
+    border-radius: 12px !important;
     overflow: hidden !important;
-    
-    // Override any dark theme background
-    &::before,
-    &::after {
-      background: #ffffff !important;
-    }
   }
 
-  // New header section with logo and hamburger side by side
+  // Header with logo and hamburger
   .staff-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 16px 20px 16px; // Added bottom padding for spacing
-    background: #ffffff !important; // Force same background as menu
-    min-height: 60px; // Ensure consistent height
-    border-bottom: 1px solid #f0f0f0; // Subtle separator line
-    margin-bottom: 16px; // Space below header
+    padding: 16px;
+    background: #ffffff !important;
+    min-height: 60px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 16px;
   }
 
-  // Updated logo styles for header layout
+  // Logo styling
   .staff-logo {
     display: flex;
     align-items: center;
-    justify-content: flex-start; // Align to left in header
-    flex: 1; // Take available space
+    flex: 1;
     
     .healthcare-logo {
-      max-width: 120px; // Smaller logo to fit with hamburger
-      max-height: 40px; // Reduced height
+      max-width: 120px;
+      max-height: 40px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -88,7 +54,7 @@
     }
   }
 
-  // Hamburger trigger in header - clean rebuild
+  // Hamburger trigger - consistent centering
   .hamburger-trigger {
     width: 32px !important;
     height: 32px !important;
@@ -97,10 +63,6 @@
     border-radius: 6px !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
-    outline: none !important;
-    user-select: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -114,73 +76,15 @@
       color: #000000 !important;
       font-size: 14px !important;
       font-weight: 600 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      line-height: 1 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: 100% !important;
-      height: 100% !important;
     }
   }
 
-  .ant-layout-sider-children {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: #ffffff; // Clean white background
-    border: none !important;
-    
-    &::before,
-    &::after {
-      display: none !important;
-    }
-  }
-
-  // Light theme adjustments for clean sidebar
-  .ant-menu-light {
-    background: #ffffff; // Clean white background
-
-    .ant-menu-item-group-title {
-      color: #9ca3af;
-      font-weight: 500;
-    }
-
-    .ant-menu-item-selected {
-      background-color: #f3f4f6 !important; // Light gray selection
-      border-radius: 8px !important;
-      margin: 2px 8px !important;
-    }
-
-    .ant-menu-submenu-selected > .ant-menu-submenu-title {
-      color: #374151;
-      background-color: #f3f4f6 !important;
-      border-radius: 8px !important;
-      margin: 2px 8px !important;
-    }
-  }
-
-  // Responsive adjustments
-  @media (max-width: 768px) {
-    .ant-layout-sider-children {
-      background: #ffffff;
-    }
-  }
-  
-  // Smooth transitions for all elements
-  * {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  }
-  
-  // Collapsed state adjustments - clean rebuild
+  // Collapsed state header - perfect centering
   &.ant-layout-sider-collapsed {
     .staff-header {
       padding: 12px 0 !important;
       justify-content: center !important;
-      align-items: center !important;
       min-height: 48px !important;
-      border-bottom: 1px solid #f0f0f0 !important;
       margin-bottom: 12px !important;
     }
     
@@ -189,312 +93,377 @@
     }
     
     .hamburger-trigger {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      margin: 0 auto !important;
+      margin: 0 !important;
       
       .anticon {
         font-size: 16px !important;
-        color: #000000 !important;
-      }
-      
-      &:hover {
-        background: #f3f4f6 !important;
       }
     }
   }
-  
-  // Hover effects for better UX
-  .ant-layout-sider:hover {
-    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08) !important;
+
+  // Sidebar children container
+  .ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #ffffff !important;
   }
-  
 
-}
-
-// Scrollbar styling for sidebar
-.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar {
-  width: 4px;
-}
-
-.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 2px;
-}
-
-.staff-sidebar .ant-layout-sider-children::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
-}
-
-// Logo styles moved to staff-header section above
-
+  // Main menu styling
   .staff-menu {
     flex: 1;
     border: none !important;
-    background: #ffffff !important; // Clean white background
-    margin: 0 !important; // Remove all margins
-    padding: 16px 8px 16px 8px !important; // Increased padding for more spacious feel
-    overflow-y: auto; // Allow scrolling if content is too tall
+    background: #ffffff !important;
+    padding: 16px 8px !important;
+    overflow-y: auto;
 
-    // Clean collapsed state handling
-    &.ant-menu-inline-collapsed {
-      width: 64px !important;
-      
-      .ant-menu-item-group-title {
-        display: none !important;
-      }
-      
-      // Apply strongest specificity to ensure perfect alignment
-      .ant-menu-item,
-      .ant-menu-submenu-title,
-      .ant-menu-item-group-list .ant-menu-item,
-      .ant-menu-item-group-list .ant-menu-submenu-title {
-        position: relative !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        
-        // Hide ALL text content
-        .ant-menu-title-content,
-        span:not(.anticon):not(.ant-menu-item-icon) {
-          display: none !important;
-        }
-        
-        // Target ALL possible icon elements with maximum specificity
-        .ant-menu-item-icon,
-        .ant-menu-submenu-arrow, 
-        .anticon,
-        > .anticon,
-        > span > .anticon {
-          position: absolute !important;
-          left: 50% !important;
-          top: 50% !important;
-          transform: translate(-50%, -50%) !important;
-          font-size: 16px !important;
-          color: #6b7280 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-        
-        &:hover .anticon,
-        &:hover .ant-menu-item-icon {
-          color: #374151 !important;
-        }
-        
-        &.ant-menu-item-selected .anticon,
-        &.ant-menu-item-selected .ant-menu-item-icon {
-          color: #374151 !important;
-        }
-      }
-    }
+         // COLLAPSED STATE - Perfect Icon Alignment
+     &.ant-menu-inline-collapsed {
+       width: 64px !important;
+       
+       // Hide group titles
+       .ant-menu-item-group-title {
+         display: none !important;
+       }
+       
+       // Perfect alignment for ALL menu elements with maximum specificity
+       .ant-menu-item,
+       .ant-menu-submenu-title,
+       .ant-menu-item-group-list .ant-menu-item,
+       .ant-menu-item-group-list .ant-menu-submenu-title,
+       li.ant-menu-item,
+       li.ant-menu-submenu > .ant-menu-submenu-title {
+         width: 48px !important;
+         height: 48px !important;
+         margin: 8px auto !important;
+         padding: 0 !important;
+         display: flex !important;
+         align-items: center !important;
+         justify-content: center !important;
+         border-radius: 8px !important;
+         position: relative !important;
+         
+         // Hide all text content with maximum specificity
+         .ant-menu-title-content,
+         .ant-menu-submenu-arrow,
+         span:not(.anticon):not(.ant-menu-item-icon),
+         > span:not(.anticon):not(.ant-menu-item-icon) {
+           display: none !important;
+         }
+         
+         // Center icons using flexbox (same as hamburger) with maximum specificity
+         .ant-menu-item-icon,
+         .anticon,
+         > .anticon,
+         > span > .anticon,
+         > .ant-menu-item-icon,
+         > span > .ant-menu-item-icon {
+           position: static !important;
+           transform: none !important;
+           left: auto !important;
+           top: auto !important;
+           font-size: 16px !important;
+           color: #6b7280 !important;
+           margin: 0 !important;
+           padding: 0 !important;
+           width: auto !important;
+           height: auto !important;
+         }
+         
+         &:hover {
+           background: #f3f4f6 !important;
+           
+           .anticon,
+           .ant-menu-item-icon,
+           > .anticon,
+           > span > .anticon,
+           > .ant-menu-item-icon,
+           > span > .ant-menu-item-icon {
+             color: #374151 !important;
+           }
+         }
+         
+         &.ant-menu-item-selected,
+         &.ant-menu-submenu-selected {
+           background: #f3f4f6 !important;
+           
+           .anticon,
+           .ant-menu-item-icon,
+           > .anticon,
+           > span > .anticon,
+           > .ant-menu-item-icon,
+           > span > .ant-menu-item-icon {
+             color: #374151 !important;
+           }
+         }
+       }
+       
+       // Extra specificity for stubborn submenu items
+       .ant-menu-submenu {
+         margin: 8px auto !important;
+         width: 48px !important;
+         
+         .ant-menu-submenu-title {
+           width: 48px !important;
+           height: 48px !important;
+           margin: 0 !important;
+           padding: 0 !important;
+           display: flex !important;
+           align-items: center !important;
+           justify-content: center !important;
+         }
+       }
+     }
 
-  .ant-menu-item {
-    margin: 6px 0 !important; // More vertical margin for spacious feel
-    border-radius: 8px !important; // Rounded menu items
-    padding-left: 16px !important;
-    transition: all 0.3s ease !important;
-    color: #374151 !important; // Dark gray text
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    height: 48px !important; // Increased height for more spacious feel
-    line-height: 48px !important;
-
-    &:hover {
-      color: #1f2937 !important; // Darker on hover
-    }
-
-    &.ant-menu-item-selected {
-      color: #374151 !important; // Dark text for selected
-      font-weight: 600 !important;
-
-      &::after {
-        display: none;
-      }
-      
-      .anticon {
-        color: #374151 !important;
-      }
-    }
-  }
-
-  .ant-menu-submenu {
-    margin: 6px 0 !important; // Increased margin to match regular items
-    
-    .ant-menu-submenu-title {
+    // EXPANDED STATE - Normal menu styling
+    .ant-menu-item {
+      margin: 6px 0 !important;
+      border-radius: 8px !important;
       padding-left: 16px !important;
-      transition: all 0.3s ease !important;
       color: #374151 !important;
       font-size: 14px !important;
       font-weight: 500 !important;
-      border-radius: 8px !important;
-      height: 48px !important; // Match regular items height
+      height: 48px !important;
       line-height: 48px !important;
+      transition: all 0.3s ease !important;
 
       &:hover {
-        background-color: #f9fafb !important;
         color: #1f2937 !important;
-      }
-      
-      &:active {
-        background-color: #f3f4f6 !important;
-      }
-    }
-
-    &.ant-menu-submenu-open > .ant-menu-submenu-title,
-    &.ant-menu-submenu-selected > .ant-menu-submenu-title {
-      background-color: #f3f4f6 !important;
-      color: #1f2937 !important;
-    }
-
-    .ant-menu-sub {
-      background: #ffffff !important; // Match sidebar white background
-      padding: 4px 0 !important;
-    }
-
-    .ant-menu-item {
-      padding-left: 40px !important; // More indentation for sub-items
-      background: #ffffff !important;
-      color: #6b7280 !important; // Lighter gray for sub-items
-      font-size: 13px !important;
-
-      &:hover {
-        background-color: #f9fafb !important;
-        color: #374151 !important;
       }
 
       &.ant-menu-item-selected {
-        background-color: #dc2626 !important; // Red accent for submenu items
-        color: #ffffff !important;
+        background-color: #f3f4f6 !important;
+        color: #374151 !important;
+        font-weight: 600 !important;
+
+        &::after {
+          display: none;
+        }
       }
     }
-  }
 
-  .anticon {
-    font-size: 16px !important;
-    margin-right: 12px !important;
-    opacity: 0.8;
-    color: #6b7280 !important; // Gray icons
-    
-    &:hover {
-      color: #374151 !important;
-    }
-  }
-  
-  // Selected item icon color
-  .ant-menu-item-selected .anticon {
-    color: #374151 !important;
-    opacity: 1;
-  }
-  
-  // Submenu selected icon color  
-  .ant-menu-submenu-selected .anticon {
-    color: #374151 !important;
-    opacity: 1;
-  }
-
-  // Menu group styles
-  .ant-menu-item-group {
-    .ant-menu-item-group-title {
-      color: #9ca3af !important;
-      font-size: 11px !important;
-      font-weight: 600 !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.5px !important;
-      padding: 16px 16px 8px 16px !important;
-      margin: 0 !important;
+    .ant-menu-submenu {
+      margin: 6px 0 !important;
       
-      &:not(:first-child) {
-        margin-top: 48px !important; // Increased spacing between sections
-      }
-    }
+      .ant-menu-submenu-title {
+        padding-left: 16px !important;
+        color: #374151 !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        border-radius: 8px !important;
+        height: 48px !important;
+        line-height: 48px !important;
+        transition: all 0.3s ease !important;
 
-    .ant-menu-item-group-list {
+        &:hover {
+          background-color: #f9fafb !important;
+          color: #1f2937 !important;
+        }
+      }
+
+      &.ant-menu-submenu-open > .ant-menu-submenu-title,
+      &.ant-menu-submenu-selected > .ant-menu-submenu-title {
+        background-color: #f3f4f6 !important;
+        color: #1f2937 !important;
+      }
+
+      .ant-menu-sub {
+        background: #ffffff !important;
+        padding: 4px 0 !important;
+      }
+
       .ant-menu-item {
-        margin: 6px 0 !important; // Match global item spacing
-      }
-      
-      .ant-menu-submenu {
-        margin: 6px 0 !important; // Match global submenu spacing
+        padding-left: 40px !important;
+        background: #ffffff !important;
+        color: #6b7280 !important;
+        font-size: 13px !important;
+
+        &:hover {
+          background-color: #f9fafb !important;
+          color: #374151 !important;
+        }
+
+        &.ant-menu-item-selected {
+          background-color: #dc2626 !important;
+          color: #ffffff !important;
+        }
       }
     }
 
-    // Add extra spacing after the first group (QUẢN LÝ)
-    &:first-child {
-      .ant-menu-item-group-list {
-        margin-bottom: 24px !important;
-      }
-    }
-  }
-}
-
-// Logout button styles
-.sidebar-logout {
-  padding: 20px 8px 12px 8px; // Increased padding for more spacious feel
-  border-top: 1px solid #f0f0f0;
-  margin-top: auto; // Push to bottom
-  
-  .logout-button {
-    height: 48px !important; // Match menu item height
-    border-radius: 8px !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    padding-left: 16px !important;
-    
-    &:hover {
-      background-color: #fee2e2 !important;
-      color: #dc2626 !important;
-      
-      .anticon {
-        color: #dc2626 !important;
-      }
-    }
-    
+    // Icon styling
     .anticon {
-      color: #6b7280 !important;
       font-size: 16px !important;
       margin-right: 12px !important;
+      color: #6b7280 !important;
+      
+      &:hover {
+        color: #374151 !important;
+      }
+    }
+    
+    .ant-menu-item-selected .anticon {
+      color: #374151 !important;
+    }
+    
+    .ant-menu-submenu-selected .anticon {
+      color: #374151 !important;
+    }
+
+    // Group styling
+    .ant-menu-item-group {
+      .ant-menu-item-group-title {
+        color: #9ca3af !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        padding: 16px 16px 8px 16px !important;
+        margin: 0 !important;
+        
+        &:not(:first-child) {
+          margin-top: 48px !important;
+        }
+      }
+
+      .ant-menu-item-group-list {
+        .ant-menu-item {
+          margin: 6px 0 !important;
+        }
+        
+        .ant-menu-submenu {
+          margin: 6px 0 !important;
+        }
+      }
+
+      &:first-child {
+        .ant-menu-item-group-list {
+          margin-bottom: 24px !important;
+        }
+      }
     }
   }
-}
 
-// Clean logout button styling for collapsed state
-.staff-sidebar.ant-layout-sider-collapsed {
+  // Logout button
   .sidebar-logout {
-    padding: 12px 4px !important;
+    padding: 20px 8px 12px 8px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
     
     .logout-button {
-      position: relative !important;
+      height: 48px !important;
+      border-radius: 8px !important;
+      font-weight: 500 !important;
+      color: #374151 !important;
+      transition: all 0.3s ease !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      padding-left: 16px !important;
       
-      // Hide text content in collapsed state  
-      span:not(.anticon) {
-        display: none !important;
+      &:hover {
+        background-color: #fee2e2 !important;
+        color: #dc2626 !important;
+        
+        .anticon {
+          color: #dc2626 !important;
+        }
       }
       
       .anticon {
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        font-size: 16px !important;
         color: #6b7280 !important;
-      }
-      
-      &:hover .anticon {
-        color: #dc2626 !important;
+        font-size: 16px !important;
+        margin-right: 12px !important;
       }
     }
   }
+
+  // Logout button in collapsed state - perfect alignment
+  &.ant-layout-sider-collapsed {
+    .sidebar-logout {
+      padding: 12px 8px !important;
+      
+      .logout-button {
+        width: 48px !important;
+        height: 48px !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        
+        // Hide text content
+        span:not(.anticon) {
+          display: none !important;
+        }
+        
+        .anticon {
+          position: static !important;
+          transform: none !important;
+          margin: 0 !important;
+          font-size: 16px !important;
+          color: #6b7280 !important;
+        }
+        
+        &:hover .anticon {
+          color: #dc2626 !important;
+        }
+      }
+    }
+  }
+
+  // Light theme overrides
+  .ant-menu-light {
+    background: #ffffff !important;
+
+    .ant-menu-item-group-title {
+      color: #9ca3af !important;
+      font-weight: 500 !important;
+    }
+
+    .ant-menu-item-selected {
+      background-color: #f3f4f6 !important;
+      border-radius: 8px !important;
+      margin: 2px 8px !important;
+    }
+
+    .ant-menu-submenu-selected > .ant-menu-submenu-title {
+      color: #374151 !important;
+      background-color: #f3f4f6 !important;
+      border-radius: 8px !important;
+      margin: 2px 8px !important;
+    }
+  }
+
+  // Scrollbar styling
+  .ant-layout-sider-children::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .ant-layout-sider-children::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .ant-layout-sider-children::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 2px;
+  }
+
+  .ant-layout-sider-children::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+  }
+
+  // Smooth transitions
+  * {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  // Hover effects
+  .ant-layout-sider:hover {
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.08) !important;
+  }
 }
 
-// Additional global override for sidebar container
+// Global overrides
 .ant-layout-has-sider {
   .ant-layout-sider {
     background: #ffffff !important;
