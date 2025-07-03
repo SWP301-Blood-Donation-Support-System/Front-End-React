@@ -15,6 +15,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
   QuestionCircleOutlined,
+  UsergroupAddOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, notification } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -38,6 +39,24 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
   const autoOpenedRef = useRef(new Set()); // Track which submenus were auto-opened
   const previousCollapsedRef = useRef(collapsed); // Track previous collapsed state
   const savedOpenKeysRef = useRef([]); // Store openKeys before collapsing
+  
+  // Check if user is admin (roleId = 1)
+  const isAdmin = () => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      
+      // Check the correct field name and handle both string and number values
+      const roleValue = userInfo?.RoleID;
+      const adminCheck = roleValue === "1";
+      
+      console.log("Debug - Role value:", roleValue, "isAdmin:", adminCheck); // Debug log
+      
+      return adminCheck;
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      return false;
+    }
+  };
   
   const [openKeys, setOpenKeys] = useState(() => {
     // Try to load from localStorage first
@@ -103,6 +122,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return ['1'];
     } else if (pathname.includes('/staff/user-management')) {
       return ['2'];
+    } else if (pathname.includes('/staff/staff-management')) {
+      return ['9'];
     } else if (pathname.includes('/staff/blood-bag-management')) {
       if (search.includes('status=all')) return ['3-1'];
       if (search.includes('status=qualified')) return ['3-2'];
@@ -215,6 +236,9 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       case '8': // Trợ giúp
         // TODO: Navigate to help page
         break;
+      case '9': // Quản lý nhân viên (admin only)
+        navigate('/staff/staff-management');
+        break;
       default:
         break;
     }
@@ -228,6 +252,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       children: [
         getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
         getItem('Quản lý người hiến', '2', <UserOutlined />),
+        // Only show staff management for admin users
+        ...(isAdmin() ? [getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />)] : []),
         getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />, [
           getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
           getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
