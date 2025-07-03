@@ -1,0 +1,259 @@
+// ConfirmationPage Styles
+.confirmation-page {
+  .ant-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .ant-steps {
+    margin-bottom: 20px;
+    
+    .ant-steps-item-finish {
+      .ant-steps-item-icon {
+        background-color: transparent !important;
+        border: none !important;
+        
+        .anticon {
+          color: #dc2626 !important;
+          font-size: 18px;
+        }
+      }
+      
+      .ant-steps-item-title {
+        color: #dc2626 !important;
+        font-weight: 600;
+      }
+    }
+    
+    .ant-steps-item-process {
+      .ant-steps-item-icon {
+        background-color: transparent !important;
+        border: none !important;
+        
+        .anticon {
+          color: #dc2626 !important;
+          font-size: 18px;
+        }
+      }
+      
+      .ant-steps-item-title {
+        color: #dc2626 !important;
+        font-weight: 600;
+      }
+    }
+    
+    .ant-steps-item-wait {
+      .ant-steps-item-icon {
+        background-color: transparent !important;
+        border: none !important;
+        
+        .anticon {
+          color: #9ca3af !important;
+          font-size: 18px;
+        }
+      }
+      
+      .ant-steps-item-title {
+        color: #9ca3af;
+      }
+    }
+  }
+  
+  .booking-info-card {
+    .ant-descriptions-item-label {
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .ant-descriptions-item-content {
+      color: #111827;
+    }
+  }
+  
+  .eligibility-results-card {
+    .eligibility-answer-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+      }
+      
+      .question-text {
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 4px;
+      }
+      
+      .answer-text {
+        color: #111827;
+        font-size: 14px;
+      }
+      
+      .details-text {
+        color: #6b7280;
+        font-size: 12px;
+        font-style: italic;
+        margin-top: 4px;
+      }
+    }
+  }
+  
+  .important-notes-card {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: 1px solid #93c5fd;
+    
+    .note-item {
+      text-align: center;
+      padding: 20px 15px;
+      transition: transform 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+      }
+      
+      .anticon {
+        font-size: 28px;
+        color: #1d4ed8;
+        margin-bottom: 12px;
+        filter: drop-shadow(0 2px 4px rgba(29, 78, 216, 0.2));
+      }
+      
+      .note-title {
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 6px;
+      }
+      
+      .note-description {
+        color: #3730a3;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+    }
+  }
+  
+  .action-buttons-card {
+    .ant-btn {
+      height: 48px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 16px;
+      
+      &.ant-btn-primary {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        border: none;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        
+        &:hover {
+          background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+          box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+          transform: translateY(-1px);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+        
+        &.ant-btn-loading {
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+      }
+      
+      &.ant-btn-default {
+        border: 2px solid #e5e7eb;
+        color: #374151;
+        
+        &:hover {
+          border-color: #dc2626;
+          color: #dc2626;
+        }
+      }
+    }
+  }
+  
+  .eligibility-status-tag {
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    
+    &.success {
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+  }
+  
+  .steps-card {
+    margin-bottom: 30px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    
+    .ant-card-body {
+      padding: 20px 0;
+      background: transparent;
+    }
+  }
+  
+  // Responsive design
+  @media (max-width: 768px) {
+    .ant-card {
+      margin: 0 10px;
+    }
+    
+    .important-notes-card {
+      .note-item {
+        padding: 15px 10px;
+        
+        .anticon {
+          font-size: 24px;
+        }
+        
+        .note-title {
+          font-size: 14px;
+        }
+        
+        .note-description {
+          font-size: 11px;
+        }
+      }
+    }
+    
+    .action-buttons-card {
+      .ant-btn {
+        height: 44px;
+        font-size: 14px;
+        
+        &:first-child {
+          margin-bottom: 12px;
+        }
+      }
+    }
+  }
+}
+
+// Animation for success state
+@keyframes pulse-success {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+.confirmation-page {
+  .eligibility-status-tag.success {
+    animation: pulse-success 2s infinite;
+  }
+}

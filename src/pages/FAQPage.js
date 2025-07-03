@@ -3,6 +3,7 @@ import { Layout, Typography, Collapse } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
+import ProfileWarning from '../components/ProfileWarning';
 import Footer from '../components/Footer';
 
 const { Content } = Layout;
@@ -177,6 +178,7 @@ const FAQPage = () => {
     <Layout className="faq-page">
       <Header />
       <Navbar />
+      <ProfileWarning />
       
       <Content className="faq-content">
         <div className="faq-container">

@@ -3,6 +3,7 @@ import { Layout, Typography, Card, Row, Col, Button, Tag, Space } from 'antd';
 import { CalendarOutlined, ArrowRightOutlined, FileTextOutlined, HeartOutlined, ReadOutlined } from '@ant-design/icons';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
+import ProfileWarning from '../components/ProfileWarning';
 import Footer from '../components/Footer';
 
 const { Content } = Layout;
@@ -68,6 +69,7 @@ const NewsPage = () => {
     <Layout className="news-page">
       <Header />
       <Navbar />
+      <ProfileWarning />
 
       <Content className="news-content">
         <div className="news-content-container">

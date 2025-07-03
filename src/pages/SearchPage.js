@@ -3,6 +3,7 @@ import { Layout, Typography, Card, Row, Col, Select, Table, Tag, Divider, Space 
 import { SearchOutlined, HeartOutlined, UserOutlined, TeamOutlined, SafetyOutlined } from '@ant-design/icons';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
+import ProfileWarning from '../components/ProfileWarning';
 import Footer from '../components/Footer';
 
 const { Content } = Layout;
@@ -158,6 +159,7 @@ const SearchPage = () => {
     <Layout className="search-page">
       <Header />
       <Navbar />
+      <ProfileWarning />
         {/* Modern Header Section */}
       <div className="search-header">
         <div className="search-header-container">

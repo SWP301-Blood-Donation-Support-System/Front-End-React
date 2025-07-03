@@ -320,6 +320,11 @@ const ProfilePage = () => {
         } else {
           message.success('Hồ sơ đã được cập nhật thành công! Vui lòng hoàn thiện thông tin còn lại.');
         }
+
+        // Dispatch custom event to notify ProfileWarning component
+        window.dispatchEvent(new CustomEvent('profileUpdated', { 
+          detail: { user: updatedUser, isComplete: isProfileComplete(updatedUser) } 
+        }));
       }
     } catch (error) {
       console.error('Error updating profile:', error);
