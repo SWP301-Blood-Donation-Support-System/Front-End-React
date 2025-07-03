@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card, 
   Row, 
@@ -26,7 +26,7 @@ import {
   CommentOutlined,
   EyeOutlined
 } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { UserAPI } from '../api/User';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
@@ -68,8 +68,6 @@ const DonationSchedulePage = () => {
   const [feedbackExistence, setFeedbackExistence] = useState({});
   
   const navigate = useNavigate();
-  const location = useLocation();
-  const notificationShown = useRef(false);
 
   // Helper functions
   const formatDate = (dateString) => {
