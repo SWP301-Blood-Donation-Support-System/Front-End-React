@@ -522,20 +522,43 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       navigate('/confirmation', {
         state: {
           bookingData: bookingData,
-          eligibilityData: values
+          eligibilityData: {
+            ...values,
+            // Add validation context for ConfirmationPage
+            userEligibleDate: userEligibleDate,
+            daysLeft: daysLeft,
+            hasExistingRegistrations: donationRegistrations.length > 0
+          }
         }
       });
     } else if (!formEligible) {
       console.log('✗ User failed form eligibility');
-      setIsEligible(false);
-      setCurrentStep(1);
-      message.warning('Rất tiếc, hiện tại bạn chưa đủ điều kiện hiến máu.');
+      // Still navigate to confirmation page but with failure data
+      navigate('/confirmation', {
+        state: {
+          bookingData: bookingData,
+          eligibilityData: {
+            ...values,
+            userEligibleDate: userEligibleDate,
+            daysLeft: daysLeft,
+            hasExistingRegistrations: donationRegistrations.length > 0
+          }
+        }
+      });
     } else if (!isEligibleByDate) {
       console.log('✗ User not eligible by date - need to wait');
-      // User is not eligible due to recent donation
-      setIsEligible('already_registered');
-      setCurrentStep(1);
-      message.warning(`Bạn đã hiến máu gần đây rồi. Vui lòng chờ thêm ${daysLeft} ngày để có thể hiến máu lần tiếp theo.`);
+      // Still navigate to confirmation page but with date failure data
+      navigate('/confirmation', {
+        state: {
+          bookingData: bookingData,
+          eligibilityData: {
+            ...values,
+            userEligibleDate: userEligibleDate,
+            daysLeft: daysLeft,
+            hasExistingRegistrations: donationRegistrations.length > 0
+          }
+        }
+      });
     }
   };
 
