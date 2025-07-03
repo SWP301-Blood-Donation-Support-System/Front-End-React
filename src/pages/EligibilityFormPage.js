@@ -24,6 +24,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
+import ProfileWarning from '../components/ProfileWarning';
 import Footer from '../components/Footer';
 
 const { Title, Text, Paragraph } = Typography;
@@ -223,10 +224,16 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       return;
     }
 
+    // Restore preserved eligibility data if coming back from confirmation page
+    const preservedEligibilityData = location.state?.preservedEligibilityData;
+    if (preservedEligibilityData) {
+      form.setFieldsValue(preservedEligibilityData);
+    }
+
     window.scrollTo(0, 0);
     fetchUserEligibilityData();
     fetchUserDonationRegistrations(); // Fetch user eligibility data
-  }, [navigate, bookingData]);
+  }, [navigate, bookingData, form, location.state]);
 
   // Eligibility questions data
   const eligibilityQuestions = [
@@ -243,13 +250,12 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
     {
       id: 2,
       title: "Hiện tại, anh/ chị có mắc bệnh gì nào không?",
-      type: "radio_with_text",
+      type: "radio",
       options: [
         { label: "Có", value: "yes" },
         { label: "Không", value: "no" }
       ],
-      key: "currentIllness",
-      textField: "currentIllnessDetails"
+      key: "currentIllness"
     },
     {
       id: 3,
@@ -511,9 +517,14 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
     }
     
     if (formEligible && isEligibleByDate) {
-      console.log('✓ User is eligible - proceeding with registration');
-      // Nếu đủ điều kiện, gọi API ngay lập tức
-      await handleDonationRegistration(values);
+      console.log('✓ User is eligible - proceeding to confirmation page');
+      // Nếu đủ điều kiện, chuyển đến trang xác nhận
+      navigate('/confirmation', {
+        state: {
+          bookingData: bookingData,
+          eligibilityData: values
+        }
+      });
     } else if (!formEligible) {
       console.log('✗ User failed form eligibility');
       setIsEligible(false);
@@ -525,123 +536,6 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
       setIsEligible('already_registered');
       setCurrentStep(1);
       message.warning(`Bạn đã hiến máu gần đây rồi. Vui lòng chờ thêm ${daysLeft} ngày để có thể hiến máu lần tiếp theo.`);
-    }
-  };
-
-  const handleDonationRegistration = async (formValues) => {
-    // Kiểm tra authentication
-    const user = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    
-    if (!user || !token) {
-      message.warning('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-      navigate('/login', { 
-        state: { 
-          redirectPath: '/eligibility',
-          bookingData: bookingData 
-        }
-      });
-      return;
-    }
-
-    if (!bookingData) {
-      message.error('Không tìm thấy thông tin đặt lịch. Vui lòng thử lại.');
-      navigate('/booking');
-      return;
-    }
-
-    // Hiển thị loading
-    const loadingMessage = message.loading('Đang xử lý đăng ký hiến máu...', 0);
-
-    try {
-      // Lấy thông tin user
-      const userData = JSON.parse(user);
-      const donorId = userData.UserID || userData.UserId || userData.id || userData.userId || userData.Id;
-      
-      // Lấy scheduleId
-      let scheduleId = bookingData.scheduleId || bookingData.ScheduleId;
-      if (!scheduleId && bookingData.donationDate) {
-        scheduleId = 2; // Default fallback
-      }
-      
-      const donationData = {
-        donorId: donorId,        scheduleId: scheduleId,
-        timeSlotId: bookingData.timeSlotId || bookingData.TimeSlotId
-      };
-      
-      console.log('Sending donation data:', donationData);
-        // Validation
-      if (!donorId || !scheduleId || !bookingData.timeSlotId) {
-        throw new Error('Thiếu thông tin cần thiết để đăng ký');
-      }
-
-      // Gọi API đăng ký sử dụng UserAPI
-      const response = await UserAPI.registerDonation(donationData);
-      
-      console.log('API response:', response.status, response.data);
-      
-      // Đóng loading
-      loadingMessage();      if (response.status === 200 || response.status === 201) {
-        // Đăng ký thành công
-        setIsEligible(true);
-        setCurrentStep(1);
-        message.success({
-          content: 'Đăng ký hiến máu thành công! Chúng tôi sẽ liên hệ với bạn trong vòng 24h để xác nhận lịch hẹn.',
-          duration: 5,
-        });
-        
-        // Refetch eligibility data để cập nhật nextEligibleDonationDate
-        setTimeout(() => {
-          fetchUserEligibilityData();
-        }, 1000); // Đợi 1 giây cho API backend cập nhật dữ liệu
-        
-      } else {
-        // Lỗi khác
-        throw new Error('Có lỗi xảy ra khi đăng ký hiến máu. Vui lòng thử lại sau.');
-      }
-      
-    } catch (error) {
-      loadingMessage();
-      console.error('Error during donation registration:', error);
-      
-      // Kiểm tra lỗi từ response
-      if (error.response) {
-        const errorData = error.response.data;
-        const errorMessage = errorData?.message || errorData?.msg || 'Có lỗi xảy ra';
-        
-        if (error.response.status === 400) {
-          // Parse response để lấy thông tin lỗi chi tiết
-          if (errorMessage.includes('UNIQUE KEY constraint') || 
-              errorMessage.includes('already have an active donation registration')) {
-            // User đã đăng ký rồi
-            setIsEligible('already_registered_api');
-            setCurrentStep(1);
-            message.warning({
-              content: 'Bạn đã đăng ký hiến máu rồi, vui lòng đợi cho đến thời gian phù hợp để đăng ký lại.',
-              duration: 5,
-            });
-            return;
-          } else {
-            // Lỗi validation khác
-            setIsEligible('error');
-            setCurrentStep(1);
-            message.error({
-              content: errorMessage,
-              duration: 5,
-            });
-            return;
-          }
-        }
-      }
-      console.error('Error during donation registration:', error);
-      
-      // Hiển thị form kết quả với lỗi
-      setIsEligible('error');
-      setCurrentStep(1);
-      message.error({
-        content: error.message || 'Có lỗi xảy ra khi đăng ký hiến máu. Vui lòng thử lại sau.',
-        duration: 5,
-      });
     }
   };
 
@@ -1123,6 +1017,7 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
     <Layout className="eligibility-layout">
       <Header />
       <Navbar />
+      <ProfileWarning />
       
       <Content className="eligibility-content">
         <div className="container">

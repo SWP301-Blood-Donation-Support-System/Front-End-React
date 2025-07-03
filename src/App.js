@@ -9,6 +9,7 @@ import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
 import BookingPage from './pages/BookingPage';
 import EligibilityFormPage from './pages/EligibilityFormPage';
+import ConfirmationPage from './pages/ConfirmationPage';
 import ProfilePage from './pages/ProfilePage';
 import DonationSchedulePage from './pages/DonationSchedulePage';
 import CheckinPage from './pages/CheckinPage';
@@ -57,6 +58,7 @@ function App() {
               </UserProtectedRoute>
             } />
             <Route path="/eligibility" element={<EligibilityFormPage />} />
+            <Route path="/confirmation" element={<ConfirmationPage />} />
             <Route path="/profile" element={
               <UserProtectedRoute>
                 <ProfilePage />
