@@ -24,6 +24,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
+import ProfileWarning from '../components/ProfileWarning';
 import Footer from '../components/Footer';
 
 const { Title, Text, Paragraph } = Typography;
@@ -243,13 +244,12 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
     {
       id: 2,
       title: "Hiện tại, anh/ chị có mắc bệnh gì nào không?",
-      type: "radio_with_text",
+      type: "radio",
       options: [
         { label: "Có", value: "yes" },
         { label: "Không", value: "no" }
       ],
-      key: "currentIllness",
-      textField: "currentIllnessDetails"
+      key: "currentIllness"
     },
     {
       id: 3,
@@ -1123,6 +1123,7 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
     <Layout className="eligibility-layout">
       <Header />
       <Navbar />
+      <ProfileWarning />
       
       <Content className="eligibility-content">
         <div className="container">

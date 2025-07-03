@@ -3,6 +3,7 @@ import { Layout, notification } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
+import ProfileWarning from '../components/ProfileWarning';
 import HeroSection from '../components/HeroSection';
 import BloodDonationProcessSection from '../components/BloodDonationProcessSection';
 import EligibilityCriteriaSection from '../components/EligibilityCriteriaSection';
@@ -42,7 +43,9 @@ const Homepage = () => {
     <Layout className="homepage">
       {contextHolder}
       <Header />
-      <Navbar />      <Content>
+      <Navbar />
+      <ProfileWarning />
+      <Content>
         <HeroSection />
         <BloodDonationProcessSection />
         <EligibilityCriteriaSection />

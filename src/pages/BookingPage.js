@@ -10,7 +10,8 @@ import {
   Input,
   DatePicker,
   Modal,
-  message
+  message,
+  notification
 } from 'antd';
 import { 
   HeartOutlined, 
@@ -22,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
+import ProfileWarning from '../components/ProfileWarning';
 import Footer from '../components/Footer';
 import { UserAPI } from '../api/User';
 
@@ -30,7 +32,9 @@ const { Content } = Layout;
 
 const BookingPage = () => {
   const [form] = Form.useForm();
-  const navigate = useNavigate();  const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [api, contextHolder] = notification.useNotification();
   const preservedData = location.state?.preservedBookingData;
   const bookingComplete = location.state?.bookingComplete;const [formValues, setFormValues] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -40,6 +44,22 @@ const BookingPage = () => {
   const [donationSchedule, setDonationSchedule] = useState([]);
   const [availableDates, setAvailableDates] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Check if user profile is complete
+  const isProfileComplete = (userProfile) => {
+    if (!userProfile) return false;
+    
+    const requiredFields = [
+      userProfile.FullName || userProfile.name,
+      userProfile.PhoneNumber,
+      userProfile.Address,
+      userProfile.DateOfBirth,
+      userProfile.GenderId || userProfile.GenderID,
+      userProfile.BloodTypeId || userProfile.BloodTypeID
+    ];
+    
+    return requiredFields.every(field => field != null && field !== '');
+  };
   
   // Handle navigation and scroll effects
   useEffect(() => {
@@ -183,19 +203,14 @@ const BookingPage = () => {
       }]);
       return;
     }
-    if (!selectedTimeSlot) {
-      form.setFields([{
-        name: 'donationSlot',
-        errors: ['Vui lòng chọn thời gian hiến máu']
-      }]);
-      return;
-    }
     
-    // Check authentication before proceeding to eligibility form
+    // Check authentication before proceeding
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
+    const userInfo = localStorage.getItem('userInfo');
     
-    if (!user || !token) {      // Store form data temporarily for after login
+    if ((!user && !userInfo) || !token) {
+      // Store form data temporarily for after login
       sessionStorage.setItem('pendingBookingData', JSON.stringify({
         ...values,
         timeSlotId: selectedTimeSlot
@@ -203,13 +218,70 @@ const BookingPage = () => {
       
       // Show login modal instead of redirecting
       setShowLoginModal(true);
-      return;    }
+      return;
+    }
+
+    // Get user profile data
+    let userData = null;
+    if (userInfo) {
+      userData = JSON.parse(userInfo);
+    } else if (user) {
+      userData = JSON.parse(user);
+    }
+
+    console.log('BookingPage - userData for validation:', userData);
+    console.log('BookingPage - isProfileComplete:', isProfileComplete(userData));
+
+    // Check if profile is complete before allowing donation registration
+    if (!isProfileComplete(userData)) {
+      // Show notification
+      api.error({
+        message: 'Thông tin cá nhân chưa đầy đủ',
+        description: 'Vui lòng cập nhật đầy đủ thông tin trong trang cá nhân trước khi đăng ký hiến máu.',
+        duration: 6,
+        placement: 'topRight'
+      });
+      
+      // Also show a more detailed modal
+      Modal.error({
+        title: 'Thông tin cá nhân chưa đầy đủ',
+        content: (
+          <div>
+            <p style={{ marginBottom: '15px' }}>
+              Để có thể đăng ký hiến máu, bạn cần hoàn thành đầy đủ thông tin cá nhân bao gồm:
+            </p>
+            <ul style={{ marginLeft: '20px', marginBottom: '15px' }}>
+              <li>Họ và tên</li>
+              <li>Số điện thoại</li>
+              <li>Địa chỉ</li>
+              <li>Ngày sinh</li>
+              <li>Giới tính</li>
+              <li>Nhóm máu</li>
+            </ul>
+            <p style={{ marginTop: '15px', color: '#dc2626', fontWeight: '500' }}>
+              Vui lòng cập nhật thông tin tại trang cá nhân trước khi đăng ký hiến máu.
+            </p>
+          </div>
+        ),
+        okText: 'Đi tới trang cá nhân',
+        okButtonProps: {
+          style: {
+            backgroundColor: '#dc2626',
+            borderColor: '#dc2626'
+          }
+        },
+        onOk: () => {
+          navigate('/profile');
+        }
+      });
+      return;
+    }
     
     // Include donation type and time slot in the booking data and safely handle date
     const completeBookingData = {
       ...values,
       timeSlotId: selectedTimeSlot, // Include selected time slot ID
-      userId: JSON.parse(user).id // Add user ID to booking data
+      userId: userData.id || userData.userId // Add user ID to booking data
     };
     
     // Safely convert date to string for state transfer and find schedule info
@@ -273,6 +345,58 @@ const BookingPage = () => {
   const handleDonationRegistration = async (values) => {
     setLoading(true);
     try {
+      // Check authentication first
+      const user = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      const userInfo = localStorage.getItem('userInfo');
+      
+      if ((!user && !userInfo) || !token) {
+        // Store form data temporarily for after login
+        sessionStorage.setItem('pendingBookingData', JSON.stringify({
+          ...values,
+          timeSlotId: selectedTimeSlot
+        }));
+        
+        setShowLoginModal(true);
+        setLoading(false);
+        return;
+      }
+
+      // Get user profile data
+      let userData = null;
+      if (userInfo) {
+        userData = JSON.parse(userInfo);
+      } else if (user) {
+        userData = JSON.parse(user);
+      }
+
+      // Check if profile is complete before allowing donation registration
+      if (!isProfileComplete(userData)) {
+        Modal.error({
+          title: 'Thông tin cá nhân chưa đầy đủ',
+          content: (
+            <div>
+              <p>Để có thể đăng ký hiến máu, bạn cần hoàn thành đầy đủ thông tin cá nhân bao gồm:</p>
+              <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                <li>Họ và tên</li>
+                <li>Số điện thoại</li>
+                <li>Địa chỉ</li>
+                <li>Ngày sinh</li>
+                <li>Giới tính</li>
+                <li>Nhóm máu</li>
+              </ul>
+              <p style={{ marginTop: '15px' }}>Vui lòng cập nhật thông tin tại trang cá nhân trước khi đăng ký hiến máu.</p>
+            </div>
+          ),
+          okText: 'Đi tới trang cá nhân',
+          onOk: () => {
+            navigate('/profile');
+          }
+        });
+        setLoading(false);
+        return;
+      }
+
       // Manual validation for date
       const donationDate = form.getFieldValue('donationDate');
       if (!donationDate) {
@@ -311,24 +435,8 @@ const BookingPage = () => {
         return;
       }
       
-      // Check authentication
-      const user = localStorage.getItem('user');
-      const token = localStorage.getItem('token');
-      
-      if (!user || !token) {
-        // Store form data temporarily for after login
-        sessionStorage.setItem('pendingBookingData', JSON.stringify({
-          ...values,
-          timeSlotId: selectedTimeSlot
-        }));
-        
-        setShowLoginModal(true);
-        setLoading(false);
-        return;
-      }
-      
       // Prepare donation registration data
-      const userData = JSON.parse(user);
+      // userData is already defined above
       
       // Find matching schedule
       const selectedDateStr = donationDate.format('YYYY-MM-DD');
@@ -404,8 +512,10 @@ const BookingPage = () => {
   
   return (
     <Layout>
+      {contextHolder}
       <Header />
       <Navbar />
+      <ProfileWarning />
 
       <Content className="booking-content">
         {/* Form đăng ký hiến máu */}
