@@ -192,21 +192,22 @@ const ConfirmationPage = () => {
     }
   };
 
-  // Xử lý quay lại trang eligibility
-  const handleBackToEligibility = () => {
-    navigate('/eligibility', { 
-      state: { 
-        bookingData: bookingData,
-        preservedEligibilityData: eligibilityData 
-      } 
-    });
-  };
-
   // Xử lý chỉnh sửa thông tin đặt lịch
   const handleEditBooking = () => {
     navigate('/booking', { 
       state: { 
         preservedBookingData: bookingData 
+      } 
+    });
+  };
+
+  // Xử lý xem lại phiếu đăng ký hiến máu (chỉ xem, không chỉnh sửa)
+  const handleViewEligibilityForm = () => {
+    navigate('/eligibility', { 
+      state: { 
+        bookingData: bookingData,
+        preservedEligibilityData: eligibilityData,
+        viewOnly: true // Flag để báo rằng chỉ xem, không cho chỉnh sửa
       } 
     });
   };
@@ -453,7 +454,7 @@ const ConfirmationPage = () => {
                       onClick={handleEditBooking}
                       style={{ color: '#dc2626' }}
                     >
-                      Chỉnh sửa
+                      Đặt lại lịch hẹn
                     </Button>
                   </Space>
                 }
@@ -496,11 +497,11 @@ const ConfirmationPage = () => {
                     <span>Kết Quả Đánh Giá</span>
                     <Button 
                       type="link" 
-                      icon={<EditOutlined />} 
-                      onClick={handleBackToEligibility}
+                      icon={<InfoCircleOutlined />} 
+                      onClick={handleViewEligibilityForm}
                       style={{ color: '#dc2626' }}
                     >
-                      Chỉnh sửa
+                      Xem lại phiếu đăng ký hiến máu
                     </Button>
                   </Space>
                 }
@@ -636,50 +637,101 @@ const ConfirmationPage = () => {
               
               if (validationResults.isEligible) {
                 return (
-                  <Button 
-                    type="primary" 
-                    size="large" 
-                    icon={<HeartOutlined />}
-                    loading={loading}
-                    onClick={handleConfirmRegistration}
-                    style={{ 
-                      backgroundColor: '#dc2626', 
-                      borderColor: '#dc2626',
-                      minWidth: '200px'
-                    }}
-                  >
-                    Xác nhận đăng ký hiến máu
-                  </Button>
+                  <div className="action-buttons-container" style={{ display: 'flex', gap: '16px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Button 
+                      size="large" 
+                      className="secondary-action"
+                      onClick={() => {
+                        navigate('/booking');
+                      }}
+                      style={{ 
+                        borderColor: '#dc2626',
+                        color: '#dc2626',
+                        minWidth: '180px'
+                      }}
+                    >
+                      Hủy đăng ký lịch hiện tại
+                    </Button>
+                    <Button 
+                      type="primary" 
+                      size="large" 
+                      icon={<HeartOutlined />}
+                      loading={loading}
+                      onClick={handleConfirmRegistration}
+                      className="primary-action"
+                      style={{ 
+                        backgroundColor: '#dc2626', 
+                        borderColor: '#dc2626',
+                        minWidth: '200px'
+                      }}
+                    >
+                      Xác nhận đăng ký hiến máu
+                    </Button>
+                  </div>
                 );
               } else if (validationResults.validationType === 'warning') {
                 return (
-                  <Button 
-                    size="large" 
-                    disabled
-                    style={{ 
-                      minWidth: '200px',
-                      backgroundColor: '#ffc53d',
-                      borderColor: '#ffc53d',
-                      color: '#ffffff'
-                    }}
-                  >
-                    Không thể đăng ký hiến máu
-                  </Button>
+                  <div className="action-buttons-container" style={{ display: 'flex', gap: '16px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Button 
+                      size="large" 
+                      className="secondary-action"
+                      onClick={() => {
+                        navigate('/');
+                      }}
+                      style={{ 
+                        borderColor: '#ffc53d',
+                        color: '#ffc53d',
+                        minWidth: '160px'
+                      }}
+                    >
+                      Quay về trang chủ
+                    </Button>
+                    <Button 
+                      size="large" 
+                      disabled
+                      className="primary-action"
+                      style={{ 
+                        minWidth: '200px',
+                        backgroundColor: '#ffc53d',
+                        borderColor: '#ffc53d',
+                        color: '#ffffff'
+                      }}
+                    >
+                      Không thể đăng ký hiến máu
+                    </Button>
+                  </div>
                 );
               } else {
                 return (
-                  <Button 
-                    size="large" 
-                    disabled
-                    style={{ 
-                      minWidth: '200px',
-                      backgroundColor: '#ff7875',
-                      borderColor: '#ff7875',
-                      color: '#ffffff'
-                    }}
-                  >
-                    Chưa đủ điều kiện hiến máu
-                  </Button>
+                  <div className="action-buttons-container" style={{ display: 'flex', gap: '16px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Button 
+                      size="large" 
+                      className="secondary-action"
+                      onClick={() => {
+                        navigate('/');
+                      }}
+                      style={{ 
+                        borderColor: '#ff7875',
+                        color: '#ff7875',
+                        minWidth: '160px'
+                      }}
+                    >
+                      Quay về trang chủ
+                    </Button>
+                    <Button 
+                      size="large" 
+                      disabled
+                      className="primary-action"
+                      style={{ 
+                        minWidth: '200px',
+                        backgroundColor: '#ff7875',
+                        borderColor: '#ff7875',
+                        color: '#ffffff'
+                      }}
+                    >
+                      Chưa đủ điều kiện hiến máu
+                    </Button>
+                  </div>
                 );
               }
             })()}

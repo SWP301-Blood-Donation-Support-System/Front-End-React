@@ -237,6 +237,40 @@
       }
     }
   }
+  
+  // Responsive styles for action buttons
+  .action-buttons-container {
+    @media (max-width: 768px) {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 12px !important;
+      
+      .ant-btn {
+        width: 100% !important;
+        min-width: auto !important;
+        margin: 0 !important;
+        order: 2;
+        
+        &.primary-action {
+          order: 1;
+        }
+        
+        &.secondary-action {
+          order: 2;
+        }
+      }
+    }
+    
+    @media (max-width: 480px) {
+      padding: 0 8px;
+      
+      .ant-btn {
+        font-size: 14px;
+        height: 44px;
+        border-radius: 8px;
+      }
+    }
+  }
 }
 
 // Animation for success state

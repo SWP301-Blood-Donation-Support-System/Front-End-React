@@ -217,6 +217,11 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
   useEffect(() => {
     console.log('=== EligibilityFormPage mounted ===');
     
+    // Check if this is view-only mode
+    if (location.state?.viewOnly) {
+      setIsViewOnly(true);
+    }
+    
     // Check if there's booking data, if not redirect to booking page
     if (!bookingData) {
       message.warning('Vui lòng điền thông tin đặt lịch trước khi tiến hành kiểm tra điều kiện hiến máu.');
@@ -228,11 +233,27 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
     const preservedEligibilityData = location.state?.preservedEligibilityData;
     if (preservedEligibilityData) {
       form.setFieldsValue(preservedEligibilityData);
+      
+      // Preserve validation states from previous session
+      if (preservedEligibilityData.userEligibleDate) {
+        setUserEligibleDate(preservedEligibilityData.userEligibleDate);
+      }
+      if (preservedEligibilityData.daysLeft !== undefined) {
+        setDaysLeft(preservedEligibilityData.daysLeft);
+      }
+      if (preservedEligibilityData.hasExistingRegistrations !== undefined) {
+        // You might need to set donation registrations state if available
+        // This is to preserve the state for validation
+      }
     }
 
     window.scrollTo(0, 0);
-    fetchUserEligibilityData();
-    fetchUserDonationRegistrations(); // Fetch user eligibility data
+    
+    // Only fetch fresh data if not in view-only mode or no preserved data
+    if (!location.state?.viewOnly || !preservedEligibilityData) {
+      fetchUserEligibilityData();
+      fetchUserDonationRegistrations();
+    }
   }, [navigate, bookingData, form, location.state]);
 
   // Eligibility questions data
@@ -801,10 +822,27 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
           type={isViewOnly ? "default" : "primary"}
           htmlType={isViewOnly ? "button" : "submit"}
           size="large"
-          className={isViewOnly ? "back-to-home-button" : "submit-button"}
+          className={isViewOnly ? "back-to-confirmation-button" : "submit-button"}
           icon={isViewOnly ? <ArrowLeftOutlined /> : <CheckCircleOutlined />}          onClick={isViewOnly ? () => {
             window.scrollTo(0, 0);
-            navigate('/');
+            
+            // Get preserved data or current state
+            const preservedData = location.state?.preservedEligibilityData;
+            const currentFormData = form.getFieldsValue();
+            
+            navigate('/confirmation', { 
+              state: { 
+                bookingData: bookingData,
+                eligibilityData: {
+                  ...currentFormData,
+                  // Preserve validation context - use preserved data if available, otherwise current state
+                  userEligibleDate: preservedData?.userEligibleDate || userEligibleDate,
+                  daysLeft: preservedData?.daysLeft !== undefined ? preservedData.daysLeft : daysLeft,
+                  hasExistingRegistrations: preservedData?.hasExistingRegistrations !== undefined ? 
+                    preservedData.hasExistingRegistrations : (donationRegistrations.length > 0)
+                }
+              } 
+            });
           } : undefined}
           disabled={false}
           style={isViewOnly ? {
@@ -814,7 +852,7 @@ const EligibilityFormPage = () => {  const [form] = Form.useForm();
             pointerEvents: 'auto'
           } : undefined}
         >
-          {isViewOnly ? "Quay về trang chủ" : "Tiếp tục"}
+          {isViewOnly ? "Quay lại trang xác nhận" : "Tiếp tục"}
         </Button>
       </div>
     </Form>

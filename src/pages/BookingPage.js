@@ -36,14 +36,13 @@ const BookingPage = () => {
   const location = useLocation();
   const [api, contextHolder] = notification.useNotification();
   const preservedData = location.state?.preservedBookingData;
-  const bookingComplete = location.state?.bookingComplete;const [formValues, setFormValues] = useState({});
+  const bookingComplete = location.state?.bookingComplete;  const [formValues, setFormValues] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [userProfile, setUserProfile] = useState(null);  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [donationSchedule, setDonationSchedule] = useState([]);
   const [availableDates, setAvailableDates] = useState([]);
-  const [loading, setLoading] = useState(false);
   
   // Check if user profile is complete
   const isProfileComplete = (userProfile) => {
@@ -93,7 +92,7 @@ const BookingPage = () => {
         userData = JSON.parse(userInfo);
       } else if (user) {
         userData = JSON.parse(user);
-      }        setUserProfile(userData);
+      }        
       
       // Auto-fill form with user information
       // Handle different possible field names from different data sources
@@ -107,7 +106,6 @@ const BookingPage = () => {
       console.log('User data for auto-fill:', userData);
     } else {
       setIsLoggedIn(false);
-      setUserProfile(null);
     }
   }, [form]);
   // Fetch time slots from API
@@ -195,12 +193,28 @@ const BookingPage = () => {
   }, [form]);  const handleFormSubmit = (values) => {
     console.log('✅ Form submit SUCCESS! Values:', values);
     
-    // Check if time slot is selected
+    // Validate required fields with custom error messages
+    const fieldValidations = [];
+    
+    // Check date selection
+    if (!values.donationDate) {
+      fieldValidations.push({
+        name: 'donationDate',
+        errors: ['Vui lòng chọn ngày hiến máu']
+      });
+    }
+    
+    // Check time slot selection
     if (!selectedTimeSlot) {
-      form.setFields([{
+      fieldValidations.push({
         name: 'donationSlot',
-        errors: ['Vui lòng chọn thời gian hiến máu']
-      }]);
+        errors: ['Vui lòng chọn khung giờ hiến máu']
+      });
+    }
+    
+    // If there are validation errors for date/time, show them and return
+    if (fieldValidations.length > 0) {
+      form.setFields(fieldValidations);
       return;
     }
     
@@ -232,17 +246,33 @@ const BookingPage = () => {
     console.log('BookingPage - userData for validation:', userData);
     console.log('BookingPage - isProfileComplete:', isProfileComplete(userData));
 
-    // Check if profile is complete before allowing donation registration
-    if (!isProfileComplete(userData)) {
-      // Show notification
+    // Check individual fields from profile and show notification if missing
+    const missingFields = [];
+    const fieldChecks = [
+      { field: userData.FullName || userData.name, name: 'Họ và tên' },
+      { field: userData.PhoneNumber, name: 'Số điện thoại' },
+      { field: userData.Address, name: 'Địa chỉ' },
+      { field: userData.DateOfBirth, name: 'Ngày sinh' },
+      { field: userData.GenderId || userData.GenderID, name: 'Giới tính' },
+      { field: userData.BloodTypeId || userData.BloodTypeID, name: 'Nhóm máu' }
+    ];
+
+    fieldChecks.forEach(check => {
+      if (!check.field || check.field === '') {
+        missingFields.push(check.name);
+      }
+    });
+
+    if (missingFields.length > 0) {
+      // Show notification similar to ProfilePage
       api.error({
-        message: 'Thông tin cá nhân chưa đầy đủ',
-        description: 'Vui lòng cập nhật đầy đủ thông tin trong trang cá nhân trước khi đăng ký hiến máu.',
-        duration: 6,
-        placement: 'topRight'
+        message: 'Thiếu thông tin bắt buộc!',
+        description: 'Vui lòng cập nhật đầy đủ thông tin để được hiến máu!',
+        placement: 'topRight',
+        duration: 4,
       });
       
-      // Also show a more detailed modal
+      // Also show a detailed modal
       Modal.error({
         title: 'Thông tin cá nhân chưa đầy đủ',
         content: (
@@ -251,12 +281,9 @@ const BookingPage = () => {
               Để có thể đăng ký hiến máu, bạn cần hoàn thành đầy đủ thông tin cá nhân bao gồm:
             </p>
             <ul style={{ marginLeft: '20px', marginBottom: '15px' }}>
-              <li>Họ và tên</li>
-              <li>Số điện thoại</li>
-              <li>Địa chỉ</li>
-              <li>Ngày sinh</li>
-              <li>Giới tính</li>
-              <li>Nhóm máu</li>
+              {missingFields.map((field, index) => (
+                <li key={index} style={{ color: '#dc2626' }}>{field}</li>
+              ))}
             </ul>
             <p style={{ marginTop: '15px', color: '#dc2626', fontWeight: '500' }}>
               Vui lòng cập nhật thông tin tại trang cá nhân trước khi đăng ký hiến máu.
@@ -342,154 +369,6 @@ const BookingPage = () => {
 
 
   // Handle direct donation registration
-  const handleDonationRegistration = async (values) => {
-    setLoading(true);
-    try {
-      // Check authentication first
-      const user = localStorage.getItem('user');
-      const token = localStorage.getItem('token');
-      const userInfo = localStorage.getItem('userInfo');
-      
-      if ((!user && !userInfo) || !token) {
-        // Store form data temporarily for after login
-        sessionStorage.setItem('pendingBookingData', JSON.stringify({
-          ...values,
-          timeSlotId: selectedTimeSlot
-        }));
-        
-        setShowLoginModal(true);
-        setLoading(false);
-        return;
-      }
-
-      // Get user profile data
-      let userData = null;
-      if (userInfo) {
-        userData = JSON.parse(userInfo);
-      } else if (user) {
-        userData = JSON.parse(user);
-      }
-
-      // Check if profile is complete before allowing donation registration
-      if (!isProfileComplete(userData)) {
-        Modal.error({
-          title: 'Thông tin cá nhân chưa đầy đủ',
-          content: (
-            <div>
-              <p>Để có thể đăng ký hiến máu, bạn cần hoàn thành đầy đủ thông tin cá nhân bao gồm:</p>
-              <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
-                <li>Họ và tên</li>
-                <li>Số điện thoại</li>
-                <li>Địa chỉ</li>
-                <li>Ngày sinh</li>
-                <li>Giới tính</li>
-                <li>Nhóm máu</li>
-              </ul>
-              <p style={{ marginTop: '15px' }}>Vui lòng cập nhật thông tin tại trang cá nhân trước khi đăng ký hiến máu.</p>
-            </div>
-          ),
-          okText: 'Đi tới trang cá nhân',
-          onOk: () => {
-            navigate('/profile');
-          }
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Manual validation for date
-      const donationDate = form.getFieldValue('donationDate');
-      if (!donationDate) {
-        form.setFields([{
-          name: 'donationDate',
-          errors: ['Vui lòng chọn ngày hiến máu']
-        }]);
-        setLoading(false);
-        return;
-      }
-      
-      // Validate if selected date is available in donation schedule
-      if (availableDates.length > 0) {
-        const selectedDateStr = donationDate.format('YYYY-MM-DD');
-        const isDateAvailable = availableDates.some(date => 
-          date.startsWith(selectedDateStr)
-        );
-        
-        if (!isDateAvailable) {
-          form.setFields([{
-            name: 'donationDate',
-            errors: ['Ngày được chọn không có sẵn trong lịch hiến máu. Vui lòng chọn ngày khác']
-          }]);
-          setLoading(false);
-          return;
-        }
-      }
-      
-      // Check if time slot is selected
-      if (!selectedTimeSlot) {
-        form.setFields([{
-          name: 'donationSlot',
-          errors: ['Vui lòng chọn thời gian hiến máu']
-        }]);
-        setLoading(false);
-        return;
-      }
-      
-      // Prepare donation registration data
-      // userData is already defined above
-      
-      // Find matching schedule
-      const selectedDateStr = donationDate.format('YYYY-MM-DD');
-      const matchingSchedule = donationSchedule.find(schedule => 
-        schedule.scheduleDate && schedule.scheduleDate.startsWith(selectedDateStr)
-      );
-      
-      const donationData = {
-        donorId: userData.id,        scheduleId: matchingSchedule ? matchingSchedule.scheduleId : 2, // Default schedule ID
-        timeSlotId: selectedTimeSlot
-      };
-      
-      console.log('Sending donation registration data:', donationData);
-      
-      // Call API to register donation
-      const response = await UserAPI.registerDonation(donationData);
-      
-      if (response.status === 200) {
-        Modal.success({
-          title: 'Đăng ký thành công!',
-          content: 'Bạn đã đăng ký hiến máu thành công. Vui lòng đến đúng giờ để hiến máu.',
-          onOk: () => {
-            // Reset form
-            form.resetFields();
-            setSelectedTimeSlot(null);
-            
-            // Navigate to profile or home page
-            navigate('/profile');
-          }
-        });
-      }
-      
-    } catch (error) {
-      console.error('Error registering donation:', error);
-      
-      let errorMessage = 'Đã có lỗi xảy ra khi đăng ký hiến máu. Vui lòng thử lại.';
-      
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response?.status === 400) {
-        errorMessage = 'Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.';
-      } else if (error.response?.status === 401) {
-        errorMessage = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
-      }
-      
-      Modal.error({
-        title: 'Đăng ký thất bại',
-        content: errorMessage,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
   
   // Xử lý thông báo khi booking hoàn thành
   useEffect(() => {
@@ -549,10 +428,6 @@ const BookingPage = () => {
                         <Form.Item
                           label="Họ và tên"
                           name="fullName"
-                          rules={[
-                            { required: true, message: 'Vui lòng nhập họ và tên' },
-                            { min: 2, message: 'Tên phải có ít nhất 2 ký tự' }
-                          ]}
                         >
                           <Input 
                             className="form-input"
@@ -566,10 +441,6 @@ const BookingPage = () => {
                         <Form.Item
                           label="Số điện thoại"
                           name="phone"
-                          rules={[
-                            { required: true, message: 'Vui lòng nhập số điện thoại' },
-                            { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ' }
-                          ]}
                         >
                           <Input 
                             className="form-input"
@@ -583,10 +454,6 @@ const BookingPage = () => {
                         <Form.Item
                           label="Email"
                           name="email"
-                          rules={[
-                            { required: true, message: 'Vui lòng nhập email' },
-                            { type: 'email', message: 'Email không hợp lệ' }
-                          ]}
                         >
                           <Input 
                             className="form-input"
@@ -600,10 +467,6 @@ const BookingPage = () => {
                         <Form.Item
                           label="Số CMND/CCCD"
                           name="nationalId"
-                          rules={[
-                            { required: true, message: 'Vui lòng nhập số căn cước công dân' },
-                            { pattern: /^[0-9]{12}$/, message: 'Số căn cước công dân phải có 12 chữ số' }
-                          ]}
                         >
                           <Input 
                             className="form-input"
@@ -756,7 +619,6 @@ const BookingPage = () => {
                         size="large"
                         className="submit-button"
                         icon={<CalendarOutlined />}
-                        loading={loading}
                       >
                         Đăng Ký Hiến Máu
                       </Button>
