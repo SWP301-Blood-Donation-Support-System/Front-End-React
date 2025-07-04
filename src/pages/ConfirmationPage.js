@@ -124,17 +124,17 @@ const ConfirmationPage = () => {
     
     try {
       // Kiểm tra authentication
-      const user = localStorage.getItem('user');
+      const userInfo = localStorage.getItem('userInfo');
       const token = localStorage.getItem('token');
       
-      if (!user || !token) {
+      if (!userInfo || !token) {
         message.warning('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
         navigate('/login');
         return;
       }
 
       // Lấy thông tin user
-      const userData = JSON.parse(user);
+      const userData = JSON.parse(userInfo);
       const donorId = userData.UserID || userData.UserId || userData.id || userData.userId || userData.Id;
       
       // Chuẩn bị dữ liệu đăng ký
@@ -144,8 +144,6 @@ const ConfirmationPage = () => {
         timeSlotId: bookingData.timeSlotId
       };
       
-      console.log('Sending donation registration data:', donationData);
-      
       // Validation
       if (!donorId || !bookingData.timeSlotId) {
         throw new Error('Thiếu thông tin cần thiết để đăng ký');
@@ -154,19 +152,21 @@ const ConfirmationPage = () => {
       // Gọi API đăng ký
       const response = await UserAPI.registerDonation(donationData);
       
-      console.log('API Response Status:', response.status);
-      console.log('API Response Data:', response.data);
-      
       if (response.status === 200 || response.status === 201) {
-        console.log('Registration successful, navigating to donation-schedule with state:', {
-          fromRegistration: true,
-          message: 'Cảm ơn bạn đã đăng ký hiến máu! Chúng tôi sẽ liên hệ với bạn trong vòng 24h để xác nhận lịch hẹn.'
-        });
+        // Prepare donation registration notification data
+        const donationRegistrationNotification = {
+          message: 'Đăng ký hiến máu thành công!',
+          description: 'Cảm ơn bạn đã đăng ký hiến máu, vui lòng kiểm tra email',
+        };
         
-        // Navigate to donation schedule page
-        navigate('/donation-schedule');
+        // Also store in sessionStorage as backup
+        sessionStorage.setItem('showDonationSuccessNotification', 'true');
+        
+        // Navigate to donation schedule page with notification
+        navigate('/donation-schedule', { 
+          state: { donationRegistrationNotification } 
+        });
       } else {
-        console.log('Unexpected response status:', response.status);
         throw new Error('Có lỗi xảy ra khi đăng ký hiến máu');
       }
       

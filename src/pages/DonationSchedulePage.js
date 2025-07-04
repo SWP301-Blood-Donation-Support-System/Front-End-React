@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Card, 
   Row, 
@@ -26,7 +26,7 @@ import {
   CommentOutlined,
   EyeOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../api/User';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
@@ -68,6 +68,13 @@ const DonationSchedulePage = () => {
   const [feedbackExistence, setFeedbackExistence] = useState({});
   
   const navigate = useNavigate();
+  const location = useLocation();
+  const notificationShown = useRef(false);
+
+  // Reset notification flag when component mounts
+  useEffect(() => {
+    notificationShown.current = false;
+  }, []);
 
   // Helper functions
   const formatDate = (dateString) => {
@@ -212,6 +219,50 @@ const DonationSchedulePage = () => {
       console.error('Error checking feedback existence:', error);
     }
   };
+
+  // Handle donation registration notification from navigation state
+  useEffect(() => {
+    const showNotification = () => {
+      // Check navigation state first
+      if (location.state?.donationRegistrationNotification && !notificationShown.current) {
+        notificationShown.current = true;
+        
+        api.success({
+          message: location.state.donationRegistrationNotification.message,
+          description: location.state.donationRegistrationNotification.description,
+          placement: 'topRight',
+          duration: 4,
+        });
+        
+        // Clear the notification from state to prevent showing it again
+        setTimeout(() => {
+          navigate(location.pathname, { 
+            state: { ...location.state, donationRegistrationNotification: null }, 
+            replace: true 
+          });
+        }, 100);
+      }
+      // Fallback: Check sessionStorage if state is not available
+      else if (sessionStorage.getItem('showDonationSuccessNotification') === 'true' && !notificationShown.current) {
+        notificationShown.current = true;
+        
+        api.success({
+          message: 'Đăng ký hiến máu thành công!',
+          description: 'Cảm ơn bạn đã đăng ký hiến máu, vui lòng kiểm tra email',
+          placement: 'topRight',
+          duration: 4,
+        });
+        
+        // Clear the sessionStorage flag
+        sessionStorage.removeItem('showDonationSuccessNotification');
+      }
+    };
+
+    // Only show notification after loading is complete
+    if (!loading) {
+      setTimeout(showNotification, 200);
+    }
+  }, [location.state, api, navigate, location.pathname, loading]);
 
   // Initialize data
   useEffect(() => {
