@@ -8,7 +8,6 @@ import {
   Button, 
   Descriptions,
   Steps,
-  Divider,
   message,
   Modal,
   Tag,
@@ -17,14 +16,14 @@ import {
 import { 
   HeartOutlined, 
   CheckCircleOutlined,
-  ArrowLeftOutlined,
   UserOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
   EditOutlined,
   InfoCircleOutlined,
   FileTextOutlined,
-  CheckOutlined
+  CheckOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -82,7 +81,7 @@ const ConfirmationPage = () => {
   const getTimeSlotInfo = (timeSlotId) => {
     const timeSlot = timeSlots.find(slot => slot.timeSlotId === timeSlotId);
     if (timeSlot) {
-      return `${timeSlot.timeSlotName} (${timeSlot.startTime.slice(0, 5)} - ${timeSlot.endTime.slice(0, 5)})`;
+      return `${timeSlot.startTime.slice(0, 5)} - ${timeSlot.endTime.slice(0, 5)}`;
     }
     return 'Chưa xác định';
   };
@@ -99,6 +98,28 @@ const ConfirmationPage = () => {
 
   // Xử lý xác nhận đăng ký
   const handleConfirmRegistration = async () => {
+    // Check validation before proceeding
+    const validationResults = getValidationResults();
+    
+    if (!validationResults.isEligible) {
+      let errorTitle = '';
+      let errorMessage = '';
+      
+      if (validationResults.validationType === 'warning') {
+        errorTitle = 'Không thể đăng ký';
+        errorMessage = validationResults.statusMessage + '\n\n' + validationResults.failedChecks.join('\n');
+      } else {
+        errorTitle = 'Chưa đủ điều kiện hiến máu';
+        errorMessage = 'Vui lòng kiểm tra lại các thông tin trong phần "Kết quả đánh giá" và liên hệ với chúng tôi để được tư vấn thêm.';
+      }
+      
+      Modal.error({
+        title: errorTitle,
+        content: errorMessage,
+      });
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -198,7 +219,7 @@ const ConfirmationPage = () => {
       icon: <UserOutlined />
     },
     {
-      title: 'Bảng câu hỏi',
+      title: 'Phiếu đăng ký hiến máu',
       status: 'finish',
       icon: <FileTextOutlined />
     },
@@ -209,56 +230,170 @@ const ConfirmationPage = () => {
     }
   ];
 
-  // Render answers cho eligibility form
-  const renderEligibilityAnswers = () => {
-    const answers = [];
+  // Validation logic - replicated from EligibilityFormPage
+  const checkEligibility = (formData) => {
+    const ineligibleConditions = [
+      // Question 3: Serious diseases - if user selects "yes" 
+      formData.seriousDiseases?.includes('yes'),
+      
+      // Question 4: Recent diseases/procedures in last 12 months
+      formData.last12Months?.includes('recovered_diseases') ||
+      formData.last12Months?.includes('blood_transfusion'),
+      
+      // Question 5: Issues in last 6 months
+      formData.last6Months?.includes('recovered_6months') ||
+      formData.last6Months?.includes('weight_loss') ||
+      formData.last6Months?.includes('prolonged_swelling') ||
+      formData.last6Months?.includes('drug_use') ||
+      formData.last6Months?.includes('hepatitis_contact') ||
+      formData.last6Months?.includes('sexual_contact_risk'),
+      
+      // Question 6: Recent illnesses in last month
+      formData.last1Month?.includes('recovered_1month') ||
+      formData.last1Month?.includes('epidemic_area'),
+      
+      // Question 7: Recent symptoms in last 14 days
+      formData.last14Days?.includes('flu_symptoms'),
+      
+      // Question 8: Recent medication in last 7 days
+      formData.last7Days?.includes('medication'),
+      
+      // Question 9: Pregnancy related
+      formData.femaleQuestions?.includes('pregnant_nursing') ||
+      formData.femaleQuestions?.includes('pregnancy_termination')
+    ];
+
+    const hasIneligibleCondition = ineligibleConditions.some(condition => condition === true);
+    return !hasIneligibleCondition;
+  };
+
+  // Get comprehensive validation results including all scheduling validations
+  const getValidationResults = () => {
+    if (!eligibilityData) return { 
+      isEligible: false, 
+      failedChecks: ['Không có dữ liệu đánh giá'],
+      validationType: 'error'
+    };
     
-    // Previous donation
-    if (eligibilityData.previousDonation) {
-      answers.push({
-        question: 'Đã từng hiến máu',
-        answer: eligibilityData.previousDonation === 'yes' ? 'Có' : 'Không'
-      });
+    // Check form eligibility first
+    const formEligible = checkEligibility(eligibilityData);
+    const failedChecks = [];
+    let validationType = 'success'; // success, warning, error
+    let statusMessage = 'Đủ điều kiện hiến máu';
+    
+    // Check donation date eligibility (from EligibilityFormPage logic)
+    const userEligibleDate = eligibilityData.userEligibleDate || eligibilityData.nextEligibleDonationDate;
+    const daysLeft = eligibilityData.daysLeft || 0;
+    let isEligibleByDate = true;
+    
+    if (userEligibleDate) {
+      const currentDate = new Date();
+      const nextEligibleDate = new Date(userEligibleDate);
+      currentDate.setHours(0, 0, 0, 0);
+      nextEligibleDate.setHours(0, 0, 0, 0);
+      isEligibleByDate = nextEligibleDate <= currentDate;
     }
     
-    // Current illness
-    if (eligibilityData.currentIllness) {
-      answers.push({
-        question: 'Hiện tại có mắc bệnh',
-        answer: eligibilityData.currentIllness === 'yes' ? 'Có' : 'Không',
-        details: eligibilityData.currentIllnessDetails
-      });
+    // Check if user already has pending registrations
+    const hasExistingRegistrations = eligibilityData.hasExistingRegistrations || false;
+    
+    // Priority 1: Check form eligibility FIRST (most important)
+    if (!formEligible) {
+      validationType = 'error';
+      statusMessage = 'Chưa đủ điều kiện hiến máu';
+      
+      // Check each condition and add to failed checks if applicable
+      if (eligibilityData.seriousDiseases?.includes('yes')) {
+        failedChecks.push('Có tiền sử bệnh nghiêm trọng');
+      }
+      
+      if (eligibilityData.last12Months?.includes('recovered_diseases')) {
+        failedChecks.push('Đã khỏi bệnh nghiêm trọng trong 12 tháng qua');
+      }
+      
+      if (eligibilityData.last12Months?.includes('blood_transfusion')) {
+        failedChecks.push('Đã được truyền máu trong 12 tháng qua');
+      }
+      
+      if (eligibilityData.last6Months?.includes('recovered_6months')) {
+        failedChecks.push('Đã khỏi bệnh nghiêm trọng trong 6 tháng qua');
+      }
+      
+      if (eligibilityData.last6Months?.includes('weight_loss')) {
+        failedChecks.push('Sút cân nhanh không rõ nguyên nhân trong 6 tháng qua');
+      }
+      
+      if (eligibilityData.last6Months?.includes('prolonged_swelling')) {
+        failedChecks.push('Nổi hạch kéo dài trong 6 tháng qua');
+      }
+      
+      if (eligibilityData.last6Months?.includes('drug_use')) {
+        failedChecks.push('Sử dụng ma túy trong 6 tháng qua');
+      }
+      
+      if (eligibilityData.last6Months?.includes('hepatitis_contact')) {
+        failedChecks.push('Sinh sống chung với người nhiễm viêm gan B trong 6 tháng qua');
+      }
+      
+      if (eligibilityData.last6Months?.includes('sexual_contact_risk')) {
+        failedChecks.push('Quan hệ tình dục với người có nguy cơ cao trong 6 tháng qua');
+      }
+      
+      if (eligibilityData.last1Month?.includes('recovered_1month')) {
+        failedChecks.push('Đã khỏi bệnh trong 1 tháng qua');
+      }
+      
+      if (eligibilityData.last1Month?.includes('epidemic_area')) {
+        failedChecks.push('Đi vào vùng có dịch bệnh trong 1 tháng qua');
+      }
+      
+      if (eligibilityData.last14Days?.includes('flu_symptoms')) {
+        failedChecks.push('Có triệu chứng cúm, cảm lạnh trong 14 ngày qua');
+      }
+      
+      if (eligibilityData.last7Days?.includes('medication')) {
+        failedChecks.push('Sử dụng thuốc kháng sinh, kháng viêm trong 7 ngày qua');
+      }
+      
+      if (eligibilityData.femaleQuestions?.includes('pregnant_nursing')) {
+        failedChecks.push('Đang mang thai hoặc nuôi con dưới 12 tháng tuổi');
+      }
+      
+      if (eligibilityData.femaleQuestions?.includes('pregnancy_termination')) {
+        failedChecks.push('Chấm dứt thai kỳ trong 12 tháng qua');
+      }
+      
+      return { isEligible: false, failedChecks, validationType, statusMessage };
     }
     
-    // Serious diseases
-    if (eligibilityData.seriousDiseases) {
-      const values = Array.isArray(eligibilityData.seriousDiseases) ? eligibilityData.seriousDiseases : [eligibilityData.seriousDiseases];
-      answers.push({
-        question: 'Bệnh nghiêm trọng trong quá khứ',
-        answer: values.includes('yes') ? 'Có' : values.includes('no') ? 'Không' : 'Bệnh khác',
-        details: eligibilityData.seriousDiseasesDetails
-      });
+    // Priority 2: Check if user already has pending registration (only if eligible by form)
+    if (hasExistingRegistrations) {
+      validationType = 'warning';
+      statusMessage = 'Bạn đã đăng ký lịch hiến máu gần đây rồi!';
+      failedChecks.push('Đã có lịch hiến máu đang chờ');
+      failedChecks.push('Vui lòng đợi tới ngày hiến hoặc huỷ lịch hiện tại để đăng ký lại');
+      return { isEligible: false, failedChecks, validationType, statusMessage };
     }
     
-    // Last 12 months
-    if (eligibilityData.last12Months) {
-      const values = Array.isArray(eligibilityData.last12Months) ? eligibilityData.last12Months : [eligibilityData.last12Months];
-      answers.push({
-        question: 'Tình trạng trong 12 tháng qua',
-        answer: values.includes('none') ? 'Không có' : values.join(', ')
-      });
+    // Priority 3: Check donation date eligibility (only if eligible by form and no existing registrations)
+    if (!isEligibleByDate && daysLeft > 0) {
+      validationType = 'warning';
+      statusMessage = 'Bạn chưa thể hiến máu lúc này!';
+      failedChecks.push('Để đảm bảo sức khỏe, bạn cần nghỉ ngơi ít nhất 12-16 tuần giữa các lần hiến máu');
+      failedChecks.push(`Bạn có thể hiến máu trở lại sau: ${daysLeft} ngày nữa`);
+      if (userEligibleDate) {
+        failedChecks.push(`Ngày có thể hiến máu tiếp theo: ${new Date(userEligibleDate).toLocaleDateString('vi-VN')}`);
+      }
+      return { isEligible: false, failedChecks, validationType, statusMessage };
     }
     
-    // Last 6 months
-    if (eligibilityData.last6Months) {
-      const values = Array.isArray(eligibilityData.last6Months) ? eligibilityData.last6Months : [eligibilityData.last6Months];
-      answers.push({
-        question: 'Tình trạng trong 6 tháng qua',
-        answer: values.includes('none') ? 'Không có' : values.join(', ')
-      });
-    }
-    
-    return answers;
+    // All checks passed
+    return { 
+      isEligible: true, 
+      failedChecks: [], 
+      validationType: 'success',
+      statusMessage: 'Đủ điều kiện hiến máu'
+    };
   };
 
   if (!bookingData || !eligibilityData) {
@@ -371,31 +506,83 @@ const ConfirmationPage = () => {
                 }
                 style={{ height: '100%' }}
               >
-                <div style={{ marginBottom: '20px' }}>
-                  <Tag icon={<CheckCircleOutlined />} color="success" className="eligibility-status-tag success" style={{ fontSize: '14px', padding: '8px 16px' }}>
-                    ✓ Đủ điều kiện hiến máu
-                  </Tag>
-                </div>
-                
-                <Divider orientation="left" style={{ fontSize: '14px', margin: '16px 0' }}>
-                  Thông tin đã khai báo
-                </Divider>
-                
-                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                  {renderEligibilityAnswers().map((item, index) => (
-                    <div key={index} className="eligibility-answer-item">
-                      <div className="question-text">
-                        {item.question}:
-                      </div>
-                      <div className="answer-text">{item.answer}</div>
-                      {item.details && (
-                        <div className="details-text">
-                          Chi tiết: {item.details}
+                {(() => {
+                  const validationResults = getValidationResults();
+                  
+                  return (
+                    <div>
+                      {validationResults.validationType === 'success' ? (
+                        <div style={{ marginBottom: '20px' }}>
+                          <Tag icon={<CheckCircleOutlined />} color="success" style={{ fontSize: '14px', padding: '8px 16px', marginBottom: '16px' }}>
+                            ✓ {validationResults.statusMessage}
+                          </Tag>
+                          <div style={{ marginTop: '16px', color: '#52c41a', fontSize: '14px' }}>
+                            <CheckCircleOutlined style={{ marginRight: '8px' }} />
+                            Tất cả các tiêu chí đánh giá đều đạt yêu cầu
+                          </div>
+                        </div>
+                      ) : validationResults.validationType === 'warning' ? (
+                        <div>
+                          <Tag icon={<ExclamationCircleOutlined />} color="warning" style={{ fontSize: '14px', padding: '8px 16px', marginBottom: '16px' }}>
+                            ⚠️ {validationResults.statusMessage}
+                          </Tag>
+                          <div style={{ marginBottom: '16px' }}>
+                            <Text strong style={{ color: '#fa8c16', fontSize: '14px' }}>
+                              Thông tin chi tiết:
+                            </Text>
+                            <div style={{ 
+                              marginTop: '12px', 
+                              padding: '12px', 
+                              backgroundColor: '#fff7e6', 
+                              borderRadius: '6px',
+                              border: '1px solid #ffd591'
+                            }}>
+                              {validationResults.failedChecks.map((check, index) => (
+                                <div key={index} style={{ 
+                                  color: '#d46b08', 
+                                  marginBottom: index < validationResults.failedChecks.length - 1 ? '8px' : '0', 
+                                  fontSize: '13px',
+                                  lineHeight: '1.5'
+                                }}>
+                                  • {check}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <Tag icon={<ExclamationCircleOutlined />} color="error" style={{ fontSize: '14px', padding: '8px 16px', marginBottom: '16px' }}>
+                            ✗ {validationResults.statusMessage}
+                          </Tag>
+                          <div style={{ marginBottom: '16px' }}>
+                            <Text strong style={{ color: '#ff4d4f', fontSize: '14px' }}>
+                              Các vấn đề cần lưu ý:
+                            </Text>
+                            <div style={{ 
+                              marginTop: '12px', 
+                              padding: '12px', 
+                              backgroundColor: '#fff2f0', 
+                              borderRadius: '6px',
+                              border: '1px solid #ffccc7'
+                            }}>
+                              {validationResults.failedChecks.map((check, index) => (
+                                <div key={index} style={{ 
+                                  color: '#cf1322', 
+                                  marginBottom: index < validationResults.failedChecks.length - 1 ? '6px' : '0', 
+                                  fontSize: '13px',
+                                  lineHeight: '1.5'
+                                }}>
+                                  • {check}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </Card>
             </Col>
           </Row>
@@ -444,29 +631,58 @@ const ConfirmationPage = () => {
 
           {/* Action buttons */}
           <Card className="action-buttons-card" style={{ marginTop: '30px', textAlign: 'center' }}>
-            <Space size="large">
-              <Button 
-                size="large" 
-                icon={<ArrowLeftOutlined />}
-                onClick={handleBackToEligibility}
-              >
-                Quay lại
-              </Button>
-              <Button 
-                type="primary" 
-                size="large" 
-                icon={<HeartOutlined />}
-                loading={loading}
-                onClick={handleConfirmRegistration}
-                style={{ 
-                  backgroundColor: '#dc2626', 
-                  borderColor: '#dc2626',
-                  minWidth: '200px'
-                }}
-              >
-                Xác nhận đăng ký hiến máu
-              </Button>
-            </Space>
+            {(() => {
+              const validationResults = getValidationResults();
+              
+              if (validationResults.isEligible) {
+                return (
+                  <Button 
+                    type="primary" 
+                    size="large" 
+                    icon={<HeartOutlined />}
+                    loading={loading}
+                    onClick={handleConfirmRegistration}
+                    style={{ 
+                      backgroundColor: '#dc2626', 
+                      borderColor: '#dc2626',
+                      minWidth: '200px'
+                    }}
+                  >
+                    Xác nhận đăng ký hiến máu
+                  </Button>
+                );
+              } else if (validationResults.validationType === 'warning') {
+                return (
+                  <Button 
+                    size="large" 
+                    disabled
+                    style={{ 
+                      minWidth: '200px',
+                      backgroundColor: '#ffc53d',
+                      borderColor: '#ffc53d',
+                      color: '#ffffff'
+                    }}
+                  >
+                    Không thể đăng ký hiến máu
+                  </Button>
+                );
+              } else {
+                return (
+                  <Button 
+                    size="large" 
+                    disabled
+                    style={{ 
+                      minWidth: '200px',
+                      backgroundColor: '#ff7875',
+                      borderColor: '#ff7875',
+                      color: '#ffffff'
+                    }}
+                  >
+                    Chưa đủ điều kiện hiến máu
+                  </Button>
+                );
+              }
+            })()}
           </Card>
         </div>
       </Content>
