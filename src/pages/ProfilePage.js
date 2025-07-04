@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Card, 
-  Row, 
-  Col, 
-  Avatar, 
-  Typography, 
-  Tag, 
-  Button, 
+  Card,
+  Row,
+  Col,
+  Avatar,
+  Typography,
+  Tag,
+  Button,
   Descriptions,
   Space,
   Spin,
@@ -49,7 +49,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [editMode, setEditMode] = useState(false);  const [editLoading, setEditLoading] = useState(false);
+  const [editMode, setEditMode] = useState(false); const [editLoading, setEditLoading] = useState(false);
   const [bloodTypes, setBloodTypes] = useState([]);
   const [genders, setGenders] = useState([]);
   const [occupations, setOccupations] = useState([]);
@@ -64,18 +64,18 @@ const ProfilePage = () => {
   useEffect(() => {
     if (location.state?.loginNotification && !notificationShown.current) {
       notificationShown.current = true;
-      
+
       api.success({
         message: location.state.loginNotification.message,
         description: location.state.loginNotification.description,
         placement: 'topRight',
         duration: 3,
       });
-      
+
       // Clear the notification from state to prevent showing it again
-      navigate(location.pathname + location.search, { 
-        state: { ...location.state, loginNotification: null }, 
-        replace: true 
+      navigate(location.pathname + location.search, {
+        state: { ...location.state, loginNotification: null },
+        replace: true
       });
     }
   }, [location.state?.loginNotification, api, navigate, location.pathname, location.search]);
@@ -92,7 +92,7 @@ const ProfilePage = () => {
 
   const isProfileComplete = (userProfile) => {
     if (!userProfile) return false;
-    
+
     const requiredFields = [
       userProfile.FullName || userProfile.name,
       userProfile.PhoneNumber,
@@ -101,7 +101,7 @@ const ProfilePage = () => {
       userProfile.GenderId || userProfile.GenderID,
       userProfile.BloodTypeId || userProfile.BloodTypeID
     ];
-    
+
     return requiredFields.every(field => field != null && field !== '');
   };
 
@@ -112,7 +112,7 @@ const ProfilePage = () => {
     // Check if user was redirected here for profile update
     const urlParams = new URLSearchParams(location.search);
     const updateRequired = urlParams.get('updateRequired');
-    
+
     if (updateRequired === 'true') {
       setShowUpdateRequired(true);
       // Show immediate notification
@@ -132,7 +132,8 @@ const ProfilePage = () => {
         if (!token || !userInfo) {
           message.error("Please login to view your profile");
           navigate('/login');
-          return;        }
+          return;
+        }
 
         // Use stored userInfo from localStorage instead of API call
         setUser(userInfo);
@@ -223,7 +224,7 @@ const ProfilePage = () => {
       const timer = setTimeout(() => {
         handleEditProfile();
       }, 1000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [user, showUpdateRequired, handleEditProfile]);
@@ -233,12 +234,12 @@ const ProfilePage = () => {
       const genderIdValue = user.GenderId || user.GenderID;
       const bloodTypeIdValue = user.BloodTypeId || user.BloodTypeID;
       const occupationIdValue = user.OccupationId || user.OccupationID;
-      
+
       // Ensure IDs are numbers for proper matching
       const parsedGenderId = genderIdValue ? parseInt(genderIdValue) : null;
       const parsedBloodTypeId = bloodTypeIdValue ? parseInt(bloodTypeIdValue) : null;
       const parsedOccupationId = occupationIdValue ? parseInt(occupationIdValue) : null;
-      
+
       setEditValues({
         fullName: user.FullName || user.name || '',
         email: user.Email || user.email || '',
@@ -247,35 +248,77 @@ const ProfilePage = () => {
         nationalID: user.NationalId || user.NationalID || '',
         dateOfBirth: user.DateOfBirth || null,
         genderID: parsedGenderId,
-        bloodTypeID: parsedBloodTypeId,        occupationID: parsedOccupationId
+        bloodTypeID: parsedBloodTypeId, occupationID: parsedOccupationId
       });
     }
   }, [editMode, user, genders, bloodTypes, occupations]);
   const handleSaveProfile = async () => {
     try {
       setEditLoading(true);
-      
-      // Check for validation errors
-      const hasValidationErrors = Object.values(validationErrors).some(error => error !== null);
-      if (hasValidationErrors) {
-        message.error('Vui lòng sửa các lỗi trong biểu mẫu trước khi lưu');
+
+      // Comprehensive validation for all fields
+      const fieldsToValidate = [
+        'fullName', 'phoneNumber', 'address', 'dateOfBirth',
+        'genderID', 'bloodTypeID', 'nationalID'
+      ];
+
+      const newValidationErrors = {};
+      let hasErrors = false;
+
+      // Validate each field
+      fieldsToValidate.forEach(field => {
+        const value = editValues[field];
+        const error = validateField(field, value);
+        if (error) {
+          newValidationErrors[field] = error;
+          hasErrors = true;
+        }
+      });
+
+      // Update validation errors state
+      setValidationErrors(newValidationErrors);
+
+      // Check for existing validation errors
+      const hasExistingValidationErrors = Object.values(validationErrors).some(error => error !== null);
+
+      if (hasErrors || hasExistingValidationErrors) {
+        api.error({
+          message: 'Thiếu thông tin bắt buộc!',
+          description: 'Vui lòng cập nhật đầy đủ thông tin để được hiến máu!',
+          placement: 'topRight',
+          duration: 4,
+        });
         setEditLoading(false);
         return;
       }
 
-      // Validate required fields
-      if (editValues.nationalID && !/^\d{12}$/.test(editValues.nationalID)) {
-        message.error('Số CCCD phải có đúng 12 chữ số');
+      // Additional validation for required fields being empty
+      const requiredFields = [
+        { field: 'fullName', label: 'Họ và tên' },
+        { field: 'phoneNumber', label: 'Số điện thoại' },
+        { field: 'address', label: 'Địa chỉ' },
+        { field: 'dateOfBirth', label: 'Ngày sinh' },
+        { field: 'genderID', label: 'Giới tính' },
+        { field: 'bloodTypeID', label: 'Nhóm máu' },
+        { field: 'nationalID', label: 'Số CCCD' }
+      ];
+
+      const missingFields = requiredFields.filter(({ field }) =>
+        !editValues[field] || editValues[field] === ''
+      );
+
+      if (missingFields.length > 0) {
+        const missingFieldNames = missingFields.map(({ label }) => label).join(', ');
+        api.warning({
+          message: 'Thiếu thông tin bắt buộc!',
+          description: `Bạn phải cập nhật đầy đủ thông tin: ${missingFieldNames}`,
+          placement: 'topRight',
+          duration: 5,
+        });
         setEditLoading(false);
         return;
       }
 
-      if (editValues.phoneNumber && !/^\d{10}$/.test(editValues.phoneNumber)) {
-        message.error('Số điện thoại phải có đúng 10 chữ số');
-        setEditLoading(false);
-        return;
-      }
-        
       // Prepare the data for API
       const updateData = {
         FullName: editValues.fullName,
@@ -289,41 +332,51 @@ const ProfilePage = () => {
         OccupationID: editValues.occupationID
       };      // Call the update API  
       const userId = user.UserId || user.UserID;
-      
+
       if (!userId) {
         throw new Error("User ID not found");
       }
-      
+
       const response = await UserAPI.updateDonor(userId, updateData);
-      
+
       if (response.status === 200) {
         // Update the local user state
         const updatedUser = { ...user, ...updateData };
         setUser(updatedUser);
-          // Update localStorage as well
+        // Update localStorage as well
         localStorage.setItem("userInfo", JSON.stringify(updatedUser));
-        
+
         setEditMode(false);
         setEditValues({});
         setValidationErrors({});
-        
-        // Show appropriate success message based on profile completeness
+
+        // Show appropriate success notification based on profile completeness
         if (isProfileComplete(updatedUser)) {
-          message.success('Hồ sơ đã được cập nhật thành công! Bây giờ bạn có thể đăng ký hiến máu.');
+          api.success({
+            message: 'Cập nhật hồ sơ thành công!',
+            description: 'Hồ sơ đã được cập nhật thành công! Bây giờ bạn có thể đăng ký hiến máu.',
+            placement: 'topRight',
+            duration: 4,
+          });
           // Clear the update required flag only when profile is complete
           setShowUpdateRequired(false);
-          
+
           // Update URL to remove updateRequired parameter
           const url = new URL(window.location);
           url.searchParams.delete('updateRequired');
           window.history.replaceState({}, '', url);
         } else {
-          message.success('Hồ sơ đã được cập nhật thành công! Vui lòng hoàn thiện thông tin còn lại.');
+          api.success({
+            message: 'Cập nhật hồ sơ thành công!',
+            description: 'Hồ sơ đã được cập nhật thành công! Vui lòng hoàn thiện thông tin còn lại.',
+            placement: 'topRight',
+            duration: 4,
+          });
         }
 
         // Dispatch custom event to notify ProfileWarning component
-        window.dispatchEvent(new CustomEvent('profileUpdated', { 
-          detail: { user: updatedUser, isComplete: isProfileComplete(updatedUser) } 
+        window.dispatchEvent(new CustomEvent('profileUpdated', {
+          detail: { user: updatedUser, isComplete: isProfileComplete(updatedUser) }
         }));
       }
     } catch (error) {
@@ -342,6 +395,50 @@ const ProfilePage = () => {
     setEditValues({});
     setValidationErrors({});
   };
+    const validateField = (field, value) => {
+    let validationError = null;
+    
+    // Check for required fields first
+    const requiredFields = ['fullName', 'phoneNumber', 'address', 'dateOfBirth', 'genderID', 'bloodTypeID', 'nationalID'];
+    if (requiredFields.includes(field) && (!value || value === '')) {
+      validationError = 'Bạn phải cập nhật đầy đủ thông tin';
+    }
+    // Specific field validations for fields with content
+    else if (field === 'fullName' && value) {
+      if (value.trim().length < 2) {
+        validationError = 'Họ và tên phải có ít nhất 2 ký tự';
+      } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(value.trim())) {
+        validationError = 'Họ và tên chỉ được chứa chữ cái và khoảng trắng';
+      }
+    } else if (field === 'nationalID' && value) {
+      if (!/^\d{12}$/.test(value)) {
+        validationError = 'Số CCCD phải có đúng 12 chữ số';
+      }
+    } else if (field === 'phoneNumber' && value) {
+      if (!/^\d{10}$/.test(value)) {
+        validationError = 'Số điện thoại phải có đúng 10 chữ số';
+      } else if (!value.startsWith('0')) {
+        validationError = 'Số điện thoại phải bắt đầu bằng số 0';
+      }
+    } else if (field === 'address' && value) {
+      if (value.trim().length < 3) {
+        validationError = 'Địa chỉ phải có ít nhất 3 ký tự';
+      }
+    } else if (field === 'dateOfBirth' && value) {
+      const birthDate = dayjs(value);
+      const currentDate = dayjs();
+      const age = currentDate.diff(birthDate, 'year');
+      
+      if (age < 18) {
+        validationError = 'Bạn phải từ 18 tuổi trở lên để hiến máu';
+      } else if (age > 100) {
+        validationError = 'Ngày sinh không hợp lệ';
+      }
+    }
+    
+    return validationError;
+  };
+
   const handleFieldChange = (field, value) => {
     // Clear previous validation error for this field
     setValidationErrors(prev => ({
@@ -349,20 +446,8 @@ const ProfilePage = () => {
       [field]: null
     }));
 
-    // Validate based on field type
-    let validationError = null;
-    
-    if (field === 'nationalID') {
-      // CCCD must be exactly 12 digits
-      if (value && !/^\d{12}$/.test(value)) {
-        validationError = 'Số CCCD phải có đúng 12 chữ số';
-      }
-    } else if (field === 'phoneNumber') {
-      // Phone number must be exactly 10 digits
-      if (value && !/^\d{10}$/.test(value)) {
-        validationError = 'Số điện thoại phải có 10 chữ số';
-      }
-    }
+    // Validate the field
+    const validationError = validateField(field, value);
 
     // Set validation error if any
     if (validationError) {
@@ -383,27 +468,27 @@ const ProfilePage = () => {
   // Helper functions for display
   const getBloodTypeDisplay = (bloodTypeID) => {
     const bloodTypeIdValue = bloodTypeID || user?.BloodTypeId || user?.BloodTypeID;
-    
+
     if (!bloodTypeIdValue || bloodTypes.length === 0) return 'Not specified';
-    
+
     const bloodType = bloodTypes.find(bt => bt.id === bloodTypeIdValue || bt.id === parseInt(bloodTypeIdValue));
     return bloodType ? bloodType.name : 'Not specified';
   };
 
   const getGenderDisplay = (genderID) => {
     const genderIdValue = genderID || user?.GenderId || user?.GenderID;
-    
+
     if (!genderIdValue || genders.length === 0) return 'Not specified';
-    
+
     const gender = genders.find(g => g.id === genderIdValue || g.id === parseInt(genderIdValue));
     return gender ? gender.name : 'Not specified';
   };
 
   const getOccupationDisplay = (occupationID) => {
     const occupationIdValue = occupationID || user?.OccupationId || user?.OccupationID;
-    
+
     if (!occupationIdValue || occupations.length === 0) return 'Not specified';
-    
+
     const occupation = occupations.find(o => o.id === occupationIdValue || o.id === parseInt(occupationIdValue));
     return occupation ? occupation.name : 'Not specified';
   };
@@ -436,31 +521,31 @@ const ProfilePage = () => {
             <UserOutlined /> Hồ Sơ Cá Nhân
           </Title>
 
-                     {/* Update Required Alert */}
-           {(showUpdateRequired || !isProfileComplete(user)) && user && !isProfileComplete(user) && (
-             <Alert
-               message="Cập nhật thông tin cá nhân cần thiết"
-               description="Để có thể đăng ký hiến máu, vui lòng cập nhật đầy đủ thông tin cá nhân của bạn bao gồm: họ tên, số điện thoại, địa chỉ, ngày sinh, giới tính và nhóm máu."
-               type="warning"
-               icon={<ExclamationCircleOutlined />}
-               showIcon
-               style={{ marginBottom: 24 }}
-             />
-           )}
+          {/* Update Required Alert */}
+          {(showUpdateRequired || !isProfileComplete(user)) && user && !isProfileComplete(user) && (
+            <Alert
+              message="Cập nhật thông tin cá nhân cần thiết"
+              description="Để có thể đăng ký hiến máu, vui lòng cập nhật đầy đủ thông tin cá nhân của bạn bao gồm: họ tên, số điện thoại, địa chỉ, ngày sinh, giới tính và nhóm máu."
+              type="warning"
+              icon={<ExclamationCircleOutlined />}
+              showIcon
+              style={{ marginBottom: 24 }}
+            />
+          )}
 
           <Row gutter={[24, 24]}>
             {/* Profile Header Card */}
             <Col span={24}>
               <Card className="profile-header-card">
                 <div className="profile-header">                  <Avatar
-                    size={120}
-                    src={user.picture || "/images/huy.png"} // Use Google profile picture if available
-                    icon={<UserOutlined />}
-                    className="profile-avatar"
-                  />
+                  size={120}
+                  src={user.picture || "/images/huy.png"} // Use Google profile picture if available
+                  icon={<UserOutlined />}
+                  className="profile-avatar"
+                />
                   <div className="profile-header-info">                    <Title level={3} className="profile-name">
-                      {user.FullName || user.name || 'Full Name'}
-                    </Title>
+                    {user.FullName || user.name || 'Full Name'}
+                  </Title>
                     <Text className="profile-username">@{user.UserName || user.email?.split('@')[0] || 'username'}</Text>                    <div className="profile-tags">
                       <Tag color="blue">
                         Nhóm máu: {getBloodTypeDisplay(user.BloodTypeID)}
@@ -490,68 +575,92 @@ const ProfilePage = () => {
             {/* Personal Information */}
             <Col xs={24} lg={12}>
               <Card title="Thông Tin Cá Nhân" className="profile-info-card">
-                <Descriptions column={1} size="middle">                  <Descriptions.Item 
-                    label={<span><UserOutlined /> Họ và Tên</span>}
-                  >
-                    {!editMode ? (
-                      user.FullName || user.name || 'Not specified'
-                    ) : (
-                      <Input 
+                <Descriptions column={1} size="middle">                  <Descriptions.Item
+                  label={<span><UserOutlined /> Họ và Tên</span>}
+                >
+                  {!editMode ? (
+                    user.FullName || user.name || 'Not specified'
+                  ) : (
+                    <div>
+                      <Input
                         value={editValues.fullName || ''}
                         onChange={(e) => handleFieldChange('fullName', e.target.value)}
-                        placeholder="Enter full name"
+                        placeholder="Nhập họ và tên"
+                        status={validationErrors.fullName ? 'error' : ''}
                       />
-                    )}                  </Descriptions.Item>
-                  <Descriptions.Item 
+                      {validationErrors.fullName && (
+                        <Text type="danger" style={{ fontSize: '12px' }}>
+                          {validationErrors.fullName}
+                        </Text>
+                      )}
+                    </div>
+                  )}                  </Descriptions.Item>
+                  <Descriptions.Item
                     label={<span><CalendarOutlined /> Ngày Sinh</span>}
                   >
                     {!editMode ? (
                       user.DateOfBirth ? dayjs(user.DateOfBirth).format('DD/MM/YYYY') : 'Not specified'
                     ) : (
-                      <DatePicker 
-                        value={editValues.dateOfBirth ? dayjs(editValues.dateOfBirth) : null}
-                        onChange={(date) => handleFieldChange('dateOfBirth', date ? date.format('YYYY-MM-DD') : null)}
-                        placeholder="Select date of birth"
-                        style={{ width: '100%' }}
-                        format="DD/MM/YYYY"
-                      />
+                      <div>
+                        <DatePicker
+                          value={editValues.dateOfBirth ? dayjs(editValues.dateOfBirth) : null}
+                          onChange={(date) => handleFieldChange('dateOfBirth', date ? date.format('YYYY-MM-DD') : null)}
+                          placeholder="Chọn ngày sinh"
+                          style={{ width: '100%' }}
+                          format="DD/MM/YYYY"
+                          status={validationErrors.dateOfBirth ? 'error' : ''}
+                        />
+                        {validationErrors.dateOfBirth && (
+                          <Text type="danger" style={{ fontSize: '12px' }}>
+                            {validationErrors.dateOfBirth}
+                          </Text>
+                        )}
+                      </div>
                     )}
                   </Descriptions.Item>
-                  <Descriptions.Item 
+                  <Descriptions.Item
                     label={<span><TeamOutlined /> Giới Tính</span>}
                   >
                     {!editMode ? (
                       getGenderDisplay(user.GenderId || user.GenderID)
                     ) : (
                       genders.length > 0 ? (
-                        <Select 
-                          key={`gender-select-${genders.length}-${editValues.genderID}`}
-                          value={editValues.genderID}
-                          onChange={(value) => handleFieldChange('genderID', value)}
-                          placeholder="Select gender"
-                          style={{ width: '100%' }}
-                        >
-                          {genders.map(gender => (
-                            <Option key={gender.id} value={gender.id}>
-                              {gender.name}
-                            </Option>
-                          ))}
-                        </Select>
+                        <div>
+                          <Select
+                            key={`gender-select-${genders.length}-${editValues.genderID}`}
+                            value={editValues.genderID}
+                            onChange={(value) => handleFieldChange('genderID', value)}
+                            placeholder="Chọn giới tính"
+                            style={{ width: '100%' }}
+                            status={validationErrors.genderID ? 'error' : ''}
+                          >
+                            {genders.map(gender => (
+                              <Option key={gender.id} value={gender.id}>
+                                {gender.name}
+                              </Option>
+                            ))}
+                          </Select>
+                          {validationErrors.genderID && (
+                            <Text type="danger" style={{ fontSize: '12px' }}>
+                              {validationErrors.genderID}
+                            </Text>
+                          )}
+                        </div>
                       ) : (
                         <Select placeholder="Loading genders..." disabled style={{ width: '100%' }} />
                       )
                     )}
-                  </Descriptions.Item>                  <Descriptions.Item 
+                  </Descriptions.Item>                  <Descriptions.Item
                     label={<span><IdcardOutlined /> Số CMND/CCCD</span>}
                   >
                     {!editMode ? (
                       user.NationalId || user.NationalID || 'Not specified'
                     ) : (
                       <div>
-                        <Input 
+                        <Input
                           value={editValues.nationalID || ''}
                           onChange={(e) => handleFieldChange('nationalID', e.target.value)}
-                          placeholder="Enter national ID (12 digits)"
+                          placeholder="Nhập số CCCD (12 chữ số)"
                           status={validationErrors.nationalID ? 'error' : ''}
                           maxLength={12}
                         />
@@ -563,63 +672,87 @@ const ProfilePage = () => {
                       </div>
                     )}
                   </Descriptions.Item>
-                  <Descriptions.Item 
+                  <Descriptions.Item
                     label={<span><EnvironmentOutlined /> Địa Chỉ</span>}
                   >
                     {!editMode ? (
                       user.Address || 'Not specified'
                     ) : (
-                      <Input.TextArea 
-                        value={editValues.address || ''}
-                        onChange={(e) => handleFieldChange('address', e.target.value)}
-                        placeholder="Enter address"
-                        rows={2}
-                      />
+                      <div>
+                        <Input.TextArea
+                          value={editValues.address || ''}
+                          onChange={(e) => handleFieldChange('address', e.target.value)}
+                          placeholder="Nhập địa chỉ"
+                          rows={2}
+                          status={validationErrors.address ? 'error' : ''}
+                        />
+                        {validationErrors.address && (
+                          <Text type="danger" style={{ fontSize: '12px' }}>
+                            {validationErrors.address}
+                          </Text>
+                        )}
+                      </div>
                     )}                  </Descriptions.Item>
-                  <Descriptions.Item 
+                  <Descriptions.Item
                     label={<span><BankOutlined /> Nghề Nghiệp</span>}
                   >
                     {!editMode ? (
                       getOccupationDisplay(user.OccupationId || user.OccupationID)
                     ) : (
                       occupations.length > 0 ? (
-                        <Select 
-                          key={`occupation-select-${occupations.length}-${editValues.occupationID}`}
-                          value={editValues.occupationID}
-                          onChange={(value) => handleFieldChange('occupationID', value)}
-                          placeholder="Select occupation"
-                          style={{ width: '100%' }}
-                        >
-                          {occupations.map(occupation => (
-                            <Option key={occupation.id} value={occupation.id}>
-                              {occupation.name}
-                            </Option>
-                          ))}
-                        </Select>
+                        <div>
+                          <Select
+                            key={`occupation-select-${occupations.length}-${editValues.occupationID}`}
+                            value={editValues.occupationID}
+                            onChange={(value) => handleFieldChange('occupationID', value)}
+                            placeholder="Chọn nghề nghiệp"
+                            style={{ width: '100%' }}
+                            status={validationErrors.occupationID ? 'error' : ''}
+                          >
+                            {occupations.map(occupation => (
+                              <Option key={occupation.id} value={occupation.id}>
+                                {occupation.name}
+                              </Option>
+                            ))}
+                          </Select>
+                          {validationErrors.occupationID && (
+                            <Text type="danger" style={{ fontSize: '12px' }}>
+                              {validationErrors.occupationID}
+                            </Text>
+                          )}
+                        </div>
                       ) : (
                         <Select placeholder="Loading occupations..." disabled style={{ width: '100%' }} />
-                      )                    )}
+                      ))}
                   </Descriptions.Item>
-                  <Descriptions.Item 
+                  <Descriptions.Item
                     label={<span><HeartOutlined /> Nhóm Máu</span>}
                   >
                     {!editMode ? (
                       getBloodTypeDisplay(user.BloodTypeId || user.BloodTypeID)
                     ) : (
                       bloodTypes.length > 0 ? (
-                        <Select 
-                          key={`bloodtype-select-${bloodTypes.length}-${editValues.bloodTypeID}`}
-                          value={editValues.bloodTypeID}
-                          onChange={(value) => handleFieldChange('bloodTypeID', value)}
-                          placeholder="Select blood type"
-                          style={{ width: '100%' }}
-                        >
-                          {bloodTypes.map(bloodType => (
-                            <Option key={bloodType.id} value={bloodType.id}>
-                              {bloodType.name}
-                            </Option>
-                          ))}
-                        </Select>
+                        <div>
+                          <Select
+                            key={`bloodtype-select-${bloodTypes.length}-${editValues.bloodTypeID}`}
+                            value={editValues.bloodTypeID}
+                            onChange={(value) => handleFieldChange('bloodTypeID', value)}
+                            placeholder="Chọn nhóm máu"
+                            style={{ width: '100%' }}
+                            status={validationErrors.bloodTypeID ? 'error' : ''}
+                          >
+                            {bloodTypes.map(bloodType => (
+                              <Option key={bloodType.id} value={bloodType.id}>
+                                {bloodType.name}
+                              </Option>
+                            ))}
+                          </Select>
+                          {validationErrors.bloodTypeID && (
+                            <Text type="danger" style={{ fontSize: '12px' }}>
+                              {validationErrors.bloodTypeID}
+                            </Text>
+                          )}
+                        </div>
                       ) : (
                         <Select placeholder="Loading blood types..." disabled style={{ width: '100%' }} />
                       )
@@ -632,33 +765,33 @@ const ProfilePage = () => {
             {/* Contact & Account Information */}
             <Col xs={24} lg={12}>
               <Card title="Thông Tin Liên Hệ" className="profile-info-card">
-                <Descriptions column={1} size="middle">                  <Descriptions.Item 
-                    label={<span><MailOutlined /> Email</span>}
-                  >
-                    <span style={{ color: editMode ? '#999' : 'inherit' }}>
-                      {user.Email || user.email || 'Not specified'}
-                    </span>
-                    {editMode && (
-                      <Text type="secondary" style={{ fontSize: '12px', marginLeft: '8px' }}>
-                        (Không thể chỉnh sửa)
-                      </Text>
-                    )}
-                  </Descriptions.Item>
-                  <Descriptions.Item 
+                <Descriptions column={1} size="middle">                  <Descriptions.Item
+                  label={<span><MailOutlined /> Email</span>}
+                >
+                  <span style={{ color: editMode ? '#999' : 'inherit' }}>
+                    {user.Email || user.email || 'Not specified'}
+                  </span>
+                  {editMode && (
+                    <Text type="secondary" style={{ fontSize: '12px', marginLeft: '8px' }}>
+                      (Không thể chỉnh sửa)
+                    </Text>
+                  )}
+                </Descriptions.Item>
+                  <Descriptions.Item
                     label={<span><UserOutlined /> Username</span>}
                   >
                     {user.Username || user.UserName || user.email?.split('@')[0] || 'Not specified'}
-                  </Descriptions.Item>                  <Descriptions.Item 
+                  </Descriptions.Item>                  <Descriptions.Item
                     label={<span><PhoneOutlined /> Số Điện Thoại</span>}
                   >
                     {!editMode ? (
                       user.PhoneNumber || 'Not specified'
                     ) : (
                       <div>
-                        <Input 
+                        <Input
                           value={editValues.phoneNumber || ''}
                           onChange={(e) => handleFieldChange('phoneNumber', e.target.value)}
-                          placeholder="Enter phone number (10 digits)"
+                          placeholder="Nhập số điện thoại (10 chữ số)"
                           status={validationErrors.phoneNumber ? 'error' : ''}
                           maxLength={10}
                         />
