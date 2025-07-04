@@ -16,6 +16,7 @@ import CheckinPage from './pages/CheckinPage';
 
 import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
 import UserManagementPage from './admin/pages/UserManagementPage';
+import StaffManagementPage from './admin/pages/StaffManagementPage';
 import BloodBagManagementPage from './admin/pages/BloodBagManagementPage';
 import DonationRecordsPage from './admin/pages/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
@@ -78,6 +79,11 @@ function App() {
             <Route path="/staff/user-management" element={
               <AdminProtectedRoute>
                 <UserManagementPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/staff-management" element={
+              <AdminProtectedRoute>
+                <StaffManagementPage />
               </AdminProtectedRoute>
             } />
             <Route path="/staff/blood-bag-management" element={

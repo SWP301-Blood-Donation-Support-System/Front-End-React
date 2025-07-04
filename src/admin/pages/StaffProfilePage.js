@@ -27,6 +27,7 @@ import {
   TeamOutlined,
   BankOutlined,
   HeartOutlined,
+  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { UserAPI } from '../../api/User';
@@ -181,6 +182,10 @@ const StaffProfilePage = () => {
     fetchGenders();
     fetchOccupations();
   }, [navigate]);
+
+  const handleBackToSchedule = () => {
+    navigate('/staff/schedule-management');
+  };
 
   const handleEditProfile = () => {
     if (!user) {
@@ -481,9 +486,25 @@ const StaffProfilePage = () => {
         <Layout className="staff-content-layout">
           <Content className="staff-content" style={{ padding: '0 48px' }}>
             <div className="profile-container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-              <Title level={2} className="profile-title">
-                <UserOutlined /> Hồ Sơ Nhân Viên
-              </Title>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <Button 
+                  type="text" 
+                  icon={<ArrowLeftOutlined />} 
+                  onClick={handleBackToSchedule}
+                  style={{ 
+                    marginRight: '16px',
+                    color: '#dc2626',
+                    fontWeight: '600',
+                    border: 'none',
+                    background: 'transparent'
+                  }}
+                >
+                  Quay Lại
+                </Button>
+                <Title level={2} className="profile-title" style={{ margin: 0 }}>
+                  <UserOutlined /> Hồ Sơ Nhân Viên
+                </Title>
+              </div>
 
               <Row gutter={[24, 24]}>
                 <Col span={24}>
