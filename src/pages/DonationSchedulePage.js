@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Card, 
-  Row, 
-  Col, 
-  Typography, 
-  Tag, 
-  Button, 
+  Card,
+  Row,
+  Col,
+  Typography,
+  Tag,
+  Button,
   Space,
   Spin,
   message,
@@ -40,11 +40,11 @@ const DonationSchedulePage = () => {
   const [api, contextHolder] = notification.useNotification();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   // State for donation info
   const [donationInfo, setDonationInfo] = useState(null);
   const [donationInfoLoading, setDonationInfoLoading] = useState(false);
-  
+
   // Schedule related states
   const [registrations, setRegistrations] = useState([]);
   const [registrationsLoading, setRegistrationsLoading] = useState(false);
@@ -53,7 +53,7 @@ const DonationSchedulePage = () => {
   const [donationSchedule, setDonationSchedule] = useState([]);
   const [donationTypes, setDonationTypes] = useState({});
   const [bloodTestResults, setBloodTestResults] = useState({});
-  
+
   // Modal states
   const [selectedDonationRecord, setSelectedDonationRecord] = useState(null);
   const [selectedRegistrationForDetail, setSelectedRegistrationForDetail] = useState(null);
@@ -66,7 +66,7 @@ const DonationSchedulePage = () => {
   const [feedbackViewVisible, setFeedbackViewVisible] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [feedbackExistence, setFeedbackExistence] = useState({});
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const notificationShown = useRef(false);
@@ -93,32 +93,32 @@ const DonationSchedulePage = () => {
 
   const getLastCompletedDonationDate = () => {
     if (!registrations || registrations.length === 0) return null;
-    
+
     // Get all completed registrations
     const completedRegistrations = registrations.filter(registration => registration.registrationStatusId === 3);
-    
+
     if (completedRegistrations.length === 0) return null;
-    
+
     // Get the latest donation date from completed registrations
     let latestDate = null;
-    
+
     completedRegistrations.forEach(registration => {
-      const scheduleId = registration.scheduleId || 
-                        registration.ScheduleId || 
-                        registration.scheduleID || 
-                        registration.ScheduleID ||
-                        registration.donationScheduleId ||
-                        registration.DonationScheduleId;
-      
+      const scheduleId = registration.scheduleId ||
+        registration.ScheduleId ||
+        registration.scheduleID ||
+        registration.ScheduleID ||
+        registration.donationScheduleId ||
+        registration.DonationScheduleId;
+
       if (scheduleId && donationSchedule && donationSchedule.length > 0) {
-        const schedule = donationSchedule.find(s => 
-          s.id === scheduleId || 
-          s.scheduleId === scheduleId || 
+        const schedule = donationSchedule.find(s =>
+          s.id === scheduleId ||
+          s.scheduleId === scheduleId ||
           s.ScheduleId === scheduleId ||
           s.donationScheduleId === scheduleId ||
           s.DonationScheduleId === scheduleId
         );
-        
+
         if (schedule) {
           const dateField = schedule.donationDate || schedule.DonationDate || schedule.scheduleDate || schedule.ScheduleDate;
           if (dateField) {
@@ -130,7 +130,7 @@ const DonationSchedulePage = () => {
         }
       }
     });
-    
+
     return latestDate;
   };
 
@@ -138,10 +138,10 @@ const DonationSchedulePage = () => {
   const fetchDonationInfo = async () => {
     try {
       setDonationInfoLoading(true);
-      
+
       const userInfo = JSON.parse(localStorage.getItem("userInfo"));
       const userId = userInfo?.userId || userInfo?.UserId || userInfo?.UserID || userInfo?.id;
-      
+
       if (!userInfo || !userId) {
         if (userInfo) {
           const fallbackData = {
@@ -155,7 +155,7 @@ const DonationSchedulePage = () => {
       }
 
       const response = await UserAPI.getUserById(userId);
-      
+
       if (response.status === 200 && response.data) {
         const userData = response.data;
         const newDonationInfo = {
@@ -192,18 +192,18 @@ const DonationSchedulePage = () => {
   const checkFeedbackExistence = async (registrationsList) => {
     try {
       const feedbackChecks = {};
-      
+
       for (const registration of registrationsList) {
         if (registration.registrationStatusId === 3) {
           try {
             const response = await UserAPI.getFeedbackByRegistrationId(registration.registrationId);
             // Check if response has actual feedback data, not just empty array or null
-            const hasValidFeedback = response.status === 200 && 
-                                   response.data && 
-                                   (Array.isArray(response.data) ? response.data.length > 0 : true) &&
-                                   response.data !== null &&
-                                   response.data !== undefined;
-            
+            const hasValidFeedback = response.status === 200 &&
+              response.data &&
+              (Array.isArray(response.data) ? response.data.length > 0 : true) &&
+              response.data !== null &&
+              response.data !== undefined;
+
             feedbackChecks[registration.registrationId] = hasValidFeedback;
             console.log(`Feedback check for registration ${registration.registrationId}: response =`, response.data, `exists = ${hasValidFeedback}`);
           } catch (error) {
@@ -212,7 +212,7 @@ const DonationSchedulePage = () => {
           }
         }
       }
-      
+
       console.log('Feedback existence state:', feedbackChecks);
       setFeedbackExistence(feedbackChecks);
     } catch (error) {
@@ -226,33 +226,33 @@ const DonationSchedulePage = () => {
       // Check navigation state first
       if (location.state?.donationRegistrationNotification && !notificationShown.current) {
         notificationShown.current = true;
-        
+
         api.success({
           message: location.state.donationRegistrationNotification.message,
           description: location.state.donationRegistrationNotification.description,
           placement: 'topRight',
           duration: 4,
         });
-        
+
         // Clear the notification from state to prevent showing it again
         setTimeout(() => {
-          navigate(location.pathname, { 
-            state: { ...location.state, donationRegistrationNotification: null }, 
-            replace: true 
+          navigate(location.pathname, {
+            state: { ...location.state, donationRegistrationNotification: null },
+            replace: true
           });
         }, 100);
       }
       // Fallback: Check sessionStorage if state is not available
       else if (sessionStorage.getItem('showDonationSuccessNotification') === 'true' && !notificationShown.current) {
         notificationShown.current = true;
-        
+
         api.success({
           message: 'Đăng ký hiến máu thành công!',
           description: 'Cảm ơn bạn đã đăng ký hiến máu, vui lòng kiểm tra email',
           placement: 'topRight',
           duration: 4,
         });
-        
+
         // Clear the sessionStorage flag
         sessionStorage.removeItem('showDonationSuccessNotification');
       }
@@ -366,17 +366,17 @@ const DonationSchedulePage = () => {
   const fetchRegistrations = async () => {
     try {
       setRegistrationsLoading(true);
-      
+
       const userInfo = JSON.parse(localStorage.getItem("userInfo"));
       const userId = userInfo?.userId || userInfo?.UserId || userInfo?.UserID || userInfo?.id;
-      
+
       if (!userId) {
         console.error("No user ID found for fetching registrations");
         return;
       }
 
       const response = await UserAPI.getDonationRegistrationsByDonorId(userId);
-      
+
       if (response.status === 200) {
         const registrationsList = response.data || [];
         setRegistrations(registrationsList);
@@ -394,20 +394,20 @@ const DonationSchedulePage = () => {
     if (!scheduleId || !donationSchedule || donationSchedule.length === 0) {
       return 'N/A';
     }
-    
-    const schedule = donationSchedule.find(s => 
-      s.id === scheduleId || 
-      s.scheduleId === scheduleId || 
+
+    const schedule = donationSchedule.find(s =>
+      s.id === scheduleId ||
+      s.scheduleId === scheduleId ||
       s.ScheduleId === scheduleId ||
       s.donationScheduleId === scheduleId ||
       s.DonationScheduleId === scheduleId
     );
-    
+
     if (schedule) {
       const dateField = schedule.donationDate || schedule.DonationDate || schedule.scheduleDate || schedule.ScheduleDate;
       return formatDate(dateField);
     }
-    
+
     return 'N/A';
   };
 
@@ -415,28 +415,28 @@ const DonationSchedulePage = () => {
     if (!selectedRegistrationForDetail) {
       return 'N/A';
     }
-    
-    const scheduleId = selectedRegistrationForDetail.scheduleId || 
-                      selectedRegistrationForDetail.ScheduleId || 
-                      selectedRegistrationForDetail.scheduleID || 
-                      selectedRegistrationForDetail.ScheduleID ||
-                      selectedRegistrationForDetail.donationScheduleId ||
-                      selectedRegistrationForDetail.DonationScheduleId;
-    
-    const timeslotId = selectedRegistrationForDetail.timeslotId || 
-                      selectedRegistrationForDetail.timeSlotId || 
-                      selectedRegistrationForDetail.TimeslotId || 
-                      selectedRegistrationForDetail.TimeSlotId;
-    
+
+    const scheduleId = selectedRegistrationForDetail.scheduleId ||
+      selectedRegistrationForDetail.ScheduleId ||
+      selectedRegistrationForDetail.scheduleID ||
+      selectedRegistrationForDetail.ScheduleID ||
+      selectedRegistrationForDetail.donationScheduleId ||
+      selectedRegistrationForDetail.DonationScheduleId;
+
+    const timeslotId = selectedRegistrationForDetail.timeslotId ||
+      selectedRegistrationForDetail.timeSlotId ||
+      selectedRegistrationForDetail.TimeslotId ||
+      selectedRegistrationForDetail.TimeSlotId;
+
     const scheduleDate = getScheduleDateById(scheduleId);
     const timeSlot = getTimeSlotDisplay(timeslotId);
-    
+
     if (scheduleDate !== 'N/A' && timeSlot !== 'N/A') {
       return `${scheduleDate} ${timeSlot}`;
     } else if (scheduleDate !== 'N/A') {
       return scheduleDate;
     }
-    
+
     return 'N/A';
   };
 
@@ -466,10 +466,10 @@ const DonationSchedulePage = () => {
   const handleDownloadCertificate = async (registrationId) => {
     try {
       setCertificateDownloading(true);
-      
+
       const userInfo = JSON.parse(localStorage.getItem("userInfo"));
       const userName = userInfo?.FullName || userInfo?.name || 'User';
-      
+
       const removeVietnameseDiacritics = (str) => {
         return str
           .normalize('NFD')
@@ -478,12 +478,12 @@ const DonationSchedulePage = () => {
           .replace(/[^a-zA-Z0-9 ]/g, '')
           .replace(/\s+/g, '_');
       };
-      
+
       const sanitizedUserName = removeVietnameseDiacritics(userName);
       const fileName = `Certificate_${sanitizedUserName}_${registrationId}.pdf`;
-      
+
       const response = await UserAPI.getCertificateByRegistrationId(registrationId);
-      
+
       if (response.status === 200) {
         const blob = new Blob([response.data], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
@@ -494,7 +494,7 @@ const DonationSchedulePage = () => {
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        
+
         api.success({
           message: 'Tải xuống thành công!',
           description: 'Chứng nhận hiến máu đã được tải xuống',
@@ -520,7 +520,7 @@ const DonationSchedulePage = () => {
       case 1:
         return 'blue';
       case 2:
-        return 'orange';  
+        return 'orange';
       case 3:
         return 'green';
       case 4:
@@ -541,27 +541,27 @@ const DonationSchedulePage = () => {
     if (!timeslotId || !timeSlots || timeSlots.length === 0) {
       return 'N/A';
     }
-    
-    const timeSlot = timeSlots.find(slot => 
-      slot.id === timeslotId || 
+
+    const timeSlot = timeSlots.find(slot =>
+      slot.id === timeslotId ||
       slot.timeslotId === timeslotId ||
       slot.TimeSlotId === timeslotId ||
       slot.timeSlotId === timeslotId
     );
-    
+
     if (timeSlot) {
       const startTime = timeSlot.startTime || timeSlot.StartTime;
       const endTime = timeSlot.endTime || timeSlot.EndTime;
-      
+
       if (startTime && endTime) {
         const formattedStart = startTime.substring(0, 5);
         const formattedEnd = endTime.substring(0, 5);
         return `${formattedStart} - ${formattedEnd}`;
       }
-      
+
       return timeSlot.name || timeSlot.timeRange || 'N/A';
     }
-    
+
     return 'N/A';
   };
 
@@ -569,22 +569,22 @@ const DonationSchedulePage = () => {
     try {
       const userInfo = JSON.parse(localStorage.getItem("userInfo"));
       const userId = userInfo?.userId || userInfo?.UserId || userInfo?.UserID || userInfo?.id;
-      
+
       if (!userId) {
         console.error("No user ID found for fetching donation records");
         return null;
       }
 
       const response = await UserAPI.getDonationRecordsByDonorId(userId);
-      
+
       if (response.status === 200) {
         const records = response.data || [];
-        
+
         // Find the record that matches the registration ID
-        const record = records.find(record => 
+        const record = records.find(record =>
           (record.registrationId || record.RegistrationId) === registrationId
         );
-        
+
         return record || null;
       }
       return null;
@@ -601,7 +601,7 @@ const DonationSchedulePage = () => {
   const getBloodTestResultTag = (resultId) => {
     const result = bloodTestResults[resultId];
     if (!result) return <Tag>N/A</Tag>;
-    
+
     let color = 'default';
     switch (result.name?.toLowerCase()) {
       case 'qualified':
@@ -615,7 +615,7 @@ const DonationSchedulePage = () => {
       default:
         color = 'orange';
     }
-    
+
     return <Tag color={color}>{result.name}</Tag>;
   };
 
@@ -635,11 +635,11 @@ const DonationSchedulePage = () => {
   const handleViewDonationDetail = async (registrationId) => {
     try {
       const donationRecord = await getDonationRecordByRegistrationId(registrationId);
-      
+
       if (donationRecord) {
         // Find the registration to get schedule info
         const registration = registrations.find(reg => reg.registrationId === registrationId);
-        
+
         setSelectedDonationRecord(donationRecord);
         setSelectedRegistrationForDetail(registration);
         setDonationDetailVisible(true);
@@ -670,10 +670,10 @@ const DonationSchedulePage = () => {
 
   const handleOpenFeedback = async (registrationId) => {
     setSelectedRegistrationId(registrationId);
-    
+
     const feedbackExists = feedbackExistence[registrationId];
     console.log(`Opening feedback for registration ${registrationId}: feedbackExists = ${feedbackExists}`);
-    
+
     if (feedbackExists) {
       console.log('Opening view feedback modal');
       await handleViewFeedback(registrationId);
@@ -694,14 +694,14 @@ const DonationSchedulePage = () => {
     try {
       const response = await UserAPI.getFeedbackByRegistrationId(registrationId);
       console.log('View feedback response:', response);
-      
+
       // Check if response has valid feedback data
-      const hasValidFeedback = response.status === 200 && 
-                             response.data && 
-                             (Array.isArray(response.data) ? response.data.length > 0 : true) &&
-                             response.data !== null &&
-                             response.data !== undefined;
-      
+      const hasValidFeedback = response.status === 200 &&
+        response.data &&
+        (Array.isArray(response.data) ? response.data.length > 0 : true) &&
+        response.data !== null &&
+        response.data !== undefined;
+
       if (hasValidFeedback) {
         const feedbackData = Array.isArray(response.data) ? response.data[0] : response.data;
         // Additional check to ensure feedbackData has actual content
@@ -774,15 +774,15 @@ const DonationSchedulePage = () => {
       setFeedbackLoading(true);
 
       const response = await UserAPI.submitFeedback(feedbackText, selectedRegistrationId);
-      
+
       if (response.status === 200 || response.status === 201) {
         setFeedbackExistence(prev => ({
           ...prev,
           [selectedRegistrationId]: true
         }));
-        
+
         handleCloseFeedback();
-        
+
         api.success({
           message: 'Gửi phản hồi thành công!',
           description: 'Cảm ơn bạn đã gửi phản hồi cho chúng tôi',
@@ -882,7 +882,7 @@ const DonationSchedulePage = () => {
                       </div>
                     </div>
                   </Col>
-                  
+
                   <Col xs={24} sm={8}>
                     <div className="donation-stat">
                       <div className="stat-icon">
@@ -903,7 +903,7 @@ const DonationSchedulePage = () => {
                       </div>
                     </div>
                   </Col>
-                  
+
                   <Col xs={24} sm={8}>
                     <div className="donation-stat">
                       <div className="stat-icon">
@@ -920,7 +920,7 @@ const DonationSchedulePage = () => {
                           </span>
                           {(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate) ? (
                             <span className="stat-tag">
-                              {new Date(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate) > new Date() 
+                              {new Date(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate) > new Date()
                                 ? (
                                   <Tag color="orange">
                                     Cần chờ thêm {Math.ceil((new Date(donationInfo?.nextEligibleDonationDate || user?.nextEligibleDonationDate || user?.NextEligibleDonationDate) - new Date()) / (1000 * 60 * 60 * 24))} ngày
@@ -938,7 +938,7 @@ const DonationSchedulePage = () => {
                     </div>
                   </Col>
                 </Row>
-                
+
                 {/* Additional donation availability notice */}
                 {user.nextEligibleDonationDate || user.NextEligibleDonationDate ? (
                   <Alert
@@ -1035,22 +1035,22 @@ const DonationSchedulePage = () => {
                           render: (_, record) => {
                             const statusId = record.registrationStatusId;
                             const registrationId = record.registrationId;
-                            
+
                             const status = registrationStatuses.find(s => s.id === statusId);
-                            const isCompleted = statusId === 3 || 
-                                              (status && status.name && status.name.toLowerCase().includes('hoàn thành'));
+                            const isCompleted = statusId === 3 ||
+                              (status && status.name && status.name.toLowerCase().includes('hoàn thành'));
 
                             if (isCompleted) {
                               return (
                                 <Space direction="vertical" size="small">
-                                  <Button 
+                                  <Button
                                     type="primary"
                                     size="small"
                                     onClick={() => handleViewDonationDetail(registrationId)}
                                   >
                                     Xem chi tiết
                                   </Button>
-                                  <Button 
+                                  <Button
                                     type="default"
                                     size="small"
                                     icon={<DownloadOutlined />}
@@ -1077,23 +1077,23 @@ const DonationSchedulePage = () => {
                           render: (_, record) => {
                             const statusId = record.registrationStatusId;
                             const registrationId = record.registrationId;
-                            
+
                             const status = registrationStatuses.find(s => s.id === statusId);
-                            const isCompleted = statusId === 3 || 
-                                              (status && status.name && status.name.toLowerCase().includes('hoàn thành'));
-                            
+                            const isCompleted = statusId === 3 ||
+                              (status && status.name && status.name.toLowerCase().includes('hoàn thành'));
+
                             if (isCompleted) {
                               const feedbackExists = feedbackExistence[registrationId];
                               const buttonText = feedbackExists ? 'Xem phản hồi' : 'Gửi phản hồi';
                               const buttonIcon = feedbackExists ? <EyeOutlined /> : <CommentOutlined />;
-                              
+
                               return (
-                                <Button 
+                                <Button
                                   type="default"
                                   size="small"
                                   icon={buttonIcon}
                                   onClick={() => handleOpenFeedback(registrationId)}
-                                  style={{ 
+                                  style={{
                                     color: feedbackExists ? '#52c41a' : '#1890ff',
                                     borderColor: feedbackExists ? '#52c41a' : '#1890ff'
                                   }}
@@ -1117,9 +1117,9 @@ const DonationSchedulePage = () => {
                           render: (_, record) => {
                             const statusId = record.registrationStatusId;
                             const registrationId = record.registrationId;
-                            
+
                             const canCancel = statusId === 1;
-                            
+
                             if (canCancel) {
                               return (
                                 <Popconfirm
@@ -1130,8 +1130,8 @@ const DonationSchedulePage = () => {
                                   cancelText="Không"
                                   okButtonProps={{ danger: true }}
                                 >
-                                  <Button 
-                                    type="primary" 
+                                  <Button
+                                    type="primary"
                                     danger
                                     size="small"
                                     icon={<DeleteOutlined />}
@@ -1172,8 +1172,8 @@ const DonationSchedulePage = () => {
                         </Text>
                       </div>
                       <div className="placeholder-actions">
-                        <Button 
-                          type="primary" 
+                        <Button
+                          type="primary"
                           size="large"
                           onClick={() => navigate('/booking')}
                           style={{ marginTop: '16px' }}
@@ -1214,7 +1214,7 @@ const DonationSchedulePage = () => {
                 </div>
               </Col>
             </Row>
-            
+
             <Row gutter={[24, 16]}>
               <Col span={8}>
                 <div className="form-field">
@@ -1243,9 +1243,9 @@ const DonationSchedulePage = () => {
                 </div>
               </Col>
             </Row>
-            
+
             <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
-            
+
             <Row gutter={[24, 16]}>
               <Col span={12}>
                 <div className="form-field">
@@ -1265,9 +1265,9 @@ const DonationSchedulePage = () => {
                 </div>
               </Col>
             </Row>
-            
+
             <Divider orientation="left">KẾT LUẬN</Divider>
-            
+
             <Row gutter={[24, 16]}>
               <Col span={12}>
                 <div className="form-field">
@@ -1305,9 +1305,9 @@ const DonationSchedulePage = () => {
           <Button key="cancel" onClick={handleCloseFeedback}>
             Hủy
           </Button>,
-          <Button 
-            key="submit" 
-            type="primary" 
+          <Button
+            key="submit"
+            type="primary"
             loading={feedbackLoading}
             onClick={handleSubmitFeedback}
             icon={<CommentOutlined />}
@@ -1318,9 +1318,9 @@ const DonationSchedulePage = () => {
         width={600}
       >
         <div style={{ padding: '16px 0' }}>
-          <Text style={{ 
-            display: 'block', 
-            marginBottom: '16px', 
+          <Text style={{
+            display: 'block',
+            marginBottom: '16px',
             color: '#666',
             fontSize: '14px'
           }}>
@@ -1338,9 +1338,9 @@ const DonationSchedulePage = () => {
               borderRadius: '8px'
             }}
           />
-          <div style={{ 
-            marginTop: '12px', 
-            fontSize: '12px', 
+          <div style={{
+            marginTop: '12px',
+            fontSize: '12px',
             color: '#999',
             display: 'flex',
             alignItems: 'center',
@@ -1375,31 +1375,31 @@ const DonationSchedulePage = () => {
               <Text style={{ color: '#666', fontSize: '14px', display: 'block', marginBottom: '8px' }}>
                 Nội dung phản hồi:
               </Text>
-              <div style={{ 
-                background: '#f5f5f5', 
-                padding: '16px', 
+              <div style={{
+                background: '#f5f5f5',
+                padding: '16px',
                 borderRadius: '8px',
                 minHeight: '100px',
                 lineHeight: '1.6'
               }}>
                 <Text>
-                  {selectedFeedback.feedbackInfo || 
-                   selectedFeedback.FeedbackInfo ||
-                   selectedFeedback.content || 
-                   selectedFeedback.Content || 
-                   selectedFeedback.feedbackContent || 
-                   selectedFeedback.FeedbackContent ||
-                   selectedFeedback.text ||
-                   selectedFeedback.Text ||
-                   selectedFeedback.message ||
-                   selectedFeedback.Message ||
-                   selectedFeedback.comment ||
-                   selectedFeedback.Comment ||
-                   'Không có nội dung'}
+                  {selectedFeedback.feedbackInfo ||
+                    selectedFeedback.FeedbackInfo ||
+                    selectedFeedback.content ||
+                    selectedFeedback.Content ||
+                    selectedFeedback.feedbackContent ||
+                    selectedFeedback.FeedbackContent ||
+                    selectedFeedback.text ||
+                    selectedFeedback.Text ||
+                    selectedFeedback.message ||
+                    selectedFeedback.Message ||
+                    selectedFeedback.comment ||
+                    selectedFeedback.Comment ||
+                    'Không có nội dung'}
                 </Text>
               </div>
             </div>
-            
+
             <div style={{ marginTop: '16px' }}>
               <Text>
                 <HeartOutlined /> Cảm ơn bạn đã chia sẻ trải nghiệm hiến máu!
@@ -1408,7 +1408,7 @@ const DonationSchedulePage = () => {
           </div>
         )}
       </Modal>
-      
+
       <Footer />
     </Layout>
   );
