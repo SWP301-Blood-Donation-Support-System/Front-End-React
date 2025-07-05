@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Form, Input, Button, Typography, Divider, Alert, message, notification } from 'antd';
-import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import { Layout, Card, Form, Input, Button, Typography, Divider, Alert, message, notification, Modal } from 'antd';
+import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
@@ -15,7 +15,10 @@ const LoginPage = () => {
   const [api, contextHolder] = notification.useNotification();
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [forgotPasswordForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordModalVisible, setForgotPasswordModalVisible] = useState(false);
   const [user, setUser] = useState(null);
   const [loginError, setLoginError] = useState('');
   // Scroll to top when component mounts
@@ -33,6 +36,46 @@ const LoginPage = () => {
       return value !== null && value !== undefined && value !== '';
     });
   };
+
+  // Handle forgot password form submission
+  const handleForgotPassword = async (values) => {
+    try {
+      setForgotPasswordLoading(true);
+      
+      await UserAPI.forgotPassword(values.email);
+      
+      // Show success message
+      api.success({
+        message: 'Email đã được gửi!',
+        description: 'Vui lòng kiểm tra email và làm theo hướng dẫn để đặt lại mật khẩu.',
+        duration: 4.5,
+      });
+      
+      // Close modal and reset form
+      setForgotPasswordModalVisible(false);
+      forgotPasswordForm.resetFields();
+      
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      
+      let errorMessage = 'Có lỗi xảy ra khi gửi email đặt lại mật khẩu.';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Email không tồn tại trong hệ thống.';
+      }
+      
+      api.error({
+        message: 'Gửi email thất bại!',
+        description: errorMessage,
+        duration: 4.5,
+      });
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
   const handleSuccessfulLogin = async (decoded) => {
     try {
       // Store token and user info
@@ -66,7 +109,13 @@ const LoginPage = () => {
       // If there's an error, still redirect but assume profile needs update
       navigate("/profile?updateRequired=true");
     }
-  };  const onFinish = async (values) => {
+  };  // Handle opening forgot password modal
+  const handleOpenForgotPasswordModal = (e) => {
+    e.preventDefault();
+    setForgotPasswordModalVisible(true);
+  };
+
+  const onFinish = async (values) => {
     setLoading(true);
     setLoginError(''); // Clear previous errors
     console.log('Login values:', values);
@@ -184,9 +233,14 @@ const LoginPage = () => {
                 justifyContent: 'flex-end',
                 marginBottom: '16px'
               }}>
-                <Link to="/forgot-password" className="auth-forgot-link">
+                <Button 
+                  type="link" 
+                  onClick={handleOpenForgotPasswordModal} 
+                  className="auth-forgot-link"
+                  style={{ padding: 0, height: 'auto' }}
+                >
                   Quên Mật Khẩu?
-                </Link>
+                </Button>
               </div>
 
               <Button 
@@ -274,6 +328,61 @@ const LoginPage = () => {
           </div>
         </Card>
       </div>
+      
+      {/* Forgot Password Modal */}
+      <Modal
+        title="Quên Mật Khẩu"
+        open={forgotPasswordModalVisible}
+        onCancel={() => {
+          setForgotPasswordModalVisible(false);
+          forgotPasswordForm.resetFields();
+        }}
+        footer={null}
+        width={400}
+      >
+        <Form
+          form={forgotPasswordForm}
+          layout="vertical"
+          onFinish={handleForgotPassword}
+        >
+          <Typography.Paragraph style={{ marginBottom: '20px', color: '#666' }}>
+            Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn một liên kết để đặt lại mật khẩu.
+          </Typography.Paragraph>
+          
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              {
+                required: true,
+                message: 'Vui lòng nhập email!'
+              },
+              {
+                type: 'email',
+                message: 'Email không hợp lệ!'
+              }
+            ]}
+          >
+            <Input
+              prefix={<MailOutlined />}
+              placeholder="Nhập địa chỉ email"
+              size="large"
+            />
+          </Form.Item>
+          
+          <Form.Item>
+            <Button 
+              type="primary" 
+              htmlType="submit"
+              loading={forgotPasswordLoading}
+              block
+              size="large"
+            >
+              Gửi Yêu Cầu
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
       
       <Footer />
     </Layout>

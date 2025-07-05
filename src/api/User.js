@@ -34,6 +34,34 @@ export const UserAPI = {
     });
     return response;
   },
+
+  // Forgot password - send reset email
+  forgotPassword: async (email) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/api/User/forgot-password`, {
+        email: email,
+      });
+      return response;
+    } catch (error) {
+      console.error("Error during forgot password:", error);
+      throw error;
+    }
+  },
+
+  // Reset password with token
+  resetPassword: async (token, newPassword) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/api/User/reset-password`, {
+        token: token,
+        newPassword: newPassword,
+      });
+      return response;
+    } catch (error) {
+      console.error("Error during reset password:", error);
+      throw error;
+    }
+  },
+
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userInfo");
