@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Form, Input, Button, Typography, Alert, notification } from 'antd';
+import { Layout, Card, Form, Input, Button, Typography, notification } from 'antd';
 import { LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
@@ -16,7 +16,6 @@ const ResetPasswordPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState('');
-  const [isValidToken, setIsValidToken] = useState(true);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -27,18 +26,14 @@ const ResetPasswordPage = () => {
     if (tokenFromUrl) {
       setToken(tokenFromUrl);
     } else {
-      // If no token, redirect to login
-      setIsValidToken(false);
+      // If no token, redirect to error page
+      navigate('/reset-password-error');
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const onFinish = async (values) => {
     if (!token) {
-      api.error({
-        message: 'Lỗi!',
-        description: 'Token không hợp lệ. Vui lòng thử lại.',
-        duration: 4.5,
-      });
+      navigate('/reset-password-error');
       return;
     }
 
@@ -47,76 +42,33 @@ const ResetPasswordPage = () => {
     try {
       await UserAPI.resetPassword(token, values.password);
       
-      // Show success message
-      api.success({
-        message: 'Đặt lại mật khẩu thành công!',
-        description: 'Mật khẩu của bạn đã được cập nhật. Bạn có thể đăng nhập với mật khẩu mới.',
-        duration: 4.5,
-      });
-      
-      // Redirect to login page after 2 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      // Redirect to success page
+      navigate('/reset-password-success');
       
     } catch (error) {
       console.error('Reset password error:', error);
       
-      let errorMessage = 'Có lỗi xảy ra khi đặt lại mật khẩu.';
-      
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response?.status === 400) {
-        errorMessage = 'Token đã hết hạn hoặc không hợp lệ.';
-      }
-      
-      api.error({
-        message: 'Đặt lại mật khẩu thất bại!',
-        description: errorMessage,
-        duration: 4.5,
-      });
-      
-      // If token is invalid, redirect to login after showing error
       if (error.response?.status === 400) {
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
+        // Redirect to error page for invalid/expired token
+        navigate('/reset-password-error');
+      } else {
+        // For other errors, show notification
+        let errorMessage = 'Có lỗi xảy ra khi đặt lại mật khẩu.';
+        
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        
+        api.error({
+          message: 'Đặt lại mật khẩu thất bại!',
+          description: errorMessage,
+          duration: 4.5,
+        });
       }
     } finally {
       setLoading(false);
     }
   };
-
-  if (!isValidToken) {
-    return (
-      <Layout style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-        <Header />
-        <Navbar />
-        
-        <div className="auth-container">
-          <Card className="auth-card" style={{ maxWidth: 500, margin: '60px auto' }}>
-            <Alert
-              message="Liên kết không hợp lệ"
-              description="Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng thử lại."
-              type="error"
-              showIcon
-              style={{ marginBottom: '20px' }}
-            />
-            <Button 
-              type="primary" 
-              onClick={() => navigate('/login')}
-              block
-              size="large"
-            >
-              Quay lại đăng nhập
-            </Button>
-          </Card>
-        </div>
-        
-        <Footer />
-      </Layout>
-    );
-  }
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
