@@ -4,6 +4,7 @@ import { ConfigProvider } from 'antd';
 import Homepage from './pages/Homepage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import FAQPage from './pages/FAQPage';
 import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
@@ -49,6 +50,7 @@ function App() {
             <Route path="/" element={<Homepage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/news" element={<NewsPage />} />
