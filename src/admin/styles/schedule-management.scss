@@ -75,6 +75,8 @@
     font-weight: 600;
     border: none;
     text-align: center;
+    padding: 8px 12px;
+    font-size: 13px;
     
     &:first-child {
       border-radius: 8px 0 0 0;
@@ -97,7 +99,8 @@
     > td {
       border-bottom: 1px solid #f0f2f5;
       text-align: center;
-      padding: 16px;
+      padding: 8px 12px;
+      font-size: 14px;
     }
   }
 }
@@ -204,7 +207,7 @@
 // New styles for table layout within layout bounds
 .schedule-management-content {
   margin: 0;
-  padding: 16px;
+  padding: 12px;
   min-height: calc(100vh - 240px); // Match staff-content min-height
   background: #F5F5F5;
   display: flex;
@@ -221,7 +224,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     
     .schedule-header-section {
-      padding: 24px 24px 16px 24px;
+      padding: 16px 20px 12px 20px;
       margin-bottom: 0;
       flex-shrink: 0; // Prevent header from shrinking
       border-bottom: 1px solid #f0f2f5;
@@ -230,6 +233,7 @@
         margin: 0;
         color: #2c3e50;
         font-weight: 700;
+        font-size: 22px;
       }
       
       .schedule-controls {
@@ -244,7 +248,7 @@
       flex: 1; // Fill remaining space
       display: flex;
       flex-direction: column;
-      padding: 16px 24px 24px 24px;
+      padding: 12px 20px 20px 20px;
       
       .schedule-wide-table {
         width: 100%;

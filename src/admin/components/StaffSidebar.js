@@ -254,7 +254,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         getItem('Quản lý người hiến', '2', <UserOutlined />),
         // Only show staff management for admin users
         ...(isAdmin() ? [getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />)] : []),
-        getItem('Quản lý túi máu hậu hiến', '3', <DesktopOutlined />, [
+        getItem('Quản lý túi máu', '3', <DesktopOutlined />, [
           getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
           getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
           getItem('Túi máu không đạt', '3-3', <CloseCircleOutlined />),

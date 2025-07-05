@@ -219,12 +219,17 @@
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden; // Ensure child elements don't overflow rounded corners
     
     .staff-header-section {
       padding: 24px 24px 16px 24px;
       margin-bottom: 0;
+      margin-left: 24px; // Add left margin to push away from sidebar
       flex-shrink: 0; // Prevent header from shrinking
       border-bottom: 1px solid #f0f2f5;
+      width: calc(100% - 24px); // Adjust width to account for left margin
+      box-sizing: border-box; // Include padding in width calculation
+      border-top-right-radius: 8px; // Maintain top-right corner radius
       
       .staff-management-title {
         margin: 0;
@@ -236,15 +241,18 @@
         display: flex;
         align-items: center;
         gap: 16px;
+        width: 100%; // Make controls container full width
       }
     }
     
     .staff-table-container {
-      width: 100%;
+      width: calc(100% - 24px); // Match header width
+      margin-left: 24px; // Match header left margin
       flex: 1; // Fill remaining space
       display: flex;
       flex-direction: column;
       padding: 16px 24px 24px 24px;
+      border-bottom-right-radius: 8px; // Maintain bottom-right corner radius
       
       .staff-wide-table {
         width: 100%;
@@ -381,10 +389,14 @@
     .staff-management-container {
       .staff-header-section {
         padding: 16px 16px 12px 16px;
+        margin-left: 20px; // Reduced left margin for smaller screens
+        width: calc(100% - 20px);
       }
       
       .staff-table-container {
         padding: 12px 16px 16px 16px;
+        margin-left: 20px; // Match header left margin
+        width: calc(100% - 20px);
       }
     }
   }
@@ -397,6 +409,8 @@
     .staff-management-container {
       .staff-header-section {
         padding: 12px;
+        margin-left: 12px; // Reduced left margin for mobile
+        width: calc(100% - 12px);
         
         .staff-controls {
           flex-direction: column;
@@ -407,6 +421,8 @@
       
       .staff-table-container {
         padding: 8px 12px 12px 12px;
+        margin-left: 12px; // Match header left margin
+        width: calc(100% - 12px);
         
         .staff-wide-table {
           .ant-table-thead > tr > th,

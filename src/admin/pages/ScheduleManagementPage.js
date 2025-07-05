@@ -35,7 +35,7 @@ const ScheduleManagementPage = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(7);
   
   // View state - for switching between schedule list and registration details
   const [currentView, setCurrentView] = useState('schedules'); // 'schedules' or 'registrations'
