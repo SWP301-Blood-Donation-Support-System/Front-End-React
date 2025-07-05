@@ -29,7 +29,7 @@ const UserManagementPage = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(5);
   
   // View state
   const [viewTitle, setViewTitle] = useState('Quản Lý Người Hiến');

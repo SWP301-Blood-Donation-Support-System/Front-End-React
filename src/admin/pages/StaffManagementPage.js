@@ -26,7 +26,7 @@ const StaffManagementPage = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     fetchStaffUsers();
