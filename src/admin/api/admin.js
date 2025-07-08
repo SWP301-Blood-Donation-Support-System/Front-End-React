@@ -646,5 +646,29 @@ export const AdminAPI = {
       console.error("Error registering staff:", error);
       throw error;
     }
-  }
+  },
+
+  // Staff change password
+  changeStaffPassword: async (currentPassword, newPassword) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${BASE_URL}/api/User/change-password`,
+        {
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("Error during staff change password:", error);
+      throw error;
+    }
+  },
 };

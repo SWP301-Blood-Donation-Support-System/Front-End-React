@@ -233,7 +233,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         navigate('/staff/profile');
         break;
       case '7': // Cài đặt 
-        // TODO: Navigate to settings page
+        navigate('/staff/settings');
         break;
       case '8': // Trợ giúp
         // TODO: Navigate to help page

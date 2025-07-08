@@ -26,6 +26,7 @@ import DonationRecordsPage from './admin/pages/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
 import StaffProfilePage from './admin/pages/StaffProfilePage';
 import CreateStaffAccountPage from './admin/pages/CreateStaffAccountPage';
+import StaffSettingsPage from './admin/pages/StaffSettingsPage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
@@ -122,6 +123,11 @@ function App() {
             <Route path="/staff/profile" element={
               <AdminProtectedRoute>
                 <StaffProfilePage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/settings" element={
+              <AdminProtectedRoute>
+                <StaffSettingsPage />
               </AdminProtectedRoute>
             } />
           </Routes>
