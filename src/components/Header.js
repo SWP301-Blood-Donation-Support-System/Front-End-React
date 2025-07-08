@@ -43,7 +43,11 @@ const Header = () => {
       >
         Hồ Sơ Cá Nhân
       </Menu.Item>
-      <Menu.Item key="settings" icon={<SettingOutlined />}>
+      <Menu.Item 
+        key="settings" 
+        icon={<SettingOutlined />}
+        onClick={() => navigate("/settings")}
+      >
         Cài Đặt
       </Menu.Item>
       <Menu.Divider />      <Menu.Item 

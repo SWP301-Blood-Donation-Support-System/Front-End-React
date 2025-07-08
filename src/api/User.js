@@ -62,6 +62,30 @@ export const UserAPI = {
     }
   },
 
+  // Change password for authenticated user
+  changePassword: async (currentPassword, newPassword) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${BASE_URL}/api/User/change-password`,
+        {
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("Error during change password:", error);
+      throw error;
+    }
+  },
+
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userInfo");

@@ -16,6 +16,7 @@ import ConfirmationPage from './pages/ConfirmationPage';
 import ProfilePage from './pages/ProfilePage';
 import DonationSchedulePage from './pages/DonationSchedulePage';
 import CheckinPage from './pages/CheckinPage';
+import SettingsPage from './pages/SettingsPage';
 
 import ScheduleManagementPage from './admin/pages/ScheduleManagementPage';
 import UserManagementPage from './admin/pages/UserManagementPage';
@@ -74,6 +75,11 @@ function App() {
             <Route path="/donation-schedule" element={
               <UserProtectedRoute>
                 <DonationSchedulePage />
+              </UserProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <UserProtectedRoute>
+                <SettingsPage />
               </UserProtectedRoute>
             } />
             <Route path="/checkin" element={<CheckinPage />} />
