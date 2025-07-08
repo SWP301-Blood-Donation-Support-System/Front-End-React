@@ -91,6 +91,11 @@ const StaffProfilePage = () => {
               if (userData && (userData.FullName || userData.Email || userData.UserId || userData.UserID)) {
                 setUser(userData);
                 localStorage.setItem("userInfo", JSON.stringify(userData));
+                
+                // Dispatch custom event to notify other components
+                window.dispatchEvent(new CustomEvent('localStorageChange', {
+                  detail: { key: 'userInfo', newValue: JSON.stringify(userData) }
+                }));
               }
             }
           }
@@ -299,11 +304,21 @@ const StaffProfilePage = () => {
             // Update both state and localStorage with fresh data
             setUser(freshUserData);
             localStorage.setItem("userInfo", JSON.stringify(freshUserData));
+            
+            // Dispatch custom event to notify other components
+            window.dispatchEvent(new CustomEvent('localStorageChange', {
+              detail: { key: 'userInfo', newValue: JSON.stringify(freshUserData) }
+            }));
           } else {
             // Fallback: carefully merge update data with existing user data
             const updatedUser = { ...user, ...updateData };
             setUser(updatedUser);
             localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+            
+            // Dispatch custom event to notify other components
+            window.dispatchEvent(new CustomEvent('localStorageChange', {
+              detail: { key: 'userInfo', newValue: JSON.stringify(updatedUser) }
+            }));
           }
         } catch (fetchError) {
           console.error('Failed to fetch fresh data after update:', fetchError);
@@ -311,6 +326,11 @@ const StaffProfilePage = () => {
           const updatedUser = { ...user, ...updateData };
           setUser(updatedUser);
           localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+          
+          // Dispatch custom event to notify other components
+          window.dispatchEvent(new CustomEvent('localStorageChange', {
+            detail: { key: 'userInfo', newValue: JSON.stringify(updatedUser) }
+          }));
         }
         
         setEditMode(false);
