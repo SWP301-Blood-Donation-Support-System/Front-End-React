@@ -26,6 +26,68 @@
   background: #f8fafc; // Lighter, more modern background
 }
 
+// Form Styles
+.staff-content-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.staff-page-header {
+  margin-bottom: 32px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 20px;
+  
+  .ant-typography {
+    margin-bottom: 8px !important;
+  }
+}
+
+.staff-form-card {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 48px 32px 80px 32px;
+  min-height: 600px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  .ant-form {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .ant-form-item-label > label {
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .ant-input-affix-wrapper {
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    
+    &:hover {
+      border-color: #dc2626;
+    }
+    
+    &:focus,
+    &.ant-input-affix-wrapper-focused {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+    }
+  }
+  
+  .ant-btn-primary {
+    background: #dc2626;
+    border-color: #dc2626;
+    
+    &:hover {
+      background: #b91c1c;
+      border-color: #b91c1c;
+    }
+  }
+}
+
 // Additional component styles are imported from separate files:
 // - staff-layout.scss - Additional layout styles
 // - staff-sidebar.scss - Sidebar styles 

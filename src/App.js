@@ -24,6 +24,7 @@ import BloodBagManagementPage from './admin/pages/BloodBagManagementPage';
 import DonationRecordsPage from './admin/pages/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
 import StaffProfilePage from './admin/pages/StaffProfilePage';
+import CreateStaffAccountPage from './admin/pages/CreateStaffAccountPage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
@@ -90,6 +91,11 @@ function App() {
             <Route path="/staff/staff-management" element={
               <AdminProtectedRoute>
                 <StaffManagementPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/staff/create-staff-account" element={
+              <AdminProtectedRoute>
+                <CreateStaffAccountPage />
               </AdminProtectedRoute>
             } />
             <Route path="/staff/blood-bag-management" element={

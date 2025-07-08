@@ -124,6 +124,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return ['2'];
     } else if (pathname.includes('/staff/staff-management')) {
       return ['9'];
+    } else if (pathname.includes('/staff/create-staff-account')) {
+      return ['10'];
     } else if (pathname.includes('/staff/blood-bag-management')) {
       if (search.includes('status=all')) return ['3-1'];
       if (search.includes('status=qualified')) return ['3-2'];
@@ -239,6 +241,9 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       case '9': // Quản lý nhân viên (admin only)
         navigate('/staff/staff-management');
         break;
+      case '10': // Tạo tài khoản nhân viên (admin only)
+        navigate('/staff/create-staff-account');
+        break;
       default:
         break;
     }
@@ -253,7 +258,10 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
         getItem('Quản lý người hiến', '2', <UserOutlined />),
         // Only show staff management for admin users
-        ...(isAdmin() ? [getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />)] : []),
+        ...(isAdmin() ? [
+          getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />),
+          getItem('Tạo tài khoản nhân viên', '10', <PlusCircleOutlined />),
+        ] : []),
         getItem('Quản lý túi máu', '3', <DesktopOutlined />, [
           getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
           getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),

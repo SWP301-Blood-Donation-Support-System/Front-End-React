@@ -685,5 +685,26 @@ export const AdminAPI = {
       console.error("Error updating staff:", error);
       throw error;
     }
+  },
+
+  // Register new staff account (admin only)
+  registerStaff: async (email, fullName) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${BASE_URL}/api/User/register-staff`, {
+        email: email,
+        fullName: fullName
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error registering staff:", error);
+      throw error;
+    }
   }
 };
