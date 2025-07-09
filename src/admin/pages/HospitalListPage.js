@@ -152,33 +152,6 @@ const HospitalListPage = () => {
       ),
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'isDeleted',
-      key: 'isDeleted',
-      width: 120,
-      render: (isDeleted) => (
-        <Tag color={isDeleted ? 'red' : 'green'}>
-          {isDeleted ? 'Không hoạt động' : 'Hoạt động'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Ngày tạo',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 140,
-      render: (date) => date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '-',
-      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-    },
-    {
-      title: 'Cập nhật',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 140,
-      render: (date) => date ? dayjs(date).format('DD/MM/YYYY HH:mm') : '-',
-      sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
-    },
-    {
       title: 'Thao tác',
       key: 'actions',
       width: 150,
@@ -238,25 +211,6 @@ const HospitalListPage = () => {
                     <Text type="secondary">
                       Quản lý thông tin các bệnh viện trong hệ thống
                     </Text>
-                  </Space>
-                </Col>
-                <Col>
-                  <Space>
-                    <Button
-                      type="default"
-                      icon={<ReloadOutlined />}
-                      onClick={fetchHospitals}
-                      loading={loading}
-                    >
-                      Làm mới
-                    </Button>
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={() => message.info('Tính năng thêm bệnh viện đang phát triển')}
-                    >
-                      Thêm bệnh viện
-                    </Button>
                   </Space>
                 </Col>
               </Row>
