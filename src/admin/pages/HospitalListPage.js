@@ -41,6 +41,8 @@ const HospitalListPage = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Fetch hospitals data
   const fetchHospitals = async () => {
@@ -291,21 +293,139 @@ const HospitalListPage = () => {
               <Spin spinning={loading}>
                 <Table
                   columns={columns}
-                  dataSource={filteredHospitals}
+                  dataSource={filteredHospitals.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
                   rowKey="hospitalId"
-                  pagination={{
-                    total: filteredHospitals.length,
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} của ${total} bệnh viện`,
-                  }}
+                  pagination={false}
                   scroll={{ x: 1200 }}
                   size="middle"
                 />
               </Spin>
             </Card>
+            
+            {/* Separate Pagination */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginTop: '16px',
+              padding: '16px 0',
+              borderTop: '1px solid #f0f0f0',
+              background: '#fafafa'
+            }}>
+              <div style={{ fontSize: '14px', color: '#666' }}>
+                Hiển thị {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredHospitals.length)} của {filteredHospitals.length} bệnh viện
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <span style={{ fontSize: '14px', color: '#666' }}>Số bản ghi mỗi trang:</span>
+                <select 
+                  value={pageSize} 
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '4px',
+                    background: currentPage === 1 ? '#f5f5f5' : '#fff',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  ««
+                </button>
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '4px',
+                    background: currentPage === 1 ? '#f5f5f5' : '#fff',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  ‹
+                </button>
+                
+                <span style={{ fontSize: '14px', margin: '0 8px' }}>
+                  Trang {currentPage} / {Math.ceil(filteredHospitals.length / pageSize)}
+                </span>
+                
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === Math.ceil(filteredHospitals.length / pageSize)}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '4px',
+                    background: currentPage === Math.ceil(filteredHospitals.length / pageSize) ? '#f5f5f5' : '#fff',
+                    cursor: currentPage === Math.ceil(filteredHospitals.length / pageSize) ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  ›
+                </button>
+                <button
+                  onClick={() => setCurrentPage(Math.ceil(filteredHospitals.length / pageSize))}
+                  disabled={currentPage === Math.ceil(filteredHospitals.length / pageSize)}
+                  style={{
+                    padding: '4px 8px',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '4px',
+                    background: currentPage === Math.ceil(filteredHospitals.length / pageSize) ? '#f5f5f5' : '#fff',
+                    cursor: currentPage === Math.ceil(filteredHospitals.length / pageSize) ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  »»
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '14px', color: '#666' }}>Đến trang:</span>
+                <input
+                  type="number"
+                  value={currentPage}
+                  onChange={(e) => {
+                    const page = Number(e.target.value);
+                    if (page >= 1 && page <= Math.ceil(filteredHospitals.length / pageSize)) {
+                      setCurrentPage(page);
+                    }
+                  }}
+                  style={{
+                    width: '60px',
+                    padding: '4px 8px',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    textAlign: 'center'
+                  }}
+                  min="1"
+                  max={Math.ceil(filteredHospitals.length / pageSize)}
+                />
+              </div>
+            </div>
           </div>
         </Content>
       </Layout>
