@@ -16,6 +16,9 @@ import {
   LogoutOutlined,
   QuestionCircleOutlined,
   UsergroupAddOutlined,
+  BankOutlined,
+  HomeOutlined,
+  SafetyOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, notification } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -122,6 +125,12 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     } else if (pathname.includes('/staff/reports')) {
       // Only return key if user is admin, otherwise return default
       return isAdminUser() ? ['5'] : ['1'];
+    } else if (pathname.includes('/staff/hospital-list')) {
+      return isAdminUser() ? ['11'] : ['1'];
+    } else if (pathname.includes('/staff/hospital-registration')) {
+      return isAdminUser() ? ['12'] : ['1'];
+    } else if (pathname.includes('/staff/create-hospital-account')) {
+      return isAdminUser() ? ['13'] : ['1'];
     } else if (pathname.includes('/staff/profile')) {
       return ['6'];
     }
@@ -257,27 +266,63 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           navigate('/staff/create-staff-account');
         }
         break;
+      case '11': // Danh sách bệnh viện (admin only)
+        if (isAdminUser()) {
+          navigate('/staff/hospital-list');
+        } else {
+          api.warning({
+            message: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền truy cập chức năng này.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        }
+        break;
+      case '12': // Đăng ký bệnh viện (admin only)
+        if (isAdminUser()) {
+          navigate('/staff/hospital-registration');
+        } else {
+          api.warning({
+            message: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền truy cập chức năng này.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        }
+        break;
+      case '13': // Tạo tài khoản bệnh viện (admin only)
+        if (isAdminUser()) {
+          navigate('/staff/create-hospital-account');
+        } else {
+          api.warning({
+            message: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền truy cập chức năng này.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        }
+        break;
       default:
         break;
     }
   };
 
-  // Sidebar items with sections
+    // Sidebar items with sections
   const sidebarItems = [
     {
       type: 'group',
       label: 'QUẢN LÝ',
-              children: [
-          getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
-          // Only show user management for admin users
-          ...(isAdminUser() ? [
-            getItem('Quản lý người hiến', '2', <UserOutlined />),
-          ] : []),
-          // Only show staff management for admin users
-          ...(isAdminUser() ? [
-            getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />),
-            getItem('Tạo tài khoản nhân viên', '10', <PlusCircleOutlined />),
-          ] : []),
+      children: [
+        getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
+        // Only show user management for admin users
+        ...(isAdminUser() ? [
+          getItem('Quản lý người hiến', '2', <UserOutlined />),
+        ] : []),
+        // Only show staff management for admin users
+        ...(isAdminUser() ? [
+          getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />),
+          getItem('Tạo tài khoản nhân viên', '10', <PlusCircleOutlined />),
+        ] : []),
         getItem('Quản lý túi máu', '3', <DesktopOutlined />, [
           getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
           getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
@@ -294,6 +339,16 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         ] : []),
       ]
     },
+    // Only show hospital management section for admin users
+    ...(isAdminUser() ? [{
+      type: 'group',
+      label: 'BỆNH VIỆN',
+      children: [
+        getItem('Danh sách bệnh viện', '11', <BankOutlined />),
+        getItem('Đăng ký bệnh viện', '12', <HomeOutlined />),
+        getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
+      ]
+    }] : []),
     {
       type: 'group',
       label: 'HỒ SƠ CÁ NHÂN',
