@@ -1,0 +1,139 @@
+// Staff Settings Page Styles
+.settings-page {
+  .settings-header {
+    h2 {
+      color: #dc2626;
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .ant-typography {
+      color: #6b7280;
+      font-size: 1.1rem;
+    }
+  }
+
+  .settings-layout {
+    .settings-sidebar {
+      .settings-menu {
+        .ant-menu-item {
+          margin: 0;
+          padding: 16px 24px;
+          height: auto;
+          line-height: 1.5;
+          border-radius: 0;
+
+          &:hover {
+            background-color: #f5f5f5;
+          }
+
+          &.ant-menu-item-selected {
+            background-color: #dc2626;
+            color: white;
+
+            .anticon {
+              color: white;
+            }
+
+            &::after {
+              border-right-color: #dc2626;
+            }
+          }
+
+          .anticon {
+            font-size: 16px;
+            margin-right: 12px;
+            color: #666;
+          }
+        }
+      }
+    }
+
+    .settings-main-content {
+      .settings-form-card {
+        border: none;
+        box-shadow: none;
+
+        .ant-card-head {
+          border-bottom: 1px solid #f0f0f0;
+          padding: 0 0 1rem 0;
+
+          .ant-card-head-title {
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 600;
+          }
+        }
+
+        .ant-card-body {
+          padding: 2rem 0 0 0;
+        }
+      }
+    }
+  }
+
+  // Form Styles
+  .ant-form {
+    .ant-form-item-label > label {
+      color: #374151;
+      font-weight: 500;
+    }
+
+    .ant-input-affix-wrapper {
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      transition: all 0.3s ease;
+
+      &:focus,
+      &:focus-within {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+      }
+
+      .ant-input {
+        border: none;
+        
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      .anticon {
+        color: #6b7280;
+      }
+    }
+
+    .ant-btn {
+      border-radius: 6px;
+      font-weight: 500;
+      height: 40px;
+      padding: 0 1.5rem;
+
+      &.ant-btn-primary {
+        background-color: #dc2626;
+        border-color: #dc2626;
+
+        &:hover {
+          background-color: #b91c1c;
+          border-color: #b91c1c;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .settings-page {
+    .settings-layout {
+      .settings-sidebar {
+        width: 200px !important;
+      }
+
+      .settings-main-content {
+        padding: 1rem;
+      }
+    }
+  }
+}

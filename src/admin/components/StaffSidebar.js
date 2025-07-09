@@ -20,6 +20,7 @@ import {
 import { Layout, Menu, Button, notification } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../../api/User';
+import { isAdminUser } from '../utils/passwordUtils';
 
 const { Sider } = Layout;
 
@@ -39,24 +40,6 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
   const autoOpenedRef = useRef(new Set()); // Track which submenus were auto-opened
   const previousCollapsedRef = useRef(collapsed); // Track previous collapsed state
   const savedOpenKeysRef = useRef([]); // Store openKeys before collapsing
-  
-  // Check if user is admin (roleId = 1)
-  const isAdmin = () => {
-    try {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      
-      // Check the correct field name and handle both string and number values
-      const roleValue = userInfo?.RoleID;
-      const adminCheck = roleValue === "1";
-      
-      console.log("Debug - Role value:", roleValue, "isAdmin:", adminCheck); // Debug log
-      
-      return adminCheck;
-    } catch (error) {
-      console.error("Error checking admin status:", error);
-      return false;
-    }
-  };
   
   const [openKeys, setOpenKeys] = useState(() => {
     // Try to load from localStorage first
@@ -121,9 +104,12 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     if (pathname.includes('/staff/schedule-management')) {
       return ['1'];
     } else if (pathname.includes('/staff/user-management')) {
-      return ['2'];
+      // Only return key if user is admin, otherwise return default
+      return isAdminUser() ? ['2'] : ['1'];
     } else if (pathname.includes('/staff/staff-management')) {
       return ['9'];
+    } else if (pathname.includes('/staff/create-staff-account')) {
+      return ['10'];
     } else if (pathname.includes('/staff/blood-bag-management')) {
       if (search.includes('status=all')) return ['3-1'];
       if (search.includes('status=qualified')) return ['3-2'];
@@ -134,7 +120,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       if (pathname.includes('/create')) return ['4-2'];
       return ['4-1'];
     } else if (pathname.includes('/staff/reports')) {
-      return ['5'];
+      // Only return key if user is admin, otherwise return default
+      return isAdminUser() ? ['5'] : ['1'];
     } else if (pathname.includes('/staff/profile')) {
       return ['6'];
     }
@@ -203,8 +190,17 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       case '1': // Lịch đặt hiến - prioritize upcoming schedules
         navigate('/staff/schedule-management?type=all');
         break;
-      case '2': // Quản lý người hiến
-        navigate('/staff/user-management');
+      case '2': // Quản lý người hiến (admin only)
+        if (isAdminUser()) {
+          navigate('/staff/user-management');
+        } else {
+          api.warning({
+            message: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền truy cập chức năng này.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        }
         break;
       case '3-1': // Tất cả túi máu
         navigate('/staff/blood-bag-management?status=all');
@@ -224,20 +220,42 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       case '4-2': // Tạo hồ sơ hiến máu
         navigate('/staff/donation-records/create');
         break;
-      case '5': // Báo cáo thống kê
-        // TODO: Navigate to reports
+      case '5': // Báo cáo thống kê (admin only)
+        if (isAdminUser()) {
+          // TODO: Navigate to reports when implemented
+          api.info({
+            message: 'Chức năng đang phát triển',
+            description: 'Tính năng báo cáo thống kê đang được phát triển.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        } else {
+          api.warning({
+            message: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền truy cập chức năng này.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        }
         break;
       case '6': // Hồ sơ
         navigate('/staff/profile');
         break;
       case '7': // Cài đặt 
-        // TODO: Navigate to settings page
+        navigate('/staff/settings');
         break;
       case '8': // Trợ giúp
         // TODO: Navigate to help page
         break;
       case '9': // Quản lý nhân viên (admin only)
-        navigate('/staff/staff-management');
+        if (isAdminUser()) {
+          navigate('/staff/staff-management');
+        }
+        break;
+      case '10': // Tạo tài khoản nhân viên (admin only)
+        if (isAdminUser()) {
+          navigate('/staff/create-staff-account');
+        }
         break;
       default:
         break;
@@ -249,11 +267,17 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     {
       type: 'group',
       label: 'QUẢN LÝ',
-      children: [
-        getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
-        getItem('Quản lý người hiến', '2', <UserOutlined />),
-        // Only show staff management for admin users
-        ...(isAdmin() ? [getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />)] : []),
+              children: [
+          getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
+          // Only show user management for admin users
+          ...(isAdminUser() ? [
+            getItem('Quản lý người hiến', '2', <UserOutlined />),
+          ] : []),
+          // Only show staff management for admin users
+          ...(isAdminUser() ? [
+            getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />),
+            getItem('Tạo tài khoản nhân viên', '10', <PlusCircleOutlined />),
+          ] : []),
         getItem('Quản lý túi máu', '3', <DesktopOutlined />, [
           getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
           getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
@@ -264,7 +288,10 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           getItem('Toàn bộ hồ sơ', '4-1', <DatabaseOutlined />),
           getItem('Tạo hồ sơ mới', '4-2', <PlusCircleOutlined />),
         ]),
-        getItem('Báo cáo thống kê', '5', <TeamOutlined />),
+        // Only show reports for admin users
+        ...(isAdminUser() ? [
+          getItem('Báo cáo thống kê', '5', <TeamOutlined />),
+        ] : []),
       ]
     },
     {

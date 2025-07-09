@@ -35,6 +35,42 @@ const StaffHeader = () => {
     initializeAuth();
   }, [navigate]);
 
+  // Listen for localStorage changes to update user info
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'userInfo') {
+        try {
+          const newUserInfo = e.newValue ? JSON.parse(e.newValue) : null;
+          setUser(newUserInfo);
+        } catch (error) {
+          console.error("Error parsing updated user info:", error);
+        }
+      }
+    };
+
+    // Listen for storage events (works for changes from other tabs)
+    window.addEventListener('storage', handleStorageChange);
+
+    // Custom event for same-tab localStorage changes
+    const handleCustomStorageChange = (e) => {
+      if (e.detail.key === 'userInfo') {
+        try {
+          const newUserInfo = e.detail.newValue ? JSON.parse(e.detail.newValue) : null;
+          setUser(newUserInfo);
+        } catch (error) {
+          console.error("Error parsing updated user info:", error);
+        }
+      }
+    };
+
+    window.addEventListener('localStorageChange', handleCustomStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageChange', handleCustomStorageChange);
+    };
+  }, []);
+
   return (
     <Header className="staff-header">
       <div className="staff-header-right">
@@ -51,7 +87,7 @@ const StaffHeader = () => {
                 className="user-avatar"
               />
               <span className="user-name">
-                {user ? `Xin chào ${user.FullName}` : 'Staff'}
+                {user ? `Xin chào ${user.FullName || user.fullName}` : 'Staff'}
               </span>
             </div>
           </Space>

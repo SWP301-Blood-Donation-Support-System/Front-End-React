@@ -627,63 +627,48 @@ export const AdminAPI = {
     }
   },
 
-  // Update donor information (for admin use)
-  updateDonor: async (userId, profileData) => {
+  // Register new staff account (admin only)
+  registerStaff: async (email, fullName) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `${BASE_URL}/api/User/donor/${userId}`,
-        profileData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+      const response = await axios.post(`${BASE_URL}/api/User/register-staff`, {
+        email: email,
+        fullName: fullName
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      );
+      });
 
       return response;
     } catch (error) {
-      console.error("Error updating donor:", error);
+      console.error("Error registering staff:", error);
       throw error;
     }
   },
 
-  // Update staff information (for staff profile)
-  updateStaff: async (userId, profileData) => {
+  // Staff change password
+  changeStaffPassword: async (currentPassword, newPassword) => {
     try {
       const token = localStorage.getItem("token");
-      // Try different endpoints that might work for staff
-      const endpoints = [
-        `${BASE_URL}/api/User/${userId}`,
-        `${BASE_URL}/api/User/staff/${userId}`,
-        `${BASE_URL}/api/User/donor/${userId}`, // Fallback to donor endpoint
-      ];
-
-      let lastError;
-      for (const endpoint of endpoints) {
-        try {
-          const response = await axios.put(
-            endpoint,
-            profileData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-          return response;
-        } catch (error) {
-          lastError = error;
-          console.warn(`Failed to update using endpoint ${endpoint}:`, error.response?.status);
+      const response = await axios.post(
+        `${BASE_URL}/api/User/change-password`,
+        {
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      }
-      
-      throw lastError;
+      );
+      return response;
     } catch (error) {
-      console.error("Error updating staff:", error);
+      console.error("Error during staff change password:", error);
       throw error;
     }
-  }
+  },
 };

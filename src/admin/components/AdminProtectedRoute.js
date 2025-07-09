@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { message } from 'antd';
+import { checkIfDefaultPassword, hasAdminAccess, isStaffUser } from '../utils/passwordUtils';
 
 const AdminProtectedRoute = ({ children }) => {
   const [isAuthorized, setIsAuthorized] = useState(null); // null = checking, true = authorized, false = unauthorized
+  const [needsPasswordChange, setNeedsPasswordChange] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuthorization = () => {
@@ -15,12 +18,20 @@ const AdminProtectedRoute = ({ children }) => {
         return;
       }
 
-      // Check if user has roleId 1 or 2 (admin/staff)
-      const userRoleId = userInfo.RoleID || userInfo.roleId;
-      const isAdmin = userRoleId === 1 || userRoleId === 2 || userRoleId === "1" || userRoleId === "2";
-
-      if (isAdmin) {
+      // Check if user has admin or staff privileges
+      if (hasAdminAccess()) {
+        // Check if staff user still has default password
+        const hasDefaultPassword = checkIfDefaultPassword();
+        
+        // If they have default password and are not already on settings page, redirect them
+        if (hasDefaultPassword && !location.pathname.includes('/staff/settings')) {
+          setNeedsPasswordChange(true);
+          setIsAuthorized(false); // Don't authorize other pages
+          return;
+        }
+        
         setIsAuthorized(true);
+        setNeedsPasswordChange(false);
       } else {
         setIsAuthorized(false);
         message.error('Bạn không có quyền truy cập vào trang này');
@@ -28,10 +39,10 @@ const AdminProtectedRoute = ({ children }) => {
     };
 
     checkAuthorization();
-  }, []);
+  }, [location.pathname]);
 
   // Show loading while checking authorization
-  if (isAuthorized === null) {
+  if (isAuthorized === null && !needsPasswordChange) {
     return (
       <div style={{ 
         display: 'flex', 
@@ -43,6 +54,11 @@ const AdminProtectedRoute = ({ children }) => {
         Đang kiểm tra quyền truy cập...
       </div>
     );
+  }
+
+  // Redirect to settings page if staff needs to change default password
+  if (needsPasswordChange) {
+    return <Navigate to="/staff/settings" replace state={{ forcePasswordChange: true }} />;
   }
 
   // Redirect to homepage if not authorized

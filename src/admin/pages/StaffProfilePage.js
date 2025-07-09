@@ -91,6 +91,11 @@ const StaffProfilePage = () => {
               if (userData && (userData.FullName || userData.Email || userData.UserId || userData.UserID)) {
                 setUser(userData);
                 localStorage.setItem("userInfo", JSON.stringify(userData));
+                
+                // Dispatch custom event to notify other components
+                window.dispatchEvent(new CustomEvent('localStorageChange', {
+                  detail: { key: 'userInfo', newValue: JSON.stringify(userData) }
+                }));
               }
             }
           }
@@ -296,14 +301,37 @@ const StaffProfilePage = () => {
           if (freshDataResponse.status === 200 && freshDataResponse.data) {
             const freshUserData = freshDataResponse.data.result || freshDataResponse.data;
             
-            // Update both state and localStorage with fresh data
-            setUser(freshUserData);
-            localStorage.setItem("userInfo", JSON.stringify(freshUserData));
+            // Ensure critical fields like Role are preserved if missing from API response
+            const preservedUserData = {
+              ...freshUserData,
+              // Preserve Role/RoleID if missing from fresh data
+              Role: freshUserData.Role || user.Role,
+              RoleID: freshUserData.RoleID || user.RoleID,
+              role: freshUserData.role || user.role,
+              roleID: freshUserData.roleID || user.roleID,
+              // Preserve other critical auth fields
+              UserId: freshUserData.UserId || user.UserId,
+              Email: freshUserData.Email || user.Email
+            };
+            
+            // Update both state and localStorage with preserved data
+            setUser(preservedUserData);
+            localStorage.setItem("userInfo", JSON.stringify(preservedUserData));
+            
+            // Dispatch custom event to notify other components
+            window.dispatchEvent(new CustomEvent('localStorageChange', {
+              detail: { key: 'userInfo', newValue: JSON.stringify(preservedUserData) }
+            }));
           } else {
             // Fallback: carefully merge update data with existing user data
             const updatedUser = { ...user, ...updateData };
             setUser(updatedUser);
             localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+            
+            // Dispatch custom event to notify other components
+            window.dispatchEvent(new CustomEvent('localStorageChange', {
+              detail: { key: 'userInfo', newValue: JSON.stringify(updatedUser) }
+            }));
           }
         } catch (fetchError) {
           console.error('Failed to fetch fresh data after update:', fetchError);
@@ -311,6 +339,11 @@ const StaffProfilePage = () => {
           const updatedUser = { ...user, ...updateData };
           setUser(updatedUser);
           localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+          
+          // Dispatch custom event to notify other components
+          window.dispatchEvent(new CustomEvent('localStorageChange', {
+            detail: { key: 'userInfo', newValue: JSON.stringify(updatedUser) }
+          }));
         }
         
         setEditMode(false);

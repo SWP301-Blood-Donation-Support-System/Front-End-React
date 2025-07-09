@@ -19,7 +19,7 @@
 // 4.5 Admin component styles
 @import '../admin/styles/staff-layout';
 @import '../admin/styles/staff-sidebar';
-
+@import '../admin/styles/staff-settings';
 
 @import '../admin/styles/schedule-management';
 @import '../admin/styles/user-management';
@@ -38,6 +38,7 @@
 @import 'pages/eligibility-form';
 @import 'pages/confirmation-page';
 @import 'pages/confirmation-page';
+@import 'pages/settings';
 @import '../admin/styles/staff';
 
 // 6. Component styles (to be added as we convert)
