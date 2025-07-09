@@ -93,7 +93,9 @@ const LoginPage = () => {
       };
       
       if (userRoleId === 1 || userRoleId === 2 || userRoleId === "1" || userRoleId === "2") {
-        // Redirect to schedule management page for roles 1 and 2
+        // For staff users, check if they need to change default password
+        // Note: We'll check this on the client side after they're logged in
+        // The AdminProtectedRoute will handle the redirect to settings if needed
         navigate("/staff/schedule-management", { state: { loginNotification } });
       } else {
         // Check if profile is complete for regular users
@@ -129,6 +131,29 @@ const LoginPage = () => {
       // Store token
       localStorage.setItem("token", response.data.result);
       localStorage.setItem("user", JSON.stringify(decoded));
+      
+      // Check if this is a staff user logging in with default password
+      const userRoleId = decoded.RoleID;
+      
+      // Import utility functions to check roles
+      const { isStaffUser: checkIsStaff, markAsDefaultPassword, cleanupOldPasswordFlags } = await import('../admin/utils/passwordUtils');
+      
+      // Store user info first for role checking
+      localStorage.setItem("userInfo", JSON.stringify(decoded));
+      
+      const isStaff = checkIsStaff();
+      
+      if (isStaff && values.password === 'staff123') {
+        // This staff member is logging in with the default password
+        // Clean up any old localStorage entries that might interfere
+        cleanupOldPasswordFlags();
+        // Then mark as having default password
+        markAsDefaultPassword();
+      } else if (isStaff) {
+        // This is a staff user but NOT logging in with default password
+        // Clean up old flags, but don't mark as having default password
+        cleanupOldPasswordFlags();
+      }
       
       // Handle successful login with profile check
       await handleSuccessfulLogin(decoded);
