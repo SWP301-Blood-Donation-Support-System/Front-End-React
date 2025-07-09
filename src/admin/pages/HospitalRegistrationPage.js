@@ -1,29 +1,76 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Layout, 
   Card, 
   Typography, 
   Space, 
   Button, 
-  Result
+  Form,
+  Input,
+  notification,
+  Row,
+  Col
 } from 'antd';
 import { 
-  HomeOutlined,
+  BankOutlined,
   ArrowLeftOutlined,
-  PlusOutlined
+  SaveOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import StaffSidebar from '../components/StaffSidebar';
 import StaffHeader from '../components/StaffHeader';
+import { HospitalAPI } from '../api/hospital';
 
 const { Content } = Layout;
-const { Title, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 const HospitalRegistrationPage = () => {
   const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
+
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const hospitalData = {
+        hospitalName: values.hospitalName.trim(),
+        hospitalAddress: values.hospitalAddress.trim()
+      };
+
+      await HospitalAPI.createHospital(hospitalData);
+      
+      api.success({
+        message: 'Thành công!',
+        description: 'Đăng ký bệnh viện thành công!',
+        placement: 'topRight',
+        duration: 3,
+      });
+      
+      form.resetFields();
+      
+    } catch (error) {
+      console.error('Error creating hospital:', error);
+      
+      let errorMessage = 'Không thể đăng ký bệnh viện. Vui lòng thử lại!';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      api.error({
+        message: 'Lỗi!',
+        description: errorMessage,
+        placement: 'topRight',
+        duration: 3,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      {contextHolder}
       <StaffSidebar />
       <Layout>
         <StaffHeader />
@@ -33,49 +80,99 @@ const HospitalRegistrationPage = () => {
             <div style={{ marginBottom: '24px' }}>
               <Space direction="vertical" size={0}>
                 <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
-                  <HomeOutlined /> Đăng ký bệnh viện
+                  <BankOutlined /> Đăng ký bệnh viện
                 </Title>
-                <Paragraph type="secondary">
+                <Text type="secondary">
                   Đăng ký bệnh viện mới vào hệ thống quản lý hiến máu
-                </Paragraph>
+                </Text>
               </Space>
             </div>
 
-            {/* Main Content */}
-            <Card>
-              <Result
-                icon={<PlusOutlined style={{ color: '#1890ff' }} />}
-                title="Tính năng đang phát triển"
-                subTitle="Chức năng đăng ký bệnh viện đang được phát triển và sẽ sớm được cập nhật."
-                extra={[
-                  <Button 
-                    key="back" 
-                    type="primary"
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate('/staff/hospital-list')}
-                  >
-                    Quay lại danh sách bệnh viện
-                  </Button>,
-                  <Button 
-                    key="list" 
-                    onClick={() => navigate('/staff/hospital-list')}
-                  >
-                    Xem danh sách bệnh viện
-                  </Button>
-                ]}
+            {/* Registration Form */}
+            <Card title="Thông tin bệnh viện" style={{ maxWidth: 800, margin: '0 auto' }}>
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit}
+                size="large"
               >
-                <div style={{ marginTop: '24px' }}>
-                  <Paragraph>
-                    Tính năng này sẽ bao gồm:
-                  </Paragraph>
-                  <ul style={{ textAlign: 'left', display: 'inline-block' }}>
-                    <li>Form đăng ký thông tin bệnh viện</li>
-                    <li>Xác thực thông tin và tài liệu</li>
-                    <li>Phê duyệt đăng ký</li>
-                    <li>Thông báo kết quả đăng ký</li>
-                  </ul>
-                </div>
-              </Result>
+                <Row gutter={[16, 16]}>
+                  <Col span={24}>
+                    <Form.Item
+                      label="Tên bệnh viện"
+                      name="hospitalName"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Vui lòng nhập tên bệnh viện!',
+                        },
+                        {
+                          min: 3,
+                          message: 'Tên bệnh viện phải có ít nhất 3 ký tự!',
+                        },
+                        {
+                          max: 200,
+                          message: 'Tên bệnh viện không được vượt quá 200 ký tự!',
+                        }
+                      ]}
+                    >
+                      <Input 
+                        placeholder="Nhập tên bệnh viện..."
+                        disabled={loading}
+                      />
+                    </Form.Item>
+                  </Col>
+                  
+                  <Col span={24}>
+                    <Form.Item
+                      label="Địa chỉ bệnh viện"
+                      name="hospitalAddress"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Vui lòng nhập địa chỉ bệnh viện!',
+                        },
+                        {
+                          min: 10,
+                          message: 'Địa chỉ phải có ít nhất 10 ký tự!',
+                        },
+                        {
+                          max: 500,
+                          message: 'Địa chỉ không được vượt quá 500 ký tự!',
+                        }
+                      ]}
+                    >
+                      <Input.TextArea 
+                        placeholder="Nhập địa chỉ đầy đủ của bệnh viện..."
+                        rows={3}
+                        disabled={loading}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+
+                <Form.Item style={{ marginTop: '32px', textAlign: 'center' }}>
+                  <Space size="middle">
+                    <Button
+                      type="default"
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => navigate('/staff/hospital-list')}
+                      disabled={loading}
+                    >
+                      Quay lại
+                    </Button>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      icon={<SaveOutlined />}
+                      loading={loading}
+                      size="large"
+                    >
+                      Đăng ký bệnh viện
+                    </Button>
+                  </Space>
+                </Form.Item>
+              </Form>
             </Card>
           </div>
         </Content>
