@@ -108,4 +108,15 @@ export const HospitalAPI = {
       throw error;
     }
   },
+
+  // Register hospital account
+  registerHospitalAccount: async (accountData) => {
+    try {
+      const response = await hospitalApi.post('/api/User/register-hospital', accountData);
+      return response.data;
+    } catch (error) {
+      console.error('Error registering hospital account:', error);
+      throw error;
+    }
+  },
 }; 
