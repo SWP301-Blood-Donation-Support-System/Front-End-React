@@ -33,6 +33,7 @@ const CreateHospitalAccountPage = () => {
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [api, contextHolder] = notification.useNotification();
 
   useEffect(() => {
@@ -110,9 +111,9 @@ const CreateHospitalAccountPage = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {contextHolder}
-      <StaffSidebar />
+      <StaffSidebar collapsed={collapsed} onCollapse={setCollapsed} />
       <Layout>
-        <StaffHeader />
+        <StaffHeader collapsed={collapsed} onCollapse={setCollapsed} />
         <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
           <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
             <div style={{ marginBottom: '24px' }}>

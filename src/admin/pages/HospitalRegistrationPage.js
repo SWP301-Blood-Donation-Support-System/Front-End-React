@@ -28,6 +28,7 @@ const HospitalRegistrationPage = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [api, contextHolder] = notification.useNotification();
 
   const handleSubmit = async (values) => {
@@ -71,9 +72,9 @@ const HospitalRegistrationPage = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {contextHolder}
-      <StaffSidebar />
+      <StaffSidebar collapsed={collapsed} onCollapse={setCollapsed} />
       <Layout>
-        <StaffHeader />
+        <StaffHeader collapsed={collapsed} onCollapse={setCollapsed} />
         <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
           <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
             {/* Page Header */}

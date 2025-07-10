@@ -43,6 +43,7 @@ const HospitalListPage = () => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [collapsed, setCollapsed] = useState(false);
 
   // Fetch hospitals data
   const fetchHospitals = async () => {
@@ -195,9 +196,9 @@ const HospitalListPage = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <StaffSidebar />
+      <StaffSidebar collapsed={collapsed} onCollapse={setCollapsed} />
       <Layout>
-        <StaffHeader />
+        <StaffHeader collapsed={collapsed} onCollapse={setCollapsed} />
         <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
           <div className="hospital-list-page">
             {/* Page Header */}

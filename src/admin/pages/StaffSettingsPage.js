@@ -16,6 +16,7 @@ const StaffSettingsPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [hasDefaultPassword, setHasDefaultPassword] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const notificationShownRef = useRef(false);
 
@@ -230,9 +231,9 @@ const StaffSettingsPage = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {contextHolder}
-      <StaffSidebar />
+      <StaffSidebar collapsed={collapsed} onCollapse={setCollapsed} />
       <Layout>
-        <StaffHeader />
+        <StaffHeader collapsed={collapsed} onCollapse={setCollapsed} />
         <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
           <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
             <div className="settings-header" style={{ marginBottom: '2rem', textAlign: 'center' }}>
