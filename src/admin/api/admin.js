@@ -671,4 +671,25 @@ export const AdminAPI = {
       throw error;
     }
   },
+
+  // Update donor blood type (specifically for donation records)
+  updateDonorBloodType: async (donorId, bloodTypeId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${BASE_URL}/api/User/donor/blood-type`, {
+        donorId: donorId,
+        bloodTypeId: bloodTypeId
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error updating donor blood type:", error);
+      throw error;
+    }
+  },
 };

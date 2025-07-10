@@ -17,7 +17,8 @@ import {
   Input,
   InputNumber,
   Select,
-  DatePicker
+  DatePicker,
+  Modal
 } from 'antd';
 import dayjs from 'dayjs';
 import { AdminAPI } from '../api/admin';
@@ -38,12 +39,15 @@ const DonationRecordsPage = () => {
   const [donors, setDonors] = useState({});
   const [donationTypes, setDonationTypes] = useState({});
   const [bloodTestResults, setBloodTestResults] = useState({});
+  const [bloodTypes, setBloodTypes] = useState({});
   const [registrationUsers, setRegistrationUsers] = useState({}); // Cache for registration user data
   const [registrationStatuses, setRegistrationStatuses] = useState({}); // Cache for registration status data
   const [scheduleData, setScheduleData] = useState({}); // Cache for schedule data
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [pendingFormValues, setPendingFormValues] = useState(null);
   const [form] = Form.useForm();
   
   // View state - for switching between user list, user records, and record details
@@ -60,6 +64,7 @@ const DonationRecordsPage = () => {
     fetchAllDonors();
     fetchDonationTypes();
     fetchBloodTestResults();
+    fetchBloodTypes();
     fetchDonationRecords();
   }, []);
 
@@ -137,6 +142,37 @@ const DonationRecordsPage = () => {
     }
   };
 
+  const fetchBloodTypes = async () => {
+    try {
+      const response = await AdminAPI.getBloodTypesLookup();
+      const typesData = response.data || [];
+      
+      const typesMap = {};
+      typesData.forEach(type => {
+        const id = type.id || type.Id;
+        typesMap[id] = {
+          name: type.name || type.Name || `Type ${id}`,
+          description: type.description || type.Description || ''
+        };
+      });
+      
+      setBloodTypes(typesMap);
+    } catch (error) {
+      console.error('Error fetching blood types:', error);
+      // Fallback data if API fails
+      setBloodTypes({
+        1: { name: 'A+', description: '' },
+        2: { name: 'A-', description: '' },
+        3: { name: 'B+', description: '' },
+        4: { name: 'B-', description: '' },
+        5: { name: 'AB+', description: '' },
+        6: { name: 'AB-', description: '' },
+        7: { name: 'O+', description: '' },
+        8: { name: 'O-', description: '' }
+      });
+    }
+  };
+
   const fetchDonationRecords = async () => {
     setLoading(true);
     try {
@@ -198,18 +234,19 @@ const DonationRecordsPage = () => {
               const donor = donorResponse.data;
               const username = donor?.fullName || donor?.FullName || donor?.username || donor?.Username || donor?.name || donor?.Name || `User ${userId}`;
               const address = donor?.address || donor?.Address || 'Chưa cập nhật địa chỉ';
+              const bloodTypeId = donor?.bloodTypeId || donor?.BloodTypeId || donor?.bloodType || donor?.BloodType;
               
-              userMap[regId] = { userId, username, address };
+              userMap[regId] = { userId, username, address, bloodTypeId };
             } catch (donorError) {
               // If donor fetch fails, use donorId as both userId and username
-              userMap[regId] = { userId, username: `User ${userId}`, address: 'Không thể tải địa chỉ' };
+              userMap[regId] = { userId, username: `User ${userId}`, address: 'Không thể tải địa chỉ', bloodTypeId: null };
             }
           } else {
-            userMap[regId] = { userId: 'N/A', username: 'N/A', address: 'N/A' };
+            userMap[regId] = { userId: 'N/A', username: 'N/A', address: 'N/A', bloodTypeId: null };
           }
         } catch (error) {
           console.error(`Error fetching registration ${regId}:`, error);
-          userMap[regId] = { userId: 'N/A', username: 'N/A', address: 'N/A' };
+          userMap[regId] = { userId: 'N/A', username: 'N/A', address: 'N/A', bloodTypeId: null };
           statusMap[regId] = null;
         }
       });
@@ -234,7 +271,8 @@ const DonationRecordsPage = () => {
         usersSet.set(userData.userId, {
           userId: userData.userId,
           username: userData.username,
-          address: userData.address || 'Chưa cập nhật địa chỉ'
+          address: userData.address || 'Chưa cập nhật địa chỉ',
+          bloodTypeId: userData.bloodTypeId
         });
       }
     });
@@ -336,8 +374,17 @@ const DonationRecordsPage = () => {
   };
 
   const handleSaveEdit = async (values) => {
+    // Store the form values and show confirmation modal
+    setPendingFormValues(values);
+    setConfirmModalVisible(true);
+  };
+
+  const handleConfirmSave = async () => {
     setEditLoading(true);
+    setConfirmModalVisible(false);
+    
     try {
+      const values = pendingFormValues;
       const recordId = selectedRecord.donationRecordId || selectedRecord.DonationRecordId || selectedRecord.id;
       const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
       
@@ -367,7 +414,23 @@ const DonationRecordsPage = () => {
 
       console.log('Sending update request with recordId:', recordId, 'and data:', updateData);
 
+      // Update the donation record first
       await AdminAPI.updateDonationRecord(recordId, updateData);
+
+      // If blood type is selected, update donor's blood type
+      if (values.donorBloodType) {
+        const donorId = getUserIdFromRegistration(registrationId);
+        if (donorId && donorId !== 'N/A') {
+          try {
+            await AdminAPI.updateDonorBloodType(Number(donorId), Number(values.donorBloodType));
+            console.log('Blood type updated successfully');
+          } catch (bloodTypeError) {
+            console.error('Error updating blood type:', bloodTypeError);
+            message.warning('Hồ sơ đã được cập nhật nhưng có lỗi khi cập nhật nhóm máu');
+          }
+        }
+      }
+
       message.success('Cập nhật hồ sơ hiến máu thành công!');
       
       // Update the selected record with new data
@@ -381,6 +444,7 @@ const DonationRecordsPage = () => {
       
       setIsEditMode(false);
       form.resetFields();
+      setPendingFormValues(null);
       
     } catch (error) {
       console.error('Error updating donation record:', error);
@@ -388,6 +452,11 @@ const DonationRecordsPage = () => {
     } finally {
       setEditLoading(false);
     }
+  };
+
+  const handleCancelConfirm = () => {
+    setConfirmModalVisible(false);
+    setPendingFormValues(null);
   };
 
   const getUserIdFromRegistration = (registrationId) => {
@@ -644,6 +713,20 @@ const DonationRecordsPage = () => {
                     </Select>
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label="NHÓM MÁU"
+                    name="donorBloodType"
+                  >
+                    <Select placeholder="Chọn nhóm máu">
+                      {Object.entries(bloodTypes).map(([id, type]) => (
+                        <Option key={id} value={parseInt(id)}>
+                          {type.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
                 <Col span={24}>
                   <Form.Item label="GHI CHÚ" name="note">
                     <Input.TextArea 
@@ -800,6 +883,27 @@ const DonationRecordsPage = () => {
                     // If cannot donate, show "Không thể hiến máu" (id=5), otherwise show actual result
                     const displayResult = cannotDonate ? 5 : (selectedRecord.bloodTestResult || selectedRecord.BloodTestResult);
                     return getBloodTestResultTag(displayResult);
+                  })()}
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div className="form-field">
+                <label className="form-label">NHÓM MÁU</label>
+                <div className="form-value">
+                  {(() => {
+                    const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
+                    const userData = registrationUsers[registrationId];
+                    const bloodTypeId = userData?.bloodTypeId;
+                    
+                    if (bloodTypeId && bloodTypes[bloodTypeId]) {
+                      return (
+                        <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>
+                          {bloodTypes[bloodTypeId].name}
+                        </Tag>
+                      );
+                    }
+                    return <span style={{ color: '#999' }}>Chưa xác định</span>;
                   })()}
                 </div>
               </div>
@@ -1259,6 +1363,19 @@ const DonationRecordsPage = () => {
           </Content>
         </Layout>
       </Layout>
+      
+      {/* Confirmation Modal */}
+      <Modal
+        title="Xác nhận thay đổi"
+        open={confirmModalVisible}
+        onOk={handleConfirmSave}
+        onCancel={handleCancelConfirm}
+        okText="Xác nhận"
+        cancelText="Huỷ"
+        loading={editLoading}
+      >
+        <p>Bạn đã kiểm tra kỹ thông tin đã được chỉnh sửa chưa?</p>
+      </Modal>
     </Layout>
   );
 };
