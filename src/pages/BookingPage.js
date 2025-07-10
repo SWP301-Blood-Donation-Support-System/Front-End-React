@@ -341,7 +341,7 @@ const BookingPage = () => {
       }
     }
       // Navigate to eligibility form
-    navigate('/eligibility', { state: { bookingData: completeBookingData } });
+    navigate('/eligibility-form', { state: { bookingData: completeBookingData } });
   };const handleLoginClick = () => {    // Save booking data to sessionStorage before redirecting
     if (form.getFieldsValue()) {
       sessionStorage.setItem('pendingBookingData', JSON.stringify({

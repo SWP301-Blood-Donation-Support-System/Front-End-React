@@ -203,7 +203,7 @@ const ConfirmationPage = () => {
 
   // Xử lý xem lại phiếu đăng ký hiến máu (chỉ xem, không chỉnh sửa)
   const handleViewEligibilityForm = () => {
-    navigate('/eligibility', { 
+    navigate('/eligibility-form', { 
       state: { 
         bookingData: bookingData,
         preservedEligibilityData: eligibilityData,

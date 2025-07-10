@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { 
+import React, { useState, useEffect } from "react";
+import {
   Layout,
-  Card, 
-  Row, 
-  Col, 
+  Card,
+  Row,
+  Col,
   Button,
   Input,
   Select,
@@ -13,14 +13,14 @@ import {
   message,
   Typography,
   Divider,
-  Form 
-} from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
-import dayjs from 'dayjs';
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
+  Form,
+} from "antd";
+import { useNavigate, useLocation } from "react-router-dom";
+import dayjs from "dayjs";
+import StaffSidebar from "../components/StaffSidebar";
+import StaffHeader from "../components/StaffHeader";
 
-import { AdminAPI } from '../api/admin';
+import { AdminAPI } from "../api/admin";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -36,21 +36,21 @@ const CreateDonationRecordPage = () => {
 
   useEffect(() => {
     fetchDonationTypes();
-    
+
     // Handle pre-filled data from schedule management
     const preFilledData = location.state?.preFilledData;
     const fromScheduleManagement = location.state?.fromScheduleManagement;
-    
+
     if (preFilledData && fromScheduleManagement) {
       // Pre-fill the form with data from schedule management
       setTimeout(() => {
         const formValues = {
           registrationId: preFilledData.registrationId,
           userId: preFilledData.userId,
-          username: preFilledData.username
+          username: preFilledData.username,
         };
 
-        // Use the schedule date directly 
+        // Use the schedule date directly
         if (preFilledData.scheduleDate) {
           // Use the schedule date without adding time - just the date from the schedule
           const donationDateTime = dayjs(preFilledData.scheduleDate);
@@ -58,9 +58,9 @@ const CreateDonationRecordPage = () => {
         }
 
         form.setFieldsValue(formValues);
-        
+
         // Show success message
-        message.success('Đã điền sẵn thông tin từ lịch hiến máu!');
+        message.success("Đã điền sẵn thông tin từ lịch hiến máu!");
       }, 500); // Small delay to ensure form is ready
     }
   }, [location.state, form]);
@@ -70,46 +70,43 @@ const CreateDonationRecordPage = () => {
       const response = await AdminAPI.getDonationTypes();
       setDonationTypes(response.data || []);
     } catch (error) {
-      console.error('Error fetching donation types:', error);
+      console.error("Error fetching donation types:", error);
     }
   };
-
-
-
-
 
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
       const recordData = {
         registrationId: values.registrationId,
-        donationDateTime: values.donationDateTime.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+        donationDateTime: values.donationDateTime.format(
+          "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
+        ),
         donorWeight: values.donorWeight || 0,
         donorTemperature: values.donorTemperature || 0,
-        donorBloodPressure: values.donorBloodPressure || '',
+        donorBloodPressure: values.donorBloodPressure || "",
         donationTypeId: values.donationTypeId,
         volumeDonated: values.volumeDonated || 0,
-        note: '',
+        note: "",
         bloodTestResult: 1, // Automatically set to 1 (Đang chờ xét nghiệm)
-        cannotDonate: values.cannotDonate || false
+        cannotDonate: values.cannotDonate || false,
       };
 
       await AdminAPI.createDonationRecord(recordData);
-      message.success('Tạo hồ sơ hiến máu thành công!');
-      
+      message.success("Tạo hồ sơ hiến máu thành công!");
+
       // Reset form and navigate back
       form.resetFields();
-      
+
       // Navigate back to appropriate page
       if (location.state?.fromScheduleManagement) {
-        navigate('/staff/schedule-management');
+        navigate("/staff/schedule-management");
       } else {
-        navigate('/staff/donation-records');
+        navigate("/staff/donation-records");
       }
-      
     } catch (error) {
-      console.error('Error creating donation record:', error);
-      message.error('Lỗi khi tạo hồ sơ hiến máu');
+      console.error("Error creating donation record:", error);
+      message.error("Lỗi khi tạo hồ sơ hiến máu");
     } finally {
       setLoading(false);
     }
@@ -118,9 +115,9 @@ const CreateDonationRecordPage = () => {
   const handleCancel = () => {
     // If we came from schedule management, go back there
     if (location.state?.fromScheduleManagement) {
-      navigate('/staff/schedule-management');
+      navigate("/staff/schedule-management");
     } else {
-      navigate('/staff/donation-records');
+      navigate("/staff/donation-records");
     }
   };
 
@@ -128,9 +125,9 @@ const CreateDonationRecordPage = () => {
     <Layout className="staff-layout">
       <StaffSidebar
         collapsed={collapsed}
-        onCollapse={value => setCollapsed(value)}
+        onCollapse={(value) => setCollapsed(value)}
       />
-      
+
       <Layout className="staff-main-layout">
         <StaffHeader />
 
@@ -144,19 +141,19 @@ const CreateDonationRecordPage = () => {
               </div>
 
               <div className="create-donation-form">
-                <Card title="THÔNG TIN HỒ SƠ HIẾN MÁU" className="detail-form-card">
+                <Card
+                  title="THÔNG TIN HỒ SƠ HIẾN MÁU"
+                  className="detail-form-card"
+                >
                   <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
                     requiredMark={false}
                   >
-                                        <Row gutter={[24, 16]}>
+                    <Row gutter={[24, 16]}>
                       <Col span={8}>
-                        <Form.Item
-                          label="MÃ ĐĂNG KÝ"
-                          name="registrationId"
-                        >
+                        <Form.Item label="MÃ ĐĂNG KÝ" name="registrationId">
                           <Input disabled />
                         </Form.Item>
                       </Col>
@@ -171,35 +168,39 @@ const CreateDonationRecordPage = () => {
                         </Form.Item>
                       </Col>
                     </Row>
-                    
+
                     <Row gutter={[24, 16]}>
                       <Col span={12}>
                         <Form.Item
                           label="NGÀY HIẾN MÁU"
                           name="donationDateTime"
                         >
-                          <DatePicker 
-                            showTime 
+                          <DatePicker
+                            showTime
                             format="DD/MM/YYYY HH:mm"
-                            style={{ width: '100%' }}
+                            style={{ width: "100%" }}
                             disabled
                           />
                         </Form.Item>
                       </Col>
                     </Row>
-                    
-                    <Divider orientation="left">THÔNG TIN SỨC KHỎE</Divider>
-                    
-                    <Row gutter={[24, 16]}>
 
+                    <Divider orientation="left">THÔNG TIN SỨC KHỎE</Divider>
+
+                    <Row gutter={[24, 16]}>
                       <Col span={8}>
-                        <Form.Item 
-                          label="NHIỆT ĐỘ (°C)" 
+                        <Form.Item
+                          label="NHIỆT ĐỘ (°C)"
                           name="donorTemperature"
-                          rules={[{ required: true, message: 'Vui lòng nhập nhiệt độ!' }]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập nhiệt độ!",
+                            },
+                          ]}
                         >
-                          <InputNumber 
-                            style={{ width: '100%' }}
+                          <InputNumber
+                            style={{ width: "100%" }}
                             placeholder="Nhập nhiệt độ"
                             min={30}
                             max={45}
@@ -208,18 +209,23 @@ const CreateDonationRecordPage = () => {
                         </Form.Item>
                       </Col>
                       <Col span={8}>
-                        <Form.Item 
-                          label="HUYẾT ÁP" 
+                        <Form.Item
+                          label="HUYẾT ÁP"
                           name="donorBloodPressure"
-                          rules={[{ required: true, message: 'Vui lòng nhập huyết áp!' }]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập huyết áp!",
+                            },
+                          ]}
                         >
                           <Input placeholder="Ví dụ: 120/80" />
                         </Form.Item>
                       </Col>
                       <Col span={8}>
                         <Form.Item label="CÂN NẶNG (kg)" name="donorWeight">
-                          <InputNumber 
-                            style={{ width: '100%' }}
+                          <InputNumber
+                            style={{ width: "100%" }}
                             placeholder="Nhập cân nặng"
                             min={0}
                             max={200}
@@ -227,19 +233,27 @@ const CreateDonationRecordPage = () => {
                         </Form.Item>
                       </Col>
                     </Row>
-                    
+
                     <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
-                    
+
                     <Row gutter={[24, 16]}>
                       <Col span={8}>
                         <Form.Item
                           label="LOẠI HIẾN MÁU"
                           name="donationTypeId"
-                          rules={[{ required: true, message: 'Vui lòng chọn loại hiến máu!' }]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn loại hiến máu!",
+                            },
+                          ]}
                         >
                           <Select placeholder="Chọn loại hiến máu">
-                            {donationTypes.map(type => (
-                              <Option key={type.id || type.Id} value={type.id || type.Id}>
+                            {donationTypes.map((type) => (
+                              <Option
+                                key={type.id || type.Id}
+                                value={type.id || type.Id}
+                              >
                                 {type.name || type.Name}
                               </Option>
                             ))}
@@ -250,20 +264,24 @@ const CreateDonationRecordPage = () => {
                         <Form.Item
                           label="THỂ TÍCH HIẾN (ml)"
                           name="volumeDonated"
-                          rules={[{ required: true, message: 'Vui lòng nhập thể tích hiến!' }]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn thể tích hiến!",
+                            },
+                          ]}
                         >
-                          <InputNumber 
-                            style={{ width: '100%' }}
-                            placeholder="Nhập thể tích hiến"
-                            min={0}
-                            max={1000}
-                          />
+                          <Select placeholder="Chọn thể tích hiến">
+                            <Option value={250}>250 ml</Option>
+                            <Option value={350}>350 ml</Option>
+                            <Option value={450}>450 ml</Option>
+                          </Select>
                         </Form.Item>
                       </Col>
                       <Col span={8}>
-                        <Form.Item 
-                          label="KHÔNG THỂ HIẾN MÁU ĐƯỢC" 
-                          name="cannotDonate" 
+                        <Form.Item
+                          label="KHÔNG THỂ HIẾN MÁU ĐƯỢC"
+                          name="cannotDonate"
                           valuePropName="checked"
                         >
                           <Checkbox>Không thể hiến máu được</Checkbox>
@@ -272,16 +290,14 @@ const CreateDonationRecordPage = () => {
                     </Row>
 
                     <Divider />
-                    
+
                     <Row gutter={[16, 16]} justify="center">
                       <Col>
-                        <Button onClick={handleCancel}>
-                          Hủy
-                        </Button>
+                        <Button onClick={handleCancel}>Hủy</Button>
                       </Col>
                       <Col>
-                        <Button 
-                          type="primary" 
+                        <Button
+                          type="primary"
                           htmlType="submit"
                           loading={loading}
                         >
@@ -300,4 +316,4 @@ const CreateDonationRecordPage = () => {
   );
 };
 
-export default CreateDonationRecordPage; 
+export default CreateDonationRecordPage;
