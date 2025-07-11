@@ -55,15 +55,15 @@ const BloodUnitSelectionPage = () => {
   const handleSelectBloodUnit = async (bloodUnit) => {
     try {
       await HospitalAPI.assignBloodUnitToRequest(
-        bloodUnit.donationRecordId, 
+        bloodUnit.bloodUnitId, 
         selectedRequest.requestId
       );
       
-      message.success(`Đã chọn túi máu #${bloodUnit.donationRecordId}`);
+      message.success(`Đã chọn túi máu #${bloodUnit.bloodUnitId}`);
       
       // Remove the selected unit from the list
       setSuggestedBloodUnits(prev => 
-        prev.filter(unit => unit.donationRecordId !== bloodUnit.donationRecordId)
+        prev.filter(unit => unit.bloodUnitId !== bloodUnit.bloodUnitId)
       );
       
     } catch (error) {
@@ -91,8 +91,8 @@ const BloodUnitSelectionPage = () => {
   const columns = [
     {
       title: 'ID Túi máu',
-      dataIndex: 'donationRecordId',
-      key: 'donationRecordId',
+      dataIndex: 'bloodUnitId',
+      key: 'bloodUnitId',
       render: (id) => <Text strong>#{id}</Text>,
     },
     {
@@ -198,7 +198,7 @@ const BloodUnitSelectionPage = () => {
                 <Table
                   columns={columns}
                   dataSource={suggestedBloodUnits}
-                  rowKey="donationRecordId"
+                  rowKey="bloodUnitId"
                   loading={loading}
                   pagination={false}
                 />
