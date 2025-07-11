@@ -20,6 +20,7 @@ import {
   HomeOutlined,
   SafetyOutlined,
   AccountBookOutlined,
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, notification } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -134,6 +135,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return (isAdminUser() || isHospitalUser()) ? ['13'] : ['1'];
     } else if (pathname.includes('/staff/hospital-accounts')) {
       return (isAdminUser() || isHospitalUser()) ? ['14'] : ['1'];
+    } else if (pathname.includes('/staff/emergency-request')) {
+      return (isAdminUser() || isHospitalUser()) ? ['15'] : ['1'];
     } else if (pathname.includes('/staff/profile')) {
       return ['6'];
     }
@@ -321,6 +324,18 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
+      case '15': // Tạo đơn khẩn cấp (admin or hospital users)
+        if (isAdminUser() || isHospitalUser()) {
+          navigate('/staff/emergency-request');
+        } else {
+          api.warning({
+            message: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền truy cập chức năng này.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        }
+        break;
       default:
         break;
     }
@@ -339,6 +354,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
             getItem('Đăng ký bệnh viện', '12', <HomeOutlined />),
             getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
             getItem('Tài khoản bệnh viện', '14', <AccountBookOutlined />),
+            getItem('Tạo đơn khẩn cấp', '15', <ExclamationCircleOutlined />),
           ]
         },
         {
@@ -394,6 +410,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           getItem('Đăng ký bệnh viện', '12', <HomeOutlined />),
           getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
           getItem('Tài khoản bệnh viện', '14', <AccountBookOutlined />),
+          getItem('Tạo đơn khẩn cấp', '15', <ExclamationCircleOutlined />),
         ]
       }] : []),
       {

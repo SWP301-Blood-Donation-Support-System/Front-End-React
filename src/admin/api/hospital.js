@@ -119,4 +119,26 @@ export const HospitalAPI = {
       throw error;
     }
   },
+
+  // Create emergency blood request
+  createBloodRequest: async (requestData) => {
+    try {
+      const response = await hospitalApi.post('/api/BloodRequest', requestData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating blood request:', error);
+      throw error;
+    }
+  },
+
+  // Get urgency levels lookup
+  getUrgencies: async () => {
+    try {
+      const response = await hospitalApi.get('/api/Lookup/urgencies');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching urgencies:', error);
+      throw error;
+    }
+  },
 }; 

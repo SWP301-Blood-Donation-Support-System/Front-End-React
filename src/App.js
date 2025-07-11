@@ -31,6 +31,7 @@ import HospitalListPage from './admin/pages/HospitalListPage';
 import HospitalRegistrationPage from './admin/pages/HospitalRegistrationPage';
 import CreateHospitalAccountPage from './admin/pages/CreateHospitalAccountPage';
 import HospitalAccountsPage from './admin/pages/HospitalAccountsPage';
+import EmergencyRequestPage from './admin/pages/EmergencyRequestPage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
@@ -150,6 +151,11 @@ function App() {
           <Route path="/staff/hospital-accounts" element={
             <AdminProtectedRoute>
               <HospitalAccountsPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/emergency-request" element={
+            <AdminProtectedRoute>
+              <EmergencyRequestPage />
             </AdminProtectedRoute>
           } />
         </Routes>
