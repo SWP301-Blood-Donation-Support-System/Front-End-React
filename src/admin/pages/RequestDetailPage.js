@@ -71,6 +71,11 @@ const RequestDetailPage = () => {
     try {
       const detailedRequest = await HospitalAPI.getBloodRequestById(requestId);
       setSelectedRequest(detailedRequest);
+      
+      // Fetch lookup data if not available
+      if (!bloodTypes || Object.keys(bloodTypes).length === 0) {
+        // Could fetch lookup data here if needed
+      }
     } catch (error) {
       console.error("Error fetching request details:", error);
       message.error("Lỗi khi tải chi tiết đơn khẩn cấp!");
@@ -209,13 +214,15 @@ const RequestDetailPage = () => {
   };
 
   const isPendingApproval = () => {
+    if (!bloodRequestStatuses || !selectedRequest) return false;
+    
     const pendingStatus = Object.values(bloodRequestStatuses).find(
-      status => status.name === "Đang chờ duyệt"
+      status => status && status.name === "Đang chờ duyệt"
     );
     return pendingStatus && selectedRequest.requestStatusId == pendingStatus.id;
   };
 
-  if (!selectedRequest) {
+  if (!selectedRequest || loading) {
     return (
       <Layout className="staff-layout">
         <StaffSidebar
@@ -287,7 +294,7 @@ const RequestDetailPage = () => {
                       bloodComponentId: bloodComponents[selectedRequest.bloodComponentId]?.name || 'N/A',
                       volume: `${selectedRequest.volume || 0} ml`,
                       requiredDateTime: formatDateTime(selectedRequest.requiredDateTime),
-                      urgencyId: urgencies[selectedRequest.urgencyId] ? 
+                      urgencyId: (urgencies && selectedRequest.urgencyId && urgencies[selectedRequest.urgencyId]) ? 
                         `${urgencies[selectedRequest.urgencyId].name} - ${urgencies[selectedRequest.urgencyId].description}` : 
                         'N/A',
                       requestStatusId: bloodRequestStatuses[selectedRequest.requestStatusId]?.name || 'N/A',
@@ -417,7 +424,7 @@ const RequestDetailPage = () => {
                             size="large"
                             style={{ 
                               backgroundColor: '#fff',
-                              color: urgencies[selectedRequest.urgencyId] ? 
+                              color: (urgencies && selectedRequest.urgencyId && urgencies[selectedRequest.urgencyId]) ? 
                                 getUrgencyColor(urgencies[selectedRequest.urgencyId].name) : 
                                 '#000'
                             }}
