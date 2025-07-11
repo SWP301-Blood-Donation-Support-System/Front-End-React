@@ -21,6 +21,7 @@ import {
   SafetyOutlined,
   AccountBookOutlined,
   ExclamationCircleOutlined,
+  AuditOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, notification } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -137,6 +138,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return (isAdminUser() || isHospitalUser()) ? ['14'] : ['1'];
     } else if (pathname.includes('/staff/emergency-request')) {
       return (isAdminUser() || isHospitalUser()) ? ['15'] : ['1'];
+    } else if (pathname.includes('/staff/approve-requests')) {
+      return (isAdminUser() || isHospitalUser()) ? ['16'] : ['1'];
     } else if (pathname.includes('/staff/profile')) {
       return ['6'];
     }
@@ -336,6 +339,18 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
+      case '16': // Duyệt đơn khẩn cấp (admin or hospital users)
+        if (isAdminUser() || isHospitalUser()) {
+          navigate('/staff/approve-requests');
+        } else {
+          api.warning({
+            message: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền truy cập chức năng này.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        }
+        break;
       default:
         break;
     }
@@ -355,6 +370,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
             getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
             getItem('Tài khoản bệnh viện', '14', <AccountBookOutlined />),
             getItem('Tạo đơn khẩn cấp', '15', <ExclamationCircleOutlined />),
+            getItem('Duyệt đơn khẩn cấp', '16', <AuditOutlined />),
           ]
         },
         {
@@ -411,6 +427,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
           getItem('Tài khoản bệnh viện', '14', <AccountBookOutlined />),
           getItem('Tạo đơn khẩn cấp', '15', <ExclamationCircleOutlined />),
+          getItem('Duyệt đơn khẩn cấp', '16', <AuditOutlined />),
         ]
       }] : []),
       {

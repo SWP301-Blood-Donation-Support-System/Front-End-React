@@ -141,4 +141,37 @@ export const HospitalAPI = {
       throw error;
     }
   },
+
+  // Get all blood requests
+  getAllBloodRequests: async () => {
+    try {
+      const response = await hospitalApi.get('/api/BloodRequest');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching blood requests:', error);
+      throw error;
+    }
+  },
+
+  // Get blood request by ID
+  getBloodRequestById: async (requestId) => {
+    try {
+      const response = await hospitalApi.get(`/api/BloodRequest/${requestId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching blood request by ID:', error);
+      throw error;
+    }
+  },
+
+  // Get blood request statuses lookup
+  getBloodRequestStatuses: async () => {
+    try {
+      const response = await hospitalApi.get('/api/Lookup/blood-request-statuses');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching blood request statuses:', error);
+      throw error;
+    }
+  },
 }; 
