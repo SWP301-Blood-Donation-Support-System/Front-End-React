@@ -150,6 +150,38 @@ const EmergencyRequestPage = () => {
     }
   };
 
+  // Get Vietnamese name for urgency
+  const getUrgencyVietnameseName = (urgencyName) => {
+    switch (urgencyName?.toLowerCase()) {
+      case 'low':
+        return 'Thấp';
+      case 'medium':
+        return 'Trung bình';
+      case 'high':
+        return 'Cao';
+      case 'critical':
+        return 'Khẩn cấp';
+      default:
+        return urgencyName;
+    }
+  };
+
+  // Get Vietnamese description for urgency
+  const getUrgencyVietnameseDescription = (urgencyName) => {
+    switch (urgencyName?.toLowerCase()) {
+      case 'low':
+        return 'Không khẩn cấp';
+      case 'medium':
+        return 'Khẩn cấp vừa phải';
+      case 'high':
+        return 'Ưu tiên cao';
+      case 'critical':
+        return 'Cần chú ý ngay lập tức';
+      default:
+        return 'Mức độ khẩn cấp';
+    }
+  };
+
   return (
     <Layout className="staff-layout">
       {contextHolder}
@@ -342,7 +374,7 @@ const EmergencyRequestPage = () => {
                               <Option key={urgency.id} value={urgency.id}>
                                 <span style={{ color: getUrgencyColor(urgency.name) }}>
                                   <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
-                                  {urgency.name} - {urgency.description}
+                                  {getUrgencyVietnameseName(urgency.name)} - {getUrgencyVietnameseDescription(urgency.name)}
                                 </span>
                               </Option>
                             ))}

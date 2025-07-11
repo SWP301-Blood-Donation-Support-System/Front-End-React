@@ -198,22 +198,28 @@ const HospitalRequestsPage = () => {
     if (!urgency) return <Tag>Không xác định</Tag>;
     
     let color = 'default';
+    let vietnameseName = urgency.name;
+    
     switch (urgency.name.toLowerCase()) {
       case 'low':
         color = 'green';
+        vietnameseName = 'Thấp';
         break;
       case 'medium':
         color = 'orange';
+        vietnameseName = 'Trung bình';
         break;
       case 'high':
         color = 'red';
+        vietnameseName = 'Cao';
         break;
       case 'critical':
         color = 'magenta';
+        vietnameseName = 'Khẩn cấp';
         break;
     }
     
-    return <Tag color={color}>{urgency.name}</Tag>;
+    return <Tag color={color}>{vietnameseName}</Tag>;
   };
 
   const formatDateTime = (dateTime) => {

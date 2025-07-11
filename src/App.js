@@ -35,6 +35,8 @@ import EmergencyRequestPage from './admin/pages/EmergencyRequestPage';
 import ApproveRequestsPage from './admin/pages/ApproveRequestsPage';
 import HospitalRequestsPage from './admin/pages/HospitalRequestsPage';
 import RequestDetailPage from './admin/pages/RequestDetailPage';
+import RequestHistoryPage from './admin/pages/RequestHistoryPage';
+import RequestHistoryDetailPage from './admin/pages/RequestHistoryDetailPage';
 import BloodUnitSelectionPage from './admin/pages/BloodUnitSelectionPage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
@@ -165,6 +167,16 @@ function App() {
           <Route path="/staff/approve-requests" element={
             <AdminProtectedRoute>
               <ApproveRequestsPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/request-history" element={
+            <AdminProtectedRoute>
+              <RequestHistoryPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/request-history/detail/:requestId" element={
+            <AdminProtectedRoute>
+              <RequestHistoryDetailPage />
             </AdminProtectedRoute>
           } />
           <Route path="/staff/approve-requests/hospital/:hospitalId" element={

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Layout,
   Typography,
@@ -11,6 +11,7 @@ import {
   Row,
   Col,
   message,
+  Tag,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -20,8 +21,7 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   FileTextOutlined,
-  CheckOutlined,
-  CloseOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -29,13 +29,14 @@ import dayjs from "dayjs";
 import StaffSidebar from "../components/StaffSidebar";
 import StaffHeader from "../components/StaffHeader";
 import { HospitalAPI } from "../api/hospital";
+import { AdminAPI } from "../api/admin";
 import "../styles/donation-records.scss";
 
 const { Content } = Layout;
 const { Title } = Typography;
 const { TextArea } = Input;
 
-const RequestDetailPage = () => {
+const RequestHistoryDetailPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -44,53 +45,87 @@ const RequestDetailPage = () => {
   
   // Data states
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [hospital, setHospital] = useState(null);
   const [bloodTypes, setBloodTypes] = useState({});
   const [bloodComponents, setBloodComponents] = useState({});
   const [urgencies, setUrgencies] = useState({});
   const [bloodRequestStatuses, setBloodRequestStatuses] = useState({});
 
-  useEffect(() => {
-    // Get data from location state if available
-    if (location.state) {
-      const { request, hospital, bloodTypes, bloodComponents, urgencies, bloodRequestStatuses } = location.state;
-      setSelectedRequest(request);
-      setHospital(hospital);
-      setBloodTypes(bloodTypes);
-      setBloodComponents(bloodComponents);
-      setUrgencies(urgencies);
-      setBloodRequestStatuses(bloodRequestStatuses);
-    } else {
-      // Fallback: fetch request details if state is not available
-      fetchRequestDetails();
-    }
-  }, [requestId]);
-
-  const fetchRequestDetails = async () => {
+  const fetchRequestDetails = useCallback(async () => {
     setLoading(true);
     try {
-      const detailedRequest = await HospitalAPI.getBloodRequestById(requestId);
+      const [
+        detailedRequest,
+        statusesRes,
+        typesRes,
+        componentsRes,
+        urgenciesRes,
+      ] = await Promise.all([
+        HospitalAPI.getBloodRequestById(requestId),
+        HospitalAPI.getBloodRequestStatuses(),
+        AdminAPI.getBloodTypesLookup(),
+        AdminAPI.getBloodComponents(),
+        HospitalAPI.getUrgencies(),
+      ]);
+
       setSelectedRequest(detailedRequest);
+
+      // Process lookup data
+      const statusesData = Array.isArray(statusesRes) ? statusesRes : statusesRes.data || [];
+      const statusesMap = {};
+      statusesData.forEach(status => {
+        statusesMap[status.id] = status;
+      });
+      setBloodRequestStatuses(statusesMap);
+
+      const typesData = Array.isArray(typesRes) ? typesRes : typesRes.data || [];
+      const typesMap = {};
+      typesData.forEach(type => {
+        typesMap[type.id] = type;
+      });
+      setBloodTypes(typesMap);
       
-      // Fetch lookup data if not available
-      if (!bloodTypes || Object.keys(bloodTypes).length === 0) {
-        // Could fetch lookup data here if needed
-      }
+      const componentsData = Array.isArray(componentsRes) ? componentsRes : componentsRes.data || [];
+      const componentsMap = {};
+      componentsData.forEach(component => {
+        componentsMap[component.id] = component;
+      });
+      setBloodComponents(componentsMap);
+      
+      const urgenciesData = Array.isArray(urgenciesRes) ? urgenciesRes : urgenciesRes.data || [];
+      const urgenciesMap = {};
+      urgenciesData.forEach(urgency => {
+        urgenciesMap[urgency.id] = urgency;
+      });
+      setUrgencies(urgenciesMap);
+
     } catch (error) {
       console.error("Error fetching request details:", error);
       message.error("Lỗi khi tải chi tiết đơn khẩn cấp!");
     } finally {
       setLoading(false);
     }
-  };
+  }, [requestId]);
 
-  const handleBackToHospitalRequests = () => {
-    if (hospital) {
-      navigate(`/staff/approve-requests/hospital/${hospital.hospitalId}`, {
-        state: { hospital }
-      });
+  useEffect(() => {
+    // Get data from location state if available
+    if (location.state) {
+      const { request, bloodTypes, bloodComponents, urgencies, bloodRequestStatuses } = location.state;
+      setSelectedRequest(request);
+      if (bloodTypes) setBloodTypes(bloodTypes);
+      if (bloodComponents) setBloodComponents(bloodComponents);
+      if (urgencies) setUrgencies(urgencies);
+      if (bloodRequestStatuses) setBloodRequestStatuses(bloodRequestStatuses);
     } else {
-      navigate('/staff/approve-requests');
+      // Fallback: fetch request details if state is not available
+      fetchRequestDetails();
+    }
+  }, [requestId, location.state, fetchRequestDetails]);
+
+  const handleBackToRequestHistory = () => {
+    if (location.state?.fromHistory) {
+      navigate('/staff/request-history');
+    } else {
+      navigate('/staff/request-history');
     }
   };
 
@@ -129,115 +164,24 @@ const RequestDetailPage = () => {
     }
   };
 
-  const handleApproveRequest = async () => {
-    setLoading(true);
-    try {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-      // Try different possible field names for user ID
-      const approverUserId = parseInt(userInfo.UserId || userInfo.UserID || userInfo.userId || userInfo.id);
-      
-      console.log('Approval Debug - userInfo:', userInfo);
-      console.log('Approval Debug - approverUserId:', approverUserId);
-      console.log('Approval Debug - selectedRequest.requestId:', selectedRequest.requestId);
-      
-      if (!approverUserId) {
-        message.error('Không thể xác định người duyệt. Vui lòng đăng nhập lại!');
-        return;
-      }
-      
-      if (!selectedRequest.requestId) {
-        message.error('Không thể xác định ID đơn khẩn cấp!');
-        return;
-      }
-      
-      await HospitalAPI.approveBloodRequest(parseInt(selectedRequest.requestId), approverUserId);
-      message.success('Đã duyệt đơn khẩn cấp thành công!');
-      
-      // Navigate to blood unit selection page
-      navigate(`/staff/approve-requests/blood-selection/${selectedRequest.requestId}`, {
-        state: { 
-          request: selectedRequest,
-          hospital,
-          bloodTypes,
-          bloodComponents,
-          urgencies,
-          bloodRequestStatuses
-        }
-      });
-    } catch (error) {
-      console.error('Error approving request:', error);
-      console.error('Error details:', error.response?.data);
-      
-      // Show more specific error message
-      if (error.response?.status === 400) {
-        message.error('Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin!');
-      } else if (error.response?.status === 401) {
-        message.error('Bạn không có quyền duyệt đơn này!');
-      } else if (error.response?.status === 404) {
-        message.error('Không tìm thấy đơn khẩn cấp!');
-      } else {
-        message.error('Lỗi khi duyệt đơn khẩn cấp!');
-      }
-    } finally {
-      setLoading(false);
+  const getStatusColor = (statusName) => {
+    switch (statusName?.toLowerCase()) {
+      case 'đang chờ duyệt':
+        return 'processing';
+      case 'đã duyệt':
+        return 'success';
+      case 'đã từ chối':
+        return 'error';
+      case 'đã hoàn thành':
+        return 'green';
+      case 'đã hủy':
+        return 'default';
+      default:
+        return 'default';
     }
   };
 
-  const handleRejectRequest = async () => {
-    setLoading(true);
-    try {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-      // Try different possible field names for user ID
-      const approverUserId = parseInt(userInfo.UserId || userInfo.UserID || userInfo.userId || userInfo.id);
-      
-      console.log('Rejection Debug - userInfo:', userInfo);
-      console.log('Rejection Debug - approverUserId:', approverUserId);
-      console.log('Rejection Debug - selectedRequest.requestId:', selectedRequest.requestId);
-      
-      if (!approverUserId) {
-        message.error('Không thể xác định người duyệt. Vui lòng đăng nhập lại!');
-        return;
-      }
-      
-      if (!selectedRequest.requestId) {
-        message.error('Không thể xác định ID đơn khẩn cấp!');
-        return;
-      }
-      
-      await HospitalAPI.rejectBloodRequest(parseInt(selectedRequest.requestId), approverUserId);
-      message.success('Đã từ chối đơn khẩn cấp!');
-      
-      // Go back to hospital requests page
-      handleBackToHospitalRequests();
-    } catch (error) {
-      console.error('Error rejecting request:', error);
-      console.error('Error details:', error.response?.data);
-      
-      // Show more specific error message
-      if (error.response?.status === 400) {
-        message.error('Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin!');
-      } else if (error.response?.status === 401) {
-        message.error('Bạn không có quyền từ chối đơn này!');
-      } else if (error.response?.status === 404) {
-        message.error('Không tìm thấy đơn khẩn cấp!');
-      } else {
-        message.error('Lỗi khi từ chối đơn khẩn cấp!');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isPendingApproval = () => {
-    if (!bloodRequestStatuses || !selectedRequest) return false;
-    
-    const pendingStatus = Object.values(bloodRequestStatuses).find(
-      status => status && status.name === "Đang chờ duyệt"
-    );
-    return pendingStatus && selectedRequest.requestStatusId == pendingStatus.id;
-  };
-
-  if (!selectedRequest || loading) {
+  if (!selectedRequest) {
     return (
       <Layout className="staff-layout">
         <StaffSidebar
@@ -249,7 +193,7 @@ const RequestDetailPage = () => {
           <Layout className="staff-content-layout">
             <Content className="donation-records-content">
               <div className="donation-records-container">
-                <Card>
+                <Card loading={loading}>
                   <p>Đang tải chi tiết đơn khẩn cấp...</p>
                 </Card>
               </div>
@@ -275,7 +219,7 @@ const RequestDetailPage = () => {
             <div className="donation-records-container">
               <div className="donation-records-header-section">
                 <Title level={3} className="donation-records-title">
-                  Chi tiết đơn khẩn cấp #{selectedRequest.requestId}
+                  <HistoryOutlined /> Chi tiết đơn khẩn cấp #{selectedRequest.requestId}
                 </Title>
               </div>
 
@@ -286,7 +230,7 @@ const RequestDetailPage = () => {
                       <Button
                         type="text"
                         icon={<ArrowLeftOutlined />}
-                        onClick={handleBackToHospitalRequests}
+                        onClick={handleBackToRequestHistory}
                       >
                         Quay lại
                       </Button>
@@ -297,7 +241,15 @@ const RequestDetailPage = () => {
                   }
                   className="detail-form-card"
                   extra={
-                    <AlertOutlined style={{ color: '#f5222d', fontSize: '16px' }} />
+                    <Space>
+                      <Tag 
+                        color={getStatusColor(bloodRequestStatuses[selectedRequest.requestStatusId]?.name)}
+                        style={{ fontSize: '14px', padding: '4px 12px' }}
+                      >
+                        {bloodRequestStatuses[selectedRequest.requestStatusId]?.name || 'N/A'}
+                      </Tag>
+                      <AlertOutlined style={{ color: '#f5222d', fontSize: '16px' }} />
+                    </Space>
                   }
                 >
                   <Form
@@ -315,6 +267,7 @@ const RequestDetailPage = () => {
                       requestStatusId: bloodRequestStatuses[selectedRequest.requestStatusId]?.name || 'N/A',
                       note: selectedRequest.note || 'Không có ghi chú',
                       createdAt: formatDateTime(selectedRequest.createdAt),
+                      updatedAt: formatDateTime(selectedRequest.updatedAt),
                     }}
                   >
                     <Row gutter={[24, 16]}>
@@ -323,15 +276,7 @@ const RequestDetailPage = () => {
                           label="ID ĐƠN KHẨN CẤP"
                           name="requestId"
                         >
-                          <Input readOnly style={{ backgroundColor: '#fff' }} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item
-                          label="NHÂN VIÊN YÊU CẦU"
-                          name="requestingStaffId"
-                        >
-                          <Input readOnly style={{ backgroundColor: '#fff' }} />
+                          <Input readOnly style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }} />
                         </Form.Item>
                       </Col>
                       <Col span={8}>
@@ -341,7 +286,18 @@ const RequestDetailPage = () => {
                         >
                           <Input 
                             readOnly 
-                            style={{ backgroundColor: '#fff' }}
+                            style={{ backgroundColor: '#f5f5f5' }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          label="LẦN CẬP NHẬT CUỐI"
+                          name="updatedAt"
+                        >
+                          <Input 
+                            readOnly 
+                            style={{ backgroundColor: '#f5f5f5' }}
                           />
                         </Form.Item>
                       </Col>
@@ -361,7 +317,7 @@ const RequestDetailPage = () => {
                           <Input 
                             readOnly 
                             size="large"
-                            style={{ backgroundColor: '#fff' }}
+                            style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold', color: '#f5222d' }}
                           />
                         </Form.Item>
                       </Col>
@@ -379,7 +335,7 @@ const RequestDetailPage = () => {
                           <Input 
                             readOnly 
                             size="large"
-                            style={{ backgroundColor: '#fff' }}
+                            style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold', color: '#1890ff' }}
                           />
                         </Form.Item>
                       </Col>
@@ -399,7 +355,7 @@ const RequestDetailPage = () => {
                           <Input 
                             readOnly 
                             size="large"
-                            style={{ backgroundColor: '#fff' }}
+                            style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold', color: '#52c41a' }}
                           />
                         </Form.Item>
                       </Col>
@@ -417,7 +373,7 @@ const RequestDetailPage = () => {
                           <Input 
                             readOnly 
                             size="large"
-                            style={{ backgroundColor: '#fff' }}
+                            style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold', color: '#faad14' }}
                           />
                         </Form.Item>
                       </Col>
@@ -438,7 +394,8 @@ const RequestDetailPage = () => {
                             readOnly 
                             size="large"
                             style={{ 
-                              backgroundColor: '#fff',
+                              backgroundColor: '#f5f5f5',
+                              fontWeight: 'bold',
                               color: (urgencies && selectedRequest.urgencyId && urgencies[selectedRequest.urgencyId]) ? 
                                 getUrgencyColor(urgencies[selectedRequest.urgencyId].name) : 
                                 '#000'
@@ -460,72 +417,53 @@ const RequestDetailPage = () => {
                           <Input 
                             readOnly 
                             size="large"
-                            style={{ backgroundColor: '#fff' }}
+                            style={{ backgroundColor: '#f5f5f5', fontWeight: 'bold' }}
                           />
                         </Form.Item>
                       </Col>
                     </Row>
-
-                    <Divider orientation="left">GHI CHÚ</Divider>
 
                     <Row gutter={[24, 16]}>
                       <Col span={24}>
                         <Form.Item
                           label={
                             <span>
-                              <FileTextOutlined style={{ marginRight: '8px', color: '#722ed1' }} />
+                              <FileTextOutlined style={{ marginRight: '8px', color: '#8c8c8c' }} />
                               GHI CHÚ
                             </span>
                           }
                           name="note"
                         >
                           <TextArea
-                            readOnly
                             rows={4}
-                            style={{ backgroundColor: '#fff' }}
+                            readOnly
+                            style={{ 
+                              backgroundColor: '#f5f5f5',
+                              resize: 'none'
+                            }}
                           />
                         </Form.Item>
                       </Col>
                     </Row>
-                  </Form>
 
-                  {/* Approval Buttons - Only show if request is pending approval */}
-                  {isPendingApproval() && (
-                    <>
-                      <Divider orientation="left">THAO TÁC DUYỆT</Divider>
-                      <Row justify="center" gutter={[24, 16]} style={{ marginTop: '24px' }}>
-                        <Col>
-                          <Button
-                            type="primary"
-                            size="large"
-                            icon={<CheckOutlined />}
-                            onClick={handleApproveRequest}
-                            loading={loading}
-                            style={{ 
-                              backgroundColor: '#52c41a', 
-                              borderColor: '#52c41a',
-                              minWidth: '150px'
-                            }}
-                          >
-                            Duyệt
-                          </Button>
-                        </Col>
-                        <Col>
-                          <Button
-                            type="primary"
-                            size="large"
-                            danger
-                            icon={<CloseOutlined />}
-                            onClick={handleRejectRequest}
-                            loading={loading}
-                            style={{ minWidth: '150px' }}
-                          >
-                            Từ chối
-                          </Button>
-                        </Col>
-                      </Row>
-                    </>
-                  )}
+                    {/* Information Notice */}
+                    <Card 
+                      size="small" 
+                      style={{ 
+                        backgroundColor: '#e6f7ff', 
+                        border: '1px solid #91d5ff',
+                        marginTop: '16px'
+                      }}
+                    >
+                      <Space>
+                        <AlertOutlined style={{ color: '#1890ff' }} />
+                        <span style={{ color: '#1890ff' }}>
+                          <strong>Thông tin:</strong> Đây là trang xem chi tiết đơn khẩn cấp mà bạn đã tạo. 
+                          Để tạo đơn mới, vui lòng truy cập trang "Tạo đơn khẩn cấp".
+                        </span>
+                      </Space>
+                    </Card>
+                  </Form>
                 </Card>
               </div>
             </div>
@@ -536,4 +474,4 @@ const RequestDetailPage = () => {
   );
 };
 
-export default RequestDetailPage; 
+export default RequestHistoryDetailPage;
