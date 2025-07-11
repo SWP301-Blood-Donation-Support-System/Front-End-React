@@ -16,6 +16,7 @@ import {
   ArrowLeftOutlined,
   EyeOutlined,
   ClockCircleOutlined,
+  SelectOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -156,6 +157,19 @@ const HospitalRequestsPage = () => {
     });
   };
 
+  const handleSelectBloodUnits = (request) => {
+    navigate(`/staff/approve-requests/blood-selection/${request.requestId}`, {
+      state: { 
+        request,
+        hospital,
+        bloodTypes,
+        bloodComponents,
+        urgencies,
+        bloodRequestStatuses
+      }
+    });
+  };
+
   const getStatusTag = (statusId) => {
     const status = bloodRequestStatuses[statusId];
     if (!status) return <Tag>Không xác định</Tag>;
@@ -260,15 +274,32 @@ const HospitalRequestsPage = () => {
     {
       title: 'Thao tác',
       key: 'actions',
-      render: (_, record) => (
-        <Button
-          type="link"
-          icon={<EyeOutlined />}
-          onClick={() => handleViewRequestDetail(record)}
-        >
-          Chi tiết
-        </Button>
-      ),
+      render: (_, record) => {
+        const status = bloodRequestStatuses[record.requestStatusId];
+        const isApproved = status && status.name === "Đã duyệt";
+        
+        return (
+          <Space>
+            <Button
+              type="link"
+              icon={<EyeOutlined />}
+              onClick={() => handleViewRequestDetail(record)}
+            >
+              Chi tiết
+            </Button>
+            {isApproved && (
+              <Button
+                type="primary"
+                icon={<SelectOutlined />}
+                onClick={() => handleSelectBloodUnits(record)}
+                size="small"
+              >
+                Chọn túi máu
+              </Button>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -325,15 +356,9 @@ const HospitalRequestsPage = () => {
                 <Table
                   columns={requestColumns}
                   dataSource={hospitalRequests}
-                  rowKey="requestId"
+                  rowKey={(record) => `hospital-${hospitalId}-request-${record.requestId}`}
                   loading={loading}
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} của ${total} đơn khẩn cấp`,
-                  }}
+                  pagination={false}
                 />
               </Card>
             </div>

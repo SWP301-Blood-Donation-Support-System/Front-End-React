@@ -174,4 +174,59 @@ export const HospitalAPI = {
       throw error;
     }
   },
+
+  // Approve blood request
+  approveBloodRequest: async (requestId, approverUserId) => {
+    try {
+      const response = await hospitalApi.patch(`/api/BloodRequest/${requestId}/approve`, approverUserId);
+      return response.data;
+    } catch (error) {
+      console.error('Error approving blood request:', error);
+      throw error;
+    }
+  },
+
+  // Reject blood request
+  rejectBloodRequest: async (requestId, approverUserId) => {
+    try {
+      const response = await hospitalApi.patch(`/api/BloodRequest/${requestId}/reject`, approverUserId);
+      return response.data;
+    } catch (error) {
+      console.error('Error rejecting blood request:', error);
+      throw error;
+    }
+  },
+
+  // Get suggested blood units for a request
+  getSuggestedBloodUnits: async (requestId) => {
+    try {
+      const response = await hospitalApi.get(`/api/BloodRequest/${requestId}/suggested-blood-unit-list`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching suggested blood units:', error);
+      throw error;
+    }
+  },
+
+  // Assign blood unit to request
+  assignBloodUnitToRequest: async (unitId, requestId) => {
+    try {
+      const response = await hospitalApi.patch(`/api/BloodUnit/${unitId}/assign-to-request`, requestId);
+      return response.data;
+    } catch (error) {
+      console.error('Error assigning blood unit to request:', error);
+      throw error;
+    }
+  },
+
+  // Get available blood units by blood type and component
+  getAvailableBloodUnits: async (bloodTypeId, componentId) => {
+    try {
+      const response = await hospitalApi.get(`/api/BloodUnit?bloodTypeId=${bloodTypeId}&componentId=${componentId}&available=true`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching available blood units:', error);
+      throw error;
+    }
+  },
 }; 

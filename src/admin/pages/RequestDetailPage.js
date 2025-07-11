@@ -20,6 +20,8 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   FileTextOutlined,
+  CheckOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -105,6 +107,112 @@ const RequestDetailPage = () => {
       default:
         return '#1890ff'; // blue
     }
+  };
+
+  const handleApproveRequest = async () => {
+    setLoading(true);
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      // Try different possible field names for user ID
+      const approverUserId = parseInt(userInfo.UserId || userInfo.UserID || userInfo.userId || userInfo.id);
+      
+      console.log('Approval Debug - userInfo:', userInfo);
+      console.log('Approval Debug - approverUserId:', approverUserId);
+      console.log('Approval Debug - selectedRequest.requestId:', selectedRequest.requestId);
+      
+      if (!approverUserId) {
+        message.error('Không thể xác định người duyệt. Vui lòng đăng nhập lại!');
+        return;
+      }
+      
+      if (!selectedRequest.requestId) {
+        message.error('Không thể xác định ID đơn khẩn cấp!');
+        return;
+      }
+      
+      await HospitalAPI.approveBloodRequest(parseInt(selectedRequest.requestId), approverUserId);
+      message.success('Đã duyệt đơn khẩn cấp thành công!');
+      
+      // Navigate to blood unit selection page
+      navigate(`/staff/approve-requests/blood-selection/${selectedRequest.requestId}`, {
+        state: { 
+          request: selectedRequest,
+          hospital,
+          bloodTypes,
+          bloodComponents,
+          urgencies,
+          bloodRequestStatuses
+        }
+      });
+    } catch (error) {
+      console.error('Error approving request:', error);
+      console.error('Error details:', error.response?.data);
+      
+      // Show more specific error message
+      if (error.response?.status === 400) {
+        message.error('Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin!');
+      } else if (error.response?.status === 401) {
+        message.error('Bạn không có quyền duyệt đơn này!');
+      } else if (error.response?.status === 404) {
+        message.error('Không tìm thấy đơn khẩn cấp!');
+      } else {
+        message.error('Lỗi khi duyệt đơn khẩn cấp!');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRejectRequest = async () => {
+    setLoading(true);
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      // Try different possible field names for user ID
+      const approverUserId = parseInt(userInfo.UserId || userInfo.UserID || userInfo.userId || userInfo.id);
+      
+      console.log('Rejection Debug - userInfo:', userInfo);
+      console.log('Rejection Debug - approverUserId:', approverUserId);
+      console.log('Rejection Debug - selectedRequest.requestId:', selectedRequest.requestId);
+      
+      if (!approverUserId) {
+        message.error('Không thể xác định người duyệt. Vui lòng đăng nhập lại!');
+        return;
+      }
+      
+      if (!selectedRequest.requestId) {
+        message.error('Không thể xác định ID đơn khẩn cấp!');
+        return;
+      }
+      
+      await HospitalAPI.rejectBloodRequest(parseInt(selectedRequest.requestId), approverUserId);
+      message.success('Đã từ chối đơn khẩn cấp!');
+      
+      // Go back to hospital requests page
+      handleBackToHospitalRequests();
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      console.error('Error details:', error.response?.data);
+      
+      // Show more specific error message
+      if (error.response?.status === 400) {
+        message.error('Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin!');
+      } else if (error.response?.status === 401) {
+        message.error('Bạn không có quyền từ chối đơn này!');
+      } else if (error.response?.status === 404) {
+        message.error('Không tìm thấy đơn khẩn cấp!');
+      } else {
+        message.error('Lỗi khi từ chối đơn khẩn cấp!');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isPendingApproval = () => {
+    const pendingStatus = Object.values(bloodRequestStatuses).find(
+      status => status.name === "Đang chờ duyệt"
+    );
+    return pendingStatus && selectedRequest.requestStatusId == pendingStatus.id;
   };
 
   if (!selectedRequest) {
@@ -358,6 +466,44 @@ const RequestDetailPage = () => {
                       </Col>
                     </Row>
                   </Form>
+
+                  {/* Approval Buttons - Only show if request is pending approval */}
+                  {isPendingApproval() && (
+                    <>
+                      <Divider orientation="left">THAO TÁC DUYỆT</Divider>
+                      <Row justify="center" gutter={[24, 16]} style={{ marginTop: '24px' }}>
+                        <Col>
+                          <Button
+                            type="primary"
+                            size="large"
+                            icon={<CheckOutlined />}
+                            onClick={handleApproveRequest}
+                            loading={loading}
+                            style={{ 
+                              backgroundColor: '#52c41a', 
+                              borderColor: '#52c41a',
+                              minWidth: '150px'
+                            }}
+                          >
+                            Duyệt
+                          </Button>
+                        </Col>
+                        <Col>
+                          <Button
+                            type="primary"
+                            size="large"
+                            danger
+                            icon={<CloseOutlined />}
+                            onClick={handleRejectRequest}
+                            loading={loading}
+                            style={{ minWidth: '150px' }}
+                          >
+                            Từ chối
+                          </Button>
+                        </Col>
+                      </Row>
+                    </>
+                  )}
                 </Card>
               </div>
             </div>
