@@ -267,15 +267,16 @@ const CreateDonationRecordPage = () => {
                           rules={[
                             {
                               required: true,
-                              message: "Vui lòng chọn thể tích hiến!",
+                              message: "Vui lòng nhập thể tích hiến!",
                             },
                           ]}
                         >
-                          <Select placeholder="Chọn thể tích hiến">
-                            <Option value={250}>250 ml</Option>
-                            <Option value={350}>350 ml</Option>
-                            <Option value={450}>450 ml</Option>
-                          </Select>
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            placeholder="Nhập thể tích hiến"
+                            min={0}
+                            max={1000}
+                          />
                         </Form.Item>
                       </Col>
                       <Col span={8}>
