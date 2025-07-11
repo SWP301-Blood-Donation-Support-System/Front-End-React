@@ -187,9 +187,9 @@ export const HospitalAPI = {
   },
 
   // Reject blood request
-  rejectBloodRequest: async (requestId, approverUserId) => {
+  rejectBloodRequest: async (requestId, rejectionData) => {
     try {
-      const response = await hospitalApi.patch(`/api/BloodRequest/${requestId}/reject`, approverUserId);
+      const response = await hospitalApi.patch(`/api/BloodRequest/${requestId}/reject`, rejectionData);
       return response.data;
     } catch (error) {
       console.error('Error rejecting blood request:', error);

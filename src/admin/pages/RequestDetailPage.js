@@ -11,6 +11,7 @@ import {
   Row,
   Col,
   message,
+  Modal,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -49,6 +50,11 @@ const RequestDetailPage = () => {
   const [bloodComponents, setBloodComponents] = useState({});
   const [urgencies, setUrgencies] = useState({});
   const [bloodRequestStatuses, setBloodRequestStatuses] = useState({});
+
+  // Rejection modal states
+  const [rejectModalVisible, setRejectModalVisible] = useState(false);
+  const [rejectForm] = Form.useForm();
+  const [rejectLoading, setRejectLoading] = useState(false);
 
   useEffect(() => {
     // Get data from location state if available
@@ -186,8 +192,13 @@ const RequestDetailPage = () => {
     }
   };
 
-  const handleRejectRequest = async () => {
-    setLoading(true);
+  const handleRejectRequest = () => {
+    // Show rejection modal instead of directly rejecting
+    setRejectModalVisible(true);
+  };
+
+  const handleRejectSubmit = async (values) => {
+    setRejectLoading(true);
     try {
       const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
       // Try different possible field names for user ID
@@ -196,6 +207,7 @@ const RequestDetailPage = () => {
       console.log('Rejection Debug - userInfo:', userInfo);
       console.log('Rejection Debug - approverUserId:', approverUserId);
       console.log('Rejection Debug - selectedRequest.requestId:', selectedRequest.requestId);
+      console.log('Rejection Debug - reason:', values.reason);
       
       if (!approverUserId) {
         message.error('Không thể xác định người duyệt. Vui lòng đăng nhập lại!');
@@ -207,8 +219,18 @@ const RequestDetailPage = () => {
         return;
       }
       
-      await HospitalAPI.rejectBloodRequest(parseInt(selectedRequest.requestId), approverUserId);
+      // Send rejection data according to API format
+      const rejectionData = {
+        userId: approverUserId,
+        reason: values.reason
+      };
+      
+      await HospitalAPI.rejectBloodRequest(parseInt(selectedRequest.requestId), rejectionData);
       message.success('Đã từ chối đơn khẩn cấp!');
+      
+      // Close modal and reset form
+      setRejectModalVisible(false);
+      rejectForm.resetFields();
       
       // Go back to hospital requests page
       handleBackToHospitalRequests();
@@ -227,8 +249,13 @@ const RequestDetailPage = () => {
         message.error('Lỗi khi từ chối đơn khẩn cấp!');
       }
     } finally {
-      setLoading(false);
+      setRejectLoading(false);
     }
+  };
+
+  const handleRejectCancel = () => {
+    setRejectModalVisible(false);
+    rejectForm.resetFields();
   };
 
   const isPendingApproval = () => {
@@ -237,7 +264,13 @@ const RequestDetailPage = () => {
     const pendingStatus = Object.values(bloodRequestStatuses).find(
       status => status && status.name === "Đang chờ duyệt"
     );
-    return pendingStatus && selectedRequest.requestStatusId == pendingStatus.id;
+    return pendingStatus && selectedRequest.requestStatusId === pendingStatus.id;
+  };
+
+  const isRejected = () => {
+    if (!bloodRequestStatuses || !selectedRequest) return false;
+    const currentStatus = bloodRequestStatuses[selectedRequest.requestStatusId];
+    return currentStatus && currentStatus.name === "Đã từ chối";
   };
 
   if (!selectedRequest || loading) {
@@ -317,6 +350,7 @@ const RequestDetailPage = () => {
                         'N/A',
                       requestStatusId: bloodRequestStatuses[selectedRequest.requestStatusId]?.name || 'N/A',
                       note: selectedRequest.note || 'Không có ghi chú',
+                      rejectionReason: selectedRequest.rejectionReason || selectedRequest.reason || 'Không có lý do từ chối',
                       createdAt: formatDateTime(selectedRequest.createdAt),
                     }}
                   >
@@ -490,6 +524,34 @@ const RequestDetailPage = () => {
                         </Form.Item>
                       </Col>
                     </Row>
+
+                    {/* Rejection Reason - Only show if request is rejected */}
+                    {isRejected() && (
+                      <Row gutter={[24, 16]}>
+                        <Col span={24}>
+                          <Divider orientation="left" style={{ color: '#f5222d' }}>
+                            <span style={{ color: '#f5222d' }}>
+                              <CloseOutlined style={{ marginRight: '8px' }} />
+                              LÝ DO TỪ CHỐI
+                            </span>
+                          </Divider>
+                          <Form.Item
+                            name="rejectionReason"
+                          >
+                            <TextArea
+                              readOnly
+                              rows={3}
+                              style={{ 
+                                backgroundColor: '#fff2f0',
+                                border: '1px solid #ffccc7',
+                                color: '#f5222d'
+                              }}
+                              placeholder="Không có lý do từ chối được cung cấp"
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    )}
                   </Form>
 
                   {/* Approval Buttons - Only show if request is pending approval */}
@@ -535,6 +597,79 @@ const RequestDetailPage = () => {
           </Content>
         </Layout>
       </Layout>
+
+      {/* Rejection Modal */}
+      <Modal
+        title={
+          <Space>
+            <CloseOutlined style={{ color: '#f5222d' }} />
+            <span>Từ chối đơn yêu cầu máu khẩn cấp</span>
+          </Space>
+        }
+        open={rejectModalVisible}
+        onCancel={handleRejectCancel}
+        footer={null}
+        width={600}
+        centered
+      >
+        <Form
+          form={rejectForm}
+          layout="vertical"
+          onFinish={handleRejectSubmit}
+          requiredMark={false}
+        >
+          <Row gutter={[16, 16]}>
+            <Col span={24}>
+              <p style={{ marginBottom: '16px', color: '#666' }}>
+                Bạn đang từ chối đơn yêu cầu máu khẩn cấp <strong>#{selectedRequest?.requestId}</strong>. 
+                Vui lòng nhập lý do từ chối để bệnh viện có thể hiểu và cải thiện.
+              </p>
+            </Col>
+            <Col span={24}>
+              <Form.Item
+                label="Lý do từ chối"
+                name="reason"
+                rules={[
+                  { 
+                    required: true, 
+                    message: 'Vui lòng nhập lý do từ chối!' 
+                  },
+                  {
+                    min: 10,
+                    message: 'Lý do từ chối phải có ít nhất 10 ký tự!'
+                  }
+                ]}
+              >
+                <TextArea
+                  rows={4}
+                  placeholder="Nhập lý do từ chối đơn khẩn cấp (ví dụ: Không đủ túi máu, thông tin không chính xác, v.v.)"
+                  maxLength={500}
+                  showCount
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          
+          <Row justify="end" gutter={[8, 8]} style={{ marginTop: '16px' }}>
+            <Col>
+              <Button onClick={handleRejectCancel}>
+                Hủy
+              </Button>
+            </Col>
+            <Col>
+              <Button 
+                type="primary" 
+                danger 
+                htmlType="submit"
+                loading={rejectLoading}
+                icon={<CloseOutlined />}
+              >
+                Xác nhận từ chối
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </Layout>
   );
 };

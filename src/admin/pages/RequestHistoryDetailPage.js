@@ -22,6 +22,7 @@ import {
   CheckCircleOutlined,
   FileTextOutlined,
   HistoryOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -181,6 +182,12 @@ const RequestHistoryDetailPage = () => {
     }
   };
 
+  const isRejected = () => {
+    if (!bloodRequestStatuses || !selectedRequest) return false;
+    const currentStatus = bloodRequestStatuses[selectedRequest.requestStatusId];
+    return currentStatus && currentStatus.name === "Đã từ chối";
+  };
+
   if (!selectedRequest) {
     return (
       <Layout className="staff-layout">
@@ -266,6 +273,7 @@ const RequestHistoryDetailPage = () => {
                         'N/A',
                       requestStatusId: bloodRequestStatuses[selectedRequest.requestStatusId]?.name || 'N/A',
                       note: selectedRequest.note || 'Không có ghi chú',
+                      rejectionReason: selectedRequest.rejectionReason || selectedRequest.reason || 'Không có lý do từ chối',
                       createdAt: formatDateTime(selectedRequest.createdAt),
                       updatedAt: formatDateTime(selectedRequest.updatedAt),
                     }}
@@ -445,6 +453,35 @@ const RequestHistoryDetailPage = () => {
                         </Form.Item>
                       </Col>
                     </Row>
+
+                    {/* Rejection Reason - Only show if request is rejected */}
+                    {isRejected() && (
+                      <Row gutter={[24, 16]}>
+                        <Col span={24}>
+                          <Form.Item
+                            label={
+                              <span>
+                                <CloseOutlined style={{ marginRight: '8px', color: '#f5222d' }} />
+                                LÝ DO TỪ CHỐI
+                              </span>
+                            }
+                            name="rejectionReason"
+                          >
+                            <TextArea
+                              rows={3}
+                              readOnly
+                              style={{ 
+                                backgroundColor: '#fff2f0',
+                                border: '1px solid #ffccc7',
+                                resize: 'none',
+                                color: '#f5222d'
+                              }}
+                              placeholder="Không có lý do từ chối được cung cấp"
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    )}
 
                     {/* Information Notice */}
                     <Card 
