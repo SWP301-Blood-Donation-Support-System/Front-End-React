@@ -19,6 +19,7 @@ import {
   BankOutlined,
   HomeOutlined,
   SafetyOutlined,
+  AccountBookOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, notification } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -131,6 +132,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return isAdminUser() ? ['12'] : ['1'];
     } else if (pathname.includes('/staff/create-hospital-account')) {
       return isAdminUser() ? ['13'] : ['1'];
+    } else if (pathname.includes('/staff/hospital-accounts')) {
+      return isAdminUser() ? ['14'] : ['1'];
     } else if (pathname.includes('/staff/profile')) {
       return ['6'];
     }
@@ -302,6 +305,18 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
+      case '14': // Tài khoản bệnh viện (admin only)
+        if (isAdminUser()) {
+          navigate('/staff/hospital-accounts');
+        } else {
+          api.warning({
+            message: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền truy cập chức năng này.',
+            placement: 'topRight',
+            duration: 3,
+          });
+        }
+        break;
       default:
         break;
     }
@@ -347,6 +362,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         getItem('Danh sách bệnh viện', '11', <BankOutlined />),
         getItem('Đăng ký bệnh viện', '12', <HomeOutlined />),
         getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
+        getItem('Tài khoản bệnh viện', '14', <AccountBookOutlined />),
       ]
     }] : []),
     {
