@@ -101,6 +101,19 @@ export const isAdminUser = () => {
 };
 
 /**
+ * Check if user is hospital member (roleId = 4)
+ */
+export const isHospitalUser = () => {
+  try {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    const userRoleId = userInfo?.RoleID || userInfo?.roleId;
+    return userRoleId === 4 || userRoleId === "4";
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
  * Check if user has admin or staff privileges (roleId = 1 or 2)
  */
 export const hasAdminAccess = () => {

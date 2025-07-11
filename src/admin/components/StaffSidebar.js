@@ -24,7 +24,7 @@ import {
 import { Layout, Menu, Button, notification } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { UserAPI } from '../../api/User';
-import { isAdminUser } from '../utils/passwordUtils';
+import { isAdminUser, isHospitalUser } from '../utils/passwordUtils';
 
 const { Sider } = Layout;
 
@@ -127,18 +127,22 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       // Only return key if user is admin, otherwise return default
       return isAdminUser() ? ['5'] : ['1'];
     } else if (pathname.includes('/staff/hospital-list')) {
-      return isAdminUser() ? ['11'] : ['1'];
+      return (isAdminUser() || isHospitalUser()) ? ['11'] : ['1'];
     } else if (pathname.includes('/staff/hospital-registration')) {
-      return isAdminUser() ? ['12'] : ['1'];
+      return (isAdminUser() || isHospitalUser()) ? ['12'] : ['1'];
     } else if (pathname.includes('/staff/create-hospital-account')) {
-      return isAdminUser() ? ['13'] : ['1'];
+      return (isAdminUser() || isHospitalUser()) ? ['13'] : ['1'];
     } else if (pathname.includes('/staff/hospital-accounts')) {
-      return isAdminUser() ? ['14'] : ['1'];
+      return (isAdminUser() || isHospitalUser()) ? ['14'] : ['1'];
     } else if (pathname.includes('/staff/profile')) {
       return ['6'];
     }
     
-    return ['1']; // default to schedule management
+    // Default route based on user role
+    if (isHospitalUser()) {
+      return ['11']; // default to hospital list for hospital users
+    }
+    return ['1']; // default to schedule management for admin/staff
   };
 
   // Handle logout functionality
@@ -269,8 +273,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           navigate('/staff/create-staff-account');
         }
         break;
-      case '11': // Danh sách bệnh viện (admin only)
-        if (isAdminUser()) {
+      case '11': // Danh sách bệnh viện (admin or hospital users)
+        if (isAdminUser() || isHospitalUser()) {
           navigate('/staff/hospital-list');
         } else {
           api.warning({
@@ -281,8 +285,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
-      case '12': // Đăng ký bệnh viện (admin only)
-        if (isAdminUser()) {
+      case '12': // Đăng ký bệnh viện (admin or hospital users)
+        if (isAdminUser() || isHospitalUser()) {
           navigate('/staff/hospital-registration');
         } else {
           api.warning({
@@ -293,8 +297,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
-      case '13': // Tạo tài khoản bệnh viện (admin only)
-        if (isAdminUser()) {
+      case '13': // Tạo tài khoản bệnh viện (admin or hospital users)
+        if (isAdminUser() || isHospitalUser()) {
           navigate('/staff/create-hospital-account');
         } else {
           api.warning({
@@ -305,8 +309,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
-      case '14': // Tài khoản bệnh viện (admin only)
-        if (isAdminUser()) {
+      case '14': // Tài khoản bệnh viện (admin or hospital users)
+        if (isAdminUser() || isHospitalUser()) {
           navigate('/staff/hospital-accounts');
         } else {
           api.warning({
@@ -322,59 +326,87 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     }
   };
 
-    // Sidebar items with sections
-  const sidebarItems = [
-    {
-      type: 'group',
-      label: 'QUẢN LÝ',
-      children: [
-        getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
-        // Only show user management for admin users
-        ...(isAdminUser() ? [
-          getItem('Quản lý người hiến', '2', <UserOutlined />),
-        ] : []),
-        // Only show staff management for admin users
-        ...(isAdminUser() ? [
-          getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />),
-          getItem('Tạo tài khoản nhân viên', '10', <PlusCircleOutlined />),
-        ] : []),
-        getItem('Quản lý túi máu', '3', <DesktopOutlined />, [
-          getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
-          getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
-          getItem('Túi máu không đạt', '3-3', <CloseCircleOutlined />),
-          getItem('Túi máu chờ duyệt', '3-4', <ClockCircleOutlined />),
-        ]),
-        getItem('Hồ sơ người hiến', '4', <FileOutlined />, [
-          getItem('Toàn bộ hồ sơ', '4-1', <DatabaseOutlined />),
-          getItem('Tạo hồ sơ mới', '4-2', <PlusCircleOutlined />),
-        ]),
-        // Only show reports for admin users
-        ...(isAdminUser() ? [
-          getItem('Báo cáo thống kê', '5', <TeamOutlined />),
-        ] : []),
-      ]
-    },
-    // Only show hospital management section for admin users
-    ...(isAdminUser() ? [{
-      type: 'group',
-      label: 'BỆNH VIỆN',
-      children: [
-        getItem('Danh sách bệnh viện', '11', <BankOutlined />),
-        getItem('Đăng ký bệnh viện', '12', <HomeOutlined />),
-        getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
-        getItem('Tài khoản bệnh viện', '14', <AccountBookOutlined />),
-      ]
-    }] : []),
-    {
-      type: 'group',
-      label: 'HỒ SƠ CÁ NHÂN',
-      children: [
-        getItem('Hồ sơ', '6', <UserOutlined />),
-        getItem('Cài đặt', '7', <SettingOutlined />),
-        getItem('Trợ giúp', '8', <QuestionCircleOutlined />),
-      ]
+    // Sidebar items with sections - different based on user role
+  const sidebarItems = (() => {
+    // For hospital users (roleId = 4), only show hospital and profile sections
+    if (isHospitalUser()) {
+      return [
+        {
+          type: 'group',
+          label: 'BỆNH VIỆN',
+          children: [
+            getItem('Danh sách bệnh viện', '11', <BankOutlined />),
+            getItem('Đăng ký bệnh viện', '12', <HomeOutlined />),
+            getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
+            getItem('Tài khoản bệnh viện', '14', <AccountBookOutlined />),
+          ]
+        },
+        {
+          type: 'group',
+          label: 'HỒ SƠ CÁ NHÂN',
+          children: [
+            getItem('Hồ sơ', '6', <UserOutlined />),
+            getItem('Cài đặt', '7', <SettingOutlined />),
+            getItem('Trợ giúp', '8', <QuestionCircleOutlined />),
+          ]
+        }
+      ];
     }
-  ];
+
+    // For admin and staff users, show full menu
+    return [
+      {
+        type: 'group',
+        label: 'QUẢN LÝ',
+        children: [
+          getItem('Lịch đặt hiến', '1', <PieChartOutlined />),
+          // Only show user management for admin users
+          ...(isAdminUser() ? [
+            getItem('Quản lý người hiến', '2', <UserOutlined />),
+          ] : []),
+          // Only show staff management for admin users
+          ...(isAdminUser() ? [
+            getItem('Quản lý nhân viên', '9', <UsergroupAddOutlined />),
+            getItem('Tạo tài khoản nhân viên', '10', <PlusCircleOutlined />),
+          ] : []),
+          getItem('Quản lý túi máu', '3', <DesktopOutlined />, [
+            getItem('Tất cả túi máu', '3-1', <MedicineBoxOutlined />),
+            getItem('Túi máu đạt', '3-2', <CheckCircleOutlined />),
+            getItem('Túi máu không đạt', '3-3', <CloseCircleOutlined />),
+            getItem('Túi máu chờ duyệt', '3-4', <ClockCircleOutlined />),
+          ]),
+          getItem('Hồ sơ người hiến', '4', <FileOutlined />, [
+            getItem('Toàn bộ hồ sơ', '4-1', <DatabaseOutlined />),
+            getItem('Tạo hồ sơ mới', '4-2', <PlusCircleOutlined />),
+          ]),
+          // Only show reports for admin users
+          ...(isAdminUser() ? [
+            getItem('Báo cáo thống kê', '5', <TeamOutlined />),
+          ] : []),
+        ]
+      },
+      // Only show hospital management section for admin users
+      ...(isAdminUser() ? [{
+        type: 'group',
+        label: 'BỆNH VIỆN',
+        children: [
+          getItem('Danh sách bệnh viện', '11', <BankOutlined />),
+          getItem('Đăng ký bệnh viện', '12', <HomeOutlined />),
+          getItem('Tạo tài khoản bệnh viện', '13', <SafetyOutlined />),
+          getItem('Tài khoản bệnh viện', '14', <AccountBookOutlined />),
+        ]
+      }] : []),
+      {
+        type: 'group',
+        label: 'HỒ SƠ CÁ NHÂN',
+        children: [
+          getItem('Hồ sơ', '6', <UserOutlined />),
+          getItem('Cài đặt', '7', <SettingOutlined />),
+          getItem('Trợ giúp', '8', <QuestionCircleOutlined />),
+        ]
+      }
+    ];
+  })();
 
   return (
     <Sider 

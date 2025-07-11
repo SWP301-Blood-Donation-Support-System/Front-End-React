@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { message } from 'antd';
-import { checkIfDefaultPassword, hasAdminAccess, isStaffUser } from '../utils/passwordUtils';
+import { checkIfDefaultPassword, hasAdminAccess, isStaffUser, isHospitalUser } from '../utils/passwordUtils';
 
 const AdminProtectedRoute = ({ children }) => {
   const [isAuthorized, setIsAuthorized] = useState(null); // null = checking, true = authorized, false = unauthorized
@@ -14,20 +14,27 @@ const AdminProtectedRoute = ({ children }) => {
       const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
       if (!token || !userInfo) {
+        console.log("AdminProtectedRoute: No token or userInfo found");
         setIsAuthorized(false);
         return;
       }
 
-      // Check if user has admin or staff privileges
-      if (hasAdminAccess()) {
-        // Check if staff user still has default password
-        const hasDefaultPassword = checkIfDefaultPassword();
-        
-        // If they have default password and are not already on settings page, redirect them
-        if (hasDefaultPassword && !location.pathname.includes('/staff/settings')) {
-          setNeedsPasswordChange(true);
-          setIsAuthorized(false); // Don't authorize other pages
-          return;
+      console.log("AdminProtectedRoute: Checking authorization for user:", userInfo);
+      console.log("AdminProtectedRoute: hasAdminAccess:", hasAdminAccess());
+      console.log("AdminProtectedRoute: isHospitalUser:", isHospitalUser());
+
+      // Check if user has admin, staff, or hospital privileges
+      if (hasAdminAccess() || isHospitalUser()) {
+        // Only check default password for staff users, not hospital users
+        if (isStaffUser()) {
+          const hasDefaultPassword = checkIfDefaultPassword();
+          
+          // If they have default password and are not already on settings page, redirect them
+          if (hasDefaultPassword && !location.pathname.includes('/staff/settings')) {
+            setNeedsPasswordChange(true);
+            setIsAuthorized(false); // Don't authorize other pages
+            return;
+          }
         }
         
         setIsAuthorized(true);
