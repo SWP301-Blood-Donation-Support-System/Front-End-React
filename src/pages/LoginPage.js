@@ -104,9 +104,9 @@ const LoginPage = () => {
         console.log("Redirecting admin/staff user to schedule management");
         navigate("/staff/schedule-management", { state: { loginNotification } });
       } else if (roleId === 4) {
-        // For hospital users, redirect to hospital list
-        console.log("Redirecting hospital user to hospital list");
-        navigate("/staff/hospital-list", { state: { loginNotification } });
+        // For hospital users, redirect to emergency request page
+        console.log("Redirecting hospital user to emergency request");
+        navigate("/staff/emergency-request", { state: { loginNotification } });
       } else {
         // Check if profile is complete for regular users (roleId = 3 or donors)
         console.log("Redirecting regular user, checking profile completion");

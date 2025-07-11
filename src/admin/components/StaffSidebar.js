@@ -149,7 +149,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
 
     // Default route based on user role
     if (isHospitalUser()) {
-      return ["11"]; // default to hospital list for hospital users
+      return ["15"]; // default to emergency request for hospital users
     }
     return ["1"]; // default to schedule management for admin/staff
   };

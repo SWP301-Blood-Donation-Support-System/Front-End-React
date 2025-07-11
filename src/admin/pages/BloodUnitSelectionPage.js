@@ -79,8 +79,13 @@ const BloodUnitSelectionPage = () => {
   };
 
   const handleBackToRequestDetail = () => {
-    // Navigate without state to force re-fetching of request details
-    navigate(`/staff/approve-requests/request/${requestId}`);
+    // Kiểm tra xem có returnPath trong state không
+    if (location.state?.returnPath) {
+      navigate(location.state.returnPath);
+    } else {
+      // Fallback về RequestDetailPage nếu không có returnPath
+      navigate(`/staff/approve-requests/request/${requestId}`);
+    }
   };
 
   const formatDateTime = (dateTime) => {

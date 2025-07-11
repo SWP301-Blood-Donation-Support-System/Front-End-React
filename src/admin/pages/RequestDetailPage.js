@@ -85,7 +85,10 @@ const RequestDetailPage = () => {
   };
 
   const handleBackToHospitalRequests = () => {
-    if (hospital) {
+    // Kiểm tra xem có returnPath trong state không
+    if (location.state?.returnPath) {
+      navigate(location.state.returnPath);
+    } else if (hospital) {
       navigate(`/staff/approve-requests/hospital/${hospital.hospitalId}`, {
         state: { hospital }
       });

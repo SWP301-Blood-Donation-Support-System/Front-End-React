@@ -102,10 +102,10 @@ const EmergencyRequestPage = () => {
         duration: 4,
       });
 
-      // Reset form and navigate
+      // Reset form and navigate to request history for hospital users
       form.resetFields();
       setTimeout(() => {
-        navigate("/staff/hospital-list");
+        navigate("/staff/request-history");
       }, 1500);
 
     } catch (error) {
@@ -131,7 +131,7 @@ const EmergencyRequestPage = () => {
   };
 
   const handleCancel = () => {
-    navigate("/staff/hospital-list");
+    navigate("/staff/request-history");
   };
 
   // Get urgency color for display

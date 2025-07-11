@@ -152,7 +152,8 @@ const HospitalRequestsPage = () => {
         bloodTypes,
         bloodComponents,
         urgencies,
-        bloodRequestStatuses
+        bloodRequestStatuses,
+        returnPath: `/staff/approve-requests/hospital/${hospitalId}` // Thêm thông tin trang nguồn
       }
     });
   };
@@ -165,7 +166,8 @@ const HospitalRequestsPage = () => {
         bloodTypes,
         bloodComponents,
         urgencies,
-        bloodRequestStatuses
+        bloodRequestStatuses,
+        returnPath: `/staff/approve-requests/hospital/${hospitalId}` // Thêm thông tin trang nguồn
       }
     });
   };
