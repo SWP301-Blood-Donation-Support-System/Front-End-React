@@ -82,9 +82,12 @@ const LoginPage = () => {
       localStorage.setItem("userInfo", JSON.stringify(decoded));
       
       // Use the decoded token data directly without API call
-      let userProfile = decoded;      // Role-based redirection
-      const userRoleId = decoded.RoleID;
+      let userProfile = decoded;
+      
+      // Role-based redirection - check multiple possible property names
+      const userRoleId = decoded.RoleID || decoded.roleId || decoded.role_id || decoded.RoleId;
       console.log("User Role ID:", userRoleId);
+      console.log("Full decoded token:", decoded);
       
       // Prepare login success notification data
       const loginNotification = {
@@ -92,13 +95,21 @@ const LoginPage = () => {
         description: `Chào mừng ${decoded.FullName || decoded.name} trở lại!`,
       };
       
-      if (userRoleId === 1 || userRoleId === 2 || userRoleId === "1" || userRoleId === "2") {
-        // For staff users, check if they need to change default password
-        // Note: We'll check this on the client side after they're logged in
-        // The AdminProtectedRoute will handle the redirect to settings if needed
+      // Convert to number for safer comparison
+      const roleId = parseInt(userRoleId);
+      console.log("Parsed Role ID:", roleId);
+      
+      if (roleId === 1 || roleId === 2) {
+        // For admin and staff users, redirect to schedule management
+        console.log("Redirecting admin/staff user to schedule management");
         navigate("/staff/schedule-management", { state: { loginNotification } });
+      } else if (roleId === 4) {
+        // For hospital users, redirect to emergency request page
+        console.log("Redirecting hospital user to emergency request");
+        navigate("/staff/emergency-request", { state: { loginNotification } });
       } else {
-        // Check if profile is complete for regular users
+        // Check if profile is complete for regular users (roleId = 3 or donors)
+        console.log("Redirecting regular user, checking profile completion");
         if (!isProfileComplete(userProfile)) {
           // Redirect to profile page with update required flag
           navigate("/profile?updateRequired=true", { state: { loginNotification } });

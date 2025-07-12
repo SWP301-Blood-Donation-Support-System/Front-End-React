@@ -31,6 +31,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { UserAPI } from '../../api/User';
+import { isHospitalUser } from '../utils/passwordUtils';
 import StaffHeader from '../components/StaffHeader';
 
 import dayjs from 'dayjs';
@@ -189,7 +190,12 @@ const StaffProfilePage = () => {
   }, [navigate]);
 
   const handleBackToSchedule = () => {
-    navigate('/staff/schedule-management');
+    // Navigate to appropriate page based on user role
+    if (isHospitalUser()) {
+      navigate('/staff/emergency-request');
+    } else {
+      navigate('/staff/schedule-management');
+    }
   };
 
   const handleEditProfile = () => {

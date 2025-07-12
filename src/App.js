@@ -27,6 +27,17 @@ import CreateDonationRecordPage from './admin/pages/CreateDonationRecordPage';
 import StaffProfilePage from './admin/pages/StaffProfilePage';
 import CreateStaffAccountPage from './admin/pages/CreateStaffAccountPage';
 import StaffSettingsPage from './admin/pages/StaffSettingsPage';
+import HospitalListPage from './admin/pages/HospitalListPage';
+import HospitalRegistrationPage from './admin/pages/HospitalRegistrationPage';
+import CreateHospitalAccountPage from './admin/pages/CreateHospitalAccountPage';
+import HospitalAccountsPage from './admin/pages/HospitalAccountsPage';
+import EmergencyRequestPage from './admin/pages/EmergencyRequestPage';
+import ApproveRequestsPage from './admin/pages/ApproveRequestsPage';
+import HospitalRequestsPage from './admin/pages/HospitalRequestsPage';
+import RequestDetailPage from './admin/pages/RequestDetailPage';
+import RequestHistoryPage from './admin/pages/RequestHistoryPage';
+import RequestHistoryDetailPage from './admin/pages/RequestHistoryDetailPage';
+import BloodUnitSelectionPage from './admin/pages/BloodUnitSelectionPage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
@@ -126,6 +137,61 @@ function App() {
           <Route path="/staff/settings" element={
             <AdminProtectedRoute>
               <StaffSettingsPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/hospital-list" element={
+            <AdminProtectedRoute>
+              <HospitalListPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/hospital-registration" element={
+            <AdminProtectedRoute>
+              <HospitalRegistrationPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/create-hospital-account" element={
+            <AdminProtectedRoute>
+              <CreateHospitalAccountPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/hospital-accounts" element={
+            <AdminProtectedRoute>
+              <HospitalAccountsPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/emergency-request" element={
+            <AdminProtectedRoute>
+              <EmergencyRequestPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/approve-requests" element={
+            <AdminProtectedRoute>
+              <ApproveRequestsPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/request-history" element={
+            <AdminProtectedRoute>
+              <RequestHistoryPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/request-history/detail/:requestId" element={
+            <AdminProtectedRoute>
+              <RequestHistoryDetailPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/approve-requests/hospital/:hospitalId" element={
+            <AdminProtectedRoute>
+              <HospitalRequestsPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/approve-requests/request/:requestId" element={
+            <AdminProtectedRoute>
+              <RequestDetailPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/approve-requests/blood-selection/:requestId" element={
+            <AdminProtectedRoute>
+              <BloodUnitSelectionPage />
             </AdminProtectedRoute>
           } />
         </Routes>

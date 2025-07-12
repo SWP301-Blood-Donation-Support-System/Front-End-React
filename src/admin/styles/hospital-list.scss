@@ -1,0 +1,211 @@
+.hospital-list-page {
+  background: #f5f5f5;
+  min-height: calc(100vh - 64px);
+  padding: 0;
+
+  .page-header {
+    margin-bottom: 24px;
+    
+    .ant-typography {
+      margin-bottom: 0;
+    }
+  }
+
+  // Card styling
+  .ant-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f0f0;
+
+    .ant-card-body {
+      padding: 24px;
+    }
+  }
+
+  // Table styling
+  .ant-table {
+    .ant-table-thead > tr > th {
+      background: #fafafa;
+      font-weight: 600;
+      color: #262626;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .ant-table-tbody > tr {
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+
+      > td {
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+      }
+    }
+
+    // Action buttons
+    .ant-btn-text {
+      &:hover {
+        background-color: rgba(24, 144, 255, 0.1);
+      }
+
+      &.ant-btn-dangerous:hover {
+        background-color: rgba(255, 77, 79, 0.1);
+      }
+    }
+  }
+
+  // Search input styling
+  .ant-input-search {
+    .ant-input-search-button {
+      border-color: #1890ff;
+      background: #1890ff;
+
+      &:hover {
+        border-color: #40a9ff;
+        background: #40a9ff;
+      }
+    }
+  }
+
+  // Button styling
+  .ant-btn {
+    border-radius: 6px;
+    font-weight: 500;
+    height: auto;
+    padding: 8px 16px;
+
+    &.ant-btn-primary {
+      background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+      border: none;
+      box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3);
+
+      &:hover {
+        background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+        box-shadow: 0 4px 8px rgba(24, 144, 255, 0.4);
+        transform: translateY(-1px);
+      }
+    }
+
+    &.ant-btn-default {
+      border-color: #d9d9d9;
+      color: #595959;
+
+      &:hover {
+        border-color: #40a9ff;
+        color: #40a9ff;
+      }
+    }
+  }
+
+  // Tag styling
+  .ant-tag {
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border: none;
+
+    &.ant-tag-green {
+      background: #f6ffed;
+      color: #52c41a;
+    }
+
+    &.ant-tag-red {
+      background: #fff2f0;
+      color: #ff4d4f;
+    }
+  }
+
+  // Pagination styling
+  .ant-pagination {
+    margin-top: 24px;
+    text-align: center;
+
+    .ant-pagination-item {
+      border-radius: 6px;
+
+      &.ant-pagination-item-active {
+        background: #1890ff;
+        border-color: #1890ff;
+      }
+    }
+
+    .ant-pagination-jump-prev,
+    .ant-pagination-jump-next {
+      border-radius: 6px;
+    }
+  }
+
+  // Modal styling
+  .ant-modal {
+    .ant-modal-header {
+      border-bottom: 1px solid #f0f0f0;
+      padding: 16px 24px;
+
+      .ant-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #262626;
+      }
+    }
+
+    .ant-modal-body {
+      padding: 24px;
+    }
+
+    .ant-modal-footer {
+      border-top: 1px solid #f0f0f0;
+      padding: 16px 24px;
+    }
+  }
+
+  // Tooltip styling
+  .ant-tooltip {
+    .ant-tooltip-inner {
+      background: rgba(0, 0, 0, 0.85);
+      border-radius: 6px;
+    }
+  }
+
+  // Loading spinner
+  .ant-spin {
+    .ant-spin-dot {
+      .ant-spin-dot-item {
+        background-color: #1890ff;
+      }
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    .page-header {
+      .ant-row {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+
+    .ant-card-body {
+      padding: 16px;
+    }
+
+    .ant-table {
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    padding: 16px;
+
+    .ant-card-body {
+      padding: 12px;
+    }
+
+    .ant-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+  }
+} 

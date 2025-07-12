@@ -465,6 +465,34 @@ export const AdminAPI = {
     }
   },
 
+  // Update donation record result (creates blood bag if result is 2 - "Máu đạt")
+  updateDonationRecordResult: async (recordId, bloodTestResult) => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      console.log(`Updating donation record result for record ${recordId} with result:`, bloodTestResult);
+      
+      // API expects just the integer value directly in the body
+      const response = await axios.patch(
+        `${BASE_URL}/api/DonationRecord/${recordId}/result`, 
+        Number(bloodTestResult), // Send just the number, not an object
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Error updating donation record result:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      throw error;
+    }
+  },
+
   // Get all donation registrations
   getDonationRegistrations: async () => {
     try {
@@ -668,6 +696,27 @@ export const AdminAPI = {
       return response;
     } catch (error) {
       console.error("Error during staff change password:", error);
+      throw error;
+    }
+  },
+
+  // Update donor blood type (specifically for donation records)
+  updateDonorBloodType: async (donorId, bloodTypeId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${BASE_URL}/api/User/donor/blood-type`, {
+        donorId: donorId,
+        bloodTypeId: bloodTypeId
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error updating donor blood type:", error);
       throw error;
     }
   },
