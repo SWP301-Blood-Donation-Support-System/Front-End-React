@@ -194,14 +194,26 @@ const BloodUnitSelectionPage = () => {
       navigate(location.state.returnPath);
     } else {
       // Fallback về RequestDetailPage nếu không có returnPath
-      navigate(`/staff/approve-requests/request/${requestId}`, {
-        state: { 
-          request: selectedRequest,
-          hospital,
-          bloodTypes,
-          bloodComponents 
-        }
-      });
+      // Đảm bảo selectedRequest có đầy đủ thông tin
+      const requestToPass = selectedRequest || location.state?.request;
+      const hospitalToPass = hospital || location.state?.hospital;
+      const bloodTypesToPass = bloodTypes || location.state?.bloodTypes || {};
+      const bloodComponentsToPass = bloodComponents || location.state?.bloodComponents || {};
+      
+      if (requestToPass && requestToPass.requestId) {
+        navigate(`/staff/approve-requests/request/${requestId}`, {
+          state: { 
+            request: requestToPass,
+            hospital: hospitalToPass,
+            bloodTypes: bloodTypesToPass,
+            bloodComponents: bloodComponentsToPass 
+          }
+        });
+      } else {
+        // Nếu không có đủ dữ liệu, redirect về trang chính
+        console.warn('Insufficient data to return to RequestDetailPage, redirecting to main page');
+        navigate('/staff/approve-requests');
+      }
     }
   };
 

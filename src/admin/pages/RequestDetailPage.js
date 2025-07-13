@@ -63,10 +63,7 @@ const RequestDetailPage = () => {
         const detailedRequest = await HospitalAPI.getBloodRequestById(requestId);
         setSelectedRequest(detailedRequest);
         
-        // Fetch lookup data if not available
-        if (!bloodTypes || Object.keys(bloodTypes).length === 0) {
-          // Could fetch lookup data here if needed
-        }
+        // Fetch lookup data if not available - removed bloodTypes dependency check
       } catch (error) {
         console.error("Error fetching request details:", error);
         message.error("Lỗi khi tải chi tiết đơn khẩn cấp!");
@@ -78,17 +75,23 @@ const RequestDetailPage = () => {
     // Get data from location state if available
     if (location.state) {
       const { request, hospital, bloodTypes, bloodComponents, urgencies, bloodRequestStatuses } = location.state;
-      setSelectedRequest(request);
-      setHospital(hospital);
-      setBloodTypes(bloodTypes);
-      setBloodComponents(bloodComponents);
-      setUrgencies(urgencies);
-      setBloodRequestStatuses(bloodRequestStatuses);
+      if (request && request.requestId) setSelectedRequest(request);
+      if (hospital) setHospital(hospital);
+      if (bloodTypes) setBloodTypes(bloodTypes);
+      if (bloodComponents) setBloodComponents(bloodComponents);
+      if (urgencies) setUrgencies(urgencies);
+      if (bloodRequestStatuses) setBloodRequestStatuses(bloodRequestStatuses);
+      
+      // Nếu không có request trong state, fetch từ API
+      if (!request || !request.requestId) {
+        fetchRequestDetails();
+      }
     } else {
       // Fallback: fetch request details if state is not available
       fetchRequestDetails();
     }
-  }, [requestId, location.state, bloodTypes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestId, location.state]);
 
   const handleBackToHospitalRequests = () => {
     // Kiểm tra xem có returnPath trong state không
