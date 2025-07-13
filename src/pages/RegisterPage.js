@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Card, Form, Input, Button, Typography, Divider, message } from 'antd';
-import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutlined } from '@ant-design/icons';
+import { LockOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
@@ -22,8 +22,8 @@ const RegisterPage = () => {
     console.log('Register values:', values);
     
     try {
-      // Call the actual registration API
-      const response = await UserAPI.register(values.username, values.email, values.password);
+      // Call the actual registration API (without username)
+      const response = await UserAPI.register(null, values.email, values.password);
       console.log("response", response.data.result);
       if (response.status === 200 || response.status === 201) {
         message.success('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
@@ -39,7 +39,7 @@ const RegisterPage = () => {
       } else if (error.response && error.response.status === 400) {
         message.error('Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.');
       } else if (error.response && error.response.status === 409) {
-        message.error('Email hoặc username đã tồn tại. Vui lòng chọn email/username khác.');
+        message.error('Email đã tồn tại. Vui lòng chọn email khác.');
       } else {
         message.error('Đăng ký thất bại. Vui lòng thử lại sau.');
       }
@@ -72,28 +72,6 @@ const RegisterPage = () => {
             autoComplete="off"
             className="auth-form"
           >
-            <Form.Item
-              label="Username"
-              name="username"
-              rules={[
-                {
-                  required: true,
-                  message: 'Vui lòng nhập username!'
-                },
-                {
-                  min: 3,
-                  message: 'Username phải có ít nhất 3 ký tự!'
-                }
-              ]}
-            >
-              <Input
-                className="auth-input-affix-wrapper"
-                prefix={<UserOutlined />}
-                placeholder="Nhập username"
-                size="large"
-              />
-            </Form.Item>
-
             <Form.Item
               label="Địa Chỉ Email"
               name="email"
