@@ -221,13 +221,7 @@ const ApproveRequestsPage = () => {
                   dataSource={hospitalSummary}
                   rowKey="hospitalId"
                   loading={loading}
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} của ${total} bệnh viện`,
-                  }}
+                  pagination={false}
                 />
               </Card>
             </div>
