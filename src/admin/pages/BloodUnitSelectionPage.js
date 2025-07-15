@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Layout, Table, Typography, Button, Card, message, Tag, Progress, Space, Alert } from "antd";
-import { ArrowLeftOutlined, SelectOutlined, StarOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import React, { useState, useEffect, useCallback } from "react";
+import { Layout, Table, Typography, Button, Card, message, Tag, Progress, Space, Alert, Tabs } from "antd";
+import { ArrowLeftOutlined, SelectOutlined, StarOutlined, CheckCircleOutlined, ExclamationCircleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 
@@ -11,6 +11,7 @@ import "../styles/donation-records.scss";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
+const { TabPane } = Tabs;
 
 const BloodUnitSelectionPage = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -23,12 +24,42 @@ const BloodUnitSelectionPage = () => {
   const [hospital, setHospital] = useState(null);
   const [bloodTypes, setBloodTypes] = useState({});
   const [bloodComponents, setBloodComponents] = useState({});
+  const [bloodRequestStatuses, setBloodRequestStatuses] = useState({});
   const [suggestedBloodUnits, setSuggestedBloodUnits] = useState([]);
-  const [assignedVolume, setAssignedVolume] = useState(0);
-  const [assignedUnits, setAssignedUnits] = useState([]);
+  const [sentBloodUnits, setSentBloodUnits] = useState([]);
+  const [loadingSentUnits, setLoadingSentUnits] = useState(false);
   const [insufficientBlood, setInsufficientBlood] = useState(false);
   const [backendErrorMessage, setBackendErrorMessage] = useState('');
   const [bloodSupplyInfo, setBloodSupplyInfo] = useState(null);
+  const [defaultActiveTab, setDefaultActiveTab] = useState('suggested');
+
+  // Function to check if request is completed
+  const isRequestCompleted = useCallback(() => {
+    if (!selectedRequest || !bloodRequestStatuses) return false;
+    const status = bloodRequestStatuses[selectedRequest.requestStatusId];
+    return status && status.name === "Đã hoàn thành";
+  }, [selectedRequest, bloodRequestStatuses]);
+
+  // Function to fetch sent blood units
+  const fetchSentBloodUnits = async (requestId) => {
+    setLoadingSentUnits(true);
+    try {
+      const response = await HospitalAPI.getBloodUnitsByRequest(requestId);
+      const bloodUnits = Array.isArray(response) ? response : response.data || [];
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Debug - Sent blood units response:', bloodUnits);
+      }
+      
+      setSentBloodUnits(bloodUnits);
+      
+    } catch (error) {
+      console.error("Error fetching sent blood units:", error);
+      message.error("Lỗi khi tải danh sách túi máu đã gửi!");
+    } finally {
+      setLoadingSentUnits(false);
+    }
+  };
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -49,7 +80,8 @@ const BloodUnitSelectionPage = () => {
         setSuggestedBloodUnits(bloodUnits);
         
         // If no blood units available and not already marked as insufficient, mark it
-        if (bloodUnits.length === 0 && !insufficientBlood) {
+        // But don't mark as insufficient if request is already completed
+        if (bloodUnits.length === 0 && !insufficientBlood && !isRequestCompleted()) {
           if (process.env.NODE_ENV === 'development') {
             console.log('Debug - No blood units available, marking as insufficient');
           }
@@ -73,7 +105,7 @@ const BloodUnitSelectionPage = () => {
     };
     
     if (location.state) {
-      const { request, hospital, bloodTypes, bloodComponents, insufficientBlood, backendErrorMessage } = location.state;
+      const { request, hospital, bloodTypes, bloodComponents, bloodRequestStatuses, insufficientBlood, backendErrorMessage } = location.state;
       
       if (process.env.NODE_ENV === 'development') {
         console.log('Debug - All state values:', { 
@@ -81,6 +113,7 @@ const BloodUnitSelectionPage = () => {
           hospital, 
           bloodTypes, 
           bloodComponents, 
+          bloodRequestStatuses,
           insufficientBlood, 
           backendErrorMessage 
         });
@@ -90,9 +123,21 @@ const BloodUnitSelectionPage = () => {
       setHospital(hospital);
       setBloodTypes(bloodTypes);
       setBloodComponents(bloodComponents);
+      setBloodRequestStatuses(bloodRequestStatuses || {});
+      
+      // Check if request is completed and set default tab accordingly
+      const status = bloodRequestStatuses && bloodRequestStatuses[request.requestStatusId];
+      const isCompleted = status && status.name === "Đã hoàn thành";
+      
+      if (isCompleted) {
+        setDefaultActiveTab('sent'); // If completed, show sent units tab
+      } else {
+        setDefaultActiveTab('suggested'); // Otherwise show suggested units tab
+      }
       
       // Set insufficient blood warning if passed from previous page
-      if (insufficientBlood) {
+      // But don't show it if request is already completed
+      if (insufficientBlood && !isCompleted) {
         if (process.env.NODE_ENV === 'development') {
           console.log('Debug - Insufficient blood detected:', insufficientBlood);
           console.log('Debug - Backend error message:', backendErrorMessage);
@@ -107,16 +152,22 @@ const BloodUnitSelectionPage = () => {
           console.log('Debug - Parsed info:', parsedInfo);
         }
         setBloodSupplyInfo(parsedInfo);
+      } else if (isCompleted) {
+        // For completed requests, clear any insufficient blood warnings
+        setInsufficientBlood(false);
+        setBackendErrorMessage('');
+        setBloodSupplyInfo(null);
       }
       
       fetchSuggestedBloodUnits(request.requestId);
+      fetchSentBloodUnits(request.requestId);
     } else {
       if (process.env.NODE_ENV === 'development') {
         console.log('Debug - No location state, navigating back');
       }
       navigate('/staff/approve-requests');
     }
-  }, [requestId, location.state, navigate, insufficientBlood]);
+  }, [requestId, location.state, navigate, insufficientBlood, isRequestCompleted]);
 
   // Function to parse backend error message
   const parseBackendErrorMessage = (message) => {
@@ -164,6 +215,33 @@ const BloodUnitSelectionPage = () => {
     return null;
   };
 
+  // Function to refresh request data from backend
+  const refreshRequestData = async (requestId) => {
+    try {
+      const [requestResponse, statusesResponse] = await Promise.all([
+        HospitalAPI.getBloodRequestById(requestId),
+        HospitalAPI.getBloodRequestStatuses()
+      ]);
+      
+      const updatedRequest = requestResponse.data || requestResponse;
+      const updatedStatuses = statusesResponse.data || statusesResponse;
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Debug - Refreshed request data:', updatedRequest);
+        console.log('Debug - Updated statuses:', updatedStatuses);
+      }
+      
+      // Update request and statuses
+      setSelectedRequest(updatedRequest);
+      setBloodRequestStatuses(updatedStatuses);
+      
+      return updatedRequest;
+    } catch (error) {
+      console.error("Error refreshing request data:", error);
+      return selectedRequest; // Return current request if refresh fails
+    }
+  };
+
   const handleSelectBloodUnit = async (bloodUnit) => {
     try {
       await HospitalAPI.assignBloodUnitToRequest(
@@ -173,14 +251,25 @@ const BloodUnitSelectionPage = () => {
       
       message.success(`Đã chọn túi máu #${bloodUnit.bloodUnitId}`);
       
-      // Update assigned volume and units
-      setAssignedVolume(prev => prev + bloodUnit.volume);
-      setAssignedUnits(prev => [...prev, bloodUnit]);
+      // Refresh request data from backend to get updated status and volume
+      const updatedRequest = await refreshRequestData(selectedRequest.requestId);
       
-      // Remove the selected unit from the list
+      // Refresh sent blood units list
+      await fetchSentBloodUnits(selectedRequest.requestId);
+      
+      // Remove the selected unit from the suggested list
       setSuggestedBloodUnits(prev => 
         prev.filter(unit => unit.bloodUnitId !== bloodUnit.bloodUnitId)
       );
+      
+      // Check if request is now completed and update tab if needed
+      const status = bloodRequestStatuses[updatedRequest.requestStatusId];
+      const isCompleted = status && status.name === "Đã hoàn thành";
+      
+      if (isCompleted) {
+        setDefaultActiveTab('sent');
+        message.success('Yêu cầu đã được hoàn thành!', 3);
+      }
       
     } catch (error) {
       console.error("Error selecting blood unit:", error);
@@ -225,8 +314,34 @@ const BloodUnitSelectionPage = () => {
   const calculateProgress = () => {
     if (!selectedRequest) return { percentage: 0, status: 'normal', isComplete: false };
     
-    const requiredVolume = selectedRequest.volume || 0;
-    const percentage = requiredVolume > 0 ? Math.min((assignedVolume / requiredVolume) * 100, 100) : 0;
+    // Use the original required volume (before any assignment)
+    // If request.volume = 0, it means completed, so we need to calculate from sent units
+    let requiredVolume = selectedRequest.volume;
+    let actualAssignedVolume = 0;
+    
+    // Calculate assigned volume from sent blood units
+    if (sentBloodUnits && sentBloodUnits.length > 0) {
+      actualAssignedVolume = sentBloodUnits.reduce((sum, unit) => sum + (unit.volume || 0), 0);
+      
+      // If request volume is 0 (completed), calculate required volume from assigned + remaining
+      if (requiredVolume === 0 && actualAssignedVolume > 0) {
+        requiredVolume = actualAssignedVolume; // For completed requests, required = assigned
+      }
+    }
+    
+    // For completed requests, always show 100%
+    const requestCompleted = isRequestCompleted();
+    if (requestCompleted) {
+      return { 
+        percentage: 100, 
+        status: 'success', 
+        isComplete: true, 
+        requiredVolume: actualAssignedVolume || requiredVolume, 
+        remainingVolume: 0 
+      };
+    }
+    
+    const percentage = requiredVolume > 0 ? Math.min((actualAssignedVolume / requiredVolume) * 100, 100) : 0;
     
     let status = 'normal';
     let isComplete = false;
@@ -242,7 +357,13 @@ const BloodUnitSelectionPage = () => {
       status = 'exception';
     }
     
-    return { percentage: Math.round(percentage), status, isComplete, requiredVolume, remainingVolume: Math.max(requiredVolume - assignedVolume, 0) };
+    return { 
+      percentage: Math.round(percentage), 
+      status, 
+      isComplete, 
+      requiredVolume, 
+      remainingVolume: Math.max(requiredVolume - actualAssignedVolume, 0) 
+    };
   };
 
   const columns = [
@@ -299,6 +420,61 @@ const BloodUnitSelectionPage = () => {
     },
   ];
 
+  const sentUnitsColumns = [
+    {
+      title: 'ID Túi máu',
+      dataIndex: 'bloodUnitId',
+      key: 'bloodUnitId',
+      render: (id) => <Text strong>#{id}</Text>,
+    },
+    {
+      title: 'Nhóm máu',
+      dataIndex: 'bloodTypeId',
+      key: 'bloodTypeId',
+      render: (typeId) => {
+        const type = bloodTypes[typeId];
+        return type ? <Tag color="red">{type.name}</Tag> : 'N/A';
+      },
+    },
+    {
+      title: 'Thành phần',
+      dataIndex: 'componentId',
+      key: 'componentId',
+      render: (componentId) => {
+        const component = bloodComponents[componentId];
+        return component ? <Tag color="blue">{component.name}</Tag> : 'N/A';
+      },
+    },
+    {
+      title: 'Thể tích',
+      dataIndex: 'volume',
+      key: 'volume',
+      render: (volume) => `${volume} ml`,
+    },
+    {
+      title: 'Ngày thu thập',
+      dataIndex: 'collectedDateTime',
+      key: 'collectedDateTime',
+      render: (dateTime) => formatDateTime(dateTime),
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'bloodUnitStatusId',
+      key: 'bloodUnitStatusId',
+      render: (statusId) => {
+        // Map status IDs to status names - you might need to adjust this based on your actual status mapping
+        const statusMap = {
+          1: { name: 'Có sẵn', color: 'green' },
+          2: { name: 'Đã sử dụng', color: 'blue' },
+          3: { name: 'Hết hạn', color: 'red' },
+          4: { name: 'Đã gửi', color: 'orange' }
+        };
+        const status = statusMap[statusId] || { name: 'Không xác định', color: 'default' };
+        return <Tag color={status.color}>{status.name}</Tag>;
+      },
+    },
+  ];
+
   if (!selectedRequest) {
     return (
       <Layout className="staff-layout">
@@ -340,7 +516,10 @@ const BloodUnitSelectionPage = () => {
                   Quay lại
                 </Button>
                 <Title level={3} className="donation-records-title">
-                  Chọn túi máu để cấp - Đơn #{selectedRequest.requestId}
+                  {isRequestCompleted() ? 
+                    `Xem túi máu đã gửi - Đơn #${selectedRequest.requestId}` : 
+                    `Chọn túi máu để cấp - Đơn #${selectedRequest.requestId}`
+                  }
                 </Title>
               </div>
 
@@ -410,13 +589,15 @@ const BloodUnitSelectionPage = () => {
                   />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Space>
-                      <Text>Đã chọn: <Text strong>{assignedVolume} ml</Text></Text>
+                      <Text>Đã gửi: <Text strong>
+                        {sentBloodUnits.reduce((sum, unit) => sum + (unit.volume || 0), 0)} ml
+                      </Text></Text>
                       <Text>Yêu cầu: <Text strong>{calculateProgress().requiredVolume} ml</Text></Text>
                       <Text>Còn thiếu: <Text strong style={{ color: calculateProgress().isComplete ? '#52c41a' : '#faad14' }}>
                         {calculateProgress().remainingVolume} ml
                       </Text></Text>
                     </Space>
-                    <Text>Số túi đã chọn: <Text strong>{assignedUnits.length}</Text></Text>
+                    <Text>Số túi đã gửi: <Text strong>{sentBloodUnits.length}</Text></Text>
                   </div>
                   {calculateProgress().isComplete && (
                     <Alert
@@ -430,7 +611,79 @@ const BloodUnitSelectionPage = () => {
                 </Space>
               </Card>
 
-              {!insufficientBlood && (
+              {/* Display tabs for both completed and non-completed requests */}
+              {(!insufficientBlood || isRequestCompleted()) && (
+                <Card>
+                  <Tabs defaultActiveKey={defaultActiveTab} size="large">
+                    <TabPane 
+                      tab={
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <StarOutlined style={{ color: '#faad14' }} />
+                          <Text strong>Túi máu được đề xuất</Text>
+                        </div>
+                      } 
+                      key="suggested"
+                    >
+                      {suggestedBloodUnits.length === 0 && !loading ? (
+                        <Alert
+                          message="Không có túi máu phù hợp"
+                          description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
+                          type="info"
+                          showIcon
+                          style={{ marginBottom: '16px' }}
+                        />
+                      ) : null}
+                      
+                      <Table
+                        columns={columns}
+                        dataSource={suggestedBloodUnits}
+                        rowKey="bloodUnitId"
+                        loading={loading}
+                        pagination={false}
+                        locale={{
+                          emptyText: insufficientBlood ? (
+                            <div style={{ padding: '20px', textAlign: 'center' }}>
+                              <p>Không có túi máu phù hợp trong kho.</p>
+                              {bloodSupplyInfo && (
+                                <p style={{ color: '#666', fontSize: '14px' }}>
+                                  Hệ thống chỉ có thể cung cấp {bloodSupplyInfo.fulfilled}ml/{bloodSupplyInfo.requested}ml. 
+                                  Thiếu {bloodSupplyInfo.remaining}ml.
+                                </p>
+                              )}
+                              <p style={{ color: '#faad14' }}>Vui lòng chờ bổ sung thêm túi máu.</p>
+                            </div>
+                          ) : 'Không có dữ liệu'
+                        }}
+                      />
+                    </TabPane>
+                    
+                    <TabPane 
+                      tab={
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <EyeOutlined style={{ color: '#52c41a' }} />
+                          <Text strong>Túi máu đã gửi ({sentBloodUnits.length})</Text>
+                        </div>
+                      } 
+                      key="sent"
+                    >
+                      <Table
+                        columns={sentUnitsColumns}
+                        dataSource={sentBloodUnits}
+                        rowKey="bloodUnitId"
+                        loading={loadingSentUnits}
+                        pagination={false}
+                        locale={{
+                          emptyText: 'Chưa có túi máu nào được gửi cho yêu cầu này'
+                        }}
+                        scroll={{ x: 800 }}
+                      />
+                    </TabPane>
+                  </Tabs>
+                </Card>
+              )}
+
+              {/* Show insufficient blood warning only for non-completed requests */}
+              {insufficientBlood && !isRequestCompleted() && (
                 <Card 
                   title={
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

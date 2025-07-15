@@ -229,4 +229,15 @@ export const HospitalAPI = {
       throw error;
     }
   },
+
+  // Get blood units assigned to a blood request
+  getBloodUnitsByRequest: async (requestId) => {
+    try {
+      const response = await hospitalApi.get(`/api/BloodUnit/by-blood-request/${requestId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching blood units by request:', error);
+      throw error;
+    }
+  },
 }; 

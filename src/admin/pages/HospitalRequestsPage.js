@@ -210,6 +210,20 @@ const HospitalRequestsPage = () => {
     });
   };
 
+  const handleViewSentBloodUnits = (request) => {
+    navigate(`/staff/approve-requests/blood-selection/${request.requestId}`, {
+      state: { 
+        request,
+        hospital,
+        bloodTypes,
+        bloodComponents,
+        urgencies,
+        bloodRequestStatuses,
+        returnPath: `/staff/approve-requests/hospital/${hospitalId}` // Thêm thông tin trang nguồn
+      }
+    });
+  };
+
   const getStatusTag = (statusId) => {
     const status = bloodRequestStatuses[statusId];
     if (!status) return <Tag>Không xác định</Tag>;
@@ -330,6 +344,7 @@ const HospitalRequestsPage = () => {
       render: (_, record) => {
         const status = bloodRequestStatuses[record.requestStatusId];
         const isApproved = status && status.name === "Đã duyệt";
+        const isCompleted = status && status.name === "Đã hoàn thành";
         
         return (
           <Space>
@@ -348,6 +363,16 @@ const HospitalRequestsPage = () => {
                 size="small"
               >
                 Chọn túi máu
+              </Button>
+            )}
+            {isCompleted && (
+              <Button
+                type="default"
+                icon={<UnorderedListOutlined />}
+                onClick={() => handleViewSentBloodUnits(record)}
+                size="small"
+              >
+                Xem túi máu đã gửi
               </Button>
             )}
           </Space>
