@@ -405,12 +405,12 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           getItem("Lịch đặt hiến", "1", <PieChartOutlined />),
           // Only show user management for admin users
           ...(isAdminUser()
-            ? [getItem("Quản lý người hiến", "2", <UserOutlined />)]
+            ? [getItem("Danh sách người hiến", "2", <UserOutlined />)]
             : []),
           // Only show staff management for admin users
           ...(isAdminUser()
             ? [
-                getItem("Quản lý nhân viên", "9", <UsergroupAddOutlined />),
+                getItem("Danh sách nhân viên", "9", <UsergroupAddOutlined />),
                 getItem(
                   "Tạo tài khoản nhân viên",
                   "10",
