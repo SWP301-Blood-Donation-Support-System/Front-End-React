@@ -367,7 +367,10 @@ const HospitalRequestsPage = () => {
     const statusId = Object.keys(bloodRequestStatuses).find(
       id => bloodRequestStatuses[id].name === statusName
     );
-    return hospitalRequests.filter(req => req.requestStatusId === statusId);
+    
+    return hospitalRequests.filter(req => {
+      return req.requestStatusId === statusId || req.requestStatusId === parseInt(statusId);
+    });
   };
 
   const getRequestsCountByStatus = (statusName) => {
@@ -541,13 +544,7 @@ const HospitalRequestsPage = () => {
                     locale={{
                       emptyText: <Empty description={getEmptyDescription()} />,
                     }}
-                    pagination={activeTab === "all" ? false : {
-                      pageSize: 10,
-                      showSizeChanger: true,
-                      showQuickJumper: true,
-                      showTotal: (total, range) =>
-                        `${range[0]}-${range[1]} của ${total} đơn yêu cầu`,
-                    }}
+                    pagination={false}
                   />
                 )}
               </Card>
