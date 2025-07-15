@@ -599,15 +599,6 @@ const BloodUnitSelectionPage = () => {
                     </Space>
                     <Text>Số túi đã gửi: <Text strong>{sentBloodUnits.length}</Text></Text>
                   </div>
-                  {calculateProgress().isComplete && (
-                    <Alert
-                      message="Hoàn thành!"
-                      description="Đã đủ lượng máu cần thiết cho yêu cầu này."
-                      type="success"
-                      showIcon
-                      style={{ marginTop: '8px' }}
-                    />
-                  )}
                 </Space>
               </Card>
 
@@ -624,37 +615,50 @@ const BloodUnitSelectionPage = () => {
                       } 
                       key="suggested"
                     >
-                      {suggestedBloodUnits.length === 0 && !loading ? (
+                      {/* Show completion message when request is completed */}
+                      {isRequestCompleted() ? (
                         <Alert
-                          message="Không có túi máu phù hợp"
-                          description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
-                          type="info"
+                          message="Hoàn thành!"
+                          description="Đã đủ lượng máu cần thiết cho yêu cầu này."
+                          type="success"
                           showIcon
-                          style={{ marginBottom: '16px' }}
                         />
-                      ) : null}
-                      
-                      <Table
-                        columns={columns}
-                        dataSource={suggestedBloodUnits}
-                        rowKey="bloodUnitId"
-                        loading={loading}
-                        pagination={false}
-                        locale={{
-                          emptyText: insufficientBlood ? (
-                            <div style={{ padding: '20px', textAlign: 'center' }}>
-                              <p>Không có túi máu phù hợp trong kho.</p>
-                              {bloodSupplyInfo && (
-                                <p style={{ color: '#666', fontSize: '14px' }}>
-                                  Hệ thống chỉ có thể cung cấp {bloodSupplyInfo.fulfilled}ml/{bloodSupplyInfo.requested}ml. 
-                                  Thiếu {bloodSupplyInfo.remaining}ml.
-                                </p>
-                              )}
-                              <p style={{ color: '#faad14' }}>Vui lòng chờ bổ sung thêm túi máu.</p>
-                            </div>
-                          ) : 'Không có dữ liệu'
-                        }}
-                      />
+                      ) : (
+                        <>
+                          {/* Show "no suitable blood units" message only when not completed and no units available */}
+                          {suggestedBloodUnits.length === 0 && !loading && (
+                            <Alert
+                              message="Không có túi máu phù hợp"
+                              description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
+                              type="info"
+                              showIcon
+                              style={{ marginBottom: '16px' }}
+                            />
+                          )}
+                          
+                          <Table
+                            columns={columns}
+                            dataSource={suggestedBloodUnits}
+                            rowKey="bloodUnitId"
+                            loading={loading}
+                            pagination={false}
+                            locale={{
+                              emptyText: insufficientBlood ? (
+                                <div style={{ padding: '20px', textAlign: 'center' }}>
+                                  <p>Không có túi máu phù hợp trong kho.</p>
+                                  {bloodSupplyInfo && (
+                                    <p style={{ color: '#666', fontSize: '14px' }}>
+                                      Hệ thống chỉ có thể cung cấp {bloodSupplyInfo.fulfilled}ml/{bloodSupplyInfo.requested}ml. 
+                                      Thiếu {bloodSupplyInfo.remaining}ml.
+                                    </p>
+                                  )}
+                                  <p style={{ color: '#faad14' }}>Vui lòng chờ bổ sung thêm túi máu.</p>
+                                </div>
+                              ) : 'Không có dữ liệu'
+                            }}
+                          />
+                        </>
+                      )}
                     </TabPane>
                     
                     <TabPane 
@@ -692,7 +696,8 @@ const BloodUnitSelectionPage = () => {
                     </div>
                   }
                 >
-                  {suggestedBloodUnits.length === 0 && !loading ? (
+                  {/* Only show "no suitable blood units" message when not completed and no units available */}
+                  {suggestedBloodUnits.length === 0 && !loading && (
                     <Alert
                       message="Không có túi máu phù hợp"
                       description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
@@ -700,7 +705,7 @@ const BloodUnitSelectionPage = () => {
                       showIcon
                       style={{ marginBottom: '16px' }}
                     />
-                  ) : null}
+                  )}
                   
                   <Table
                     columns={columns}
