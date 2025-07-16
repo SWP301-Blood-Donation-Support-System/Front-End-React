@@ -24,6 +24,7 @@ import {
   SyncOutlined,
   CloseCircleOutlined,
   UnorderedListOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -185,6 +186,8 @@ const RequestHistoryPage = () => {
 
   const getFilteredRequests = () => {
     switch (activeTab) {
+      case "pending":
+        return getRequestsByStatus("Đang chờ duyệt");
       case "approved":
         return getRequestsByStatus("Đã duyệt");
       case "completed":
@@ -199,6 +202,19 @@ const RequestHistoryPage = () => {
 
   const getTabItems = () => {
     return [
+      {
+        key: "pending",
+        label: (
+          <Space>
+            <ClockCircleOutlined style={{ color: '#fa8c16' }} />
+            Đang chờ duyệt
+            <Badge 
+              count={getRequestsCountByStatus("Đang chờ duyệt")} 
+              style={{ backgroundColor: '#fa8c16' }}
+            />
+          </Space>
+        ),
+      },
       {
         key: "approved",
         label: (
@@ -256,6 +272,8 @@ const RequestHistoryPage = () => {
 
   const getEmptyDescription = () => {
     switch (activeTab) {
+      case "pending":
+        return "Không có đơn yêu cầu nào đang chờ duyệt";
       case "approved":
         return "Không có đơn yêu cầu nào đã được duyệt";
       case "completed":
@@ -494,6 +512,11 @@ const RequestHistoryPage = () => {
   const getStatistics = () => {
     const total = bloodRequests.length;
     
+    const pending = bloodRequests.filter(req => {
+      const status = bloodRequestStatuses[req.requestStatusId];
+      return status && status.name === "Đang chờ duyệt";
+    }).length;
+    
     const approved = bloodRequests.filter(req => {
       const status = bloodRequestStatuses[req.requestStatusId];
       return status && status.name === "Đã duyệt";
@@ -509,7 +532,7 @@ const RequestHistoryPage = () => {
       return status && status.name === "Đã hoàn thành";
     }).length;
 
-    return { total, approved, rejected, completed };
+    return { total, pending, approved, rejected, completed };
   };
 
   const stats = getStatistics();
@@ -538,7 +561,7 @@ const RequestHistoryPage = () => {
 
               {/* Statistics Cards */}
               <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
+                <Col span={4}>
                   <Card>
                     <Statistic
                       title="Tổng số đơn"
@@ -547,7 +570,16 @@ const RequestHistoryPage = () => {
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
+                  <Card>
+                    <Statistic
+                      title="Đang chờ duyệt"
+                      value={stats.pending}
+                      valueStyle={{ color: '#fa8c16' }}
+                    />
+                  </Card>
+                </Col>
+                <Col span={5}>
                   <Card>
                     <Statistic
                       title="Đã duyệt"
@@ -556,7 +588,7 @@ const RequestHistoryPage = () => {
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                   <Card>
                     <Statistic
                       title="Đã hoàn thành"
@@ -565,7 +597,7 @@ const RequestHistoryPage = () => {
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                   <Card>
                     <Statistic
                       title="Từ chối"
