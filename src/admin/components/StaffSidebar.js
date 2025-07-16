@@ -64,10 +64,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     const pathname = location.pathname;
     const initialOpenKeys = [];
 
-    if (pathname.includes("/staff/blood-bag-management")) {
-      initialOpenKeys.push("3");
-      autoOpenedRef.current.add("3"); // Mark as auto-opened
-    } else if (pathname.includes("/staff/donation-records")) {
+    if (pathname.includes("/staff/donation-records")) {
       initialOpenKeys.push("4");
       autoOpenedRef.current.add("4"); // Mark as auto-opened
     }
@@ -118,11 +115,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     } else if (pathname.includes("/staff/create-staff-account")) {
       return ["10"];
     } else if (pathname.includes("/staff/blood-bag-management")) {
-      if (search.includes("status=all")) return ["3-1"];
-      if (search.includes("status=qualified")) return ["3-2"];
-      if (search.includes("status=disqualified")) return ["3-3"];
-      if (search.includes("status=pending")) return ["3-4"];
-      return ["3-1"]; // default to all
+      return ["3"];
     } else if (pathname.includes("/staff/donation-records")) {
       if (pathname.includes("/create")) return ["4-2"];
       return ["4-1"];
@@ -186,18 +179,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
 
     const pathname = location.pathname;
 
-    // Auto-open submenu for blood bag management pages
-    if (pathname.includes("/staff/blood-bag-management")) {
-      setOpenKeys((prev) => {
-        if (!prev.includes("3")) {
-          autoOpenedRef.current.add("3");
-          return [...prev, "3"];
-        }
-        return prev;
-      });
-    }
     // Auto-open submenu for donation records pages
-    else if (pathname.includes("/staff/donation-records")) {
+    if (pathname.includes("/staff/donation-records")) {
       setOpenKeys((prev) => {
         if (!prev.includes("4")) {
           autoOpenedRef.current.add("4");
@@ -227,17 +210,8 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
-      case "3-1": // Tất cả túi máu
+      case "3": // Quản lý túi máu - show all blood units
         navigate("/staff/blood-bag-management?status=all");
-        break;
-      case "3-2": // Túi máu đạt
-        navigate("/staff/blood-bag-management?status=qualified");
-        break;
-      case "3-3": // Túi máu không đạt
-        navigate("/staff/blood-bag-management?status=disqualified");
-        break;
-      case "3-4": // Túi máu chờ duyệt
-        navigate("/staff/blood-bag-management?status=pending");
         break;
       case "4-1": // Danh sách hồ sơ hiến máu
         navigate("/staff/donation-records");
@@ -418,12 +392,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
                 ),
               ]
             : []),
-          getItem("Quản lý túi máu", "3", <DesktopOutlined />, [
-            getItem("Tất cả túi máu", "3-1", <MedicineBoxOutlined />),
-            getItem("Túi máu đạt", "3-2", <CheckCircleOutlined />),
-            getItem("Túi máu không đạt", "3-3", <CloseCircleOutlined />),
-            getItem("Túi máu chờ duyệt", "3-4", <ClockCircleOutlined />),
-          ]),
+          getItem("Quản lý túi máu", "3", <DesktopOutlined />),
           getItem("Hồ sơ người hiến", "4", <FileOutlined />, [
             getItem("Toàn bộ hồ sơ", "4-1", <DatabaseOutlined />),
             getItem("Tạo hồ sơ mới", "4-2", <PlusCircleOutlined />),
