@@ -12,7 +12,8 @@ import {
   Card,
   Row,
   Col,
-  Statistic
+  Statistic,
+  Tabs
 } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AdminAPI } from '../api/admin';
@@ -30,9 +31,11 @@ const BloodBagManagementPage = () => {
   const [bloodUnits, setBloodUnits] = useState([]);
   const [filteredBloodUnits, setFilteredBloodUnits] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState('all'); // 'all', 'qualified', 'disqualified', 'pending'
+  const [selectedStatus, setSelectedStatus] = useState('all'); // 'all' or statusId
+  const [selectedBloodType, setSelectedBloodType] = useState('all'); // 'all' or bloodTypeId
   const [bloodComponents, setBloodComponents] = useState({});
   const [bloodTypes, setBloodTypes] = useState({});
+  const [bloodUnitStatuses, setBloodUnitStatuses] = useState({}); // Map of statusId to status object
   const [donationRecordsMap, setDonationRecordsMap] = useState({}); // Map donationRecordId to registrationId
   
   // Pagination state
@@ -45,13 +48,7 @@ const BloodBagManagementPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Status mapping for blood units
-  const statusMapping = {
-    'all': { name: 'Tất cả túi máu', color: 'blue' },
-    'qualified': { name: 'Túi máu đạt', color: 'green' },
-    'disqualified': { name: 'Túi máu không đạt', color: 'red' },
-    'pending': { name: 'Túi máu chờ duyệt', color: 'orange' }
-  };
+  // This will be replaced by actual API data
 
   useEffect(() => {
     // Get filter from URL params or default to 'all'
@@ -62,18 +59,26 @@ const BloodBagManagementPage = () => {
     fetchBloodUnits();
     fetchBloodComponents();
     fetchBloodTypes();
+    fetchBloodUnitStatuses();
     fetchDonationRecordsMapping();
   }, [location.search]);
 
   useEffect(() => {
     filterBloodUnits();
-  }, [bloodUnits, selectedStatus]);
+  }, [bloodUnits, selectedStatus, selectedBloodType]);
 
   const fetchBloodUnits = async () => {
     setLoading(true);
     try {
       const response = await AdminAPI.getBloodUnits();
       const bloodUnitsData = response.data || [];
+      
+      // Debug: Log the first blood unit to see its structure
+      if (bloodUnitsData.length > 0) {
+        console.log('Debug - Sample blood unit structure:', bloodUnitsData[0]);
+        console.log('Debug - Available fields:', Object.keys(bloodUnitsData[0]));
+      }
+      
       setBloodUnits(bloodUnitsData);
     } catch (error) {
       console.error('Error fetching blood units:', error);
@@ -112,6 +117,20 @@ const BloodBagManagementPage = () => {
     }
   };
 
+  const fetchBloodUnitStatuses = async () => {
+    try {
+      const response = await AdminAPI.getBloodUnitStatuses();
+      const statusesData = response.data || [];
+      const statusesMap = {};
+      statusesData.forEach(status => {
+        statusesMap[status.id] = status;
+      });
+      setBloodUnitStatuses(statusesMap);
+    } catch (error) {
+      console.error('Error fetching blood unit statuses:', error);
+    }
+  };
+
   const fetchDonationRecordsMapping = async () => {
     try {
       const response = await AdminAPI.getDonationRecords();
@@ -138,33 +157,127 @@ const BloodBagManagementPage = () => {
   const filterBloodUnits = () => {
     let filtered = [...bloodUnits];
     
-    switch (selectedStatus) {
-      case 'qualified':
-        // Assuming status "Available" means qualified
-        filtered = bloodUnits.filter(unit => 
-          unit.statusName === 'Available' || unit.bloodUnitStatusId === 1
-        );
-        setViewTitle('Túi Máu Đạt');
-        break;
-      case 'disqualified':
-        // Assuming certain statuses mean disqualified
-        filtered = bloodUnits.filter(unit => 
-          unit.statusName === 'Expired' || unit.statusName === 'Contaminated' || 
-          unit.bloodUnitStatusId === 2 || unit.bloodUnitStatusId === 3
-        );
-        setViewTitle('Túi Máu Không Đạt');
-        break;
-      case 'pending':
-        // Assuming certain statuses mean pending approval
-        filtered = bloodUnits.filter(unit => 
-          unit.statusName === 'Pending' || unit.bloodUnitStatusId === 4
-        );
-        setViewTitle('Túi Máu Chờ Duyệt');
-        break;
-      default:
-        filtered = bloodUnits;
-        setViewTitle('Tất Cả Túi Máu');
+    console.log('🔍 Filtering started with:', {
+      totalUnits: bloodUnits.length,
+      selectedStatus,
+      selectedBloodType,
+      bloodTypes,
+      bloodUnitStatuses
+    });
+    
+    // Filter by status first
+    if (selectedStatus !== 'all') {
+      const targetStatusId = parseInt(selectedStatus);
+      const targetStatusObject = bloodUnitStatuses[selectedStatus];
+      const beforeCount = filtered.length;
+      
+      filtered = filtered.filter(unit => {
+        // Try to match by status ID first
+        const unitStatusId = unit.bloodUnitStatusId || unit.statusId || unit.BloodUnitStatusId;
+        if (unitStatusId) {
+          const statusIdNum = parseInt(unitStatusId);
+          return statusIdNum === targetStatusId;
+        }
+        
+        // If no status ID, try to match by status name
+        const unitStatusName = unit.statusName || unit.StatusName;
+        if (unitStatusName && targetStatusObject) {
+          const matches = unitStatusName === targetStatusObject.name;
+          console.log(`📝 Status name match: "${unitStatusName}" === "${targetStatusObject.name}" = ${matches}`);
+          return matches;
+        }
+        
+        console.log(`❌ Status mismatch: unit has statusName="${unitStatusName}", looking for "${targetStatusObject?.name}"`);
+        return false;
+      });
+      
+      console.log(`✅ Status filter: ${beforeCount} → ${filtered.length} units`);
     }
+    
+    // Then filter by blood type
+    if (selectedBloodType !== 'all') {
+      const beforeCount = filtered.length;
+      
+      if (selectedBloodType === 'unknown') {
+        // Filter for units with no blood type
+        filtered = filtered.filter(unit => {
+          const unitBloodTypeId = unit.bloodTypeId || unit.BloodTypeId || unit.bloodType?.id;
+          const unitBloodTypeName = unit.bloodTypeName || unit.BloodTypeName || unit.bloodType?.name;
+          
+          // Return true if no blood type info is available
+          return !unitBloodTypeId && !unitBloodTypeName;
+        });
+      } else {
+        const targetBloodTypeId = parseInt(selectedBloodType);
+        const targetBloodType = bloodTypes[selectedBloodType];
+        
+        console.log(`🩸 Looking for blood type ID: ${targetBloodTypeId}, object:`, targetBloodType);
+        
+        filtered = filtered.filter(unit => {
+          // Try different possible field names for blood type ID and name
+          const unitBloodTypeId = unit.bloodTypeId || unit.BloodTypeId || unit.bloodType?.id;
+          const unitBloodTypeName = unit.bloodTypeName || unit.BloodTypeName || unit.bloodType?.name;
+          
+          console.log(`🔎 Unit blood type: ID=${unitBloodTypeId}, Name=${unitBloodTypeName}`);
+          
+          // Match by ID first
+          if (unitBloodTypeId) {
+            const bloodTypeIdNum = parseInt(unitBloodTypeId);
+            const matches = bloodTypeIdNum === targetBloodTypeId;
+            console.log(`🆔 ID match: ${bloodTypeIdNum} === ${targetBloodTypeId} = ${matches}`);
+            return matches;
+          }
+          
+          // If no ID, try to match by name
+          if (unitBloodTypeName && targetBloodType) {
+            const matches = unitBloodTypeName === targetBloodType.name;
+            console.log(`📝 Name match: "${unitBloodTypeName}" === "${targetBloodType.name}" = ${matches}`);
+            return matches;
+          }
+          
+          // If still no match, try to find blood type by name in the bloodTypes object
+          if (unitBloodTypeName) {
+            const matchingBloodType = Object.values(bloodTypes).find(bt => bt.name === unitBloodTypeName);
+            if (matchingBloodType && matchingBloodType.id === targetBloodTypeId) {
+              console.log(`🎯 Indirect match: "${unitBloodTypeName}" found in bloodTypes with ID ${matchingBloodType.id}`);
+              return true;
+            }
+          }
+          
+          console.log(`❌ No blood type match found for unit`);
+          return false;
+        });
+      }
+      
+      console.log(`🩸 Blood type filter: ${beforeCount} → ${filtered.length} units`);
+    }
+    
+    // Set title based on filters
+    let title = 'Tất Cả Túi Máu';
+    if (selectedBloodType !== 'all') {
+      if (selectedBloodType === 'unknown') {
+        title = 'Nhóm Máu Chưa Biết';
+      } else {
+        const bloodTypeObject = bloodTypes[selectedBloodType];
+        if (bloodTypeObject) {
+          title = `Nhóm Máu ${bloodTypeObject.name}`;
+        }
+      }
+    }
+    if (selectedStatus !== 'all') {
+      const statusObject = bloodUnitStatuses[selectedStatus];
+      if (statusObject) {
+        if (selectedBloodType !== 'all') {
+          title += ` - ${statusObject.name}`;
+        } else {
+          title = statusObject.name;
+        }
+      }
+    }
+    setViewTitle(title);
+    
+    console.log(`🎯 Final result: ${filtered.length} units after all filters`);
+    console.log('📋 Final filtered units:', filtered);
     
     setFilteredBloodUnits(filtered);
     setCurrentPage(1); // Reset pagination when filtering
@@ -173,6 +286,51 @@ const BloodBagManagementPage = () => {
   const handleStatusChange = (status) => {
     setSelectedStatus(status);
     navigate(`/staff/blood-bag-management?status=${status}`);
+  };
+
+  const handleBloodTypeChange = (bloodTypeKey) => {
+    setSelectedBloodType(bloodTypeKey);
+  };
+
+  // Calculate blood type counts for filter tabs
+  const getBloodTypeCounts = () => {
+    const counts = {};
+    
+    // Initialize counts for all blood types + unknown
+    Object.keys(bloodTypes).forEach(typeId => {
+      counts[typeId] = 0;
+    });
+    counts['unknown'] = 0;
+    
+    // Count blood units by blood type
+    bloodUnits.forEach(unit => {
+      // Try different possible field names for blood type ID
+      const unitBloodTypeId = unit.bloodTypeId || unit.BloodTypeId || unit.bloodType?.id;
+      const unitBloodTypeName = unit.bloodTypeName || unit.BloodTypeName || unit.bloodType?.name;
+      
+      let counted = false;
+      
+      if (unitBloodTypeId) {
+        const typeIdStr = unitBloodTypeId.toString();
+        if (counts.hasOwnProperty(typeIdStr)) {
+          counts[typeIdStr]++;
+          counted = true;
+        }
+      } else if (unitBloodTypeName) {
+        // If we don't have ID, try to match by name
+        const matchingType = Object.entries(bloodTypes).find(([id, type]) => type.name === unitBloodTypeName);
+        if (matchingType) {
+          counts[matchingType[0]]++;
+          counted = true;
+        }
+      }
+      
+      // If no blood type found, count as unknown
+      if (!counted) {
+        counts['unknown']++;
+      }
+    });
+    return counts;
   };
   // Format date function
   const formatDateTime = (dateString) => {
@@ -207,9 +365,13 @@ const BloodBagManagementPage = () => {
   // Get status tag color
   const getStatusColor = (statusName) => {
     const statusColors = {
+      'Khả dụng': 'green',
+      'Đã được sử dụng': 'blue', 
+      'Hết hạn': 'red',
+      'Hư': 'volcano',
       'Available': 'green',
-      'Expired': 'red',
       'Used': 'blue',
+      'Expired': 'red',
       'Contaminated': 'volcano',
       'Pending': 'orange',
       'Reserved': 'purple'
@@ -243,63 +405,20 @@ const BloodBagManagementPage = () => {
     }
   };
 
-  // Statistics calculations
-  const getStatistics = () => {
-    const total = bloodUnits.length;
-    const available = bloodUnits.filter(unit => unit.statusName === 'Available').length;
-    const expired = bloodUnits.filter(unit => unit.statusName === 'Expired').length;
-    const pending = bloodUnits.filter(unit => unit.statusName === 'Pending').length;
-    
-    return { total, available, expired, pending };
-  };
-
   const currentData = filteredBloodUnits;
   const totalPages = Math.ceil(currentData.length / pageSize);
   const startRecord = (currentPage - 1) * pageSize + 1;
   const endRecord = Math.min(currentPage * pageSize, currentData.length);
-  const stats = getStatistics();
+  const bloodTypeCounts = getBloodTypeCounts();
 
   const bloodUnitColumns = [
     {
       title: 'Mã Người Hiến',
       dataIndex: 'donorId',
       key: 'donorId',
-      width: '10%',
+      width: '12%',
       render: (text) => (
         <span style={{ fontWeight: 'bold', color: '#722ed1' }}>
-          #{text || 'N/A'}
-        </span>
-      ),
-    },
-    {
-      title: 'Mã Đăng Ký',
-      dataIndex: 'registrationId',
-      key: 'registrationId',
-      width: '10%',
-      render: (text, record) => {
-        // If registrationId is not directly available, try to map from donationRecordId
-        let displayRegistrationId = text;
-        
-
-        
-        if (!displayRegistrationId && record.donationRecordId) {
-          displayRegistrationId = donationRecordsMap[record.donationRecordId];
-        }
-        
-        return (
-          <span style={{ fontWeight: 'bold', color: '#13c2c2' }}>
-            #{displayRegistrationId || 'N/A'}
-          </span>
-        );
-      },
-    },
-    {
-      title: 'Mã Hồ Sơ',
-      dataIndex: 'donationRecordId',
-      key: 'donationRecordId',
-      width: '10%',
-      render: (text) => (
-        <span style={{ fontWeight: 'bold', color: '#fa541c' }}>
           #{text || 'N/A'}
         </span>
       ),
@@ -308,7 +427,7 @@ const BloodBagManagementPage = () => {
       title: 'Mã Túi Máu (BloodUnitID)',
       dataIndex: 'bloodUnitId',
       key: 'bloodUnitId',
-      width: '8%',
+      width: '10%',
       render: (text) => (
         <span style={{ fontWeight: 'bold', color: '#dc2626' }}>
           #{text || 'N/A'}
@@ -408,11 +527,18 @@ const BloodBagManagementPage = () => {
       dataIndex: 'statusName',
       key: 'statusName',
       width: '8%',
-      render: (status) => (
-        <Tag color={getStatusColor(status)}>
-          {status || 'N/A'}
-        </Tag>
-      ),
+      render: (statusName, record) => {
+        // Try to get status from API data first, then fallback to record
+        const unitStatusId = record.bloodUnitStatusId || record.statusId || record.BloodUnitStatusId;
+        const statusFromAPI = bloodUnitStatuses[unitStatusId];
+        const displayStatus = statusFromAPI?.name || statusName || 'N/A';
+        
+        return (
+          <Tag color={getStatusColor(displayStatus)}>
+            {displayStatus}
+          </Tag>
+        );
+      },
     },
   ];
 
@@ -429,45 +555,6 @@ const BloodBagManagementPage = () => {
         <Layout className="staff-content-layout">
           <Content className="blood-bag-content">
             <div className="blood-bag-container">
-              {/* Statistics Cards */}
-              <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
-                  <Card>
-                    <Statistic
-                      title="Tổng Số Túi Máu"
-                      value={stats.total}
-                      valueStyle={{ color: '#1890ff' }}
-                    />
-                  </Card>
-                </Col>
-                <Col span={6}>
-                  <Card>
-                    <Statistic
-                      title="Túi Máu Khả Dụng"
-                      value={stats.available}
-                      valueStyle={{ color: '#52c41a' }}
-                    />
-                  </Card>
-                </Col>
-                <Col span={6}>
-                  <Card>
-                    <Statistic
-                      title="Túi Máu Hết Hạn"
-                      value={stats.expired}
-                      valueStyle={{ color: '#f5222d' }}
-                    />
-                  </Card>
-                </Col>
-                <Col span={6}>
-                  <Card>
-                    <Statistic
-                      title="Túi Máu Chờ Duyệt"
-                      value={stats.pending}
-                      valueStyle={{ color: '#fa8c16' }}
-                    />
-                  </Card>
-                </Col>
-              </Row>
 
               <div className="blood-bag-header-section">
                 <Space className="blood-bag-controls">
@@ -480,15 +567,70 @@ const BloodBagManagementPage = () => {
                     style={{ width: 200 }}
                   >
                     <Option value="all">Tất Cả Túi Máu</Option>
-                    <Option value="qualified">Túi Máu Đạt</Option>
-                    <Option value="disqualified">Túi Máu Không Đạt</Option>
-                    <Option value="pending">Túi Máu Chờ Duyệt</Option>
+                    {Object.values(bloodUnitStatuses).map(status => (
+                      <Option key={status.id} value={status.id.toString()}>
+                        {status.name}
+                      </Option>
+                    ))}
                   </Select>
                   
                   <div style={{ fontSize: '14px', color: '#666', marginLeft: 'auto' }}>
                     <Text strong>Số túi máu hiển thị:</Text> {currentData.length}
                   </div>
                 </Space>
+              </div>
+
+              {/* Blood Type Filter Tabs */}
+              <div className="blood-type-filters" style={{ marginBottom: 24 }}>
+                <Tabs
+                  activeKey={selectedBloodType}
+                  onChange={handleBloodTypeChange}
+                  type="card"
+                  size="small"
+                  items={[
+                    {
+                      key: 'all',
+                      label: (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>Tất cả</span>
+                          <Tag color="blue" style={{ margin: 0 }}>
+                            {bloodUnits.length}
+                          </Tag>
+                        </span>
+                      ),
+                    },
+                    ...Object.entries(bloodTypes).map(([typeId, bloodType]) => ({
+                      key: typeId,
+                      label: (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>{bloodType.name}</span>
+                          <Tag 
+                            color={
+                              bloodType.name.includes('A') && !bloodType.name.includes('AB') ? 'red' :
+                              bloodType.name.includes('B') && !bloodType.name.includes('AB') ? 'blue' :
+                              bloodType.name.includes('AB') ? 'purple' :
+                              bloodType.name.includes('O') ? 'green' : 'default'
+                            } 
+                            style={{ margin: 0 }}
+                          >
+                            {bloodTypeCounts[typeId] || 0}
+                          </Tag>
+                        </span>
+                      ),
+                    })),
+                    {
+                      key: 'unknown',
+                      label: (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>Chưa biết</span>
+                          <Tag color="default" style={{ margin: 0 }}>
+                            {bloodTypeCounts['unknown'] || 0}
+                          </Tag>
+                        </span>
+                      ),
+                    }
+                  ]}
+                />
               </div>
 
               <div className="blood-bag-table-container">

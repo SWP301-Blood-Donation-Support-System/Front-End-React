@@ -601,6 +601,24 @@ export const AdminAPI = {
     }
   },
 
+  // Get blood unit statuses lookup
+  getBloodUnitStatuses: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/blood-unit-statuses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching blood unit statuses:", error);
+      throw error;
+    }
+  },
+
   // Get genders lookup
   getGendersLookup: async () => {
     try {
