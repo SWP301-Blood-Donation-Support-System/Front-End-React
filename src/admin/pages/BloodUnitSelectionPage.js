@@ -152,8 +152,8 @@ const BloodUnitSelectionPage = () => {
           console.log('Debug - Parsed info:', parsedInfo);
         }
         setBloodSupplyInfo(parsedInfo);
-      } else if (isCompleted) {
-        // For completed requests, clear any insufficient blood warnings
+      } else {
+        // For completed requests or non-insufficient cases, clear any insufficient blood warnings
         setInsufficientBlood(false);
         setBackendErrorMessage('');
         setBloodSupplyInfo(null);
@@ -264,9 +264,10 @@ const BloodUnitSelectionPage = () => {
       
       // Check if request is now completed and update tab if needed
       const status = bloodRequestStatuses[updatedRequest.requestStatusId];
-      const isCompleted = status && status.name === "Đã hoàn thành";
+      const isBackendCompleted = status && status.name === "Đã hoàn thành";
+      const isCalculatedCompleted = calculateProgress().isComplete;
       
-      if (isCompleted) {
+      if (isBackendCompleted || isCalculatedCompleted) {
         setDefaultActiveTab('sent');
         message.success('Yêu cầu đã được hoàn thành!', 3);
       }
@@ -314,34 +315,42 @@ const BloodUnitSelectionPage = () => {
   const calculateProgress = () => {
     if (!selectedRequest) return { percentage: 0, status: 'normal', isComplete: false };
     
-    // Use the original required volume (before any assignment)
-    // If request.volume = 0, it means completed, so we need to calculate from sent units
-    let requiredVolume = selectedRequest.volume;
-    let actualAssignedVolume = 0;
+    // Use backend fields: volume (original) and remainingVolume (still needed)
+    const originalVolume = selectedRequest.volume || 0;
+    const backendRemainingVolume = selectedRequest.remainingVolume || 0;
     
-    // Calculate assigned volume from sent blood units
-    if (sentBloodUnits && sentBloodUnits.length > 0) {
-      actualAssignedVolume = sentBloodUnits.reduce((sum, unit) => sum + (unit.volume || 0), 0);
-      
-      // If request volume is 0 (completed), calculate required volume from assigned + remaining
-      if (requiredVolume === 0 && actualAssignedVolume > 0) {
-        requiredVolume = actualAssignedVolume; // For completed requests, required = assigned
-      }
-    }
+    // Calculate actual assigned volume from sent blood units for verification
+    const actualSentVolume = sentBloodUnits.reduce((sum, unit) => sum + (unit.volume || 0), 0);
     
-    // For completed requests, always show 100%
-    const requestCompleted = isRequestCompleted();
-    if (requestCompleted) {
+    // Check completion status from backend
+    const backendCompleted = isRequestCompleted();
+    
+    // Cross-check: Only consider completed if backend says completed AND we have actually sent blood units
+    // OR if we have sent enough volume to meet the original request
+    const actuallyCompleted = backendCompleted && (actualSentVolume > 0 || actualSentVolume >= originalVolume);
+    
+    if (actuallyCompleted) {
       return { 
         percentage: 100, 
         status: 'success', 
         isComplete: true, 
-        requiredVolume: actualAssignedVolume || requiredVolume, 
+        requiredVolume: originalVolume, 
         remainingVolume: 0 
       };
     }
     
-    const percentage = requiredVolume > 0 ? Math.min((actualAssignedVolume / requiredVolume) * 100, 100) : 0;
+    // For incomplete requests, calculate based on actual sent volume
+    const percentage = originalVolume > 0 ? Math.min((actualSentVolume / originalVolume) * 100, 100) : 0;
+    
+    // Calculate remaining volume: prioritize manual calculation over potentially incorrect backend data
+    let remainingVolume;
+    if (actualSentVolume > 0) {
+      // If we have sent blood units, calculate remaining manually for accuracy
+      remainingVolume = Math.max(originalVolume - actualSentVolume, 0);
+    } else {
+      // If no blood units sent yet, use backend remaining volume
+      remainingVolume = backendRemainingVolume;
+    }
     
     let status = 'normal';
     let isComplete = false;
@@ -361,8 +370,8 @@ const BloodUnitSelectionPage = () => {
       percentage: Math.round(percentage), 
       status, 
       isComplete, 
-      requiredVolume, 
-      remainingVolume: Math.max(requiredVolume - actualAssignedVolume, 0) 
+      requiredVolume: originalVolume, 
+      remainingVolume: Math.max(remainingVolume, 0) 
     };
   };
 
@@ -523,8 +532,8 @@ const BloodUnitSelectionPage = () => {
                 </Title>
               </div>
 
-              {/* Insufficient Blood Warning */}
-              {insufficientBlood && (
+              {/* Insufficient Blood Warning - Only show for non-completed requests */}
+              {insufficientBlood && !isRequestCompleted() && (
                 <Alert
                   message="Cảnh báo: Không đủ túi máu trong kho!"
                   description={
@@ -602,134 +611,87 @@ const BloodUnitSelectionPage = () => {
                 </Space>
               </Card>
 
-              {/* Display tabs for both completed and non-completed requests */}
-              {(!insufficientBlood || isRequestCompleted()) && (
-                <Card>
-                  <Tabs defaultActiveKey={defaultActiveTab} size="large">
-                    <TabPane 
-                      tab={
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <StarOutlined style={{ color: '#faad14' }} />
-                          <Text strong>Túi máu được đề xuất</Text>
-                        </div>
-                      } 
-                      key="suggested"
-                    >
-                      {/* Show completion message when request is completed */}
-                      {isRequestCompleted() ? (
-                        <Alert
-                          message="Hoàn thành!"
-                          description="Đã đủ lượng máu cần thiết cho yêu cầu này."
-                          type="success"
-                          showIcon
-                        />
-                      ) : (
-                        <>
-                          {/* Show "no suitable blood units" message only when not completed and no units available */}
-                          {suggestedBloodUnits.length === 0 && !loading && (
-                            <Alert
-                              message="Không có túi máu phù hợp"
-                              description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
-                              type="info"
-                              showIcon
-                              style={{ marginBottom: '16px' }}
-                            />
-                          )}
-                          
-                          <Table
-                            columns={columns}
-                            dataSource={suggestedBloodUnits}
-                            rowKey="bloodUnitId"
-                            loading={loading}
-                            pagination={false}
-                            locale={{
-                              emptyText: insufficientBlood ? (
-                                <div style={{ padding: '20px', textAlign: 'center' }}>
-                                  <p>Không có túi máu phù hợp trong kho.</p>
-                                  {bloodSupplyInfo && (
-                                    <p style={{ color: '#666', fontSize: '14px' }}>
-                                      Hệ thống chỉ có thể cung cấp {bloodSupplyInfo.fulfilled}ml/{bloodSupplyInfo.requested}ml. 
-                                      Thiếu {bloodSupplyInfo.remaining}ml.
-                                    </p>
-                                  )}
-                                  <p style={{ color: '#faad14' }}>Vui lòng chờ bổ sung thêm túi máu.</p>
-                                </div>
-                              ) : 'Không có dữ liệu'
-                            }}
-                          />
-                        </>
-                      )}
-                    </TabPane>
-                    
-                    <TabPane 
-                      tab={
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <EyeOutlined style={{ color: '#52c41a' }} />
-                          <Text strong>Túi máu đã gửi ({sentBloodUnits.length})</Text>
-                        </div>
-                      } 
-                      key="sent"
-                    >
-                      <Table
-                        columns={sentUnitsColumns}
-                        dataSource={sentBloodUnits}
-                        rowKey="bloodUnitId"
-                        loading={loadingSentUnits}
-                        pagination={false}
-                        locale={{
-                          emptyText: 'Chưa có túi máu nào được gửi cho yêu cầu này'
-                        }}
-                        scroll={{ x: 800 }}
+              {/* Always display tabs for both completed and non-completed requests */}
+              <Card>
+                <Tabs defaultActiveKey={defaultActiveTab} size="large">
+                  <TabPane 
+                    tab={
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <StarOutlined style={{ color: '#faad14' }} />
+                        <Text strong>Túi máu được đề xuất</Text>
+                      </div>
+                    } 
+                    key="suggested"
+                  >
+                    {/* Show completion message when request is completed */}
+                    {(isRequestCompleted() || calculateProgress().isComplete) ? (
+                      <Alert
+                        message="Đã hoàn thành"
+                        description="Yêu cầu này đã được hoàn thành thành công. Tất cả lượng máu cần thiết đã được cung cấp."
+                        type="success"
+                        showIcon
                       />
-                    </TabPane>
-                  </Tabs>
-                </Card>
-              )}
-
-              {/* Show insufficient blood warning only for non-completed requests */}
-              {insufficientBlood && !isRequestCompleted() && (
-                <Card 
-                  title={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <StarOutlined style={{ color: '#faad14' }} />
-                      <Text strong>Túi máu được đề xuất</Text>
-                    </div>
-                  }
-                >
-                  {/* Only show "no suitable blood units" message when not completed and no units available */}
-                  {suggestedBloodUnits.length === 0 && !loading && (
-                    <Alert
-                      message="Không có túi máu phù hợp"
-                      description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
-                      type="info"
-                      showIcon
-                      style={{ marginBottom: '16px' }}
-                    />
-                  )}
+                    ) : (
+                      <>
+                        {/* Show "no suitable blood units" message only when not completed and no units available */}
+                        {suggestedBloodUnits.length === 0 && !loading && !calculateProgress().isComplete && (
+                          <Alert
+                            message="Không có túi máu phù hợp"
+                            description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
+                            type="info"
+                            showIcon
+                            style={{ marginBottom: '16px' }}
+                          />
+                        )}
+                        
+                        <Table
+                          columns={columns}
+                          dataSource={suggestedBloodUnits}
+                          rowKey="bloodUnitId"
+                          loading={loading}
+                          pagination={false}
+                          locale={{
+                            emptyText: insufficientBlood ? (
+                              <div style={{ padding: '20px', textAlign: 'center' }}>
+                                <p>Không có túi máu phù hợp trong kho.</p>
+                                {bloodSupplyInfo && (
+                                  <p style={{ color: '#666', fontSize: '14px' }}>
+                                    Hệ thống chỉ có thể cung cấp {bloodSupplyInfo.fulfilled}ml/{bloodSupplyInfo.requested}ml. 
+                                    Thiếu {bloodSupplyInfo.remaining}ml.
+                                  </p>
+                                )}
+                                <p style={{ color: '#faad14' }}>Vui lòng chờ bổ sung thêm túi máu.</p>
+                              </div>
+                            ) : 'Không có dữ liệu'
+                          }}
+                        />
+                      </>
+                    )}
+                  </TabPane>
                   
-                  <Table
-                    columns={columns}
-                    dataSource={suggestedBloodUnits}
-                    rowKey="bloodUnitId"
-                    loading={loading}
-                    pagination={false}
-                    locale={{
-                      emptyText: insufficientBlood ? (
-                        <div style={{ padding: '20px', textAlign: 'center' }}>
-                          <p>Không có túi máu phù hợp trong kho.</p>
-                          {bloodSupplyInfo && (
-                            <p style={{ color: '#666', fontSize: '14px' }}>
-                              Hệ thống chỉ có thể cung cấp {bloodSupplyInfo.fulfilled}ml/{bloodSupplyInfo.requested}ml. 
-                              Thiếu {bloodSupplyInfo.remaining}ml.
-                            </p>
-                          )}
-                          <p style={{ color: '#faad14' }}>Vui lòng chờ bổ sung thêm túi máu.</p>
-                        </div>
-                      ) : 'Không có dữ liệu'
-                    }}
-                  />
-                </Card>
-              )}
+                  <TabPane 
+                    tab={
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <EyeOutlined style={{ color: '#52c41a' }} />
+                        <Text strong>Túi máu đã gửi ({sentBloodUnits.length})</Text>
+                      </div>
+                    } 
+                    key="sent"
+                  >
+                    <Table
+                      columns={sentUnitsColumns}
+                      dataSource={sentBloodUnits}
+                      rowKey="bloodUnitId"
+                      loading={loadingSentUnits}
+                      pagination={false}
+                      locale={{
+                        emptyText: 'Chưa có túi máu nào được gửi cho yêu cầu này'
+                      }}
+                      scroll={{ x: 800 }}
+                    />
+                  </TabPane>
+                </Tabs>
+              </Card>
             </div>
           </Content>
         </Layout>
