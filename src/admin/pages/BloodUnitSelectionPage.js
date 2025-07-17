@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Layout, Table, Typography, Button, Card, message, Tag, Progress, Space, Alert, Tabs } from "antd";
-import { ArrowLeftOutlined, SelectOutlined, StarOutlined, CheckCircleOutlined, ExclamationCircleOutlined, EyeOutlined } from "@ant-design/icons";
+import { Layout, Table, Typography, Button, Card, message, Tag, Progress, Space, Alert, Tabs, Modal } from "antd";
+import { ArrowLeftOutlined, SelectOutlined, StarOutlined, CheckCircleOutlined, ExclamationCircleOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 
@@ -8,6 +8,8 @@ import StaffSidebar from "../components/StaffSidebar";
 import StaffHeader from "../components/StaffHeader";
 import { HospitalAPI } from "../api/hospital";
 import "../styles/donation-records.scss";
+
+const { confirm } = Modal;
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -32,6 +34,16 @@ const BloodUnitSelectionPage = () => {
   const [backendErrorMessage, setBackendErrorMessage] = useState('');
   const [bloodSupplyInfo, setBloodSupplyInfo] = useState(null);
   const [defaultActiveTab, setDefaultActiveTab] = useState('suggested');
+  
+  // Modal states
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [selectedBloodUnit, setSelectedBloodUnit] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+  
+  // Unassign modal states
+  const [unassignModalVisible, setUnassignModalVisible] = useState(false);
+  const [unassignBloodUnit, setUnassignBloodUnit] = useState(null);
+  const [unassignLoading, setUnassignLoading] = useState(false);
 
   // Function to check if request is completed
   const isRequestCompleted = useCallback(() => {
@@ -243,13 +255,23 @@ const BloodUnitSelectionPage = () => {
   };
 
   const handleSelectBloodUnit = async (bloodUnit) => {
+    // Instead of immediately assigning, show confirmation modal
+    setSelectedBloodUnit(bloodUnit);
+    setConfirmModalVisible(true);
+  };
+
+  // Function to actually assign blood unit after confirmation
+  const handleConfirmAssignment = async () => {
+    if (!selectedBloodUnit) return;
+    
+    setModalLoading(true);
     try {
       await HospitalAPI.assignBloodUnitToRequest(
-        bloodUnit.bloodUnitId, 
+        selectedBloodUnit.bloodUnitId, 
         selectedRequest.requestId
       );
       
-      message.success(`Đã chọn túi máu #${bloodUnit.bloodUnitId}`);
+      message.success(`Đã chọn và gửi túi máu #${selectedBloodUnit.bloodUnitId}`);
       
       // Refresh request data from backend to get updated status and volume
       const updatedRequest = await refreshRequestData(selectedRequest.requestId);
@@ -259,7 +281,7 @@ const BloodUnitSelectionPage = () => {
       
       // Remove the selected unit from the suggested list
       setSuggestedBloodUnits(prev => 
-        prev.filter(unit => unit.bloodUnitId !== bloodUnit.bloodUnitId)
+        prev.filter(unit => unit.bloodUnitId !== selectedBloodUnit.bloodUnitId)
       );
       
       // Check if request is now completed and update tab if needed
@@ -272,9 +294,55 @@ const BloodUnitSelectionPage = () => {
         message.success('Yêu cầu đã được hoàn thành!', 3);
       }
       
+      // Close modal
+      setConfirmModalVisible(false);
+      setSelectedBloodUnit(null);
+      
     } catch (error) {
       console.error("Error selecting blood unit:", error);
       message.error("Lỗi khi chọn túi máu!");
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Function to unassign blood unit
+  const handleUnassignBloodUnit = async (bloodUnit) => {
+    console.log('handleUnassignBloodUnit called with:', bloodUnit);
+    setUnassignBloodUnit(bloodUnit);
+    setUnassignModalVisible(true);
+  };
+
+  // Function to actually unassign after confirmation
+  const handleConfirmUnassign = async () => {
+    if (!unassignBloodUnit) return;
+    
+    setUnassignLoading(true);
+    try {
+      console.log('Calling unassign API for unit:', unassignBloodUnit.bloodUnitId, 'from request:', selectedRequest.requestId);
+      await HospitalAPI.unassignBloodUnitFromRequest(unassignBloodUnit.bloodUnitId, selectedRequest.requestId);
+      
+      message.success(`Đã hủy chọn túi máu #${unassignBloodUnit.bloodUnitId}`);
+      
+      // Refresh request data from backend
+      await refreshRequestData(selectedRequest.requestId);
+      
+      // Refresh both lists
+      await fetchSentBloodUnits(selectedRequest.requestId);
+      // Also refresh suggested units as the unassigned unit might become available again
+      const response = await HospitalAPI.getSuggestedBloodUnits(selectedRequest.requestId);
+      const bloodUnits = Array.isArray(response) ? response : response.data || [];
+      setSuggestedBloodUnits(bloodUnits);
+      
+      // Close modal
+      setUnassignModalVisible(false);
+      setUnassignBloodUnit(null);
+      
+    } catch (error) {
+      console.error("Error unassigning blood unit:", error);
+      message.error("Lỗi khi hủy chọn túi máu!");
+    } finally {
+      setUnassignLoading(false);
     }
   };
 
@@ -480,6 +548,32 @@ const BloodUnitSelectionPage = () => {
         };
         const status = statusMap[statusId] || { name: 'Không xác định', color: 'default' };
         return <Tag color={status.color}>{status.name}</Tag>;
+      },
+    },
+    {
+      title: 'Thao tác',
+      key: 'actions',
+      align: 'center',
+      render: (_, record) => {
+        const requestCompleted = isRequestCompleted();
+        console.log('Request completed status:', requestCompleted);
+        console.log('Record for action:', record);
+        
+        return (
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              console.log('Button clicked, calling handleUnassignBloodUnit');
+              handleUnassignBloodUnit(record);
+            }}
+            size="small"
+            disabled={requestCompleted}
+          >
+            Hủy chọn
+          </Button>
+        );
       },
     },
   ];
@@ -696,6 +790,74 @@ const BloodUnitSelectionPage = () => {
           </Content>
         </Layout>
       </Layout>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Xác nhận chọn túi máu"
+        visible={confirmModalVisible}
+        onOk={handleConfirmAssignment}
+        onCancel={() => {
+          setConfirmModalVisible(false);
+          setSelectedBloodUnit(null);
+        }}
+        confirmLoading={modalLoading}
+        okText="Xác nhận gửi"
+        cancelText="Hủy"
+        okType="primary"
+      >
+        {selectedBloodUnit && (
+          <div>
+            <p><strong>Bạn có chắc chắn muốn chọn và gửi túi máu này?</strong></p>
+            <div style={{ background: '#f5f5f5', padding: '12px', borderRadius: '4px', marginTop: '12px' }}>
+              <p><strong>Thông tin túi máu:</strong></p>
+              <ul style={{ marginBottom: 0 }}>
+                <li><strong>ID:</strong> #{selectedBloodUnit.bloodUnitId}</li>
+                <li><strong>Nhóm máu:</strong> {bloodTypes[selectedBloodUnit.bloodTypeId]?.name || 'N/A'}</li>
+                <li><strong>Thành phần:</strong> {bloodComponents[selectedBloodUnit.componentId]?.name || 'N/A'}</li>
+                <li><strong>Thể tích:</strong> {selectedBloodUnit.volume} ml</li>
+                <li><strong>Ngày thu thập:</strong> {formatDateTime(selectedBloodUnit.collectedDateTime)}</li>
+              </ul>
+            </div>
+            <p style={{ marginTop: '12px', color: '#666' }}>
+              <strong>Lưu ý:</strong> Sau khi xác nhận, túi máu sẽ được gửi đến bệnh viện ngay lập tức.
+            </p>
+          </div>
+        )}
+      </Modal>
+
+      {/* Unassign Confirmation Modal */}
+      <Modal
+        title="Xác nhận hủy chọn túi máu"
+        visible={unassignModalVisible}
+        onOk={handleConfirmUnassign}
+        onCancel={() => {
+          setUnassignModalVisible(false);
+          setUnassignBloodUnit(null);
+        }}
+        confirmLoading={unassignLoading}
+        okText="Xác nhận hủy"
+        cancelText="Hủy"
+        okType="danger"
+      >
+        {unassignBloodUnit && (
+          <div>
+            <p><strong>Bạn có chắc chắn muốn hủy chọn túi máu này?</strong></p>
+            <div style={{ background: '#f5f5f5', padding: '12px', borderRadius: '4px', marginTop: '12px' }}>
+              <p><strong>Thông tin túi máu:</strong></p>
+              <ul style={{ marginBottom: 0 }}>
+                <li><strong>ID:</strong> #{unassignBloodUnit.bloodUnitId}</li>
+                <li><strong>Nhóm máu:</strong> {bloodTypes[unassignBloodUnit.bloodTypeId]?.name || 'N/A'}</li>
+                <li><strong>Thành phần:</strong> {bloodComponents[unassignBloodUnit.componentId]?.name || 'N/A'}</li>
+                <li><strong>Thể tích:</strong> {unassignBloodUnit.volume} ml</li>
+                <li><strong>Ngày thu thập:</strong> {formatDateTime(unassignBloodUnit.collectedDateTime)}</li>
+              </ul>
+            </div>
+            <p style={{ marginTop: '12px', color: '#666' }}>
+              <strong>Lưu ý:</strong> Sau khi hủy chọn, túi máu sẽ quay về danh sách đề xuất và có thể được chọn lại.
+            </p>
+          </div>
+        )}
+      </Modal>
     </Layout>
   );
 };

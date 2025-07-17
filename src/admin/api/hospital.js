@@ -219,6 +219,17 @@ export const HospitalAPI = {
     }
   },
 
+  // Unassign blood unit from request
+  unassignBloodUnitFromRequest: async (unitId, requestId) => {
+    try {
+      const response = await hospitalApi.patch(`/api/BloodUnit/${unitId}/unassign-from-request`, requestId);
+      return response.data;
+    } catch (error) {
+      console.error('Error unassigning blood unit from request:', error);
+      throw error;
+    }
+  },
+
   // Get available blood units by blood type and component
   getAvailableBloodUnits: async (bloodTypeId, componentId) => {
     try {
