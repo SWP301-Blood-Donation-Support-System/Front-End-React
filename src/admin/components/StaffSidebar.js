@@ -395,7 +395,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           getItem("Quản lý túi máu", "3", <DesktopOutlined />),
           getItem("Hồ sơ người hiến", "4", <FileOutlined />, [
             getItem("Toàn bộ hồ sơ", "4-1", <DatabaseOutlined />),
-            getItem("Tạo hồ sơ mới", "4-2", <PlusCircleOutlined />),
+            // getItem("Tạo hồ sơ mới", "4-2", <PlusCircleOutlined />),
           ]),
           // Only show reports for admin users
           ...(isAdminUser()
@@ -428,7 +428,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         type: "group",
         label: "HỒ SƠ CÁ NHÂN",
         children: [
-          getItem("Hồ sơ", "6", <UserOutlined />),
+          // getItem("Hồ sơ", "6", <UserOutlined />),
           getItem("Cài đặt", "7", <SettingOutlined />),
           getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
         ],
