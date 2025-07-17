@@ -10,6 +10,10 @@ import {
   Card,
   Divider,
   Statistic,
+  Tabs,
+  Badge,
+  Empty,
+  Spin,
 } from "antd";
 import {
   BankOutlined,
@@ -17,6 +21,10 @@ import {
   EyeOutlined,
   ClockCircleOutlined,
   SelectOutlined,
+  CheckCircleOutlined,
+  SyncOutlined,
+  CloseCircleOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -28,18 +36,21 @@ import { HospitalAPI } from "../api/hospital";
 import "../styles/donation-records.scss";
 
 const { Content } = Layout;
-const { Text, Title } = Typography;
+const { Title } = Typography;
 
 const HospitalRequestsPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("pending"); // Default to pending requests
   const navigate = useNavigate();
   const { hospitalId } = useParams();
   const location = useLocation();
   
   // Data states
   const [hospital, setHospital] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [hospitalAccounts, setHospitalAccounts] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [bloodRequests, setBloodRequests] = useState([]);
   const [hospitalRequests, setHospitalRequests] = useState([]);
   const [bloodRequestStatuses, setBloodRequestStatuses] = useState({});
@@ -48,12 +59,25 @@ const HospitalRequestsPage = () => {
   const [urgencies, setUrgencies] = useState({});
 
   useEffect(() => {
-    // Get hospital data from location state or fetch it
+    // Get hospital data from location state or sessionStorage
     if (location.state?.hospital) {
       setHospital(location.state.hospital);
+      // Save to sessionStorage for future use
+      sessionStorage.setItem(`hospital_${hospitalId}`, JSON.stringify(location.state.hospital));
+    } else {
+      // Try to get from sessionStorage
+      const savedHospital = sessionStorage.getItem(`hospital_${hospitalId}`);
+      if (savedHospital) {
+        try {
+          setHospital(JSON.parse(savedHospital));
+        } catch (error) {
+          console.error("Error parsing saved hospital data:", error);
+        }
+      }
     }
     
     fetchAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hospitalId]);
 
   const fetchAllData = async () => {
@@ -126,11 +150,25 @@ const HospitalRequestsPage = () => {
   const filterHospitalRequests = (accountsData, requestsData, targetHospitalId) => {
     // Find staff accounts from this hospital
     const staffToHospitalMap = {};
+    let hospitalInfo = null;
+    
     accountsData.forEach(account => {
-      if (account.hospitalId == targetHospitalId) {
+      // Convert both to string for comparison to avoid type mismatch
+      if (String(account.hospitalId) === String(targetHospitalId)) {
         staffToHospitalMap[account.userId] = account.hospitalId;
+        // Save hospital info if not already set
+        if (!hospitalInfo && account.hospital) {
+          hospitalInfo = account.hospital;
+        }
       }
     });
+    
+    // Set hospital info if we found it and don't have it yet
+    if (hospitalInfo && !hospital) {
+      setHospital(hospitalInfo);
+      // Save to sessionStorage for future use
+      sessionStorage.setItem(`hospital_${targetHospitalId}`, JSON.stringify(hospitalInfo));
+    }
     
     // Filter requests from this hospital
     const requests = requestsData.filter(request => 
@@ -172,6 +210,20 @@ const HospitalRequestsPage = () => {
     });
   };
 
+  const handleViewSentBloodUnits = (request) => {
+    navigate(`/staff/approve-requests/blood-selection/${request.requestId}`, {
+      state: { 
+        request,
+        hospital,
+        bloodTypes,
+        bloodComponents,
+        urgencies,
+        bloodRequestStatuses,
+        returnPath: `/staff/approve-requests/hospital/${hospitalId}` // Thêm thông tin trang nguồn
+      }
+    });
+  };
+
   const getStatusTag = (statusId) => {
     const status = bloodRequestStatuses[statusId];
     if (!status) return <Tag>Không xác định</Tag>;
@@ -189,6 +241,9 @@ const HospitalRequestsPage = () => {
         break;
       case 'Từ chối':
         color = 'red';
+        break;
+      default:
+        color = 'default';
         break;
     }
     
@@ -218,6 +273,10 @@ const HospitalRequestsPage = () => {
       case 'critical':
         color = 'magenta';
         vietnameseName = 'Khẩn cấp';
+        break;
+      default:
+        color = 'default';
+        vietnameseName = urgency.name;
         break;
     }
     
@@ -285,6 +344,7 @@ const HospitalRequestsPage = () => {
       render: (_, record) => {
         const status = bloodRequestStatuses[record.requestStatusId];
         const isApproved = status && status.name === "Đã duyệt";
+        const isCompleted = status && status.name === "Đã hoàn thành";
         
         return (
           <Space>
@@ -305,6 +365,16 @@ const HospitalRequestsPage = () => {
                 Chọn túi máu
               </Button>
             )}
+            {isCompleted && (
+              <Button
+                type="default"
+                icon={<UnorderedListOutlined />}
+                onClick={() => handleViewSentBloodUnits(record)}
+                size="small"
+              >
+                Xem túi máu đã gửi
+              </Button>
+            )}
           </Space>
         );
       },
@@ -315,7 +385,126 @@ const HospitalRequestsPage = () => {
     const pendingStatusId = Object.keys(bloodRequestStatuses).find(
       id => bloodRequestStatuses[id].name === "Đang chờ duyệt"
     );
-    return hospitalRequests.filter(req => req.requestStatusId == pendingStatusId).length;
+    return hospitalRequests.filter(req => req.requestStatusId === pendingStatusId).length;
+  };
+
+  const getRequestsByStatus = (statusName) => {
+    const statusId = Object.keys(bloodRequestStatuses).find(
+      id => bloodRequestStatuses[id].name === statusName
+    );
+    
+    return hospitalRequests.filter(req => {
+      return req.requestStatusId === statusId || req.requestStatusId === parseInt(statusId);
+    });
+  };
+
+  const getRequestsCountByStatus = (statusName) => {
+    return getRequestsByStatus(statusName).length;
+  };
+
+  const getFilteredRequests = () => {
+    switch (activeTab) {
+      case "pending":
+        return getRequestsByStatus("Đang chờ duyệt");
+      case "approved":
+        return getRequestsByStatus("Đã duyệt");
+      case "completed":
+        return getRequestsByStatus("Đã hoàn thành");
+      case "rejected":
+        return getRequestsByStatus("Từ chối");
+      case "all":
+      default:
+        return hospitalRequests;
+    }
+  };
+
+  const getTabItems = () => {
+    return [
+      {
+        key: "pending",
+        label: (
+          <Space>
+            <ClockCircleOutlined style={{ color: '#fa8c16' }} />
+            Đang chờ duyệt
+            <Badge 
+              count={getRequestsCountByStatus("Đang chờ duyệt")} 
+              style={{ backgroundColor: '#fa8c16' }}
+            />
+          </Space>
+        ),
+      },
+      {
+        key: "approved",
+        label: (
+          <Space>
+            <CheckCircleOutlined style={{ color: '#52c41a' }} />
+            Đã duyệt
+            <Badge 
+              count={getRequestsCountByStatus("Đã duyệt")} 
+              style={{ backgroundColor: '#52c41a' }}
+            />
+          </Space>
+        ),
+      },
+      {
+        key: "completed",
+        label: (
+          <Space>
+            <SyncOutlined style={{ color: '#1890ff' }} />
+            Đã hoàn thành
+            <Badge 
+              count={getRequestsCountByStatus("Đã hoàn thành")} 
+              style={{ backgroundColor: '#1890ff' }}
+            />
+          </Space>
+        ),
+      },
+      {
+        key: "rejected",
+        label: (
+          <Space>
+            <CloseCircleOutlined style={{ color: '#f5222d' }} />
+            Từ chối
+            <Badge 
+              count={getRequestsCountByStatus("Từ chối")} 
+              style={{ backgroundColor: '#f5222d' }}
+            />
+          </Space>
+        ),
+      },
+      {
+        key: "all",
+        label: (
+          <Space>
+            <UnorderedListOutlined style={{ color: '#722ed1' }} />
+            Tất cả
+            <Badge 
+              count={hospitalRequests.length} 
+              style={{ backgroundColor: '#722ed1' }}
+            />
+          </Space>
+        ),
+      },
+    ];
+  };
+
+  const getHospitalDisplayName = () => {
+    return hospital?.hospitalName || `Bệnh viện #${hospitalId}`;
+  };
+
+  const getEmptyDescription = () => {
+    switch (activeTab) {
+      case "pending":
+        return "Không có đơn yêu cầu nào đang chờ duyệt";
+      case "approved":
+        return "Không có đơn yêu cầu nào đã được duyệt";
+      case "completed":
+        return "Không có đơn yêu cầu nào đã hoàn thành";
+      case "rejected":
+        return "Không có đơn yêu cầu nào bị từ chối";
+      default:
+        return "Không có đơn yêu cầu nào";
+    }
   };
 
   return (
@@ -333,7 +522,7 @@ const HospitalRequestsPage = () => {
             <div className="donation-records-container">
               <div className="donation-records-header-section">
                 <Title level={3} className="donation-records-title">
-                  Đơn khẩn cấp - {hospital?.hospitalName || `Bệnh viện #${hospitalId}`}
+                  Đơn khẩn cấp - {getHospitalDisplayName()}
                 </Title>
               </div>
 
@@ -349,7 +538,7 @@ const HospitalRequestsPage = () => {
                     </Button>
                     <Divider type="vertical" />
                     <BankOutlined />
-                    {hospital?.hospitalName || `Bệnh viện #${hospitalId}`}
+                    {getHospitalDisplayName()}
                   </Space>
                 }
                 extra={
@@ -361,13 +550,28 @@ const HospitalRequestsPage = () => {
                   />
                 }
               >
-                <Table
-                  columns={requestColumns}
-                  dataSource={hospitalRequests}
-                  rowKey={(record) => `hospital-${hospitalId}-request-${record.requestId}`}
-                  loading={loading}
-                  pagination={false}
+                <Tabs
+                  activeKey={activeTab}
+                  onChange={setActiveTab}
+                  items={getTabItems()}
+                  style={{ marginBottom: 16 }}
                 />
+                
+                {loading ? (
+                  <div style={{ textAlign: 'center', padding: '24px' }}>
+                    <Spin size="large" />
+                  </div>
+                ) : (
+                  <Table
+                    columns={requestColumns}
+                    dataSource={getFilteredRequests()}
+                    rowKey={(record) => `hospital-${hospitalId}-request-${record.requestId}`}
+                    locale={{
+                      emptyText: <Empty description={getEmptyDescription()} />,
+                    }}
+                    pagination={false}
+                  />
+                )}
               </Card>
             </div>
           </Content>
@@ -377,4 +581,4 @@ const HospitalRequestsPage = () => {
   );
 };
 
-export default HospitalRequestsPage; 
+export default HospitalRequestsPage;

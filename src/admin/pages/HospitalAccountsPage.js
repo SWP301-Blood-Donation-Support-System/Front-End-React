@@ -37,8 +37,6 @@ const HospitalAccountsPage = () => {
   const [hospitals, setHospitals] = useState({});
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   // Fetch hospital accounts and hospital data
   const fetchData = async () => {
@@ -78,7 +76,6 @@ const HospitalAccountsPage = () => {
     setSearchText(value);
     if (!value.trim()) {
       setFilteredAccounts(hospitalAccounts);
-      setCurrentPage(1);
       return;
     }
 
@@ -93,7 +90,6 @@ const HospitalAccountsPage = () => {
     });
     
     setFilteredAccounts(filtered);
-    setCurrentPage(1);
   };
 
   // Table columns configuration
@@ -168,37 +164,20 @@ const HospitalAccountsPage = () => {
       <StaffSidebar collapsed={collapsed} onCollapse={setCollapsed} />
       <Layout>
         <StaffHeader collapsed={collapsed} onCollapse={setCollapsed} />
-        <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
+        <Content className="user-management-content">
           <div className="user-management-container">
-            <Card className="user-management-card">
-              <div className="user-management-header">
-                <div className="header-content">
-                  <div className="title-section">
-                    <UserOutlined className="title-icon" />
-                    <div>
-                      <Title level={2} className="page-title">
-                        Tài khoản bệnh viện
-                      </Title>
-                      <Text type="secondary" className="page-description">
-                        Quản lý các tài khoản đã được đăng ký cho bệnh viện
-                      </Text>
-                    </div>
-                  </div>
-                  <Space size="middle">
-                    <Button
-                      type="default"
-                      icon={<ReloadOutlined />}
-                      onClick={fetchData}
-                      loading={loading}
-                    >
-                      Làm mới
-                    </Button>
-                  </Space>
+            <div className="user-header-section">
+              <div className="title-section">
+                <UserOutlined className="title-icon" />
+                <div>
+                  <Title level={2} className="user-management-title">
+                    Tài khoản bệnh viện
+                  </Title>
                 </div>
               </div>
-
-              <div className="user-management-controls">
-                <Row gutter={[16, 16]} align="middle">
+              
+              <div className="user-controls">
+                <Row gutter={[16, 16]} align="middle" style={{ width: '100%' }}>
                   <Col xs={24} sm={12} md={8} lg={6}>
                     <Search
                       placeholder="Tìm kiếm theo email, ID, tên bệnh viện..."
@@ -216,33 +195,21 @@ const HospitalAccountsPage = () => {
                   </Col>
                 </Row>
               </div>
+            </div>
 
-              <div className="user-management-table">
+            <div className="user-table-container">
+              <div className="user-wide-table">
                 <Table
                   columns={columns}
                   dataSource={filteredAccounts}
                   rowKey="userId"
                   loading={loading}
-                  pagination={{
-                    current: currentPage,
-                    pageSize: pageSize,
-                    total: filteredAccounts.length,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} của ${total} tài khoản`,
-                    onChange: setCurrentPage,
-                    onShowSizeChange: (current, size) => {
-                      setPageSize(size);
-                      setCurrentPage(1);
-                    },
-                    pageSizeOptions: ['5', '10', '20', '50'],
-                  }}
+                  pagination={false}
                   scroll={{ x: 800 }}
                   size="middle"
                 />
               </div>
-            </Card>
+            </div>
           </div>
         </Content>
       </Layout>

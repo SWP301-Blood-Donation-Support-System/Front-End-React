@@ -12,7 +12,6 @@ import {
   Row,
   Col,
   Divider,
-  Checkbox,
   Form,
   Input,
   InputNumber,
@@ -413,23 +412,69 @@ const DonationRecordsPage = () => {
   };
 
   const handleSaveEdit = async (values) => {
+    console.log("=== handleSaveEdit START ===");
+    // Get current user data to check blood type
+    const registrationId = selectedRecord.registrationId || selectedRecord.RegistrationId;
+    const userData = registrationUsers[registrationId];
+    
+    // Check if blood test result is "Máu đạt" (ID = 2) but blood type is not available
+    const newBloodTestResult = Number(values.bloodTestResult);
+    const selectedBloodType = values.donorBloodType;
+    const currentBloodTypeId = userData?.bloodTypeId;
+    
+    // Determine final blood type that will be used
+    const finalBloodTypeId = selectedBloodType || currentBloodTypeId;
+    
+    console.log("handleSaveEdit validation:", {
+      newBloodTestResult,
+      selectedBloodType,
+      currentBloodTypeId,
+      finalBloodTypeId,
+      userData,
+      bloodTypes
+    });
+    
+    // Check if blood type is "Chưa biết" - ID 1001 or name contains "Chưa biết"
+    const isUnknownBloodType = finalBloodTypeId === 1001 ||
+                               bloodTypes[finalBloodTypeId]?.name?.includes("Chưa biết") || 
+                               bloodTypes[finalBloodTypeId]?.name?.includes("Unknown") ||
+                               bloodTypes[finalBloodTypeId]?.name?.includes("unknown");
+    
+    // If blood test result is "Máu đạt" but no blood type is available OR blood type is "Chưa biết"
+    if (newBloodTestResult === 2 && (!finalBloodTypeId || isUnknownBloodType)) {
+      console.log("handleSaveEdit validation FAILED - stopping");
+      api.error({
+        message: "Lỗi xác thực!",
+        description: "Không thể lưu với kết quả xét nghiệm 'Máu đạt' khi nhóm máu chưa được xác định. Vui lòng cập nhật nhóm máu trước.",
+        placement: "topRight",
+        duration: 5,
+      });
+      return; // Stop execution - do not save
+    }
+    
+    console.log("handleSaveEdit validation PASSED");
+    
     // Store the form values and show confirmation modal
     setPendingFormValues(values);
     setConfirmModalVisible(true);
   };
 
   const handleConfirmSave = async () => {
+    console.log("=== handleConfirmSave START ===");
     setEditLoading(true);
     setConfirmModalVisible(false);
 
     try {
       const values = pendingFormValues;
+      console.log("Form values:", values);
       const recordId =
         selectedRecord.donationRecordId ||
         selectedRecord.DonationRecordId ||
         selectedRecord.id;
       const registrationId =
         selectedRecord.registrationId || selectedRecord.RegistrationId;
+
+      console.log("IDs:", { recordId, registrationId });
 
       // Validate required fields
       if (!recordId) {
@@ -441,6 +486,29 @@ const DonationRecordsPage = () => {
         message.error("Không tìm thấy mã đăng ký. Vui lòng thử lại.");
         return;
       }
+
+      // Double-check validation: if blood test result is "Máu đạt" but no blood type available
+      const userData = registrationUsers[registrationId];
+      const bloodTestResultValue = Number(values.bloodTestResult);
+      const selectedBloodType = values.donorBloodType;
+      const currentBloodTypeId = userData?.bloodTypeId;
+      const finalBloodTypeId = selectedBloodType || currentBloodTypeId;
+      
+      console.log("Validation check:", {
+        bloodTestResultValue,
+        selectedBloodType,
+        currentBloodTypeId,
+        finalBloodTypeId,
+        userData
+      });
+      
+      if (bloodTestResultValue === 2 && !finalBloodTypeId) {
+        console.log("Validation failed - stopping save");
+        message.error("Không thể lưu với kết quả xét nghiệm 'Máu đạt' khi nhóm máu chưa được xác định.");
+        return; // Stop execution - do not save to database
+      }
+      
+      console.log("Validation passed - proceeding with save");
 
       const updateData = {
         registrationId: registrationId,
@@ -475,9 +543,18 @@ const DonationRecordsPage = () => {
         newType: typeof newBloodTestResult,
       });
 
+      // Only create blood bag if:
+      // 1. Old result was "Đang chờ" (1) and new result is "Máu đạt" (2) - first time approval
+      // 2. This ensures only ONE blood bag is created per donation record
       const shouldCreateBloodBag =
         Number(oldBloodTestResult) === 1 && newBloodTestResult === 2;
       console.log("Should create blood bag:", shouldCreateBloodBag);
+      
+      // Additional check: If trying to change TO "Máu đạt" but already WAS "Máu đạt" before
+      const isReactivatingBloodResult = Number(oldBloodTestResult) === 2 && newBloodTestResult === 2;
+      if (isReactivatingBloodResult) {
+        console.log("Warning: Blood test result is already 'Máu đạt' - no blood bag will be created to prevent duplicates");
+      }
 
       // Update the donation record first
       await AdminAPI.updateDonationRecord(recordId, updateData);
@@ -516,6 +593,7 @@ const DonationRecordsPage = () => {
       }
 
       // If blood test result changed from "Đang chờ" to "Máu đạt", create blood bag AFTER blood type is updated
+      let bloodBagCreated = false;
       if (shouldCreateBloodBag) {
         try {
           console.log(
@@ -529,38 +607,66 @@ const DonationRecordsPage = () => {
             newBloodTestResult
           );
           console.log("Blood bag created successfully");
+          bloodBagCreated = true;
         } catch (bloodBagError) {
           console.error("Error creating blood bag:", bloodBagError);
           console.error(
             "Blood bag error details:",
             bloodBagError.response?.data
           );
-          api.warning({
-            message: "Cảnh báo!",
-            description:
-              "Hồ sơ đã được cập nhật nhưng có lỗi khi tạo túi máu tự động",
-            placement: "topRight",
-            duration: 4,
-          });
+          
+          // Check if the error is specifically about unknown blood type
+          const errorMessage = bloodBagError.response?.data?.message || '';
+          if (errorMessage.includes('chưa biết') || errorMessage.includes('Chưa biết')) {
+            api.error({
+              message: "Lỗi tạo túi máu!",
+              description: "Không thể tạo túi máu khi nhóm máu chưa biết. Vui lòng cập nhật nhóm máu trước.",
+              placement: "topRight",
+              duration: 4,
+            });
+          } else if (errorMessage.includes('already exists') || errorMessage.includes('đã tồn tại') || 
+                     errorMessage.includes('duplicate') || errorMessage.includes('trùng lặp')) {
+            api.warning({
+              message: "Cảnh báo!",
+              description: "Túi máu đã tồn tại cho hồ sơ này. Mỗi lần hiến máu chỉ tạo được 1 túi máu.",
+              placement: "topRight",
+              duration: 4,
+            });
+            // Consider this as successful since the blood bag exists
+            bloodBagCreated = true;
+          } else {
+            api.warning({
+              message: "Cảnh báo!",
+              description: "Hồ sơ đã được cập nhật nhưng có lỗi khi tạo túi máu tự động",
+              placement: "topRight",
+              duration: 4,
+            });
+          }
         }
       }
 
-      // Show success message
-      let successMessage = "Hồ sơ hiến máu đã được cập nhật thành công!";
-      let successDuration = 3;
+      // Show success message only if no critical errors occurred
+      if (!shouldCreateBloodBag || bloodBagCreated) {
+        let successMessage = "Hồ sơ hiến máu đã được cập nhật thành công!";
+        let successDuration = 3;
 
-      if (shouldCreateBloodBag) {
-        successMessage =
-          "Hồ sơ hiến máu đã được cập nhật và túi máu đã được tạo tự động!";
-        successDuration = 4;
+        if (shouldCreateBloodBag && bloodBagCreated) {
+          successMessage =
+            "Hồ sơ hiến máu đã được cập nhật và túi máu đã được tạo tự động!";
+          successDuration = 4;
+        } else if (isReactivatingBloodResult) {
+          successMessage = 
+            "Hồ sơ hiến máu đã được cập nhật thành công! (Túi máu đã tồn tại từ trước)";
+          successDuration = 4;
+        }
+
+        api.success({
+          message: "Cập nhật hồ sơ thành công!",
+          description: successMessage,
+          placement: "topRight",
+          duration: successDuration,
+        });
       }
-
-      api.success({
-        message: "Cập nhật hồ sơ thành công!",
-        description: successMessage,
-        placement: "topRight",
-        duration: successDuration,
-      });
 
       // Update the selected record with new data
       setSelectedRecord({

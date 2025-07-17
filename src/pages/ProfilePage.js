@@ -546,7 +546,8 @@ const ProfilePage = () => {
                   <div className="profile-header-info">                    <Title level={3} className="profile-name">
                     {user.FullName || user.name || 'Full Name'}
                   </Title>
-                    <Text className="profile-username">@{user.UserName || user.email?.split('@')[0] || 'username'}</Text>                    <div className="profile-tags">
+                    {/* Username display is hidden as it's no longer used */}
+                    <div className="profile-tags">
                       <Tag color="blue">
                         Nhóm máu: {getBloodTypeDisplay(user.BloodTypeID)}
                       </Tag>
@@ -777,11 +778,8 @@ const ProfilePage = () => {
                     </Text>
                   )}
                 </Descriptions.Item>
+                  {/* Username field is hidden as it's no longer used */}
                   <Descriptions.Item
-                    label={<span><UserOutlined /> Username</span>}
-                  >
-                    {user.Username || user.UserName || user.email?.split('@')[0] || 'Not specified'}
-                  </Descriptions.Item>                  <Descriptions.Item
                     label={<span><PhoneOutlined /> Số Điện Thoại</span>}
                   >
                     {!editMode ? (

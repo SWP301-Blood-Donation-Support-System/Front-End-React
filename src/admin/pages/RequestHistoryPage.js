@@ -11,11 +11,20 @@ import {
   Statistic,
   Row,
   Col,
+  Pagination,
+  Tabs,
+  Badge,
+  Empty,
 } from "antd";
 import {
   HistoryOutlined,
   EyeOutlined,
   ReloadOutlined,
+  CheckCircleOutlined,
+  SyncOutlined,
+  CloseCircleOutlined,
+  UnorderedListOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -32,6 +41,7 @@ const { Text, Title } = Typography;
 const RequestHistoryPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("all"); // Default to all requests
   const navigate = useNavigate();
   
   // Data states
@@ -40,6 +50,10 @@ const RequestHistoryPage = () => {
   const [bloodTypes, setBloodTypes] = useState({});
   const [bloodComponents, setBloodComponents] = useState({});
   const [urgencies, setUrgencies] = useState({});
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchData();
@@ -155,6 +169,122 @@ const RequestHistoryPage = () => {
     }
   };
 
+  // Status filtering functions
+  const getRequestsByStatus = (statusName) => {
+    const statusId = Object.keys(bloodRequestStatuses).find(
+      id => bloodRequestStatuses[id].name === statusName
+    );
+    
+    return bloodRequests.filter(req => {
+      return req.requestStatusId === statusId || req.requestStatusId === parseInt(statusId);
+    });
+  };
+
+  const getRequestsCountByStatus = (statusName) => {
+    return getRequestsByStatus(statusName).length;
+  };
+
+  const getFilteredRequests = () => {
+    switch (activeTab) {
+      case "pending":
+        return getRequestsByStatus("Đang chờ duyệt");
+      case "approved":
+        return getRequestsByStatus("Đã duyệt");
+      case "completed":
+        return getRequestsByStatus("Đã hoàn thành");
+      case "rejected":
+        return getRequestsByStatus("Từ chối");
+      case "all":
+      default:
+        return bloodRequests;
+    }
+  };
+
+  const getTabItems = () => {
+    return [
+      {
+        key: "pending",
+        label: (
+          <Space>
+            <ClockCircleOutlined style={{ color: '#fa8c16' }} />
+            Đang chờ duyệt
+            <Badge 
+              count={getRequestsCountByStatus("Đang chờ duyệt")} 
+              style={{ backgroundColor: '#fa8c16' }}
+            />
+          </Space>
+        ),
+      },
+      {
+        key: "approved",
+        label: (
+          <Space>
+            <CheckCircleOutlined style={{ color: '#52c41a' }} />
+            Đã duyệt
+            <Badge 
+              count={getRequestsCountByStatus("Đã duyệt")} 
+              style={{ backgroundColor: '#52c41a' }}
+            />
+          </Space>
+        ),
+      },
+      {
+        key: "completed",
+        label: (
+          <Space>
+            <SyncOutlined style={{ color: '#1890ff' }} />
+            Đã hoàn thành
+            <Badge 
+              count={getRequestsCountByStatus("Đã hoàn thành")} 
+              style={{ backgroundColor: '#1890ff' }}
+            />
+          </Space>
+        ),
+      },
+      {
+        key: "rejected",
+        label: (
+          <Space>
+            <CloseCircleOutlined style={{ color: '#f5222d' }} />
+            Từ chối
+            <Badge 
+              count={getRequestsCountByStatus("Từ chối")} 
+              style={{ backgroundColor: '#f5222d' }}
+            />
+          </Space>
+        ),
+      },
+      {
+        key: "all",
+        label: (
+          <Space>
+            <UnorderedListOutlined style={{ color: '#722ed1' }} />
+            Tất cả
+            <Badge 
+              count={bloodRequests.length} 
+              style={{ backgroundColor: '#722ed1' }}
+            />
+          </Space>
+        ),
+      },
+    ];
+  };
+
+  const getEmptyDescription = () => {
+    switch (activeTab) {
+      case "pending":
+        return "Không có đơn yêu cầu nào đang chờ duyệt";
+      case "approved":
+        return "Không có đơn yêu cầu nào đã được duyệt";
+      case "completed":
+        return "Không có đơn yêu cầu nào đã hoàn thành";
+      case "rejected":
+        return "Không có đơn yêu cầu nào bị từ chối";
+      default:
+        return "Không có đơn yêu cầu nào";
+    }
+  };
+
   const getStatusTag = (statusId) => {
     const status = bloodRequestStatuses[statusId];
     if (!status) return <Tag>N/A</Tag>;
@@ -232,6 +362,29 @@ const RequestHistoryPage = () => {
         fromHistory: true // Flag to indicate coming from history page
       }
     });
+  };
+
+  // Get current page data based on filtered results
+  const getCurrentPageData = () => {
+    const filteredData = getFilteredRequests();
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredData.slice(startIndex, endIndex);
+  };
+
+  // Handle page change
+  const handlePageChange = (page, size) => {
+    setCurrentPage(page);
+    if (size !== pageSize) {
+      setPageSize(size);
+      setCurrentPage(1); // Reset to first page when page size changes
+    }
+  };
+
+  // Reset pagination when tab changes
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   // Table columns for request history
@@ -355,7 +508,7 @@ const RequestHistoryPage = () => {
     },
   ];
 
-  // Calculate statistics
+  // Calculate statistics based on filtered data
   const getStatistics = () => {
     const total = bloodRequests.length;
     
@@ -371,7 +524,7 @@ const RequestHistoryPage = () => {
     
     const rejected = bloodRequests.filter(req => {
       const status = bloodRequestStatuses[req.requestStatusId];
-      return status && status.name === "Đã từ chối";
+      return status && status.name === "Từ chối";
     }).length;
 
     const completed = bloodRequests.filter(req => {
@@ -408,7 +561,7 @@ const RequestHistoryPage = () => {
 
               {/* Statistics Cards */}
               <Row gutter={16} style={{ marginBottom: 24 }}>
-                <Col span={6}>
+                <Col span={4}>
                   <Card>
                     <Statistic
                       title="Tổng số đơn"
@@ -417,16 +570,16 @@ const RequestHistoryPage = () => {
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                   <Card>
                     <Statistic
-                      title="Chờ duyệt"
+                      title="Đang chờ duyệt"
                       value={stats.pending}
-                      valueStyle={{ color: '#faad14' }}
+                      valueStyle={{ color: '#fa8c16' }}
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                   <Card>
                     <Statistic
                       title="Đã duyệt"
@@ -435,12 +588,21 @@ const RequestHistoryPage = () => {
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={5}>
                   <Card>
                     <Statistic
                       title="Đã hoàn thành"
                       value={stats.completed}
                       valueStyle={{ color: '#73d13d' }}
+                    />
+                  </Card>
+                </Col>
+                <Col span={5}>
+                  <Card>
+                    <Statistic
+                      title="Từ chối"
+                      value={stats.rejected}
+                      valueStyle={{ color: '#f5222d' }}
                     />
                   </Card>
                 </Col>
@@ -465,22 +627,49 @@ const RequestHistoryPage = () => {
                   </Button>
                 }
               >
+                <Tabs
+                  activeKey={activeTab}
+                  onChange={handleTabChange}
+                  items={getTabItems()}
+                  style={{ marginBottom: 16 }}
+                />
+
                 <Table
-                  dataSource={bloodRequests}
+                  dataSource={getCurrentPageData()}
                   columns={requestColumns}
                   rowKey="requestId"
                   loading={loading}
-                  pagination={{
-                    total: bloodRequests.length,
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} của ${total} đơn`,
-                  }}
+                  pagination={false}
                   scroll={{ x: 1200 }}
+                  locale={{
+                    emptyText: <Empty description={getEmptyDescription()} />,
+                  }}
                 />
               </Card>
+
+              {/* Custom Pagination */}
+              {getFilteredRequests().length > 0 && (
+                <div style={{ 
+                  marginTop: '16px', 
+                  display: 'flex', 
+                  justifyContent: 'center',
+                  padding: '16px 0'
+                }}>
+                  <Pagination
+                    current={currentPage}
+                    total={getFilteredRequests().length}
+                    pageSize={pageSize}
+                    showSizeChanger={true}
+                    showQuickJumper={true}
+                    showTotal={(total, range) =>
+                      `${range[0]}-${range[1]} của ${total} đơn`
+                    }
+                    onChange={handlePageChange}
+                    onShowSizeChange={handlePageChange}
+                    pageSizeOptions={['5', '10', '20', '50']}
+                  />
+                </div>
+              )}
             </div>
           </Content>
         </Layout>

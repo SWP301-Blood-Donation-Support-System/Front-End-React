@@ -164,7 +164,7 @@ const ApproveRequestsPage = () => {
       key: 'totalRequests',
       align: 'center',
       render: (count) => (
-        <Badge count={count} style={{ backgroundColor: '#1890ff' }} />
+        <Badge count={count} showZero={true} style={{ backgroundColor: '#1890ff' }} />
       ),
     },
     {
@@ -175,7 +175,8 @@ const ApproveRequestsPage = () => {
       render: (count) => (
         <Badge 
           count={count} 
-          style={{ backgroundColor: count > 0 ? '#f5222d' : '#d9d9d9' }} 
+          showZero={true}
+          style={{ backgroundColor: count > 0 ? '#f5222d' : '#52c41a' }} 
         />
       ),
     },
@@ -221,13 +222,7 @@ const ApproveRequestsPage = () => {
                   dataSource={hospitalSummary}
                   rowKey="hospitalId"
                   loading={loading}
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} của ${total} bệnh viện`,
-                  }}
+                  pagination={false}
                 />
               </Card>
             </div>

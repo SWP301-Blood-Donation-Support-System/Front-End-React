@@ -57,38 +57,41 @@ const RequestDetailPage = () => {
   const [rejectLoading, setRejectLoading] = useState(false);
 
   useEffect(() => {
+    const fetchRequestDetails = async () => {
+      setLoading(true);
+      try {
+        const detailedRequest = await HospitalAPI.getBloodRequestById(requestId);
+        setSelectedRequest(detailedRequest);
+        
+        // Fetch lookup data if not available - removed bloodTypes dependency check
+      } catch (error) {
+        console.error("Error fetching request details:", error);
+        message.error("Lỗi khi tải chi tiết đơn khẩn cấp!");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     // Get data from location state if available
     if (location.state) {
       const { request, hospital, bloodTypes, bloodComponents, urgencies, bloodRequestStatuses } = location.state;
-      setSelectedRequest(request);
-      setHospital(hospital);
-      setBloodTypes(bloodTypes);
-      setBloodComponents(bloodComponents);
-      setUrgencies(urgencies);
-      setBloodRequestStatuses(bloodRequestStatuses);
+      if (request && request.requestId) setSelectedRequest(request);
+      if (hospital) setHospital(hospital);
+      if (bloodTypes) setBloodTypes(bloodTypes);
+      if (bloodComponents) setBloodComponents(bloodComponents);
+      if (urgencies) setUrgencies(urgencies);
+      if (bloodRequestStatuses) setBloodRequestStatuses(bloodRequestStatuses);
+      
+      // Nếu không có request trong state, fetch từ API
+      if (!request || !request.requestId) {
+        fetchRequestDetails();
+      }
     } else {
       // Fallback: fetch request details if state is not available
       fetchRequestDetails();
     }
-  }, [requestId]);
-
-  const fetchRequestDetails = async () => {
-    setLoading(true);
-    try {
-      const detailedRequest = await HospitalAPI.getBloodRequestById(requestId);
-      setSelectedRequest(detailedRequest);
-      
-      // Fetch lookup data if not available
-      if (!bloodTypes || Object.keys(bloodTypes).length === 0) {
-        // Could fetch lookup data here if needed
-      }
-    } catch (error) {
-      console.error("Error fetching request details:", error);
-      message.error("Lỗi khi tải chi tiết đơn khẩn cấp!");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestId, location.state]);
 
   const handleBackToHospitalRequests = () => {
     // Kiểm tra xem có returnPath trong state không
@@ -159,33 +162,99 @@ const RequestDetailPage = () => {
         return;
       }
       
-      await HospitalAPI.approveBloodRequest(parseInt(selectedRequest.requestId), approverUserId);
-      message.success('Đã duyệt đơn khẩn cấp thành công!');
+      console.log('Debug - About to call approveBloodRequest API');
+      const response = await HospitalAPI.approveBloodRequest(parseInt(selectedRequest.requestId), approverUserId);
+      console.log('Debug - API response:', response);
       
-      // Navigate to blood unit selection page
-      navigate(`/staff/approve-requests/blood-selection/${selectedRequest.requestId}`, {
-        state: { 
-          request: selectedRequest,
-          hospital,
-          bloodTypes,
-          bloodComponents,
-          urgencies,
-          bloodRequestStatuses
-        }
-      });
+      // Check if response contains insufficient blood warning
+      const responseMessage = response?.message || response?.msg || response?.data?.message || response?.data?.msg || '';
+      console.log('Debug - Response message:', responseMessage);
+      
+      const hasInsufficientBloodWarning = responseMessage.includes('Could not fulfill the entire blood request') || 
+                                         responseMessage.includes('still needed') ||
+                                         responseMessage.includes('Requested:') ||
+                                         responseMessage.includes('Fulfilled:') ||
+                                         responseMessage.includes('Remaining:');
+      
+      console.log('Debug - hasInsufficientBloodWarning:', hasInsufficientBloodWarning);
+      
+      if (hasInsufficientBloodWarning) {
+        message.warning('Đã duyệt đơn nhưng kho máu không đủ để đáp ứng hoàn toàn!');
+        
+        console.log('Debug - Navigating with insufficientBlood=true from SUCCESS response');
+        navigate(`/staff/approve-requests/blood-selection/${selectedRequest.requestId}`, {
+          state: { 
+            request: selectedRequest,
+            hospital,
+            bloodTypes,
+            bloodComponents,
+            urgencies,
+            bloodRequestStatuses,
+            insufficientBlood: true,
+            backendErrorMessage: responseMessage
+          }
+        });
+      } else {
+        message.success('Đã duyệt đơn khẩn cấp thành công!');
+        
+        // Navigate to blood unit selection page
+        navigate(`/staff/approve-requests/blood-selection/${selectedRequest.requestId}`, {
+          state: { 
+            request: selectedRequest,
+            hospital,
+            bloodTypes,
+            bloodComponents,
+            urgencies,
+            bloodRequestStatuses
+          }
+        });
+      }
     } catch (error) {
       console.error('Error approving request:', error);
       console.error('Error details:', error.response?.data);
       
-      // Show more specific error message
-      if (error.response?.status === 400) {
-        message.error('Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin!');
-      } else if (error.response?.status === 401) {
-        message.error('Bạn không có quyền duyệt đơn này!');
-      } else if (error.response?.status === 404) {
-        message.error('Không tìm thấy đơn khẩn cấp!');
+      // Check if this is an insufficient blood supply error
+      const errorMessage = error.response?.data?.msg || error.response?.data?.message || '';
+      console.log('Debug - Full error response:', error.response?.data);
+      console.log('Debug - Error message:', errorMessage);
+      console.log('Debug - Status:', error.response?.status);
+      
+      const isInsufficientBlood = errorMessage.includes('Could not fulfill the entire blood request') || 
+                                  errorMessage.includes('still needed') ||
+                                  errorMessage.includes('Requested:') ||
+                                  errorMessage.includes('Fulfilled:') ||
+                                  errorMessage.includes('Remaining:') ||
+                                  (error.response?.status === 400 && errorMessage.length > 0);
+      
+      console.log('Debug - isInsufficientBlood:', isInsufficientBlood);
+      
+      if (isInsufficientBlood) {
+        // Still navigate to blood selection page but with insufficient blood warning
+        // Use the exact message from backend
+        message.warning('Đã duyệt đơn nhưng kho máu không đủ để đáp ứng hoàn toàn!');
+        
+        console.log('Debug - Navigating with insufficientBlood=true');
+        navigate(`/staff/approve-requests/blood-selection/${selectedRequest.requestId}`, {
+          state: { 
+            request: selectedRequest,
+            hospital,
+            bloodTypes,
+            bloodComponents,
+            urgencies,
+            bloodRequestStatuses,
+            insufficientBlood: true,
+            backendErrorMessage: errorMessage // Use exact backend message
+          }
+        });
       } else {
-        message.error('Lỗi khi duyệt đơn khẩn cấp!');
+        // Handle other types of errors
+        if (error.response?.status === 401) {
+          message.error('Bạn không có quyền duyệt đơn này!');
+        } else if (error.response?.status === 404) {
+          message.error('Không tìm thấy đơn khẩn cấp!');
+        } else {
+          message.error('Lỗi khi duyệt đơn khẩn cấp!');
+        }
       }
     } finally {
       setLoading(false);

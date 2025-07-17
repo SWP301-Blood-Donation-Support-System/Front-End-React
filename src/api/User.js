@@ -14,11 +14,17 @@ export const UserAPI = {
 
   register: async (username, email, password) => {
     try {
-      const response = await axios.post(`${BASE_URL}/api/User/register-donor`, {
-        username: username,
+      const payload = {
         email: email,
         passwordHash: password,
-      });
+      };
+      
+      // Only include username if it's provided (for backward compatibility)
+      if (username) {
+        payload.username = username;
+      }
+      
+      const response = await axios.post(`${BASE_URL}/api/User/register-donor`, payload);
       console.log("Registration response:", response);
       return response;
     } catch (error) {
