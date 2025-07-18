@@ -325,6 +325,34 @@ const HospitalRequestsPage = () => {
       dataIndex: 'urgencyId',
       key: 'urgencyId',
       render: (urgencyId) => getUrgencyTag(urgencyId),
+      filters: Object.keys(urgencies).map(id => {
+        const urgency = urgencies[id];
+        let vietnameseName = urgency.name;
+        
+        switch (urgency.name.toLowerCase()) {
+          case 'low':
+            vietnameseName = 'Thấp';
+            break;
+          case 'medium':
+            vietnameseName = 'Trung bình';
+            break;
+          case 'high':
+            vietnameseName = 'Cao';
+            break;
+          case 'critical':
+            vietnameseName = 'Khẩn cấp';
+            break;
+          default:
+            vietnameseName = urgency.name;
+            break;
+        }
+        
+        return {
+          text: vietnameseName,
+          value: id,
+        };
+      }),
+      onFilter: (value, record) => record.urgencyId === parseInt(value, 10),
     },
     {
       title: 'Trạng thái',
@@ -402,20 +430,49 @@ const HospitalRequestsPage = () => {
     return getRequestsByStatus(statusName).length;
   };
 
+  const sortByUrgencyPriority = (requests) => {
+    const getUrgencyPriority = (urgencyId) => {
+      const urgency = urgencies[urgencyId];
+      if (!urgency) return 0;
+      
+      switch (urgency.name.toLowerCase()) {
+        case 'critical': return 4; // Highest priority
+        case 'high': return 3;
+        case 'medium': return 2;
+        case 'low': return 1; // Lowest priority
+        default: return 0;
+      }
+    };
+    
+    return [...requests].sort((a, b) => {
+      return getUrgencyPriority(b.urgencyId) - getUrgencyPriority(a.urgencyId); // Descending order (highest first)
+    });
+  };
+
   const getFilteredRequests = () => {
+    let filteredRequests;
+    
     switch (activeTab) {
       case "pending":
-        return getRequestsByStatus("Đang chờ duyệt");
+        filteredRequests = getRequestsByStatus("Đang chờ duyệt");
+        break;
       case "approved":
-        return getRequestsByStatus("Đã duyệt");
+        filteredRequests = getRequestsByStatus("Đã duyệt");
+        break;
       case "completed":
-        return getRequestsByStatus("Đã hoàn thành");
+        filteredRequests = getRequestsByStatus("Đã hoàn thành");
+        break;
       case "rejected":
-        return getRequestsByStatus("Từ chối");
+        filteredRequests = getRequestsByStatus("Từ chối");
+        break;
       case "all":
       default:
-        return hospitalRequests;
+        filteredRequests = hospitalRequests;
+        break;
     }
+    
+    // Automatically sort by urgency priority
+    return sortByUrgencyPriority(filteredRequests);
   };
 
   const getTabItems = () => {
@@ -540,14 +597,6 @@ const HospitalRequestsPage = () => {
                     <BankOutlined />
                     {getHospitalDisplayName()}
                   </Space>
-                }
-                extra={
-                  <Statistic
-                    title="Đơn chờ duyệt"
-                    value={getPendingRequestsCount()}
-                    valueStyle={{ color: '#f5222d' }}
-                    prefix={<ClockCircleOutlined />}
-                  />
                 }
               >
                 <Tabs

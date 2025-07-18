@@ -199,13 +199,13 @@ const BloodBagManagementPage = () => {
       const beforeCount = filtered.length;
       
       if (selectedBloodType === 'unknown') {
-        // Filter for units with no blood type
+        // Filter for units with no blood type or "Chưa biết" blood type
         filtered = filtered.filter(unit => {
           const unitBloodTypeId = unit.bloodTypeId || unit.BloodTypeId || unit.bloodType?.id;
           const unitBloodTypeName = unit.bloodTypeName || unit.BloodTypeName || unit.bloodType?.name;
           
-          // Return true if no blood type info is available
-          return !unitBloodTypeId && !unitBloodTypeName;
+          // Return true if no blood type info is available OR blood type is "Chưa biết"
+          return unitBloodTypeName === 'Chưa biết' || (!unitBloodTypeId && !unitBloodTypeName);
         });
       } else {
         const targetBloodTypeId = parseInt(selectedBloodType);
@@ -296,9 +296,12 @@ const BloodBagManagementPage = () => {
   const getBloodTypeCounts = () => {
     const counts = {};
     
-    // Initialize counts for all blood types + unknown
+    // Initialize counts for all blood types + unknown (excluding "Chưa biết" types)
     Object.keys(bloodTypes).forEach(typeId => {
-      counts[typeId] = 0;
+      const bloodType = bloodTypes[typeId];
+      if (bloodType.name !== 'Chưa biết') {
+        counts[typeId] = 0;
+      }
     });
     counts['unknown'] = 0;
     
@@ -310,22 +313,30 @@ const BloodBagManagementPage = () => {
       
       let counted = false;
       
-      if (unitBloodTypeId) {
+      // Check if this is an unknown blood type (either no type or "Chưa biết")
+      if (unitBloodTypeName === 'Chưa biết' || (!unitBloodTypeId && !unitBloodTypeName)) {
+        counts['unknown']++;
+        counted = true;
+      } else if (unitBloodTypeId) {
         const typeIdStr = unitBloodTypeId.toString();
-        if (counts.hasOwnProperty(typeIdStr)) {
+        const bloodType = bloodTypes[typeIdStr];
+        // Only count if it's not "Chưa biết" type
+        if (bloodType && bloodType.name !== 'Chưa biết' && counts.hasOwnProperty(typeIdStr)) {
           counts[typeIdStr]++;
           counted = true;
         }
       } else if (unitBloodTypeName) {
-        // If we don't have ID, try to match by name
-        const matchingType = Object.entries(bloodTypes).find(([id, type]) => type.name === unitBloodTypeName);
+        // If we don't have ID, try to match by name (excluding "Chưa biết")
+        const matchingType = Object.entries(bloodTypes).find(([id, type]) => 
+          type.name === unitBloodTypeName && type.name !== 'Chưa biết'
+        );
         if (matchingType) {
           counts[matchingType[0]]++;
           counted = true;
         }
       }
       
-      // If no blood type found, count as unknown
+      // If no blood type found or it was "Chưa biết", count as unknown
       if (!counted) {
         counts['unknown']++;
       }
@@ -599,25 +610,27 @@ const BloodBagManagementPage = () => {
                         </span>
                       ),
                     },
-                    ...Object.entries(bloodTypes).map(([typeId, bloodType]) => ({
-                      key: typeId,
-                      label: (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span>{bloodType.name}</span>
-                          <Tag 
-                            color={
-                              bloodType.name.includes('A') && !bloodType.name.includes('AB') ? 'red' :
-                              bloodType.name.includes('B') && !bloodType.name.includes('AB') ? 'blue' :
-                              bloodType.name.includes('AB') ? 'purple' :
-                              bloodType.name.includes('O') ? 'green' : 'default'
-                            } 
-                            style={{ margin: 0 }}
-                          >
-                            {bloodTypeCounts[typeId] || 0}
-                          </Tag>
-                        </span>
-                      ),
-                    })),
+                    ...Object.entries(bloodTypes)
+                      .filter(([typeId, bloodType]) => bloodType.name !== 'Chưa biết')
+                      .map(([typeId, bloodType]) => ({
+                        key: typeId,
+                        label: (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span>{bloodType.name}</span>
+                            <Tag 
+                              color={
+                                bloodType.name.includes('A') && !bloodType.name.includes('AB') ? 'red' :
+                                bloodType.name.includes('B') && !bloodType.name.includes('AB') ? 'blue' :
+                                bloodType.name.includes('AB') ? 'purple' :
+                                bloodType.name.includes('O') ? 'green' : 'default'
+                              } 
+                              style={{ margin: 0 }}
+                            >
+                              {bloodTypeCounts[typeId] || 0}
+                            </Tag>
+                          </span>
+                        ),
+                      })),
                     {
                       key: 'unknown',
                       label: (

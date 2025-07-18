@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Layout, Table, Typography, Button, Card, message, Tag, Progress, Space, Alert, Tabs, Modal } from "antd";
-import { ArrowLeftOutlined, SelectOutlined, StarOutlined, CheckCircleOutlined, ExclamationCircleOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, SelectOutlined, StarOutlined, CheckCircleOutlined, ExclamationCircleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 
@@ -33,20 +33,12 @@ const BloodUnitSelectionPage = () => {
   const [bloodSupplyInfo, setBloodSupplyInfo] = useState(null);
   const [defaultActiveTab, setDefaultActiveTab] = useState('suggested');
   
-  // Modal states
+  // Modal states for individual blood unit confirmation
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [selectedBloodUnit, setSelectedBloodUnit] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
-  
-  // Unassign modal states
-  const [unassignModalVisible, setUnassignModalVisible] = useState(false);
-  const [unassignBloodUnit, setUnassignBloodUnit] = useState(null);
-  const [unassignLoading, setUnassignLoading] = useState(false);
 
-  // Final confirmation modal states
-  const [finalConfirmModalVisible, setFinalConfirmModalVisible] = useState(false);
-  const [finalConfirmLoading, setFinalConfirmLoading] = useState(false);
-  const [isBloodSent, setIsBloodSent] = useState(false); // Track if blood has been officially sent
+
 
   // Function to check if request is completed
   const isRequestCompleted = useCallback(() => {
@@ -184,12 +176,7 @@ const BloodUnitSelectionPage = () => {
     }
   }, [requestId, location.state, navigate, insufficientBlood, isRequestCompleted]);
 
-  // Auto-set isBloodSent when request is completed
-  useEffect(() => {
-    if (isRequestCompleted()) {
-      setIsBloodSent(true);
-    }
-  }, [isRequestCompleted]);
+
 
   // Function to parse backend error message
   const parseBackendErrorMessage = (message) => {
@@ -265,7 +252,7 @@ const BloodUnitSelectionPage = () => {
   };
 
   const handleSelectBloodUnit = async (bloodUnit) => {
-    // Instead of immediately assigning, show confirmation modal
+    // Show confirmation modal instead of directly assigning
     setSelectedBloodUnit(bloodUnit);
     setConfirmModalVisible(true);
   };
@@ -301,6 +288,7 @@ const BloodUnitSelectionPage = () => {
       
       if (isBackendCompleted || isCalculatedCompleted) {
         setDefaultActiveTab('sent');
+        // Auto-complete without showing final modal
         message.success('Yêu cầu đã được hoàn thành!', 3);
       }
       
@@ -316,103 +304,13 @@ const BloodUnitSelectionPage = () => {
     }
   };
 
-  // Function to unassign blood unit
-  const handleUnassignBloodUnit = async (bloodUnit) => {
-    console.log('handleUnassignBloodUnit called with:', bloodUnit);
-    setUnassignBloodUnit(bloodUnit);
-    setUnassignModalVisible(true);
-  };
 
-  // Function to actually unassign after confirmation
-  const handleConfirmUnassign = async () => {
-    if (!unassignBloodUnit) return;
-    
-    setUnassignLoading(true);
-    try {
-      console.log('Calling unassign API for unit:', unassignBloodUnit.bloodUnitId, 'from request:', selectedRequest.requestId);
-      await HospitalAPI.unassignBloodUnitFromRequest(unassignBloodUnit.bloodUnitId, selectedRequest.requestId);
-      
-      message.success(`Đã hủy chọn túi máu #${unassignBloodUnit.bloodUnitId}`);
-      
-      // Refresh request data from backend
-      await refreshRequestData(selectedRequest.requestId);
-      
-      // Refresh both lists
-      await fetchSentBloodUnits(selectedRequest.requestId);
-      // Also refresh suggested units as the unassigned unit might become available again
-      const response = await HospitalAPI.getSuggestedBloodUnits(selectedRequest.requestId);
-      const bloodUnits = Array.isArray(response) ? response : response.data || [];
-      setSuggestedBloodUnits(bloodUnits);
-      
-      // Close modal
-      setUnassignModalVisible(false);
-      setUnassignBloodUnit(null);
-      
-    } catch (error) {
-      console.error("Error unassigning blood unit:", error);
-      message.error("Lỗi khi hủy chọn túi máu!");
-    } finally {
-      setUnassignLoading(false);
-    }
-  };
 
-  // Final confirmation functions
-  const handleShowFinalConfirmation = () => {
-    setFinalConfirmModalVisible(true);
-  };
 
-  const handleFinalConfirmSend = async () => {
-    setFinalConfirmLoading(true);
-    try {
-      // Không cần gọi API - chỉ cần confirm việc gửi và update local state
-      // Status đã tự động chuyển thành "Đã hoàn thành" khi assign đủ túi máu
-      
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      message.success('Đã xác nhận hoàn tất quá trình gửi túi máu!');
-      setIsBloodSent(true);
-      setFinalConfirmModalVisible(false);
-      
-      // Refresh data để đảm bảo có status mới nhất
-      await refreshRequestData(selectedRequest.requestId);
-      await fetchSentBloodUnits(selectedRequest.requestId);
-      
-    } catch (error) {
-      console.error('Error confirming blood units sent:', error);
-      message.error('Lỗi khi xác nhận gửi túi máu!');
-    } finally {
-      setFinalConfirmLoading(false);
-    }
-  };
 
-  const handleCancelFinalConfirm = () => {
-    setFinalConfirmModalVisible(false);
-  };
 
   const handleBackToRequestDetail = () => {
-    const progress = calculateProgress();
-    
-    // Kiểm tra nếu progress đã 100% nhưng chưa xác nhận gửi
-    if (progress.isComplete && !isBloodSent && !isRequestCompleted()) {
-      Modal.confirm({
-        title: 'Xác nhận gửi túi máu',
-        content: 'Bạn đã chọn đủ túi máu nhưng chưa xác nhận gửi. Bạn có muốn xác nhận gửi túi máu ngay bây giờ không?',
-        okText: 'Xác nhận gửi',
-        cancelText: 'Quay lại sau',
-        icon: <ExclamationCircleOutlined style={{ color: '#faad14' }} />,
-        onOk: () => {
-          setFinalConfirmModalVisible(true);
-        },
-        onCancel: () => {
-          // Proceed with navigation without sending
-          proceedWithNavigation();
-        }
-      });
-      return;
-    }
-    
-    // Nếu không cần cảnh báo, tiếp tục navigation bình thường
+    // Direct navigation without final confirmation
     proceedWithNavigation();
   };
 
@@ -620,33 +518,6 @@ const BloodUnitSelectionPage = () => {
         return <Tag color={status.color}>{status.name}</Tag>;
       },
     },
-    {
-      title: 'Thao tác',
-      key: 'actions',
-      align: 'center',
-      render: (_, record) => {
-        const requestCompleted = isRequestCompleted();
-        console.log('Request completed status:', requestCompleted);
-        console.log('Record for action:', record);
-        
-        return (
-          <Button
-            type="primary"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => {
-              console.log('Button clicked, calling handleUnassignBloodUnit');
-              handleUnassignBloodUnit(record);
-            }}
-            size="small"
-            disabled={requestCompleted || isBloodSent}
-            title={isBloodSent ? "Không thể hủy chọn sau khi đã xác nhận gửi" : undefined}
-          >
-            Hủy chọn
-          </Button>
-        );
-      },
-    },
   ];
 
   if (!selectedRequest) {
@@ -773,37 +644,8 @@ const BloodUnitSelectionPage = () => {
                     </Space>
                     <Text>Số túi đã gửi: <Text strong>{sentBloodUnits.length}</Text></Text>
                   </div>
-                  
-                  {/* Final confirmation button - only show when progress is complete and not already sent */}
-                  {calculateProgress().isComplete && !isBloodSent && !isRequestCompleted() && (
-                    <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                      <Button
-                        type="primary"
-                        size="large"
-                        icon={<CheckCircleOutlined />}
-                        onClick={handleShowFinalConfirmation}
-                        style={{ 
-                          backgroundColor: '#52c41a', 
-                          borderColor: '#52c41a',
-                          minWidth: '200px'
-                        }}
-                      >
-                        Xác nhận hoàn tất gửi
-                      </Button>
-                    </div>
-                  )}
-                  
-                  {/* Show confirmation message when blood has been sent */}
-                  {isBloodSent && (
-                    <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                      <Alert
-                        message="Đã xác nhận hoàn tất gửi"
-                        description="Quá trình gửi túi máu đã được hoàn tất. Không thể thay đổi sau bước này."
-                        type="success"
-                        showIcon
-                      />
-                    </div>
-                  )}
+
+
                 </Space>
               </Card>
 
@@ -829,8 +671,8 @@ const BloodUnitSelectionPage = () => {
                       />
                     ) : (
                       <>
-                        {/* Show "no suitable blood units" message only when not completed and no units available */}
-                        {suggestedBloodUnits.length === 0 && !loading && !calculateProgress().isComplete && (
+                        {/* Show "no suitable blood units" message when no units available and request not completed */}
+                        {suggestedBloodUnits.length === 0 && !loading && (
                           <Alert
                             message="Không có túi máu phù hợp"
                             description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
@@ -893,10 +735,10 @@ const BloodUnitSelectionPage = () => {
         </Layout>
       </Layout>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Modal for individual blood unit selection */}
       <Modal
         title="Xác nhận chọn túi máu"
-        visible={confirmModalVisible}
+        open={confirmModalVisible}
         onOk={handleConfirmAssignment}
         onCancel={() => {
           setConfirmModalVisible(false);
@@ -927,78 +769,7 @@ const BloodUnitSelectionPage = () => {
         )}
       </Modal>
 
-      {/* Unassign Confirmation Modal */}
-      <Modal
-        title="Xác nhận hủy chọn túi máu"
-        visible={unassignModalVisible}
-        onOk={handleConfirmUnassign}
-        onCancel={() => {
-          setUnassignModalVisible(false);
-          setUnassignBloodUnit(null);
-        }}
-        confirmLoading={unassignLoading}
-        okText="Xác nhận hủy"
-        cancelText="Hủy"
-        okType="danger"
-      >
-        {unassignBloodUnit && (
-          <div>
-            <p><strong>Bạn có chắc chắn muốn hủy chọn túi máu này?</strong></p>
-            <div style={{ background: '#f5f5f5', padding: '12px', borderRadius: '4px', marginTop: '12px' }}>
-              <p><strong>Thông tin túi máu:</strong></p>
-              <ul style={{ marginBottom: 0 }}>
-                <li><strong>ID:</strong> #{unassignBloodUnit.bloodUnitId}</li>
-                <li><strong>Nhóm máu:</strong> {bloodTypes[unassignBloodUnit.bloodTypeId]?.name || 'N/A'}</li>
-                <li><strong>Thành phần:</strong> {bloodComponents[unassignBloodUnit.componentId]?.name || 'N/A'}</li>
-                <li><strong>Thể tích:</strong> {unassignBloodUnit.volume} ml</li>
-                <li><strong>Ngày thu thập:</strong> {formatDateTime(unassignBloodUnit.collectedDateTime)}</li>
-              </ul>
-            </div>
-            <p style={{ marginTop: '12px', color: '#666' }}>
-              <strong>Lưu ý:</strong> Sau khi hủy chọn, túi máu sẽ quay về danh sách đề xuất và có thể được chọn lại.
-            </p>
-          </div>
-        )}
-      </Modal>
 
-      {/* Final Confirmation Modal */}
-      <Modal
-        title={
-          <Space>
-            <CheckCircleOutlined style={{ color: '#52c41a' }} />
-            <span>Xác nhận hoàn tất gửi túi máu</span>
-          </Space>
-        }
-        open={finalConfirmModalVisible}
-        onOk={handleFinalConfirmSend}
-        onCancel={handleCancelFinalConfirm}
-        confirmLoading={finalConfirmLoading}
-        okText="Xác nhận hoàn tất"
-        cancelText="Hủy"
-        okType="primary"
-        width={600}
-        centered
-      >
-        <div style={{ marginBottom: '16px' }}>
-          <p><strong>Bạn đã chuẩn bị đủ túi máu cho yêu cầu này. Xác nhận hoàn tất quá trình gửi?</strong></p>
-          <div style={{ background: '#f5f5f5', padding: '12px', borderRadius: '4px', marginTop: '12px' }}>
-            <p><strong>Thông tin yêu cầu:</strong></p>
-            <ul style={{ marginBottom: 0 }}>
-              <li><strong>ID yêu cầu:</strong> #{selectedRequest?.requestId}</li>
-              <li><strong>Thể tích yêu cầu:</strong> {selectedRequest?.volume} ml</li>
-              <li><strong>Thể tích đã chuẩn bị:</strong> {sentBloodUnits.reduce((sum, unit) => sum + (unit.volume || 0), 0)} ml</li>
-              <li><strong>Số túi máu:</strong> {sentBloodUnits.length} túi</li>
-            </ul>
-          </div>
-          <Alert
-            message="Lưu ý"
-            description="Sau khi xác nhận, bạn sẽ không thể thay đổi hoặc hủy chọn các túi máu đã gửi."
-            type="info"
-            showIcon
-            style={{ marginTop: '12px' }}
-          />
-        </div>
-      </Modal>
     </Layout>
   );
 };
