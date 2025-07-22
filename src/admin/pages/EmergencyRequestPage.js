@@ -242,11 +242,13 @@ const EmergencyRequestPage = () => {
                               option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                             }
                           >
-                            {bloodTypes.map((type) => (
-                              <Option key={type.id} value={type.id}>
-                                {type.name}
-                              </Option>
-                            ))}
+                            {bloodTypes
+                              .filter((type) => type.name !== "Chưa biết")
+                              .map((type) => (
+                                <Option key={type.id} value={type.id}>
+                                  {type.name}
+                                </Option>
+                              ))}
                           </Select>
                         </Form.Item>
                       </Col>
@@ -302,9 +304,7 @@ const EmergencyRequestPage = () => {
                             },
                             {
                               type: "number",
-                              min: 1,
-                              max: 5000,
-                              message: "Thể tích phải từ 1-5000ml!",
+                              message: "Vui lòng nhập số hợp lệ!",
                             },
                           ]}
                         >
@@ -312,8 +312,6 @@ const EmergencyRequestPage = () => {
                             placeholder="Nhập thể tích cần thiết"
                             style={{ width: "100%" }}
                             size="large"
-                            min={1}
-                            max={5000}
                             addonAfter="ml"
                           />
                         </Form.Item>
@@ -395,10 +393,16 @@ const EmergencyRequestPage = () => {
                             </span>
                           }
                           name="note"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập ghi chú!",
+                            },
+                          ]}
                         >
                           <TextArea
                             rows={4}
-                            placeholder="Nhập ghi chú thêm về yêu cầu khẩn cấp (tùy chọn)..."
+                            placeholder="Nhập ghi chú thêm về yêu cầu khẩn cấp..."
                             maxLength={500}
                             showCount
                           />

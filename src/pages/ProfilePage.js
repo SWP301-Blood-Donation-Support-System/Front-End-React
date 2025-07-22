@@ -469,28 +469,28 @@ const ProfilePage = () => {
   const getBloodTypeDisplay = (bloodTypeID) => {
     const bloodTypeIdValue = bloodTypeID || user?.BloodTypeId || user?.BloodTypeID;
 
-    if (!bloodTypeIdValue || bloodTypes.length === 0) return 'Not specified';
+    if (!bloodTypeIdValue || bloodTypes.length === 0) return 'Chưa có thông tin';
 
     const bloodType = bloodTypes.find(bt => bt.id === bloodTypeIdValue || bt.id === parseInt(bloodTypeIdValue));
-    return bloodType ? bloodType.name : 'Not specified';
+    return bloodType ? bloodType.name : 'Chưa có thông tin';
   };
 
   const getGenderDisplay = (genderID) => {
     const genderIdValue = genderID || user?.GenderId || user?.GenderID;
 
-    if (!genderIdValue || genders.length === 0) return 'Not specified';
+    if (!genderIdValue || genders.length === 0) return 'Chưa có thông tin';
 
     const gender = genders.find(g => g.id === genderIdValue || g.id === parseInt(genderIdValue));
-    return gender ? gender.name : 'Not specified';
+    return gender ? gender.name : 'Chưa có thông tin';
   };
 
   const getOccupationDisplay = (occupationID) => {
     const occupationIdValue = occupationID || user?.OccupationId || user?.OccupationID;
 
-    if (!occupationIdValue || occupations.length === 0) return 'Not specified';
+    if (!occupationIdValue || occupations.length === 0) return 'Chưa có thông tin';
 
     const occupation = occupations.find(o => o.id === occupationIdValue || o.id === parseInt(occupationIdValue));
-    return occupation ? occupation.name : 'Not specified';
+    return occupation ? occupation.name : 'Chưa có thông tin';
   };
 
 
@@ -561,10 +561,10 @@ const ProfilePage = () => {
                     ) : (
                       <Space>
                         <Button onClick={handleCancelEdit}>
-                          Cancel
+                          Huỷ
                         </Button>
                         <Button type="primary" loading={editLoading} onClick={handleSaveProfile}>
-                          Save Changes
+                          Lưu Thay Đổi
                         </Button>
                       </Space>
                     )}
@@ -580,7 +580,7 @@ const ProfilePage = () => {
                   label={<span><UserOutlined /> Họ và Tên</span>}
                 >
                   {!editMode ? (
-                    user.FullName || user.name || 'Not specified'
+                    user.FullName || user.name || 'Chưa có thông tin'
                   ) : (
                     <div>
                       <Input
@@ -600,7 +600,7 @@ const ProfilePage = () => {
                     label={<span><CalendarOutlined /> Ngày Sinh</span>}
                   >
                     {!editMode ? (
-                      user.DateOfBirth ? dayjs(user.DateOfBirth).format('DD/MM/YYYY') : 'Not specified'
+                      user.DateOfBirth ? dayjs(user.DateOfBirth).format('DD/MM/YYYY') : 'Chưa có thông tin'
                     ) : (
                       <div>
                         <DatePicker
@@ -655,7 +655,7 @@ const ProfilePage = () => {
                     label={<span><IdcardOutlined /> Số CMND/CCCD</span>}
                   >
                     {!editMode ? (
-                      user.NationalId || user.NationalID || 'Not specified'
+                      user.NationalId || user.NationalID || 'Chưa có thông tin'
                     ) : (
                       <div>
                         <Input
@@ -677,7 +677,7 @@ const ProfilePage = () => {
                     label={<span><EnvironmentOutlined /> Địa Chỉ</span>}
                   >
                     {!editMode ? (
-                      user.Address || 'Not specified'
+                      user.Address || 'Chưa có thông tin'
                     ) : (
                       <div>
                         <Input.TextArea
@@ -770,7 +770,7 @@ const ProfilePage = () => {
                   label={<span><MailOutlined /> Email</span>}
                 >
                   <span style={{ color: editMode ? '#999' : 'inherit' }}>
-                    {user.Email || user.email || 'Not specified'}
+                    {user.Email || user.email || 'Chưa có thông tin'}
                   </span>
                   {editMode && (
                     <Text type="secondary" style={{ fontSize: '12px', marginLeft: '8px' }}>
@@ -783,7 +783,7 @@ const ProfilePage = () => {
                     label={<span><PhoneOutlined /> Số Điện Thoại</span>}
                   >
                     {!editMode ? (
-                      user.PhoneNumber || 'Not specified'
+                      user.PhoneNumber || 'Chưa có thông tin'
                     ) : (
                       <div>
                         <Input

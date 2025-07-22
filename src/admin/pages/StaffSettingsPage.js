@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Form, Input, Button, Typography, notification, Layout, Menu, Alert } from 'antd';
-import { LockOutlined, SettingOutlined, WarningOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Typography, notification, Layout, Alert } from 'antd';
+import { LockOutlined, WarningOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 import StaffHeader from '../components/StaffHeader';
 import StaffSidebar from '../components/StaffSidebar';
@@ -8,11 +8,10 @@ import { AdminAPI } from '../api/admin';
 import { checkIfDefaultPassword, validateNewPassword, markPasswordAsChanged } from '../utils/passwordUtils';
 
 const { Title, Text } = Typography;
-const { Sider, Content } = Layout;
+const { Content } = Layout;
 
 const StaffSettingsPage = () => {
   const [api, contextHolder] = notification.useNotification();
-  const [selectedKey, setSelectedKey] = useState('change-password');
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [hasDefaultPassword, setHasDefaultPassword] = useState(false);
@@ -42,13 +41,7 @@ const StaffSettingsPage = () => {
     checkDefaultPassword();
   }, []); // Remove location.state dependency to prevent multiple calls
 
-  const menuItems = [
-    {
-      key: 'change-password',
-      icon: <LockOutlined />,
-      label: 'Đổi mật khẩu',
-    },
-  ];
+
 
   const handleChangePassword = async (values) => {
     try {
@@ -110,123 +103,7 @@ const StaffSettingsPage = () => {
     }
   };
 
-  const renderContent = () => {
-    switch (selectedKey) {
-      case 'change-password':
-        return (
-          <Card title="Đổi mật khẩu" className="settings-form-card">
-            {hasDefaultPassword && (
-              <Alert
-                message="Cần thay đổi mật khẩu mặc định"
-                description="Bạn đang sử dụng mật khẩu mặc định. Để bảo mật tài khoản và truy cập đầy đủ các chức năng, vui lòng thay đổi mật khẩu ngay. Mật khẩu mới không được giống với mật khẩu mặc định."
-                type="warning"
-                icon={<WarningOutlined />}
-                showIcon
-                style={{ 
-                  marginBottom: '24px',
-                  padding: '16px',
-                  backgroundColor: '#fff7e6',
-                  border: '1px solid #ffd591',
-                  borderRadius: '8px'
-                }}
-                closable={false}
-              />
-            )}
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleChangePassword}
-              autoComplete="off"
-            >
-              <Form.Item
-                label="Mật khẩu hiện tại"
-                name="currentPassword"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập mật khẩu hiện tại!',
-                  },
-                ]}
-              >
-                <Input.Password 
-                  placeholder="Nhập mật khẩu hiện tại"
-                  prefix={<LockOutlined />}
-                />
-              </Form.Item>
 
-              <Form.Item
-                label="Mật khẩu mới"
-                name="newPassword"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng nhập mật khẩu mới!',
-                  },
-                  {
-                    min: 6,
-                    message: 'Mật khẩu phải có ít nhất 6 ký tự!',
-                  },
-                  {
-                    validator: (_, value) => {
-                      if (value === 'staff123') {
-                        return Promise.reject(new Error('Mật khẩu mới không được giống với mật khẩu mặc định!'));
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                ]}
-              >
-                <Input.Password 
-                  placeholder="Nhập mật khẩu mới"
-                  prefix={<LockOutlined />}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Xác nhận mật khẩu mới"
-                name="confirmPassword"
-                dependencies={['newPassword']}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Vui lòng xác nhận mật khẩu mới!',
-                  },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue('newPassword') === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password 
-                  placeholder="Xác nhận mật khẩu mới"
-                  prefix={<LockOutlined />}
-                />
-              </Form.Item>
-
-              <Form.Item>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                  <Button type="primary" htmlType="submit" loading={loading}>
-                    Đổi mật khẩu
-                  </Button>
-                </div>
-              </Form.Item>
-            </Form>
-          </Card>
-        );
-      default:
-        return (
-          <Card>
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-              <Text type="secondary">Chọn một tùy chọn từ menu bên trái</Text>
-            </div>
-          </Card>
-        );
-    }
-  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -235,36 +112,127 @@ const StaffSettingsPage = () => {
       <Layout>
         <StaffHeader collapsed={collapsed} onCollapse={setCollapsed} />
         <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
-          <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-            <div className="settings-header" style={{ marginBottom: '2rem', textAlign: 'center' }}>
-              <Title level={2}>
-                <SettingOutlined /> Cài đặt
-              </Title>
-              <Text type="secondary">
-                Quản lý cài đặt tài khoản của bạn
-              </Text>
-            </div>
+          <div style={{ 
+            padding: 24, 
+            background: '#fff', 
+            minHeight: 360,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <div style={{ width: '100%', maxWidth: '600px' }}>
+              <div className="settings-header" style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                <Title level={2}>
+                  <LockOutlined /> Đổi mật khẩu
+                </Title>
+                <Text type="secondary">
+                  Quản lý cài đặt tài khoản của bạn
+                </Text>
+              </div>
 
-            <Layout className="settings-layout" style={{ background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', overflow: 'hidden', minHeight: '500px' }}>
-              <Sider
-                width={250}
-                theme="light"
-                className="settings-sidebar"
-                style={{ borderRight: '1px solid #f0f0f0', background: '#fafafa' }}
-              >
-                <Menu
-                  mode="inline"
-                  selectedKeys={[selectedKey]}
-                  items={menuItems}
-                  onClick={({ key }) => setSelectedKey(key)}
-                  className="settings-menu"
-                  style={{ borderRight: 'none', background: 'transparent' }}
-                />
-              </Sider>
-              <Content className="settings-main-content" style={{ padding: '2rem', background: 'white' }}>
-                {renderContent()}
-              </Content>
-            </Layout>
+              <Card title="Đổi mật khẩu" className="settings-form-card">
+                {hasDefaultPassword && (
+                  <Alert
+                    message="Cần thay đổi mật khẩu mặc định"
+                    description="Bạn đang sử dụng mật khẩu mặc định. Để bảo mật tài khoản và truy cập đầy đủ các chức năng, vui lòng thay đổi mật khẩu ngay. Mật khẩu mới không được giống với mật khẩu mặc định."
+                    type="warning"
+                    icon={<WarningOutlined />}
+                    showIcon
+                    style={{ 
+                      marginBottom: '24px',
+                      padding: '16px',
+                      backgroundColor: '#fff7e6',
+                      border: '1px solid #ffd591',
+                      borderRadius: '8px'
+                    }}
+                    closable={false}
+                  />
+                )}
+                <Form
+                  form={form}
+                  layout="vertical"
+                  onFinish={handleChangePassword}
+                  autoComplete="off"
+                >
+                  <Form.Item
+                    label="Mật khẩu hiện tại"
+                    name="currentPassword"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Vui lòng nhập mật khẩu hiện tại!',
+                      },
+                    ]}
+                  >
+                    <Input.Password 
+                      placeholder="Nhập mật khẩu hiện tại"
+                      prefix={<LockOutlined />}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Mật khẩu mới"
+                    name="newPassword"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Vui lòng nhập mật khẩu mới!',
+                      },
+                      {
+                        min: 6,
+                        message: 'Mật khẩu phải có ít nhất 6 ký tự!',
+                      },
+                      {
+                        validator: (_, value) => {
+                          if (value === 'staff123') {
+                            return Promise.reject(new Error('Mật khẩu mới không được giống với mật khẩu mặc định!'));
+                          }
+                          return Promise.resolve();
+                        },
+                      },
+                    ]}
+                  >
+                    <Input.Password 
+                      placeholder="Nhập mật khẩu mới"
+                      prefix={<LockOutlined />}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Xác nhận mật khẩu mới"
+                    name="confirmPassword"
+                    dependencies={['newPassword']}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Vui lòng xác nhận mật khẩu mới!',
+                      },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue('newPassword') === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(new Error('Mật khẩu xác nhận không khớp!'));
+                        },
+                      }),
+                    ]}
+                  >
+                    <Input.Password 
+                      placeholder="Xác nhận mật khẩu mới"
+                      prefix={<LockOutlined />}
+                    />
+                  </Form.Item>
+
+                  <Form.Item>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                      <Button type="primary" htmlType="submit" loading={loading}>
+                        Đổi mật khẩu
+                      </Button>
+                    </div>
+                  </Form.Item>
+                </Form>
+              </Card>
+            </div>
           </div>
         </Content>
       </Layout>

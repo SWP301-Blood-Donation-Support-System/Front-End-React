@@ -191,7 +191,8 @@ const RequestDetailPage = () => {
             urgencies,
             bloodRequestStatuses,
             insufficientBlood: true,
-            backendErrorMessage: responseMessage
+            backendErrorMessage: responseMessage,
+            returnPath: location.state?.returnPath || `/staff/approve-requests/hospital/${hospital?.hospitalId}`
           }
         });
       } else {
@@ -205,7 +206,8 @@ const RequestDetailPage = () => {
             bloodTypes,
             bloodComponents,
             urgencies,
-            bloodRequestStatuses
+            bloodRequestStatuses,
+            returnPath: location.state?.returnPath || `/staff/approve-requests/hospital/${hospital?.hospitalId}`
           }
         });
       }
@@ -243,7 +245,8 @@ const RequestDetailPage = () => {
             urgencies,
             bloodRequestStatuses,
             insufficientBlood: true,
-            backendErrorMessage: errorMessage // Use exact backend message
+            backendErrorMessage: errorMessage, // Use exact backend message
+            returnPath: location.state?.returnPath || `/staff/approve-requests/hospital/${hospital?.hospitalId}`
           }
         });
       } else {

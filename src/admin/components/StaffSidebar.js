@@ -23,6 +23,7 @@ import {
   ExclamationCircleOutlined,
   AuditOutlined,
   HistoryOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button, notification } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -360,10 +361,10 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         },
         {
           type: "group",
-          label: "HỒ SƠ CÁ NHÂN",
+          label: "CÀI ĐẶT",
           children: [
-            getItem("Hồ sơ", "6", <UserOutlined />),
-            getItem("Cài đặt", "7", <SettingOutlined />),
+            // getItem("Hồ sơ", "6", <UserOutlined />),
+            getItem("Đổi mật khẩu", "7", <SettingOutlined />),
             getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
           ],
         },
@@ -414,11 +415,6 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
                 getItem("Đăng ký bệnh viện", "12", <HomeOutlined />),
                 getItem("Tạo tài khoản bệnh viện", "13", <SafetyOutlined />),
                 getItem("Tài khoản bệnh viện", "14", <AccountBookOutlined />),
-                getItem(
-                  "Tạo đơn khẩn cấp",
-                  "15",
-                  <ExclamationCircleOutlined />
-                ),
                 getItem("Duyệt đơn khẩn cấp", "16", <AuditOutlined />),
               ],
             },
@@ -426,10 +422,10 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         : []),
       {
         type: "group",
-        label: "HỒ SƠ CÁ NHÂN",
+        label: "CÀI ĐẶT",
         children: [
-          // getItem("Hồ sơ", "6", <UserOutlined />),
-          getItem("Cài đặt", "7", <SettingOutlined />),
+          getItem("Hồ sơ cá nhân", "6", <UserOutlined />),
+          getItem("Đổi mật khẩu", "7", <LockOutlined />),
           getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
         ],
       },

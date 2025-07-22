@@ -83,7 +83,7 @@ const StaffHeader = () => {
             <div className="staff-user-profile">
               <Avatar
                 size={32}
-                src="/images/huy1.png"
+                
                 className="user-avatar"
               />
               <span className="user-name">

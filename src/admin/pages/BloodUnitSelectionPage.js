@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Layout, Table, Typography, Button, Card, message, Tag, Progress, Space, Alert, Tabs } from "antd";
+import { Layout, Table, Typography, Button, Card, message, Tag, Progress, Space, Alert, Tabs, Modal } from "antd";
 import { ArrowLeftOutlined, SelectOutlined, StarOutlined, CheckCircleOutlined, ExclamationCircleOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -32,6 +32,13 @@ const BloodUnitSelectionPage = () => {
   const [backendErrorMessage, setBackendErrorMessage] = useState('');
   const [bloodSupplyInfo, setBloodSupplyInfo] = useState(null);
   const [defaultActiveTab, setDefaultActiveTab] = useState('suggested');
+  
+  // Modal states for individual blood unit confirmation
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [selectedBloodUnit, setSelectedBloodUnit] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+
+
 
   // Function to check if request is completed
   const isRequestCompleted = useCallback(() => {
@@ -169,6 +176,8 @@ const BloodUnitSelectionPage = () => {
     }
   }, [requestId, location.state, navigate, insufficientBlood, isRequestCompleted]);
 
+
+
   // Function to parse backend error message
   const parseBackendErrorMessage = (message) => {
     if (!message) return null;
@@ -243,13 +252,23 @@ const BloodUnitSelectionPage = () => {
   };
 
   const handleSelectBloodUnit = async (bloodUnit) => {
+    // Show confirmation modal instead of directly assigning
+    setSelectedBloodUnit(bloodUnit);
+    setConfirmModalVisible(true);
+  };
+
+  // Function to actually assign blood unit after confirmation
+  const handleConfirmAssignment = async () => {
+    if (!selectedBloodUnit) return;
+    
+    setModalLoading(true);
     try {
       await HospitalAPI.assignBloodUnitToRequest(
-        bloodUnit.bloodUnitId, 
+        selectedBloodUnit.bloodUnitId, 
         selectedRequest.requestId
       );
       
-      message.success(`Đã chọn túi máu #${bloodUnit.bloodUnitId}`);
+      message.success(`Đã chọn và gửi túi máu #${selectedBloodUnit.bloodUnitId}`);
       
       // Refresh request data from backend to get updated status and volume
       const updatedRequest = await refreshRequestData(selectedRequest.requestId);
@@ -259,7 +278,7 @@ const BloodUnitSelectionPage = () => {
       
       // Remove the selected unit from the suggested list
       setSuggestedBloodUnits(prev => 
-        prev.filter(unit => unit.bloodUnitId !== bloodUnit.bloodUnitId)
+        prev.filter(unit => unit.bloodUnitId !== selectedBloodUnit.bloodUnitId)
       );
       
       // Check if request is now completed and update tab if needed
@@ -269,16 +288,33 @@ const BloodUnitSelectionPage = () => {
       
       if (isBackendCompleted || isCalculatedCompleted) {
         setDefaultActiveTab('sent');
+        // Auto-complete without showing final modal
         message.success('Yêu cầu đã được hoàn thành!', 3);
       }
+      
+      // Close modal
+      setConfirmModalVisible(false);
+      setSelectedBloodUnit(null);
       
     } catch (error) {
       console.error("Error selecting blood unit:", error);
       message.error("Lỗi khi chọn túi máu!");
+    } finally {
+      setModalLoading(false);
     }
   };
 
+
+
+
+
+
   const handleBackToRequestDetail = () => {
+    // Direct navigation without final confirmation
+    proceedWithNavigation();
+  };
+
+  const proceedWithNavigation = () => {
     // Kiểm tra xem có returnPath trong state không
     if (location.state?.returnPath) {
       navigate(location.state.returnPath);
@@ -608,6 +644,8 @@ const BloodUnitSelectionPage = () => {
                     </Space>
                     <Text>Số túi đã gửi: <Text strong>{sentBloodUnits.length}</Text></Text>
                   </div>
+
+
                 </Space>
               </Card>
 
@@ -633,8 +671,8 @@ const BloodUnitSelectionPage = () => {
                       />
                     ) : (
                       <>
-                        {/* Show "no suitable blood units" message only when not completed and no units available */}
-                        {suggestedBloodUnits.length === 0 && !loading && !calculateProgress().isComplete && (
+                        {/* Show "no suitable blood units" message when no units available and request not completed */}
+                        {suggestedBloodUnits.length === 0 && !loading && (
                           <Alert
                             message="Không có túi máu phù hợp"
                             description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
@@ -696,8 +734,44 @@ const BloodUnitSelectionPage = () => {
           </Content>
         </Layout>
       </Layout>
+
+      {/* Confirmation Modal for individual blood unit selection */}
+      <Modal
+        title="Xác nhận chọn túi máu"
+        open={confirmModalVisible}
+        onOk={handleConfirmAssignment}
+        onCancel={() => {
+          setConfirmModalVisible(false);
+          setSelectedBloodUnit(null);
+        }}
+        confirmLoading={modalLoading}
+        okText="Xác nhận gửi"
+        cancelText="Hủy"
+        okType="primary"
+      >
+        {selectedBloodUnit && (
+          <div>
+            <p><strong>Bạn có chắc chắn muốn chọn và gửi túi máu này?</strong></p>
+            <div style={{ background: '#f5f5f5', padding: '12px', borderRadius: '4px', marginTop: '12px' }}>
+              <p><strong>Thông tin túi máu:</strong></p>
+              <ul style={{ marginBottom: 0 }}>
+                <li><strong>ID:</strong> #{selectedBloodUnit.bloodUnitId}</li>
+                <li><strong>Nhóm máu:</strong> {bloodTypes[selectedBloodUnit.bloodTypeId]?.name || 'N/A'}</li>
+                <li><strong>Thành phần:</strong> {bloodComponents[selectedBloodUnit.componentId]?.name || 'N/A'}</li>
+                <li><strong>Thể tích:</strong> {selectedBloodUnit.volume} ml</li>
+                <li><strong>Ngày thu thập:</strong> {formatDateTime(selectedBloodUnit.collectedDateTime)}</li>
+              </ul>
+            </div>
+            <p style={{ marginTop: '12px', color: '#666' }}>
+              <strong>Lưu ý:</strong> Sau khi xác nhận, túi máu sẽ được gửi đến bệnh viện ngay lập tức.
+            </p>
+          </div>
+        )}
+      </Modal>
+
+
     </Layout>
   );
 };
 
-export default BloodUnitSelectionPage; 
+export default BloodUnitSelectionPage;
