@@ -395,6 +395,8 @@ const DonationRecordsPage = () => {
       donorBloodPressure:
         selectedRecord.donorBloodPressure || selectedRecord.DonorBloodPressure,
       donorWeight: selectedRecord.donorWeight || selectedRecord.DonorWeight,
+      donorHeight: selectedRecord.donorHeight || selectedRecord.DonorHeight,
+      donorHeartRate: selectedRecord.donorHeartRate || selectedRecord.DonorHeartRate,
       donationTypeId:
         selectedRecord.donationTypeId || selectedRecord.DonationTypeId,
       volumeDonated:
@@ -517,6 +519,8 @@ const DonationRecordsPage = () => {
         donorWeight: Number(values.donorWeight) || 0,
         donorTemperature: Number(values.donorTemperature) || 0,
         donorBloodPressure: values.donorBloodPressure || "",
+        donorHeight: Number(values.donorHeight) || 0,
+        donorHeartRate: Number(values.donorHeartRate) || 0,
         donationTypeId: Number(values.donationTypeId),
         volumeDonated: Number(values.volumeDonated) || 0,
         note: values.note || "",
@@ -905,6 +909,29 @@ const DonationRecordsPage = () => {
                 </Col>
               </Row>
 
+              <Row gutter={[24, 16]}>
+                <Col span={12}>
+                  <Form.Item label="CHIỀU CAO (cm)" name="donorHeight">
+                    <InputNumber
+                      style={{ width: "100%" }}
+                      placeholder="Nhập chiều cao"
+                      min={100}
+                      max={250}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="NHỊP TIM (bpm)" name="donorHeartRate">
+                    <InputNumber
+                      style={{ width: "100%" }}
+                      placeholder="Nhập nhịp tim"
+                      min={40}
+                      max={200}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
               <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
 
               <Row gutter={[24, 16]}>
@@ -1119,6 +1146,35 @@ const DonationRecordsPage = () => {
                     "N/A"}
                   {selectedRecord.donorWeight || selectedRecord.DonorWeight
                     ? " kg"
+                    : ""}
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+          <Row gutter={[24, 16]}>
+            <Col span={12}>
+              <div className="form-field">
+                <label className="form-label">CHIỀU CAO</label>
+                <div className="form-value">
+                  {selectedRecord.donorHeight ||
+                    selectedRecord.DonorHeight ||
+                    "N/A"}
+                  {selectedRecord.donorHeight || selectedRecord.DonorHeight
+                    ? " cm"
+                    : ""}
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div className="form-field">
+                <label className="form-label">NHỊP TIM</label>
+                <div className="form-value">
+                  {selectedRecord.donorHeartRate ||
+                    selectedRecord.DonorHeartRate ||
+                    "N/A"}
+                  {selectedRecord.donorHeartRate || selectedRecord.DonorHeartRate
+                    ? " bpm"
                     : ""}
                 </div>
               </div>

@@ -85,6 +85,8 @@ const CreateDonationRecordPage = () => {
         donorWeight: values.donorWeight || 0,
         donorTemperature: values.donorTemperature || 0,
         donorBloodPressure: values.donorBloodPressure || "",
+        donorHeight: values.donorHeight || 0,
+        donorHeartRate: values.donorHeartRate || 0,
         donationTypeId: values.donationTypeId,
         volumeDonated: values.volumeDonated || 0,
         note: "",
@@ -228,6 +230,29 @@ const CreateDonationRecordPage = () => {
                             style={{ width: "100%" }}
                             placeholder="Nhập cân nặng"
                             min={0}
+                            max={200}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+
+                    <Row gutter={[24, 16]}>
+                      <Col span={12}>
+                        <Form.Item label="CHIỀU CAO (cm)" name="donorHeight">
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            placeholder="Nhập chiều cao"
+                            min={100}
+                            max={250}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="NHỊP TIM (bpm)" name="donorHeartRate">
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            placeholder="Nhập nhịp tim"
+                            min={40}
                             max={200}
                           />
                         </Form.Item>
