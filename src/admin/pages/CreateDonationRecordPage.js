@@ -204,8 +204,8 @@ const CreateDonationRecordPage = () => {
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhiệt độ"
-                            min={30}
-                            max={45}
+                            min={35}
+                            max={40}
                             step={0.1}
                           />
                         </Form.Item>
@@ -243,7 +243,7 @@ const CreateDonationRecordPage = () => {
                             style={{ width: "100%" }}
                             placeholder="Nhập chiều cao"
                             min={100}
-                            max={250}
+                            max={300}
                           />
                         </Form.Item>
                       </Col>
@@ -252,8 +252,8 @@ const CreateDonationRecordPage = () => {
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhịp tim"
-                            min={40}
-                            max={200}
+                            min={50}
+                            max={100}
                           />
                         </Form.Item>
                       </Col>
@@ -300,7 +300,7 @@ const CreateDonationRecordPage = () => {
                             style={{ width: "100%" }}
                             placeholder="Nhập thể tích hiến"
                             min={0}
-                            max={1000}
+                            max={500}
                           />
                         </Form.Item>
                       </Col>
