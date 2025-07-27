@@ -9,7 +9,7 @@ import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/goo
 import { jwtDecode } from 'jwt-decode';
 import { UserAPI } from '../api/User';
 
-const clientId = ''; // Thay bằng client ID bạn lấy từ Google Cloud
+const clientId = '1038271412034-f887nt2v6kln6nb09e20pvjgfo1o7jn0.apps.googleusercontent.com'; // Thay bằng client ID bạn lấy từ Google Cloud
 
 const LoginPage = () => {
   const [api, contextHolder] = notification.useNotification();
