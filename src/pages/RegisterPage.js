@@ -107,7 +107,7 @@ const RegisterPage = () => {
                   message: 'Mật khẩu phải có ít nhất 8 ký tự!'
                 }
               ]}
-              help="Mật khẩu phải có ít nhất 8 ký tự và bao gồm một số và ký tự đặc biệt."
+              help="Mật khẩu phải có ít nhất 8 ký tự."
             >
               <Input.Password
                 className="auth-password-input"
