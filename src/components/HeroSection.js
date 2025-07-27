@@ -18,7 +18,7 @@ const HeroSection = () => {
             <Col xs={24} md={12}>
               <div className="hero-section-content">
                 <Title level={1} className="hero-section-title">
-                  Chúng tôi cần người hiến máu
+                  Một giọt máu cho đi  Một cuộc đời ở lại
                 </Title>
                 
                 <Paragraph className="hero-section-description">
