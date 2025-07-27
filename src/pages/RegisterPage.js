@@ -11,6 +11,7 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -19,12 +20,30 @@ const RegisterPage = () => {
 
   const onFinish = async (values) => {
     setLoading(true);
+    setEmailError(''); // Clear any previous errors
     console.log('Register values:', values);
     
     try {
       // Call the actual registration API (without username)
       const response = await UserAPI.register(null, values.email, values.password);
-      console.log("response", response.data.result);
+      console.log("Registration response:", response.data);
+      
+      // Check if the response has a failed status (backend returns successful HTTP status but failed application status)
+      if (response.data && response.data.status === 'failed') {
+        // Handle email already exists error specifically
+        if (response.data.msg && response.data.msg.toLowerCase().includes('email already exists')) {
+          const errorMsg = 'Email này đã được đăng ký, vui lòng sử dụng email khác';
+          setEmailError(errorMsg);
+        } else {
+          // Handle other application-level errors
+          const errorMsg = response.data.msg || 'Đăng ký thất bại. Vui lòng thử lại sau.';
+          setEmailError(errorMsg);
+        }
+        setLoading(false);
+        return;
+      }
+      
+      // Success case
       if (response.status === 200 || response.status === 201) {
         message.success('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
         // Navigate to login page after successful registration
@@ -33,18 +52,45 @@ const RegisterPage = () => {
     } catch (error) {
       console.error('Registration error:', error);
       
-      // Handle different types of errors
-      if (error.response && error.response.data && error.response.data.message) {
-        message.error(error.response.data.message);
-      } else if (error.response && error.response.status === 400) {
-        message.error('Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.');
-      } else if (error.response && error.response.status === 409) {
-        message.error('Email đã tồn tại. Vui lòng chọn email khác.');
+      // Handle HTTP-level errors (network errors, 4xx, 5xx status codes)
+      if (error.response && error.response.data) {
+        // Check for the msg field first (our backend format)
+        if (error.response.data.msg) {
+          if (error.response.data.msg.toLowerCase().includes('email already exists')) {
+            const errorMsg = 'Email này đã được đăng ký, vui lòng sử dụng email khác';
+            setEmailError(errorMsg);
+          } else {
+            setEmailError(error.response.data.msg);
+          }
+        }
+        // Fallback to message field (standard format)
+        else if (error.response.data.message) {
+          setEmailError(error.response.data.message);
+        }
+        // Handle specific status codes
+        else if (error.response.status === 400) {
+          setEmailError('Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.');
+        } else if (error.response.status === 409) {
+          setEmailError('Email này đã được đăng ký, vui lòng sử dụng email khác');
+        } else {
+          setEmailError('Đăng ký thất bại. Vui lòng thử lại sau.');
+        }
       } else {
-        message.error('Đăng ký thất bại. Vui lòng thử lại sau.');
+        setEmailError('Đăng ký thất bại. Vui lòng thử lại sau.');
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Simple handler to show validation errors under email field
+  const onFinishFailed = (errorInfo) => {
+    if (errorInfo.errorFields && errorInfo.errorFields.length > 0) {
+      // Check if the error is for the email field
+      const emailError = errorInfo.errorFields.find(field => field.name[0] === 'email');
+      if (emailError && emailError.errors.length > 0) {
+        setEmailError(emailError.errors[0]);
+      }
     }
   };
 
@@ -69,12 +115,15 @@ const RegisterPage = () => {
             name="register"
             layout="vertical"
             onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
             autoComplete="off"
             className="auth-form"
           >
             <Form.Item
               label="Địa Chỉ Email"
               name="email"
+              validateStatus={emailError ? 'error' : ''}
+              help={emailError}
               rules={[
                 {
                   required: true,
@@ -91,6 +140,7 @@ const RegisterPage = () => {
                 prefix={<MailOutlined />}
                 placeholder="Nhập địa chỉ email"
                 size="large"
+                onChange={() => setEmailError('')} // Clear error when user types
               />
             </Form.Item>
 

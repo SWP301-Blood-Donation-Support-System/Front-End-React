@@ -41,6 +41,51 @@ export const UserAPI = {
     return response;
   },
 
+  // Google OAuth login
+  googleLogin: async (credential) => {
+    console.log("Sending credential to backend:", credential.substring(0, 50) + "...");
+    
+    // List of possible endpoint paths to try
+    const endpoints = [
+      `${BASE_URL}/api/User/google`,
+      `${BASE_URL}/api/auth/google`,
+      `${BASE_URL}/api/User/google-login`,
+      `${BASE_URL}/api/User/oauth/google`,
+      `${BASE_URL}/api/google/login`
+    ];
+    
+    for (let i = 0; i < endpoints.length; i++) {
+      try {
+        console.log(`Trying endpoint ${i + 1}/${endpoints.length}: ${endpoints[i]}`);
+        
+        const response = await axios.post(endpoints[i], {
+          credential: credential,
+        });
+        
+        console.log("✅ SUCCESS! Google login response:", response);
+        console.log("Working endpoint:", endpoints[i]);
+        console.log("Response status:", response.status);
+        console.log("Response data:", response.data);
+        
+        return response;
+      } catch (error) {
+        console.log(`❌ Endpoint ${i + 1} failed:`, endpoints[i], "Status:", error.response?.status);
+        
+        // If this isn't a 404, throw the error (it means endpoint exists but has other issues)
+        if (error.response && error.response.status !== 404) {
+          console.error("Non-404 error, throwing:", error.response?.data);
+          throw error;
+        }
+        
+        // If this is the last endpoint and still 404, throw the original error
+        if (i === endpoints.length - 1) {
+          console.error("❌ All endpoints failed. Google login backend not implemented yet.");
+          throw new Error("Google login endpoint not found on backend. Please implement /api/User/google endpoint.");
+        }
+      }
+    }
+  },
+
   // Forgot password - send reset email
   forgotPassword: async (email) => {
     try {

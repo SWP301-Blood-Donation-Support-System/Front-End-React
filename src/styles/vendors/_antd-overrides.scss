@@ -3,6 +3,34 @@
   color: inherit;
 }
 
+// Message component overrides to ensure visibility
+.ant-message {
+  z-index: 9999 !important;
+  position: fixed !important;
+  top: 100px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+
+  .ant-message-notice {
+    z-index: 9999 !important;
+    
+    .ant-message-notice-content {
+      background: white !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+      border-radius: 6px !important;
+      border: 1px solid #d9d9d9 !important;
+      
+      .ant-message-error {
+        color: #ff4d4f !important;
+      }
+      
+      .ant-message-success {
+        color: #52c41a !important;
+      }
+    }
+  }
+}
+
 // Hero section typography
 [style*="background:#761611"] .ant-typography {
   color: black !important;
