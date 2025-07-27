@@ -405,7 +405,16 @@ export const AdminAPI = {
             "Registration status updated to 'Không đủ điều kiện hiến' successfully" : 
             "Registration status updated to 'Đã hoàn thành' successfully";
           
-          await AdminAPI.updateDonationRegistrationStatus(recordData.registrationId, statusId);
+          // Call the API directly without using AdminAPI reference to avoid recursion
+          await axios.put(`${BASE_URL}/api/DonationRegistration/registration-status`, {
+            registrationId: recordData.registrationId,
+            statusId: statusId
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
           console.log(statusMessage);
         } catch (statusUpdateError) {
           console.warn("Donation record created but failed to update registration status:", statusUpdateError);
@@ -450,7 +459,16 @@ export const AdminAPI = {
             "Registration status updated to 'Không đủ điều kiện hiến' successfully" : 
             "Registration status updated to 'Đã hoàn thành' successfully";
           
-          await AdminAPI.updateDonationRegistrationStatus(recordData.registrationId, statusId);
+          // Call the API directly without using AdminAPI reference to avoid recursion
+          await axios.put(`${BASE_URL}/api/DonationRegistration/registration-status`, {
+            registrationId: recordData.registrationId,
+            statusId: statusId
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
           console.log(statusMessage);
         } catch (statusUpdateError) {
           console.warn("Donation record updated but failed to update registration status:", statusUpdateError);

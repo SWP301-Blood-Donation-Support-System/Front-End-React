@@ -85,6 +85,8 @@ const CreateDonationRecordPage = () => {
         donorWeight: values.donorWeight || 0,
         donorTemperature: values.donorTemperature || 0,
         donorBloodPressure: values.donorBloodPressure || "",
+        donorHeight: values.donorHeight || 0,
+        donorHeartRate: values.donorHeartRate || 0,
         donationTypeId: values.donationTypeId,
         volumeDonated: values.volumeDonated || 0,
         note: "",
@@ -202,8 +204,8 @@ const CreateDonationRecordPage = () => {
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhiệt độ"
-                            min={30}
-                            max={45}
+                            min={35}
+                            max={40}
                             step={0.1}
                           />
                         </Form.Item>
@@ -229,6 +231,29 @@ const CreateDonationRecordPage = () => {
                             placeholder="Nhập cân nặng"
                             min={0}
                             max={200}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+
+                    <Row gutter={[24, 16]}>
+                      <Col span={12}>
+                        <Form.Item label="CHIỀU CAO (cm)" name="donorHeight">
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            placeholder="Nhập chiều cao"
+                            min={100}
+                            max={300}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item label="NHỊP TIM (bpm)" name="donorHeartRate">
+                          <InputNumber
+                            style={{ width: "100%" }}
+                            placeholder="Nhập nhịp tim"
+                            min={50}
+                            max={100}
                           />
                         </Form.Item>
                       </Col>
@@ -275,7 +300,7 @@ const CreateDonationRecordPage = () => {
                             style={{ width: "100%" }}
                             placeholder="Nhập thể tích hiến"
                             min={0}
-                            max={1000}
+                            max={500}
                           />
                         </Form.Item>
                       </Col>

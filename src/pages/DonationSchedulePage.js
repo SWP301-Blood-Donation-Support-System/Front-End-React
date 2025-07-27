@@ -1244,6 +1244,27 @@ const DonationSchedulePage = () => {
               </Col>
             </Row>
 
+            <Row gutter={[24, 16]}>
+              <Col span={12}>
+                <div className="form-field">
+                  <label className="form-label">CHIỀU CAO</label>
+                  <div className="form-value">
+                    {selectedDonationRecord.donorHeight || selectedDonationRecord.DonorHeight || 'N/A'}
+                    {selectedDonationRecord.donorHeight || selectedDonationRecord.DonorHeight ? ' cm' : ''}
+                  </div>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className="form-field">
+                  <label className="form-label">NHỊP TIM</label>
+                  <div className="form-value">
+                    {selectedDonationRecord.donorHeartRate || selectedDonationRecord.DonorHeartRate || 'N/A'}
+                    {selectedDonationRecord.donorHeartRate || selectedDonationRecord.DonorHeartRate ? ' bpm' : ''}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+
             <Divider orientation="left">THÔNG TIN HIẾN MÁU</Divider>
 
             <Row gutter={[24, 16]}>
