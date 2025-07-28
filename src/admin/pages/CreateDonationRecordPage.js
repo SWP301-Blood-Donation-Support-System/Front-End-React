@@ -199,14 +199,27 @@ const CreateDonationRecordPage = () => {
                               required: true,
                               message: "Vui lòng nhập nhiệt độ!",
                             },
+                            {
+                              validator: (_, value) => {
+                                if (value !== null && value !== undefined) {
+                                  if (value < 35) {
+                                    return Promise.reject(new Error('Nhiệt độ tối thiểu là 35°C'));
+                                  }
+                                  if (value > 40) {
+                                    return Promise.reject(new Error('Nhiệt độ tối đa là 40°C'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
                           ]}
                         >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhiệt độ"
-                            min={35}
-                            max={40}
-                            step={0.1}
+                            // min={35}
+                            // max={40}
+                            // step={0.1}
                           />
                         </Form.Item>
                       </Col>
@@ -219,18 +232,71 @@ const CreateDonationRecordPage = () => {
                               required: true,
                               message: "Vui lòng nhập huyết áp!",
                             },
+                            {
+                              validator: (_, value) => {
+                                if (!value) return Promise.resolve();
+                                
+                                // Check if value contains "/" character
+                                if (!value.includes('/')) {
+                                  return Promise.reject(new Error('Huyết áp phải có định dạng "tâm thu/tâm trương" (ví dụ: 120/80)'));
+                                }
+                                
+                                const parts = value.split('/');
+                                if (parts.length !== 2) {
+                                  return Promise.reject(new Error('Huyết áp phải có định dạng "tâm thu/tâm trương" (ví dụ: 120/80)'));
+                                }
+                                
+                                const systolic = parseInt(parts[0].trim());
+                                const diastolic = parseInt(parts[1].trim());
+                                
+                                // Check if both parts are valid numbers
+                                if (isNaN(systolic) || isNaN(diastolic)) {
+                                  return Promise.reject(new Error('Huyết áp phải là số (ví dụ: 120/80)'));
+                                }
+                                
+                                // Validate systolic pressure (110-133)
+                                if (systolic < 110 || systolic > 133) {
+                                  return Promise.reject(new Error('Huyết áp tâm thu phải từ 110 đến 133'));
+                                }
+                                
+                                // Validate diastolic pressure (70-81)
+                                if (diastolic < 70 || diastolic > 81) {
+                                  return Promise.reject(new Error('Huyết áp tâm trương phải từ 70 đến 81'));
+                                }
+                                
+                                return Promise.resolve();
+                              }
+                            }
                           ]}
                         >
                           <Input placeholder="Ví dụ: 120/80" />
                         </Form.Item>
                       </Col>
                       <Col span={8}>
-                        <Form.Item label="CÂN NẶNG (kg)" name="donorWeight">
+                        <Form.Item 
+                          label="CÂN NẶNG (kg)" 
+                          name="donorWeight"
+                          rules={[
+                            {
+                              validator: (_, value) => {
+                                if (value !== null && value !== undefined) {
+                                  if (value < 42) {
+                                    return Promise.reject(new Error('Cân nặng tối thiểu là 42kg'));
+                                  }
+                                  if (value > 200) {
+                                    return Promise.reject(new Error('Cân nặng tối đa là 200kg'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
+                          ]}
+                        >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập cân nặng"
-                            min={0}
-                            max={200}
+                            // min={42}
+                            // max={200}
                           />
                         </Form.Item>
                       </Col>
@@ -238,22 +304,58 @@ const CreateDonationRecordPage = () => {
 
                     <Row gutter={[24, 16]}>
                       <Col span={12}>
-                        <Form.Item label="CHIỀU CAO (cm)" name="donorHeight">
+                        <Form.Item 
+                          label="CHIỀU CAO (cm)" 
+                          name="donorHeight"
+                          rules={[
+                            {
+                              validator: (_, value) => {
+                                if (value !== null && value !== undefined) {
+                                  if (value < 100) {
+                                    return Promise.reject(new Error('Chiều cao tối thiểu là 100cm'));
+                                  }
+                                  if (value > 300) {
+                                    return Promise.reject(new Error('Chiều cao tối đa là 300cm'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
+                          ]}
+                        >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập chiều cao"
-                            min={100}
-                            max={300}
+                            // min={100}
+                            // max={300}
                           />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item label="NHỊP TIM (bpm)" name="donorHeartRate">
+                        <Form.Item 
+                          label="NHỊP TIM (bpm)" 
+                          name="donorHeartRate"
+                          rules={[
+                            {
+                              validator: (_, value) => {
+                                if (value !== null && value !== undefined) {
+                                  if (value < 60) {
+                                    return Promise.reject(new Error('Nhịp tim tối thiểu là 60 bpm'));
+                                  }
+                                  if (value > 90) {
+                                    return Promise.reject(new Error('Nhịp tim tối đa là 90 bpm'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
+                          ]}
+                        >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhịp tim"
-                            min={50}
-                            max={100}
+                            // min={60}
+                            // max={90}
                           />
                         </Form.Item>
                       </Col>

@@ -22,7 +22,6 @@ const StaffManagementPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [staffUsers, setStaffUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [bloodTypes, setBloodTypes] = useState({});
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,22 +29,7 @@ const StaffManagementPage = () => {
 
   useEffect(() => {
     fetchStaffUsers();
-    fetchBloodTypes();
   }, []);
-
-  const fetchBloodTypes = async () => {
-    try {
-      const response = await AdminAPI.getBloodTypesLookup();
-      const typesData = response.data || [];
-      const typesMap = {};
-      typesData.forEach(type => {
-        typesMap[type.id] = type;
-      });
-      setBloodTypes(typesMap);
-    } catch (error) {
-      console.error('Error fetching blood types:', error);
-    }
-  };
 
   const fetchStaffUsers = async () => {
     setLoading(true);
@@ -60,20 +44,6 @@ const StaffManagementPage = () => {
       setStaffUsers([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Format date function
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      return new Date(dateString).toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
-    } catch (error) {
-      return 'N/A';
     }
   };
 
@@ -113,7 +83,7 @@ const StaffManagementPage = () => {
       title: 'Mã Nhân Viên (User ID)',
       dataIndex: 'userId',
       key: 'userId',
-      width: '15%',
+      width: '25%',
       render: (text) => (
         <span style={{ fontWeight: 'bold', color: '#dc2626' }}>
           NV{text || 'N/A'}
@@ -124,7 +94,7 @@ const StaffManagementPage = () => {
       title: 'Tên Đầy Đủ',
       dataIndex: 'fullName',
       key: 'fullName',
-      width: '20%',
+      width: '35%',
       render: (text) => (
         <span style={{ fontWeight: '500', color: '#374151' }}>
           {text || 'Chưa cập nhật'}
@@ -143,64 +113,10 @@ const StaffManagementPage = () => {
       ),
     },
     {
-      title: 'Số Điện Thoại',
-      dataIndex: 'phoneNumber',
-      key: 'phoneNumber',
-      width: '15%',
-      render: (text) => (
-        <span style={{ color: '#374151' }}>
-          {text || 'Chưa cập nhật'}
-        </span>
-      ),
-    },
-    {
-      title: 'Ngày Sinh',
-      dataIndex: 'dateOfBirth',
-      key: 'dateOfBirth',
-      width: '12%',
-      render: (date) => (
-        <span style={{ color: '#374151' }}>
-          {formatDate(date)}
-        </span>
-      ),
-    },
-    {
-      title: 'Nhóm Máu',
-      dataIndex: 'bloodTypeId',
-      key: 'bloodTypeId',
-      width: '10%',
-      render: (bloodTypeId, record) => {
-        // Try to get blood type from bloodTypeId or fallback to bloodType field
-        const bloodType = bloodTypes[bloodTypeId];
-        const displayName = bloodType?.name || record.bloodType || 'N/A';
-        
-        if (displayName !== 'N/A') {
-          const bloodTypeColors = {
-            'A+': 'red', 'A-': 'volcano',
-            'B+': 'blue', 'B-': 'geekblue', 
-            'AB+': 'purple', 'AB-': 'magenta',
-            'O+': 'green', 'O-': 'lime',
-            // Fallback for basic types without +/-
-            'A': 'red',
-            'B': 'blue',
-            'AB': 'purple',
-            'O': 'green'
-          };
-          const color = bloodTypeColors[displayName] || 'default';
-          return (
-            <Tag color={color}>
-              {displayName}
-            </Tag>
-          );
-        }
-        return <span style={{ color: '#9ca3af' }}>N/A</span>;
-      },
-    },
-    {
       title: 'Trạng Thái',
       dataIndex: 'isActive',
       key: 'isActive',
-      width: '8%',
+      width: '15%',
       render: (isActive) => (
         <Tag color={isActive ? 'green' : 'red'}>
           {isActive ? 'Hoạt động' : 'Không hoạt động'}
