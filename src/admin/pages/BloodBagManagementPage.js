@@ -424,17 +424,6 @@ const BloodBagManagementPage = () => {
 
   const bloodUnitColumns = [
     {
-      title: 'Mã Người Hiến',
-      dataIndex: 'donorId',
-      key: 'donorId',
-      width: '12%',
-      render: (text) => (
-        <span style={{ fontWeight: 'bold', color: '#722ed1' }}>
-          #{text || 'N/A'}
-        </span>
-      ),
-    },
-    {
       title: 'Mã Túi Máu (BloodUnitID)',
       dataIndex: 'bloodUnitId',
       key: 'bloodUnitId',
