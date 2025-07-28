@@ -65,10 +65,11 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     const pathname = location.pathname;
     const initialOpenKeys = [];
 
-    if (pathname.includes("/staff/donation-records")) {
-      initialOpenKeys.push("4");
-      autoOpenedRef.current.add("4"); // Mark as auto-opened
-    }
+    // Remove donation records auto-opening since it's no longer a submenu
+    // if (pathname.includes("/staff/donation-records")) {
+    //   initialOpenKeys.push("4");
+    //   autoOpenedRef.current.add("4"); // Mark as auto-opened
+    // }
 
     return initialOpenKeys;
   });
@@ -119,7 +120,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return ["3"];
     } else if (pathname.includes("/staff/donation-records")) {
       if (pathname.includes("/create")) return ["4-2"];
-      return ["4-1"];
+      return ["4"];
     } else if (pathname.includes("/staff/reports")) {
       // Only return key if user is admin, otherwise return default
       return isAdminUser() ? ["5"] : ["1"];
@@ -180,16 +181,16 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
 
     const pathname = location.pathname;
 
-    // Auto-open submenu for donation records pages
-    if (pathname.includes("/staff/donation-records")) {
-      setOpenKeys((prev) => {
-        if (!prev.includes("4")) {
-          autoOpenedRef.current.add("4");
-          return [...prev, "4"];
-        }
-        return prev;
-      });
-    }
+    // Remove auto-open submenu for donation records pages since it's no longer a submenu
+    // if (pathname.includes("/staff/donation-records")) {
+    //   setOpenKeys((prev) => {
+    //     if (!prev.includes("4")) {
+    //       autoOpenedRef.current.add("4");
+    //       return [...prev, "4"];
+    //     }
+    //     return prev;
+    //   });
+    // }
     // For other pages, do nothing - preserve current open state
   }, [location.pathname, collapsed]);
 
@@ -214,7 +215,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       case "3": // Quản lý túi máu - show all blood units
         navigate("/staff/blood-bag-management?status=all");
         break;
-      case "4-1": // Danh sách hồ sơ hiến máu
+      case "4": // Hồ sơ người hiến - navigate directly to donation records
         navigate("/staff/donation-records");
         break;
       case "4-2": // Tạo hồ sơ hiến máu
@@ -394,10 +395,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
               ]
             : []),
           getItem("Quản lý túi máu", "3", <DesktopOutlined />),
-          getItem("Hồ sơ người hiến", "4", <FileOutlined />, [
-            getItem("Toàn bộ hồ sơ", "4-1", <DatabaseOutlined />),
-            // getItem("Tạo hồ sơ mới", "4-2", <PlusCircleOutlined />),
-          ]),
+          getItem("Hồ sơ người hiến", "4", <FileOutlined />),
           // Only show reports for admin users
           ...(isAdminUser()
             ? [getItem("Báo cáo thống kê", "5", <TeamOutlined />)]
@@ -426,7 +424,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         children: [
           getItem("Hồ sơ cá nhân", "6", <UserOutlined />),
           getItem("Đổi mật khẩu", "7", <LockOutlined />),
-          getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
+          // getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
         ],
       },
     ];
