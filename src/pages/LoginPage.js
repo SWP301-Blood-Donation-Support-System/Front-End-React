@@ -9,7 +9,7 @@ import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/goo
 import { jwtDecode } from 'jwt-decode';
 import { UserAPI } from '../api/User';
 
-const clientId = ''; // Thay bằng client ID bạn lấy từ Google Cloud
+const clientId = '1038271412034-f887nt2v6kln6nb09e20pvjgfo1o7jn0.apps.googleusercontent.com'; // Thay bằng client ID bạn lấy từ Google Cloud
 
 const LoginPage = () => {
   const [api, contextHolder] = notification.useNotification();
@@ -302,15 +302,45 @@ const LoginPage = () => {
                     Đăng nhập bằng Google
                   </Typography.Text>                  <GoogleLogin
                     onSuccess={async (credentialResponse) => {
-                      const decoded = jwtDecode(credentialResponse.credential);
-                      setUser(decoded);
-                      
-                      // Store Google login info in localStorage
-                      localStorage.setItem("token", credentialResponse.credential);
-                      localStorage.setItem("user", JSON.stringify(decoded));
-                      
-                      // Handle successful login with profile check
-                      await handleSuccessfulLogin(decoded);
+                      try {
+                        console.log("Google credential received:", credentialResponse.credential);
+                        
+                        // Call backend API with Google credential
+                        const response = await UserAPI.googleLogin(credentialResponse.credential);
+                        console.log("Backend response:", response.data);
+                        
+                        // Check for application-level errors first
+                        if (response.data && response.data.status === 'failed') {
+                          console.log("Backend returned failed status:", response.data.message);
+                          message.error(response.data.message || 'Đăng nhập Google thất bại.');
+                          return;
+                        }
+                        
+                        if (response.status === 200 && response.data) {
+                          // Store backend token and user info
+                          localStorage.setItem("token", response.data.token || credentialResponse.credential);
+                          localStorage.setItem("userInfo", JSON.stringify(response.data.user || response.data));
+                          
+                          // Update local user state
+                          setUser(response.data.user || response.data);
+                          
+                          // Handle successful login with backend data
+                          await handleSuccessfulLogin(response.data.user || response.data);
+                        } else {
+                          message.error('Đăng nhập Google thất bại. Vui lòng thử lại.');
+                        }
+                      } catch (error) {
+                        console.error('Google login error:', error);
+                        
+                        // Handle specific error cases
+                        if (error.response && error.response.data && error.response.data.message) {
+                          message.error(error.response.data.message);
+                        } else if (error.response && error.response.status === 400) {
+                          message.error('Thông tin đăng nhập Google không hợp lệ.');
+                        } else {
+                          message.error('Đăng nhập Google thất bại. Vui lòng thử lại.');
+                        }
+                      }
                     }}                    onError={() => {
                       console.log('Login Failed');
                     }}

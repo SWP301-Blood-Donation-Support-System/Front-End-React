@@ -517,7 +517,11 @@ const BookingPage = () => {
                               // Disable past dates  
                               if (current.isBefore(dayjs(), 'day')) return true;
                               
-                              // If we have available dates from API, only allow those dates
+                              // Giới hạn chỉ cho phép đặt lịch trong vòng 7 ngày tính từ hôm nay
+                              const maxDate = dayjs().add(7, 'day');
+                              if (current.isAfter(maxDate, 'day')) return true;
+                              
+                              // If we have available dates from API, only allow those dates within 7 days
                               if (availableDates.length > 0) {
                                 const currentDateStr = current.format('YYYY-MM-DD');
                                 return !availableDates.some(date => 
@@ -525,7 +529,7 @@ const BookingPage = () => {
                                 );
                               }
                               
-                              // If no available dates from API, allow all future dates
+                              // If no available dates from API, allow all dates within 7 days
                               return false;
                             }}
                           />
@@ -582,6 +586,39 @@ const BookingPage = () => {
                             </div>
                           )}
                           {timeSlots.map((slot) => {
+                            // Kiểm tra xem khung giờ có bị ẩn không (đã qua 30 phút trước khi kết thúc)
+                            const isSlotHidden = () => {
+                              const selectedDate = form.getFieldValue('donationDate');
+                              if (!selectedDate || !slot.endTime) return false;
+                              
+                              // Chỉ ẩn khung giờ nếu ngày được chọn là hôm nay
+                              const isToday = selectedDate.isSame(dayjs(), 'day');
+                              if (!isToday) return false;
+                              
+                              // Lấy thời gian hiện tại
+                              const now = dayjs();
+                              
+                              // Tạo thời gian kết thúc của khung giờ hôm nay
+                              const endHour = parseInt(slot.endTime.substring(0,2));
+                              const endMinute = parseInt(slot.endTime.substring(3,5));
+                              const endTime = dayjs().hour(endHour).minute(endMinute).second(0).millisecond(0);
+                              
+                              // Thời gian ẩn khung giờ = thời gian kết thúc - 30 phút
+                              const hideTime = endTime.subtract(30, 'minute');
+                              
+                              console.log(`Slot ${slot.timeSlotId}: ${slot.startTime}-${slot.endTime}`);
+                              console.log(`Current time: ${now.format('HH:mm:ss')}`);
+                              console.log(`Hide time: ${hideTime.format('HH:mm:ss')}`);
+                              console.log(`Should hide: ${now.isAfter(hideTime)}`);
+                              
+                              return now.isAfter(hideTime);
+                            };
+
+                            // Nếu khung giờ bị ẩn thì không render
+                            if (isSlotHidden()) {
+                              return null;
+                            }
+
                             return (<div 
                                 key={slot.timeSlotId}
                                 className={`time-slot-item ${selectedTimeSlot === slot.timeSlotId ? 'selected' : ''}`}
@@ -606,7 +643,7 @@ const BookingPage = () => {
                                 </div>
                               </div>
                             );
-                          })}
+                          }).filter(Boolean)}
                         </div>
                       </div>
                     </Form.Item>

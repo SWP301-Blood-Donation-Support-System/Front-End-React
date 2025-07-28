@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, message } from 'antd';
 import Homepage from './pages/Homepage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -43,6 +43,14 @@ import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
 
 function App() {
+  // Configure message globally
+  message.config({
+    top: 100,
+    duration: 4,
+    maxCount: 3,
+    rtl: false,
+  });
+
   return (
     <ConfigProvider
       theme={{
