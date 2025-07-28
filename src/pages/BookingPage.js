@@ -637,106 +637,109 @@ const BookingPage = () => {
                                 Đang tải khung giờ hiến máu...
                               </div>
                             )}
-                            {timeSlots
-                              .map((slot) => {
-                                // Kiểm tra xem khung giờ có bị ẩn không (đã qua 30 phút trước khi kết thúc)
-                                const isSlotHidden = () => {
-                                  const selectedDate =
-                                    form.getFieldValue("donationDate");
-                                  if (!selectedDate || !slot.endTime)
-                                    return false;
+                            {(() => {
+                              const selectedDate = form.getFieldValue("donationDate");
+                              const isToday = selectedDate && selectedDate.isSame(dayjs(), "day");
+                              
+                              const visibleSlots = timeSlots
+                                .map((slot) => {
+                                  // Kiểm tra xem khung giờ có bị ẩn không (đã qua 30 phút trước khi kết thúc)
+                                  const isSlotHidden = () => {
+                                    if (!selectedDate || !slot.endTime)
+                                      return false;
 
-                                  // Chỉ ẩn khung giờ nếu ngày được chọn là hôm nay
-                                  const isToday = selectedDate.isSame(
-                                    dayjs(),
-                                    "day"
-                                  );
-                                  if (!isToday) return false;
+                                    // Chỉ ẩn khung giờ nếu ngày được chọn là hôm nay
+                                    if (!isToday) return false;
 
-                                  // Lấy thời gian hiện tại
-                                  const now = dayjs();
+                                    // Lấy thời gian hiện tại
+                                    const now = dayjs();
 
-                                  // Tạo thời gian kết thúc của khung giờ hôm nay
-                                  const endHour = parseInt(
-                                    slot.endTime.substring(0, 2)
-                                  );
-                                  const endMinute = parseInt(
-                                    slot.endTime.substring(3, 5)
-                                  );
-                                  const endTime = dayjs()
-                                    .hour(endHour)
-                                    .minute(endMinute)
-                                    .second(0)
-                                    .millisecond(0);
+                                    // Tạo thời gian kết thúc của khung giờ hôm nay
+                                    const endHour = parseInt(
+                                      slot.endTime.substring(0, 2)
+                                    );
+                                    const endMinute = parseInt(
+                                      slot.endTime.substring(3, 5)
+                                    );
+                                    const endTime = dayjs()
+                                      .hour(endHour)
+                                      .minute(endMinute)
+                                      .second(0)
+                                      .millisecond(0);
 
-                                  // Thời gian ẩn khung giờ = thời gian kết thúc - 30 phút
-                                  const hideTime = endTime.subtract(
-                                    30,
-                                    "minute"
-                                  );
+                                    // Thời gian ẩn khung giờ = thời gian kết thúc - 30 phút
+                                    const hideTime = endTime.subtract(30, "minute");
 
-                                  console.log(
-                                    `Slot ${slot.timeSlotId}: ${slot.startTime}-${slot.endTime}`
-                                  );
-                                  console.log(
-                                    `Current time: ${now.format("HH:mm:ss")}`
-                                  );
-                                  console.log(
-                                    `Hide time: ${hideTime.format("HH:mm:ss")}`
-                                  );
-                                  console.log(
-                                    `Should hide: ${now.isAfter(hideTime)}`
-                                  );
+                                    return now.isAfter(hideTime);
+                                  };
 
-                                  return now.isAfter(hideTime);
-                                };
+                                  // Nếu khung giờ bị ẩn thì không render
+                                  if (isSlotHidden()) {
+                                    return null;
+                                  }
 
-                                // Nếu khung giờ bị ẩn thì không render
-                                if (isSlotHidden()) {
-                                  return null;
-                                }
+                                  return (
+                                    <div
+                                      key={slot.timeSlotId}
+                                      className={`time-slot-item ${
+                                        selectedTimeSlot === slot.timeSlotId
+                                          ? "selected"
+                                          : ""
+                                      }`}
+                                      onClick={() => {
+                                        const currentValue = selectedTimeSlot;
+                                        const newValue =
+                                          currentValue === slot.timeSlotId
+                                            ? null
+                                            : slot.timeSlotId;
+                                        setSelectedTimeSlot(newValue);
+                                        form.setFieldsValue({
+                                          donationSlot: newValue,
+                                        });
+                                        setFormValues({
+                                          ...formValues,
+                                          donationSlot: newValue,
+                                        });
 
+                                        // Trigger validation for donation slot
+                                        if (newValue) {
+                                          form.validateFields(["donationSlot"]);
+                                        }
+                                      }}
+                                    >
+                                      <div className="time-slot-time">
+                                        {slot.startTime && slot.endTime
+                                          ? `${slot.startTime.substring(
+                                              0,
+                                              5
+                                            )} - ${slot.endTime.substring(0, 5)}`
+                                          : "Thời gian chưa xác định"}
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                                .filter(Boolean);
+
+                              // Kiểm tra nếu là hôm nay và tất cả slot đã bị ẩn
+                              if (isToday && timeSlots.length > 0 && visibleSlots.length === 0) {
                                 return (
-                                  <div
-                                    key={slot.timeSlotId}
-                                    className={`time-slot-item ${
-                                      selectedTimeSlot === slot.timeSlotId
-                                        ? "selected"
-                                        : ""
-                                    }`}
-                                    onClick={() => {
-                                      const currentValue = selectedTimeSlot;
-                                      const newValue =
-                                        currentValue === slot.timeSlotId
-                                          ? null
-                                          : slot.timeSlotId;
-                                      setSelectedTimeSlot(newValue);
-                                      form.setFieldsValue({
-                                        donationSlot: newValue,
-                                      });
-                                      setFormValues({
-                                        ...formValues,
-                                        donationSlot: newValue,
-                                      });
-
-                                      // Trigger validation for donation slot
-                                      if (newValue) {
-                                        form.validateFields(["donationSlot"]);
-                                      }
-                                    }}
-                                  >
-                                    <div className="time-slot-time">
-                                      {slot.startTime && slot.endTime
-                                        ? `${slot.startTime.substring(
-                                            0,
-                                            5
-                                          )} - ${slot.endTime.substring(0, 5)}`
-                                        : "Thời gian chưa xác định"}
+                                  <div className="time-slot-unavailable">
+                                    <div style={{
+                                      padding: "20px",
+                                      textAlign: "center",
+                                      backgroundColor: "#fff7e6",
+                                      border: "1px solid #ffd591",
+                                      borderRadius: "8px",
+                                      color: "#d48806"
+                                    }}>
+                                      Hiện tại đã qua thời gian làm việc, bạn vui lòng đặt lịch hẹn ở những ngày kế tiếp
                                     </div>
                                   </div>
                                 );
-                              })
-                              .filter(Boolean)}
+                              }
+
+                              return visibleSlots;
+                            })()}
                           </div>
                         </div>
                       </Form.Item>

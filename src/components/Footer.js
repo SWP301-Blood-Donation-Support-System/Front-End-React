@@ -69,7 +69,7 @@ const Footer = () => {
             </div>
             <div className="footer-contact-item">
               <PhoneOutlined style={{ marginRight: '8px', color: '#52c41a' }} />
-              <Text className="footer-text">Liên hệ giờ hành chính: 1900-1234</Text>
+              <Text className="footer-text">Hotline: 1900-1234</Text>
             </div>
             <div className="footer-contact-item">
               <MailOutlined style={{ marginRight: '8px', color: '#fa8c16' }} />
