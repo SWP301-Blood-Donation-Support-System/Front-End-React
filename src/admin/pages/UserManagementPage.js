@@ -26,6 +26,7 @@ const UserManagementPage = () => {
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState(3); // Default to role 3 (donors)
   const [bloodTypes, setBloodTypes] = useState({});
+  const [donationAvailabilities, setDonationAvailabilities] = useState({});
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,6 +44,7 @@ const UserManagementPage = () => {
   useEffect(() => {
     fetchUsersByRole(selectedRole);
     fetchBloodTypes();
+    fetchDonationAvailabilities();
   }, [selectedRole]);
 
   const fetchBloodTypes = async () => {
@@ -56,6 +58,20 @@ const UserManagementPage = () => {
       setBloodTypes(typesMap);
     } catch (error) {
       console.error('Error fetching blood types:', error);
+    }
+  };
+
+  const fetchDonationAvailabilities = async () => {
+    try {
+      const response = await AdminAPI.getDonationAvailabilities();
+      const availabilitiesData = response.data || [];
+      const availabilitiesMap = {};
+      availabilitiesData.forEach(availability => {
+        availabilitiesMap[availability.id] = availability;
+      });
+      setDonationAvailabilities(availabilitiesMap);
+    } catch (error) {
+      console.error('Error fetching donation availabilities:', error);
     }
   };
 
@@ -217,14 +233,29 @@ const UserManagementPage = () => {
     },
     {
       title: 'Trạng Thái',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: '8%',
-      render: (isActive) => (
-        <Tag color={isActive ? 'green' : 'red'}>
-          {isActive ? 'Hoạt động' : 'Không hoạt động'}
-        </Tag>
-      ),
+      dataIndex: 'donationAvailabilityId',
+      key: 'donationAvailabilityId',
+      width: '12%',
+      render: (donationAvailabilityId, record) => {
+        // Get donation availability from API data
+        const availability = donationAvailabilities[donationAvailabilityId];
+        const displayStatus = availability?.name || 'N/A';
+        
+        // Set colors based on status
+        const getStatusColor = (status) => {
+          if (status.includes('Đủ điều kiện')) return 'green';
+          if (status.includes('Chưa đủ điều kiện')) return 'orange';
+          if (status.includes('Tạm thời không')) return 'red';
+          if (status.includes('medical hold')) return 'volcano';
+          return 'default';
+        };
+        
+        return (
+          <Tag color={getStatusColor(displayStatus)}>
+            {displayStatus}
+          </Tag>
+        );
+      },
     },
   ];
 

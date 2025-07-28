@@ -756,4 +756,22 @@ export const AdminAPI = {
       throw error;
     }
   },
+
+  // Get donation availabilities lookup
+  getDonationAvailabilities: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/donation-availabilities`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching donation availabilities:", error);
+      throw error;
+    }
+  },
 };
