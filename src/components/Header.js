@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Layout, Button, Avatar, Dropdown, Menu, notification } from "antd";
-import { UserOutlined, DownOutlined, LogoutOutlined, SettingOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  DownOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { UserAPI } from "../api/User";
 
@@ -10,7 +15,7 @@ const Header = () => {
   const [api, contextHolder] = notification.useNotification();
   const navigate = useNavigate();
   const [user, setUser] = useState();
-  
+
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -36,46 +41,47 @@ const Header = () => {
   // User dropdown menu
   const userMenu = (
     <Menu>
-      <Menu.Item 
-        key="profile" 
+      <Menu.Item
+        key="profile"
         icon={<UserOutlined />}
         onClick={() => navigate("/profile")}
       >
         Hồ Sơ Cá Nhân
       </Menu.Item>
-      <Menu.Item 
-        key="settings" 
+      <Menu.Item
+        key="settings"
         icon={<SettingOutlined />}
         onClick={() => navigate("/settings")}
       >
         Cài Đặt
       </Menu.Item>
-      <Menu.Divider />      <Menu.Item 
-        key="logout" 
+      <Menu.Divider />{" "}
+      <Menu.Item
+        key="logout"
         icon={<LogoutOutlined />}
         onClick={() => {
           const userName = user.FullName || user.name;
-          
+
           UserAPI.logout();
           setUser(null);
-          
+
           // Clear all stored data to prevent unwanted redirects
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           localStorage.removeItem("userInfo");
           sessionStorage.removeItem("pendingBookingData");
-          
+
           // Dispatch custom event to notify other components about logout
-          window.dispatchEvent(new CustomEvent('userLogout'));
-          
+          window.dispatchEvent(new CustomEvent("userLogout"));
+
           // Show logout notification
           api.success({
-            message: 'Đăng xuất thành công!',
+            message: "Đăng xuất thành công!",
             description: `Tạm biệt ${userName}! Hẹn gặp lại bạn sau.`,
-            placement: 'topRight',
+            placement: "topRight",
             duration: 3,
           });
-          
+
           navigate("/");
         }}
       >
@@ -89,19 +95,27 @@ const Header = () => {
       {contextHolder}
       {/* Logo using new-logo.png - clickable to go home */}
       <div onClick={() => navigate("/")} className="header-logo">
-        <img src="/images/new-logo.png" alt="Blood Services Logo" />
+        <img src="/images/BloodLogo.jpg" alt="Blood Services Logo" />
       </div>
-      
+
       {user ? (
         <div className="header-user-section">
-          <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
-            <div className="header-user-profile">              <Avatar 
-                size={32} 
+          <Dropdown
+            overlay={userMenu}
+            trigger={["click"]}
+            placement="bottomRight"
+          >
+            <div className="header-user-profile">
+              {" "}
+              <Avatar
+                size={32}
                 src={user.picture} // Use Google profile picture if available
                 icon={<UserOutlined />}
                 className="header-user-avatar"
               />
-              <span className="header-user-name">Xin chào {user.FullName || user.name}</span>
+              <span className="header-user-name">
+                Xin chào {user.FullName || user.name || "Người hiến máu"}
+              </span>
               <DownOutlined className="header-dropdown-icon" />
             </div>
           </Dropdown>
