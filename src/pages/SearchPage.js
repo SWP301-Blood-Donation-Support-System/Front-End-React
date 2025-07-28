@@ -61,7 +61,7 @@ const SearchPage = () => {
       canGiveTo: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
       canReceiveFrom: ['O-'],
       percentage: '1%',
-      description: 'Nhóm máu O âm tính - người cho máu toàn năng'
+      description: 'Nhóm máu O âm tính - Nhóm máu chuyên cho (Người cho phổ thông)'
     }
   };
 
@@ -72,7 +72,7 @@ const SearchPage = () => {
       bloodType: 'O-',
       canGiveTo: 'Tất cả nhóm máu',
       canReceiveFrom: 'Chỉ O-',
-      note: 'Người cho máu toàn năng'
+      note: 'Nhóm máu chuyên cho (Người cho phổ thông)'
     },
     {
       key: '2',
@@ -140,7 +140,7 @@ const SearchPage = () => {
       ),
     },
     {
-      title: 'Có thể cho',
+      title: 'Hiến cho',
       dataIndex: 'canGiveTo',
       key: 'canGiveTo',
     },
@@ -150,7 +150,7 @@ const SearchPage = () => {
       key: 'canReceiveFrom',
     },
     {
-      title: 'Ghi chú',
+      title: 'Đặc điểm',
       dataIndex: 'note',
       key: 'note',
     },
@@ -386,7 +386,7 @@ const SearchPage = () => {
                     ✅ Nhóm máu đặc biệt:
                   </Title>
                   <Paragraph className="info-content">
-                    • <strong>O-:</strong> Người cho máu toàn năng<br/>
+                    • <strong>O-:</strong> Nhóm máu chuyên cho (Người cho phổ thông)<br/>
                     • <strong>AB+:</strong> Người nhận máu toàn năng<br/>
                     • Nhóm máu âm tính rất quý hiếm
                   </Paragraph>
