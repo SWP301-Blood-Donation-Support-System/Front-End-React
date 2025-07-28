@@ -33,6 +33,7 @@ const CreateDonationRecordPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [donationTypes, setDonationTypes] = useState([]);
+  const [cannotDonate, setCannotDonate] = useState(false);
 
   useEffect(() => {
     fetchDonationTypes();
@@ -196,11 +197,14 @@ const CreateDonationRecordPage = () => {
                           name="donorTemperature"
                           rules={[
                             {
-                              required: true,
+                              required: !cannotDonate,
                               message: "Vui lòng nhập nhiệt độ!",
                             },
                             {
                               validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
                                 if (value !== null && value !== undefined) {
                                   if (value < 35) {
                                     return Promise.reject(new Error('Nhiệt độ tối thiểu là 35°C'));
@@ -217,6 +221,7 @@ const CreateDonationRecordPage = () => {
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhiệt độ"
+                            disabled={cannotDonate}
                             // min={35}
                             // max={40}
                             // step={0.1}
@@ -229,11 +234,14 @@ const CreateDonationRecordPage = () => {
                           name="donorBloodPressure"
                           rules={[
                             {
-                              required: true,
+                              required: !cannotDonate,
                               message: "Vui lòng nhập huyết áp!",
                             },
                             {
                               validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
                                 if (!value) return Promise.resolve();
                                 
                                 // Check if value contains "/" character
@@ -269,7 +277,10 @@ const CreateDonationRecordPage = () => {
                             }
                           ]}
                         >
-                          <Input placeholder="Ví dụ: 120/80" />
+                          <Input 
+                            placeholder="Ví dụ: 120/80" 
+                            disabled={cannotDonate}
+                          />
                         </Form.Item>
                       </Col>
                       <Col span={8}>
@@ -279,6 +290,9 @@ const CreateDonationRecordPage = () => {
                           rules={[
                             {
                               validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
                                 if (value !== null && value !== undefined) {
                                   if (value < 42) {
                                     return Promise.reject(new Error('Cân nặng tối thiểu là 42kg'));
@@ -295,6 +309,7 @@ const CreateDonationRecordPage = () => {
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập cân nặng"
+                            disabled={cannotDonate}
                             // min={42}
                             // max={200}
                           />
@@ -310,6 +325,9 @@ const CreateDonationRecordPage = () => {
                           rules={[
                             {
                               validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
                                 if (value !== null && value !== undefined) {
                                   if (value < 100) {
                                     return Promise.reject(new Error('Chiều cao tối thiểu là 100cm'));
@@ -326,6 +344,7 @@ const CreateDonationRecordPage = () => {
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập chiều cao"
+                            disabled={cannotDonate}
                             // min={100}
                             // max={300}
                           />
@@ -338,6 +357,9 @@ const CreateDonationRecordPage = () => {
                           rules={[
                             {
                               validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
                                 if (value !== null && value !== undefined) {
                                   if (value < 60) {
                                     return Promise.reject(new Error('Nhịp tim tối thiểu là 60 bpm'));
@@ -354,6 +376,7 @@ const CreateDonationRecordPage = () => {
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhịp tim"
+                            disabled={cannotDonate}
                             // min={60}
                             // max={90}
                           />
@@ -370,12 +393,15 @@ const CreateDonationRecordPage = () => {
                           name="donationTypeId"
                           rules={[
                             {
-                              required: true,
+                              required: !cannotDonate,
                               message: "Vui lòng chọn loại hiến máu!",
                             },
                           ]}
                         >
-                          <Select placeholder="Chọn loại hiến máu">
+                          <Select 
+                            placeholder="Chọn loại hiến máu"
+                            disabled={cannotDonate}
+                          >
                             {donationTypes.map((type) => (
                               <Option
                                 key={type.id || type.Id}
@@ -393,7 +419,7 @@ const CreateDonationRecordPage = () => {
                           name="volumeDonated"
                           rules={[
                             {
-                              required: true,
+                              required: !cannotDonate,
                               message: "Vui lòng nhập thể tích hiến!",
                             },
                           ]}
@@ -403,6 +429,7 @@ const CreateDonationRecordPage = () => {
                             placeholder="Nhập thể tích hiến"
                             min={0}
                             max={500}
+                            disabled={cannotDonate}
                           />
                         </Form.Item>
                       </Col>
@@ -412,7 +439,11 @@ const CreateDonationRecordPage = () => {
                           name="cannotDonate"
                           valuePropName="checked"
                         >
-                          <Checkbox>Không thể hiến máu được</Checkbox>
+                          <Checkbox
+                            onChange={(e) => setCannotDonate(e.target.checked)}
+                          >
+                            Không thể hiến máu được
+                          </Checkbox>
                         </Form.Item>
                       </Col>
                     </Row>
