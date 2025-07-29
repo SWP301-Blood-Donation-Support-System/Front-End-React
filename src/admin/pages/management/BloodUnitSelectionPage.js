@@ -673,13 +673,15 @@ const BloodUnitSelectionPage = () => {
                       <>
                         {/* Show "no suitable blood units" message when no units available and request not completed */}
                         {suggestedBloodUnits.length === 0 && !loading && (
-                          <Alert
-                            message="Không có túi máu phù hợp"
-                            description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
-                            type="info"
-                            showIcon
-                            style={{ marginBottom: '16px' }}
-                          />
+                          <div style={{ marginBottom: '16px' }}>
+                            <Alert
+                              message="Không có túi máu phù hợp"
+                              description="Hiện tại không có túi máu nào phù hợp với yêu cầu. Vui lòng chờ thêm túi máu được bổ sung hoặc liên hệ với bộ phận quản lý túi máu."
+                              type="info"
+                              showIcon
+                              style={{ marginBottom: '12px' }}
+                            />
+                          </div>
                         )}
                         
                         <Table
@@ -698,7 +700,7 @@ const BloodUnitSelectionPage = () => {
                                     Thiếu {bloodSupplyInfo.remaining}ml.
                                   </p>
                                 )}
-                                <p style={{ color: '#faad14' }}>Vui lòng chờ bổ sung thêm túi máu.</p>
+                                <p style={{ color: '#faad14', marginBottom: '16px' }}>Vui lòng chờ bổ sung thêm túi máu.</p>
                               </div>
                             ) : 'Không có dữ liệu'
                           }}

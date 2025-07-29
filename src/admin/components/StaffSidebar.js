@@ -402,7 +402,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           children: [
             // getItem("Hồ sơ", "6", <UserOutlined />),
             getItem("Đổi mật khẩu", "7", <SettingOutlined />),
-            getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
+            // getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
           ],
         },
       ];

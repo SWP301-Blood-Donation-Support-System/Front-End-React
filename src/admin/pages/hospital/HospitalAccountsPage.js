@@ -95,23 +95,10 @@ const HospitalAccountsPage = () => {
   // Table columns configuration
   const columns = [
     {
-      title: 'User ID',
-      dataIndex: 'userId',
-      key: 'userId',
-      width: 100,
-      sorter: (a, b) => a.userId - b.userId,
-      render: (text) => (
-        <span style={{ fontWeight: 'bold', color: '#059669' }}>
-          {text || 'N/A'}
-        </span>
-      ),
-    },
-    {
-      title: 'Hospital ID',
+      title: 'Mã Bệnh Viện',
       dataIndex: 'hospitalId',
       key: 'hospitalId',
       width: 120,
-      sorter: (a, b) => a.hospitalId - b.hospitalId,
       render: (text) => (
         <Tag color="blue" icon={<BankOutlined />}>
           {text || 'N/A'}
@@ -127,7 +114,7 @@ const HospitalAccountsPage = () => {
       },
       render: (email) => (
         <Tooltip placement="topLeft" title={email}>
-          <Text copyable={{ text: email }}>
+          <Text>
             {email || 'Chưa cập nhật'}
           </Text>
         </Tooltip>
@@ -168,7 +155,6 @@ const HospitalAccountsPage = () => {
           <div className="user-management-container">
             <div className="user-header-section">
               <div className="title-section">
-                <UserOutlined className="title-icon" />
                 <div>
                   <Title level={2} className="user-management-title">
                     Tài khoản bệnh viện
@@ -178,16 +164,6 @@ const HospitalAccountsPage = () => {
               
               <div className="user-controls">
                 <Row gutter={[16, 16]} align="middle" style={{ width: '100%' }}>
-                  <Col xs={24} sm={12} md={8} lg={6}>
-                    <Search
-                      placeholder="Tìm kiếm theo email, ID, tên bệnh viện..."
-                      allowClear
-                      onSearch={handleSearch}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      value={searchText}
-                      style={{ width: '100%' }}
-                    />
-                  </Col>
                   <Col xs={24} sm={12} md={8} lg={6}>
                     <Text strong>
                       Tổng số: {filteredAccounts.length} tài khoản
@@ -207,6 +183,7 @@ const HospitalAccountsPage = () => {
                   pagination={false}
                   scroll={{ x: 800 }}
                   size="middle"
+                  sortDirections={[]}
                 />
               </div>
             </div>

@@ -424,7 +424,7 @@ const BloodBagManagementPage = () => {
 
   const bloodUnitColumns = [
     {
-      title: 'Mã Túi Máu (BloodUnitID)',
+      title: 'Mã Túi Máu',
       dataIndex: 'bloodUnitId',
       key: 'bloodUnitId',
       width: '10%',

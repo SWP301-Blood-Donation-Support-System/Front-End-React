@@ -1022,4 +1022,22 @@ export const AdminAPI = {
       throw error;
     }
   },
+
+  // Get feedback by registration ID
+  getFeedbackByRegistration: async (registrationId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Feedback/registration/${registrationId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+      throw error;
+    }
+  },
 };

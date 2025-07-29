@@ -251,4 +251,15 @@ export const HospitalAPI = {
       throw error;
     }
   },
+
+  // Send emergency blood request email to all compatible donors
+  sendEmergencyBloodEmail: async (bloodRequestId) => {
+    try {
+      const response = await hospitalApi.post(`/api/EmergencyBloodEmail/send-emergency/${bloodRequestId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error sending emergency blood email:', error);
+      throw error;
+    }
+  },
 }; 

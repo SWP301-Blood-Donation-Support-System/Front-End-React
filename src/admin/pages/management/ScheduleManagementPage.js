@@ -54,6 +54,11 @@ const ScheduleManagementPage = () => {
   const [pendingStatusChange, setPendingStatusChange] = useState(null);
   const [validationMessages, setValidationMessages] = useState({}); // Track validation messages per registration
   
+  // State for feedback
+  const [feedbacks, setFeedbacks] = useState({}); // Track feedbacks per registration
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  
   const location = useLocation();
   const navigate = useNavigate();
   const notificationShown = useRef(false);
@@ -311,6 +316,21 @@ const ScheduleManagementPage = () => {
           return timeSlotA - timeSlotB; // Sort in ascending order (slot 1, 2, 3, 4)
         });
         
+        // Fetch feedback for each registration
+        const newFeedbackData = {};
+        await Promise.all(
+          sortedRegistrations.map(async (registration) => {
+            const registrationId = registration.registrationId || registration.RegistrationID || registration.id;
+            if (registrationId) {
+              const feedback = await fetchFeedback(registrationId);
+              newFeedbackData[registrationId] = feedback;
+            }
+          })
+        );
+        
+        // Update feedbacks state
+        setFeedbacks(newFeedbackData);
+        
         setRegistrations(sortedRegistrations);
       } catch (error) {
         console.error('Error fetching registrations:', error);
@@ -372,6 +392,36 @@ const ScheduleManagementPage = () => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  // Fetch feedback for a registration
+  const fetchFeedback = async (registrationId) => {
+    try {
+      const response = await AdminAPI.getFeedbackByRegistration(registrationId);
+      console.log(`Feedback API response for registration ${registrationId}:`, response);
+      
+      if (response.status === 200 && response.data) {
+        // Check if data is an array or object
+        if (Array.isArray(response.data)) {
+          // If it's an array, take the first item
+          return response.data.length > 0 ? response.data[0] : null;
+        } else {
+          // If it's an object, return it directly
+          return response.data;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error fetching feedback for registration ${registrationId}:`, error);
+      return null;
+    }
+  };
+
+  // Handle showing feedback modal
+  const handleShowFeedback = (registrationId) => {
+    const feedback = feedbacks[registrationId];
+    setSelectedFeedback(feedback);
+    setFeedbackModalVisible(true);
   };
 
   // Handle status change dropdown
@@ -621,20 +671,6 @@ const ScheduleManagementPage = () => {
       },
     },
     {
-      title: 'Mã Lịch (Schedule ID)',
-      dataIndex: 'scheduleId',
-      key: 'scheduleId',
-      width: '12%',
-      render: (_, record) => {
-        const scheduleId = record.scheduleId || record.ScheduleId || record.ScheduleID || 'N/A';
-        return (
-          <span style={{ fontWeight: 'bold', color: '#cf1322' }}>
-            {scheduleId}
-          </span>
-        );
-      },
-    },
-    {
       title: 'Mã Người Hiến (Donor ID)',
       dataIndex: 'donorId',
       key: 'donorId',
@@ -805,6 +841,36 @@ const ScheduleManagementPage = () => {
             </div>
           </div>
         );
+      },
+    },
+    {
+      title: 'Feedback',
+      key: 'feedback',
+      width: '15%',
+      render: (_, record) => {
+        const registrationId = record.registrationId || record.RegistrationID || record.id;
+        const feedback = feedbacks[registrationId];
+        
+        if (feedback) {
+          return (
+            <Button 
+              size="small" 
+              type="default"
+              style={{ 
+                fontSize: '10px', 
+                padding: '2px 8px',
+                backgroundColor: '#52c41a',
+                borderColor: '#52c41a',
+                color: 'white'
+              }}
+              onClick={() => handleShowFeedback(registrationId)}
+            >
+              Xem phản hồi
+            </Button>
+          );
+        }
+        
+        return <span style={{ color: '#999', fontSize: '12px' }}>Chưa có feedback</span>;
       },
     },
   ];
@@ -989,6 +1055,45 @@ const ScheduleManagementPage = () => {
               </strong>?
             </p>
           </div>
+        )}
+      </Modal>
+
+      {/* Feedback Modal */}
+      <Modal
+        title="Chi tiết phản hồi"
+        open={feedbackModalVisible}
+        onCancel={() => setFeedbackModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setFeedbackModalVisible(false)}>
+            Đóng
+          </Button>
+        ]}
+        width={600}
+      >
+        {selectedFeedback ? (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <strong>Bình luận:</strong>
+              <div style={{ 
+                marginTop: 8,
+                padding: 12,
+                backgroundColor: '#f5f5f5',
+                borderRadius: 6,
+                minHeight: 60,
+                whiteSpace: 'pre-wrap'
+              }}>
+                {selectedFeedback.feedbackInfo || selectedFeedback.comment || 'Không có bình luận'}
+              </div>
+            </div>
+            {selectedFeedback.feedbackDate && (
+              <div style={{ fontSize: '12px', color: '#666' }}>
+                <strong>Ngày phản hồi: </strong>
+                {new Date(selectedFeedback.feedbackDate).toLocaleDateString('vi-VN')}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>Không có dữ liệu phản hồi</div>
         )}
       </Modal>
     </Layout>

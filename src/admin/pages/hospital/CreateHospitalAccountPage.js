@@ -115,18 +115,19 @@ const CreateHospitalAccountPage = () => {
       <Layout>
         <StaffHeader collapsed={collapsed} onCollapse={setCollapsed} />
         <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
-          <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-            <div style={{ marginBottom: '24px' }}>
-              <Space direction="vertical" size={0}>
-                <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
-                  <SafetyOutlined /> Tạo tài khoản bệnh viện
-                </Title>
-                
-              </Space>
-            </div>
+          <div style={{ padding: 24, background: '#fff', minHeight: 360, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ width: '100%', maxWidth: 600 }}>
+              <div style={{ marginBottom: '24px' }}>
+                <Space direction="vertical" size={0}>
+                  <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
+                    <SafetyOutlined /> Tạo tài khoản bệnh viện
+                  </Title>
+                  
+                </Space>
+              </div>
 
-            <Card style={{ maxWidth: 600 }}>
-              <Spin spinning={loading}>
+              <Card>
+                <Spin spinning={loading}>
                 <Form
                   form={form}
                   layout="vertical"
@@ -172,28 +173,20 @@ const CreateHospitalAccountPage = () => {
                   </Form.Item>
 
                   <Form.Item style={{ marginBottom: 0 }}>
-                    <Space>
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        icon={<UserAddOutlined />}
-                        loading={submitting}
-                        size="large"
-                      >
-                        Tạo tài khoản
-                      </Button>
-                      <Button
-                        icon={<ArrowLeftOutlined />}
-                        onClick={() => navigate('/staff/hospital-list')}
-                        size="large"
-                      >
-                        Quay lại
-                      </Button>
-                    </Space>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      icon={<UserAddOutlined />}
+                      loading={submitting}
+                      size="large"
+                    >
+                      Tạo tài khoản
+                    </Button>
                   </Form.Item>
                 </Form>
               </Spin>
             </Card>
+            </div>
           </div>
         </Content>
       </Layout>

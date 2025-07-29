@@ -111,6 +111,11 @@ const RequestDetailPage = () => {
     return dayjs(dateTime).format('DD/MM/YYYY HH:mm');
   };
 
+  const formatDateOnly = (dateTime) => {
+    if (!dateTime) return 'N/A';
+    return dayjs(dateTime).format('DD/MM/YYYY');
+  };
+
   const getUrgencyColor = (urgencyName) => {
     switch (urgencyName?.toLowerCase()) {
       case 'low':
@@ -416,18 +421,17 @@ const RequestDetailPage = () => {
                       bloodTypeId: bloodTypes[selectedRequest.bloodTypeId]?.name || 'N/A',
                       bloodComponentId: bloodComponents[selectedRequest.bloodComponentId]?.name || 'N/A',
                       volume: `${selectedRequest.volume || 0} ml`,
-                      requiredDateTime: formatDateTime(selectedRequest.requiredDateTime),
+                      requiredDateTime: formatDateOnly(selectedRequest.requiredDateTime),
                       urgencyId: (urgencies && selectedRequest.urgencyId && urgencies[selectedRequest.urgencyId]) ? 
                         getUrgencyVietnameseName(urgencies[selectedRequest.urgencyId].name) : 
                         'N/A',
                       requestStatusId: bloodRequestStatuses[selectedRequest.requestStatusId]?.name || 'N/A',
                       note: selectedRequest.note || 'Không có ghi chú',
                       rejectionReason: selectedRequest.rejectionReason || selectedRequest.reason || 'Không có lý do từ chối',
-                      createdAt: formatDateTime(selectedRequest.createdAt),
                     }}
                   >
                     <Row gutter={[24, 16]}>
-                      <Col span={8}>
+                      <Col span={12}>
                         <Form.Item
                           label="ID ĐƠN KHẨN CẤP"
                           name="requestId"
@@ -435,23 +439,12 @@ const RequestDetailPage = () => {
                           <Input readOnly style={{ backgroundColor: '#fff' }} />
                         </Form.Item>
                       </Col>
-                      <Col span={8}>
+                      <Col span={12}>
                         <Form.Item
                           label="NHÂN VIÊN YÊU CẦU"
                           name="requestingStaffId"
                         >
                           <Input readOnly style={{ backgroundColor: '#fff' }} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item
-                          label="THỜI GIAN TẠO"
-                          name="createdAt"
-                        >
-                          <Input 
-                            readOnly 
-                            style={{ backgroundColor: '#fff' }}
-                          />
                         </Form.Item>
                       </Col>
                     </Row>

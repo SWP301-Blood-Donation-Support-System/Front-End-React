@@ -288,12 +288,17 @@ const ProfilePage = () => {
         // Only set validation error if:
         // 1. There's a new validation error, OR
         // 2. There's no existing error for this field, OR  
-        // 3. The existing error is not a duplicate CCCD error
+        // 3. The existing error is not a duplicate error (for National ID or Phone Number)
         if (error) {
-          // Don't override duplicate CCCD error with generic required field error
-          if (field === "nationalID" && 
-              newValidationErrors[field] && 
-              newValidationErrors[field].includes("đã được đăng ký")) {
+          // Don't override duplicate errors with generic required field error
+          const isDuplicateError = (field === "nationalID" && 
+                                   newValidationErrors[field] && 
+                                   newValidationErrors[field].includes("đã được đăng ký")) ||
+                                  (field === "phoneNumber" && 
+                                   newValidationErrors[field] && 
+                                   newValidationErrors[field].includes("đã được đăng ký"));
+          
+          if (isDuplicateError) {
             // Keep the existing duplicate error, but still mark as having errors
             hasErrors = true;
           } else {
@@ -301,10 +306,15 @@ const ProfilePage = () => {
             hasErrors = true;
           }
         } else {
-          // Clear validation error only if it's not a duplicate CCCD error
-          if (!(field === "nationalID" && 
-                newValidationErrors[field] && 
-                newValidationErrors[field].includes("đã được đăng ký"))) {
+          // Clear validation error only if it's not a duplicate error
+          const isDuplicateError = (field === "nationalID" && 
+                                   newValidationErrors[field] && 
+                                   newValidationErrors[field].includes("đã được đăng ký")) ||
+                                  (field === "phoneNumber" && 
+                                   newValidationErrors[field] && 
+                                   newValidationErrors[field].includes("đã được đăng ký"));
+          
+          if (!isDuplicateError) {
             newValidationErrors[field] = null;
           }
         }
@@ -319,19 +329,21 @@ const ProfilePage = () => {
       );
 
       if (hasErrors || hasExistingValidationErrors) {
-        // Check if the only error is a duplicate CCCD error
-        const onlyDuplicateCCCDError = 
-          newValidationErrors.nationalID && 
-          newValidationErrors.nationalID.includes("đã được đăng ký") &&
-          Object.keys(newValidationErrors).filter(key => 
-            newValidationErrors[key] !== null && newValidationErrors[key] !== ""
-          ).length === 1;
+        // Check if the only errors are duplicate errors
+        const onlyDuplicateErrors = Object.entries(newValidationErrors)
+          .filter(([key, error]) => error !== null && error !== "")
+          .every(([key, error]) => error.includes("đã được đăng ký"));
 
-        if (onlyDuplicateCCCDError) {
-          // Don't show the generic error message, the duplicate CCCD error is already shown
+        if (onlyDuplicateErrors) {
+          // Don't show the generic error message, the specific duplicate errors are already shown
+          const duplicateFields = Object.entries(newValidationErrors)
+            .filter(([key, error]) => error && error.includes("đã được đăng ký"))
+            .map(([key, error]) => key === "nationalID" ? "CCCD" : "số điện thoại")
+            .join(" và ");
+            
           api.error({
             message: "Không thể cập nhật hồ sơ!",
-            description: "Vui lòng sửa lỗi CCCD để tiếp tục.",
+            description: `Vui lòng sửa lỗi ${duplicateFields} để tiếp tục.`,
             placement: "topRight",
             duration: 4,
           });
@@ -446,23 +458,40 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error updating profile:", error);
       
-      // Check for duplicate National ID error
+      // Check for duplicate errors
       if (
         error.response &&
         error.response.data &&
-        error.response.data.message &&
-        (error.response.data.message.includes("duplicate key") || 
-         error.response.data.message.includes("UQ_User_NationalID") ||
-         error.response.data.message.includes("NationalID") ||
-         error.response.data.message.includes("Cannot insert duplicate key"))
+        error.response.data.message
       ) {
-        // Set validation error for National ID field
-        setValidationErrors(prev => ({
-          ...prev,
-          nationalID: "CCCD này đã được đăng ký, vui lòng sử dụng một CCCD khác"
-        }));
+        const errorMessage = error.response.data.message;
         
-        message.error("CCCD này đã được đăng ký trong hệ thống!");
+        // Check for duplicate National ID error
+        if (
+          errorMessage.includes("UQ_User_NationalID") ||
+          (errorMessage.includes("duplicate key") && errorMessage.includes("NationalID"))
+        ) {
+          setValidationErrors(prev => ({
+            ...prev,
+            nationalID: "CCCD này đã được đăng ký, vui lòng sử dụng một CCCD khác"
+          }));
+          message.error("CCCD này đã được đăng ký trong hệ thống!");
+        }
+        // Check for duplicate Phone Number error
+        else if (
+          errorMessage.includes("UQ_User_PhoneNumber") ||
+          (errorMessage.includes("duplicate key") && errorMessage.includes("PhoneNumber"))
+        ) {
+          setValidationErrors(prev => ({
+            ...prev,
+            phoneNumber: "Số điện thoại này đã được đăng ký, vui lòng sử dụng số điện thoại khác"
+          }));
+          message.error("Số điện thoại này đã được đăng ký trong hệ thống!");
+        }
+        // Generic duplicate key error (fallback)
+        else if (errorMessage.includes("duplicate key") || errorMessage.includes("Cannot insert duplicate key")) {
+          message.error("Thông tin này đã được đăng ký trong hệ thống!");
+        }
       } else if (
         error.response &&
         error.response.data &&

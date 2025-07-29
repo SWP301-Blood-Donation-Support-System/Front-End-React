@@ -152,41 +152,6 @@ const HospitalListPage = () => {
         </Tooltip>
       ),
     },
-    {
-      title: 'Thao tác',
-      key: 'actions',
-      width: 150,
-      fixed: 'right',
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="Xem chi tiết">
-            <Button
-              type="text"
-              size="small"
-              icon={<EyeOutlined />}
-              onClick={() => showHospitalDetails(record)}
-            />
-          </Tooltip>
-          <Tooltip title="Chỉnh sửa">
-            <Button
-              type="text"
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-            />
-          </Tooltip>
-          <Tooltip title="Xóa">
-            <Button
-              type="text"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record)}
-            />
-          </Tooltip>
-        </Space>
-      ),
-    },
   ];
 
   // Load data on component mount
@@ -214,32 +179,6 @@ const HospitalListPage = () => {
                 </Col>
               </Row>
             </div>
-
-            {/* Search and Filter */}
-            <Card style={{ marginBottom: '24px' }}>
-              <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} md={8}>
-                  <Search
-                    placeholder="Tìm kiếm theo tên, địa chỉ hoặc ID..."
-                    allowClear
-                    enterButton={<SearchOutlined />}
-                    size="large"
-                    onSearch={handleSearch}
-                    onChange={(e) => {
-                      if (!e.target.value) {
-                        handleSearch('');
-                      }
-                    }}
-                    value={searchText}
-                  />
-                </Col>
-                <Col xs={24} sm={12} md={8}>
-                  <Text type="secondary">
-                    Tổng số: <Text strong>{filteredHospitals.length}</Text> bệnh viện
-                  </Text>
-                </Col>
-              </Row>
-            </Card>
 
             {/* Hospital Table */}
             <Card>
