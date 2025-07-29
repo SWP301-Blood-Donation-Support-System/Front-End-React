@@ -529,4 +529,21 @@ export const UserAPI = {
       throw error;
     }
   },
+
+  // Get notifications for user
+  getUserNotifications: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Notification`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      return response;
+    } catch (error) {
+      console.error("Error fetching user notifications:", error);
+      throw error;
+    }
+  },
 };
