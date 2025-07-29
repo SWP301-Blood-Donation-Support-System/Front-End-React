@@ -83,9 +83,7 @@ const HospitalRegistrationPage = () => {
                 <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
                   <BankOutlined /> Đăng ký bệnh viện
                 </Title>
-                <Text type="secondary">
-                  Đăng ký bệnh viện mới vào hệ thống quản lý hiến máu
-                </Text>
+                
               </Space>
             </div>
 

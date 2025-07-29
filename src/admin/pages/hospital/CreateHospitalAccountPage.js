@@ -121,9 +121,7 @@ const CreateHospitalAccountPage = () => {
                 <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
                   <SafetyOutlined /> Tạo tài khoản bệnh viện
                 </Title>
-                <Paragraph type="secondary">
-                  Tạo tài khoản quản trị cho bệnh viện trong hệ thống
-                </Paragraph>
+                
               </Space>
             </div>
 

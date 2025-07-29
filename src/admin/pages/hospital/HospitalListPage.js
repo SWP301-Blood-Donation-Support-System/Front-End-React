@@ -209,9 +209,7 @@ const HospitalListPage = () => {
                     <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
                       <BankOutlined /> Danh sách bệnh viện
                     </Title>
-                    <Text type="secondary">
-                      Quản lý thông tin các bệnh viện trong hệ thống
-                    </Text>
+                    
                   </Space>
                 </Col>
               </Row>
