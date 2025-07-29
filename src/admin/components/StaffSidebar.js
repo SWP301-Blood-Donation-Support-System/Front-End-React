@@ -24,6 +24,7 @@ import {
   AuditOutlined,
   HistoryOutlined,
   LockOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button, notification } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -121,6 +122,10 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
     } else if (pathname.includes("/staff/donation-records")) {
       if (pathname.includes("/create")) return ["4-2"];
       return ["4"];
+    } else if (pathname.includes("/staff/article-management")) {
+      return ["18"];
+    } else if (pathname.includes("/staff/create-article")) {
+      return ["19"];
     } else if (pathname.includes("/staff/reports")) {
       // Only return key if user is admin, otherwise return default
       return isAdminUser() ? ["5"] : ["1"];
@@ -342,6 +347,30 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
+      case "18": // Quản lý bài viết (admin and staff)
+        if (isAdminUser() || !isHospitalUser()) {
+          navigate("/staff/article-management");
+        } else {
+          api.warning({
+            message: "Không có quyền truy cập",
+            description: "Bạn không có quyền truy cập chức năng này.",
+            placement: "topRight",
+            duration: 3,
+          });
+        }
+        break;
+      case "19": // Tạo bài viết (admin and staff)
+        if (isAdminUser() || !isHospitalUser()) {
+          navigate("/staff/create-article");
+        } else {
+          api.warning({
+            message: "Không có quyền truy cập",
+            description: "Bạn không có quyền truy cập chức năng này.",
+            placement: "topRight",
+            duration: 3,
+          });
+        }
+        break;
       default:
         break;
     }
@@ -396,6 +425,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
             : []),
           getItem("Quản lý túi máu", "3", <DesktopOutlined />),
           getItem("Hồ sơ người hiến", "4", <FileOutlined />),
+          getItem("Quản lý tin tức", "18", <FileTextOutlined />),
           // Only show reports for admin users
           ...(isAdminUser()
             ? [getItem("Báo cáo thống kê", "5", <TeamOutlined />)]
