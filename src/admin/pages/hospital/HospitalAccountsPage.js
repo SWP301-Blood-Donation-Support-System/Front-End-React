@@ -20,11 +20,11 @@ import {
   ReloadOutlined,
   BankOutlined
 } from '@ant-design/icons';
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import { AdminAPI } from '../api/admin';
-import { HospitalAPI } from '../api/hospital';
-import '../styles/user-management.scss';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import { AdminAPI } from '../../api/admin';
+import { HospitalAPI } from '../../api/hospital';
+import '../../styles/user-management.scss';
 
 const { Content } = Layout;
 const { Text, Title } = Typography;

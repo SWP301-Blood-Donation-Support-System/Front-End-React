@@ -17,9 +17,9 @@ import {
   SaveOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import { HospitalAPI } from '../api/hospital';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import { HospitalAPI } from '../../api/hospital';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -83,9 +83,7 @@ const HospitalRegistrationPage = () => {
                 <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
                   <BankOutlined /> Đăng ký bệnh viện
                 </Title>
-                <Text type="secondary">
-                  Đăng ký bệnh viện mới vào hệ thống quản lý hiến máu
-                </Text>
+                
               </Space>
             </div>
 

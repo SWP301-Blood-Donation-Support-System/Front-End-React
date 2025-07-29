@@ -13,11 +13,11 @@ import {
   notification
 } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AdminAPI } from '../api/admin';
+import { AdminAPI } from '../../api/admin';
 
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import '../styles/schedule-management.scss';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import '../../styles/schedule-management.scss';
 
 const { Content } = Layout;
 const { Text, Title } = Typography;

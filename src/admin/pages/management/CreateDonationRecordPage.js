@@ -17,10 +17,10 @@ import {
 } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
-import StaffSidebar from "../components/StaffSidebar";
-import StaffHeader from "../components/StaffHeader";
+import StaffSidebar from "../../components/StaffSidebar";
+import StaffHeader from "../../components/StaffHeader";
 
-import { AdminAPI } from "../api/admin";
+import { AdminAPI } from "../../api/admin";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -33,6 +33,7 @@ const CreateDonationRecordPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [donationTypes, setDonationTypes] = useState([]);
+  const [cannotDonate, setCannotDonate] = useState(false);
 
   useEffect(() => {
     fetchDonationTypes();
@@ -196,17 +197,34 @@ const CreateDonationRecordPage = () => {
                           name="donorTemperature"
                           rules={[
                             {
-                              required: true,
+                              required: !cannotDonate,
                               message: "Vui lòng nhập nhiệt độ!",
                             },
+                            {
+                              validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
+                                if (value !== null && value !== undefined) {
+                                  if (value < 35) {
+                                    return Promise.reject(new Error('Nhiệt độ tối thiểu là 35°C'));
+                                  }
+                                  if (value > 40) {
+                                    return Promise.reject(new Error('Nhiệt độ tối đa là 40°C'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
                           ]}
                         >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhiệt độ"
-                            min={35}
-                            max={40}
-                            step={0.1}
+                            disabled={cannotDonate}
+                            // min={35}
+                            // max={40}
+                            // step={0.1}
                           />
                         </Form.Item>
                       </Col>
@@ -216,21 +234,84 @@ const CreateDonationRecordPage = () => {
                           name="donorBloodPressure"
                           rules={[
                             {
-                              required: true,
+                              required: !cannotDonate,
                               message: "Vui lòng nhập huyết áp!",
                             },
+                            {
+                              validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
+                                if (!value) return Promise.resolve();
+                                
+                                // Check if value contains "/" character
+                                if (!value.includes('/')) {
+                                  return Promise.reject(new Error('Huyết áp phải có định dạng "tâm thu/tâm trương" (ví dụ: 120/80)'));
+                                }
+                                
+                                const parts = value.split('/');
+                                if (parts.length !== 2) {
+                                  return Promise.reject(new Error('Huyết áp phải có định dạng "tâm thu/tâm trương" (ví dụ: 120/80)'));
+                                }
+                                
+                                const systolic = parseInt(parts[0].trim());
+                                const diastolic = parseInt(parts[1].trim());
+                                
+                                // Check if both parts are valid numbers
+                                if (isNaN(systolic) || isNaN(diastolic)) {
+                                  return Promise.reject(new Error('Huyết áp phải là số (ví dụ: 120/80)'));
+                                }
+                                
+                                // Validate systolic pressure (110-133)
+                                if (systolic < 110 || systolic > 133) {
+                                  return Promise.reject(new Error('Huyết áp tâm thu phải từ 110 đến 133'));
+                                }
+                                
+                                // Validate diastolic pressure (70-81)
+                                if (diastolic < 70 || diastolic > 81) {
+                                  return Promise.reject(new Error('Huyết áp tâm trương phải từ 70 đến 81'));
+                                }
+                                
+                                return Promise.resolve();
+                              }
+                            }
                           ]}
                         >
-                          <Input placeholder="Ví dụ: 120/80" />
+                          <Input 
+                            placeholder="Ví dụ: 120/80" 
+                            disabled={cannotDonate}
+                          />
                         </Form.Item>
                       </Col>
                       <Col span={8}>
-                        <Form.Item label="CÂN NẶNG (kg)" name="donorWeight">
+                        <Form.Item 
+                          label="CÂN NẶNG (kg)" 
+                          name="donorWeight"
+                          rules={[
+                            {
+                              validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
+                                if (value !== null && value !== undefined) {
+                                  if (value < 42) {
+                                    return Promise.reject(new Error('Cân nặng tối thiểu là 42kg'));
+                                  }
+                                  if (value > 200) {
+                                    return Promise.reject(new Error('Cân nặng tối đa là 200kg'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
+                          ]}
+                        >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập cân nặng"
-                            min={0}
-                            max={200}
+                            disabled={cannotDonate}
+                            // min={42}
+                            // max={200}
                           />
                         </Form.Item>
                       </Col>
@@ -238,22 +319,66 @@ const CreateDonationRecordPage = () => {
 
                     <Row gutter={[24, 16]}>
                       <Col span={12}>
-                        <Form.Item label="CHIỀU CAO (cm)" name="donorHeight">
+                        <Form.Item 
+                          label="CHIỀU CAO (cm)" 
+                          name="donorHeight"
+                          rules={[
+                            {
+                              validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
+                                if (value !== null && value !== undefined) {
+                                  if (value < 100) {
+                                    return Promise.reject(new Error('Chiều cao tối thiểu là 100cm'));
+                                  }
+                                  if (value > 300) {
+                                    return Promise.reject(new Error('Chiều cao tối đa là 300cm'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
+                          ]}
+                        >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập chiều cao"
-                            min={100}
-                            max={300}
+                            disabled={cannotDonate}
+                            // min={100}
+                            // max={300}
                           />
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item label="NHỊP TIM (bpm)" name="donorHeartRate">
+                        <Form.Item 
+                          label="NHỊP TIM (bpm)" 
+                          name="donorHeartRate"
+                          rules={[
+                            {
+                              validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
+                                if (value !== null && value !== undefined) {
+                                  if (value < 60) {
+                                    return Promise.reject(new Error('Nhịp tim tối thiểu là 60 bpm'));
+                                  }
+                                  if (value > 90) {
+                                    return Promise.reject(new Error('Nhịp tim tối đa là 90 bpm'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
+                          ]}
+                        >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập nhịp tim"
-                            min={50}
-                            max={100}
+                            disabled={cannotDonate}
+                            // min={60}
+                            // max={90}
                           />
                         </Form.Item>
                       </Col>
@@ -268,12 +393,15 @@ const CreateDonationRecordPage = () => {
                           name="donationTypeId"
                           rules={[
                             {
-                              required: true,
+                              required: !cannotDonate,
                               message: "Vui lòng chọn loại hiến máu!",
                             },
                           ]}
                         >
-                          <Select placeholder="Chọn loại hiến máu">
+                          <Select 
+                            placeholder="Chọn loại hiến máu"
+                            disabled={cannotDonate}
+                          >
                             {donationTypes.map((type) => (
                               <Option
                                 key={type.id || type.Id}
@@ -291,7 +419,7 @@ const CreateDonationRecordPage = () => {
                           name="volumeDonated"
                           rules={[
                             {
-                              required: true,
+                              required: !cannotDonate,
                               message: "Vui lòng nhập thể tích hiến!",
                             },
                           ]}
@@ -301,6 +429,7 @@ const CreateDonationRecordPage = () => {
                             placeholder="Nhập thể tích hiến"
                             min={0}
                             max={500}
+                            disabled={cannotDonate}
                           />
                         </Form.Item>
                       </Col>
@@ -310,7 +439,11 @@ const CreateDonationRecordPage = () => {
                           name="cannotDonate"
                           valuePropName="checked"
                         >
-                          <Checkbox>Không thể hiến máu được</Checkbox>
+                          <Checkbox
+                            onChange={(e) => setCannotDonate(e.target.checked)}
+                          >
+                            Không thể hiến máu được
+                          </Checkbox>
                         </Form.Item>
                       </Col>
                     </Row>

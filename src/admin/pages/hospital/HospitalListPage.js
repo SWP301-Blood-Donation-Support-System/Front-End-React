@@ -24,11 +24,11 @@ import {
   EyeOutlined,
   PlusOutlined
 } from '@ant-design/icons';
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import { HospitalAPI } from '../api/hospital';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import { HospitalAPI } from '../../api/hospital';
 import dayjs from 'dayjs';
-import '../styles/hospital-list.scss';
+import '../../styles/hospital-list.scss';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -209,9 +209,7 @@ const HospitalListPage = () => {
                     <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
                       <BankOutlined /> Danh sách bệnh viện
                     </Title>
-                    <Text type="secondary">
-                      Quản lý thông tin các bệnh viện trong hệ thống
-                    </Text>
+                    
                   </Space>
                 </Col>
               </Row>

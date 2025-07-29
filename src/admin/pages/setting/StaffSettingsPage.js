@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Form, Input, Button, Typography, notification, Layout, Alert } from 'antd';
 import { LockOutlined, WarningOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
-import StaffHeader from '../components/StaffHeader';
-import StaffSidebar from '../components/StaffSidebar';
-import { AdminAPI } from '../api/admin';
-import { checkIfDefaultPassword, validateNewPassword, markPasswordAsChanged } from '../utils/passwordUtils';
+import StaffHeader from '../../components/StaffHeader';
+import StaffSidebar from '../../components/StaffSidebar';
+import { AdminAPI } from '../../api/admin';
+import { checkIfDefaultPassword, validateNewPassword, markPasswordAsChanged } from '../../utils/passwordUtils';
 
 const { Title, Text } = Typography;
 const { Content } = Layout;

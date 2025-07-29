@@ -17,8 +17,8 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import StaffSidebar from "../components/StaffSidebar";
-import StaffHeader from "../components/StaffHeader";
+import StaffSidebar from "../../components/StaffSidebar";
+import StaffHeader from "../../components/StaffHeader";
 import { 
   ExclamationCircleOutlined,
   DropboxOutlined,
@@ -27,8 +27,8 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 
-import { AdminAPI } from "../api/admin";
-import { HospitalAPI } from "../api/hospital";
+import { AdminAPI } from "../../api/admin";
+import { HospitalAPI } from "../../api/hospital";
 
 const { Content } = Layout;
 const { Title } = Typography;

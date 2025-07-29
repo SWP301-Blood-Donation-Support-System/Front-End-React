@@ -19,9 +19,9 @@ import {
   EnvironmentOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import { HospitalAPI } from '../api/hospital';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import { HospitalAPI } from '../../api/hospital';
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -121,9 +121,7 @@ const CreateHospitalAccountPage = () => {
                 <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
                   <SafetyOutlined /> Tạo tài khoản bệnh viện
                 </Title>
-                <Paragraph type="secondary">
-                  Tạo tài khoản quản trị cho bệnh viện trong hệ thống
-                </Paragraph>
+                
               </Space>
             </div>
 
