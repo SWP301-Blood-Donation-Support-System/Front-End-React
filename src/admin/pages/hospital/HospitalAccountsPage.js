@@ -114,7 +114,7 @@ const HospitalAccountsPage = () => {
       },
       render: (email) => (
         <Tooltip placement="topLeft" title={email}>
-          <Text copyable={{ text: email }}>
+          <Text>
             {email || 'Chưa cập nhật'}
           </Text>
         </Tooltip>

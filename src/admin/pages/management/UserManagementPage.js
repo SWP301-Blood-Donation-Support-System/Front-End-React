@@ -279,15 +279,6 @@ const UserManagementPage = () => {
                   <Title level={3} className="user-management-title">
                     {viewTitle}
                   </Title>
-                  <Select
-                    value={selectedRole}
-                    onChange={handleRoleChange}
-                    style={{ width: 200 }}
-                  >
-                    <Option value={3}>Người Hiến Máu</Option>
-                    <Option value={2}>Nhân Viên</Option>
-                    <Option value={1}>Quản Trị Viên</Option>
-                  </Select>
                   
                   <div style={{ fontSize: '14px', color: '#666', marginLeft: 'auto' }}>
                     <Text strong>Tổng số người dùng:</Text> {users.length}

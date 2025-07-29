@@ -7,6 +7,7 @@ import {
   Typography,
   Button,
   message,
+  notification,
   Card,
   Divider,
   Statistic,
@@ -47,6 +48,7 @@ const HospitalRequestsPage = () => {
   const navigate = useNavigate();
   const { hospitalId } = useParams();
   const location = useLocation();
+  const [api, contextHolder] = notification.useNotification();
   
   // Data states
   const [hospital, setHospital] = useState(null);
@@ -60,6 +62,17 @@ const HospitalRequestsPage = () => {
   const [bloodComponents, setBloodComponents] = useState({});
   const [urgencies, setUrgencies] = useState({});
   const [bloodInventory, setBloodInventory] = useState({});
+  
+  // Initialize sentEmergencyCalls from sessionStorage
+  const [sentEmergencyCalls, setSentEmergencyCalls] = useState(() => {
+    const saved = sessionStorage.getItem(`emergencyCalls_${hospitalId}`);
+    try {
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch (error) {
+      console.error('Error loading emergency calls from sessionStorage:', error);
+      return new Set();
+    }
+  });
 
   useEffect(() => {
     // Get hospital data from location state or sessionStorage
@@ -82,6 +95,13 @@ const HospitalRequestsPage = () => {
     fetchAllData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hospitalId]);
+
+  // Save emergency calls to sessionStorage whenever it changes
+  useEffect(() => {
+    if (hospitalId) {
+      sessionStorage.setItem(`emergencyCalls_${hospitalId}`, JSON.stringify([...sentEmergencyCalls]));
+    }
+  }, [sentEmergencyCalls, hospitalId]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -242,12 +262,27 @@ const HospitalRequestsPage = () => {
       await HospitalAPI.sendEmergencyBloodEmail(request.requestId);
       
       message.destroy();
-      message.success('Đã gửi email kêu gọi hiến máu khẩn cấp đến các người hiến phù hợp!');
+      
+      // Add request to sent emergency calls set
+      setSentEmergencyCalls(prev => new Set([...prev, request.requestId]));
+      
+      // Show success notification in top-right corner using notification API
+      api.success({
+        message: 'Thành công!',
+        description: 'Đã gửi email kêu gọi hiến máu khẩn cấp đến các người hiến phù hợp!',
+        placement: 'topRight',
+        duration: 4,
+      });
       
     } catch (error) {
       console.error('Error sending emergency blood email:', error);
       message.destroy();
-      message.error('Lỗi khi gửi email kêu gọi hiến máu. Vui lòng thử lại.');
+      api.error({
+        message: 'Lỗi!',
+        description: 'Lỗi khi gửi email kêu gọi hiến máu. Vui lòng thử lại.',
+        placement: 'topRight',
+        duration: 4,
+      });
     } finally {
       setLoading(false);
     }
@@ -474,6 +509,26 @@ const HospitalRequestsPage = () => {
         key: 'emergency',
         align: 'center',
         render: (_, record) => {
+          const hasBeenSent = sentEmergencyCalls.has(record.requestId);
+          
+          if (hasBeenSent) {
+            return (
+              <Button
+                type="default"
+                disabled
+                size="small"
+                style={{
+                  backgroundColor: '#f6ffed',
+                  borderColor: '#b7eb8f',
+                  color: '#389e0d',
+                  cursor: 'not-allowed',
+                }}
+              >
+                Đã kêu gọi cho đơn này
+              </Button>
+            );
+          }
+          
           if (isEmergencyCallNeeded(record)) {
             return (
               <Button
@@ -488,6 +543,7 @@ const HospitalRequestsPage = () => {
               </Button>
             );
           }
+          
           return null;
         },
       });
@@ -652,16 +708,18 @@ const HospitalRequestsPage = () => {
   };
 
   return (
-    <Layout className="staff-layout">
-      <StaffSidebar
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      />
+    <>
+      {contextHolder}
+      <Layout className="staff-layout">
+        <StaffSidebar
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+        />
 
-      <Layout className="staff-main-layout">
-        <StaffHeader />
+        <Layout className="staff-main-layout">
+          <StaffHeader />
 
-        <Layout className="staff-content-layout">
+          <Layout className="staff-content-layout">
           <Content className="donation-records-content">
             <div className="donation-records-container">
               <div className="donation-records-header-section">
@@ -714,6 +772,7 @@ const HospitalRequestsPage = () => {
         </Layout>
       </Layout>
     </Layout>
+    </>
   );
 };
 
