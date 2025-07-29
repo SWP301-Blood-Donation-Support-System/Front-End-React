@@ -61,7 +61,7 @@ const SearchPage = () => {
       canGiveTo: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
       canReceiveFrom: ['O-'],
       percentage: '1%',
-      description: 'Nhóm máu O âm tính - Nhóm máu chuyên cho (Người cho phổ thông)'
+      description: 'Nhóm máu O âm tính - Nhóm máu chuyên cho'
     }
   };
 
@@ -72,7 +72,7 @@ const SearchPage = () => {
       bloodType: 'O-',
       canGiveTo: 'Tất cả nhóm máu',
       canReceiveFrom: 'Chỉ O-',
-      note: 'Nhóm máu chuyên cho (Người cho phổ thông)'
+      note: 'Nhóm máu chuyên cho '
     },
     {
       key: '2',
@@ -238,11 +238,6 @@ const SearchPage = () => {
                         {selectedBloodType}
                       </Tag>
                       <div>
-                        <Text strong className="percentage-text">
-                          Tỷ lệ: {bloodTypeInfo[selectedBloodType].percentage}
-                        </Text>
-                      </div>
-                      <div>
                         <Text className="description-text">
                           {bloodTypeInfo[selectedBloodType].description}
                         </Text>
@@ -282,72 +277,39 @@ const SearchPage = () => {
 
           {/* Blood Type Overview */}
           <Row gutter={[24, 24]} className="overview-cards">
-            <Col xs={24} lg={12}>
+            <Col xs={24}>
               <Card
                 title="Phân Loại Nhóm Máu"
                 className="overview-card"
               >
-                <Space direction="vertical" size="middle" className="overview-content">
-                  <div>
-                    <Title level={5}>Hệ ABO:</Title>
-                    <Paragraph>
-                      • <strong>Nhóm A:</strong> Có kháng nguyên A trên hồng cầu<br/>
-                      • <strong>Nhóm B:</strong> Có kháng nguyên B trên hồng cầu<br/>
-                      • <strong>Nhóm AB:</strong> Có cả kháng nguyên A và B<br/>
-                      • <strong>Nhóm O:</strong> Không có kháng nguyên A và B
-                    </Paragraph>
-                  </div>
-                  <Divider />
-                  <div>
-                    <Title level={5}>Hệ Rh:</Title>
-                    <Paragraph>
-                      • <strong>Rh dương (+):</strong> Có kháng nguyên Rh<br/>
-                      • <strong>Rh âm (-):</strong> Không có kháng nguyên Rh
-                    </Paragraph>
-                  </div>
-                </Space>
-              </Card>
-            </Col>
-            
-            <Col xs={24} lg={12}>
-              <Card
-                title="Thống Kê Nhóm Máu Tại Việt Nam"
-                className="overview-card"
-              >
-                <Row gutter={[16, 16]}>
-                  <Col span={12}>
-                    <div className="blood-stats-item">
-                      <Text strong className="percentage">30%</Text>
-                      <br/>
-                      <Text className="blood-type">O+</Text>
-                    </div>
+                <Row gutter={[24, 24]}>
+                  <Col xs={24} md={12}>
+                    <Space direction="vertical" size="middle" className="overview-content">
+                      <div>
+                        <Title level={5}>Hệ ABO:</Title>
+                        <Paragraph>
+                          • <strong>Nhóm A:</strong> Có kháng nguyên A trên hồng cầu<br/>
+                          • <strong>Nhóm B:</strong> Có kháng nguyên B trên hồng cầu<br/>
+                          • <strong>Nhóm AB:</strong> Có cả kháng nguyên A và B<br/>
+                          • <strong>Nhóm O:</strong> Không có kháng nguyên A và B
+                        </Paragraph>
+                      </div>
+                    </Space>
                   </Col>
-                  <Col span={12}>
-                    <div className="blood-stats-item">
-                      <Text strong className="percentage">34%</Text>
-                      <br/>
-                      <Text className="blood-type">A+</Text>
-                    </div>
-                  </Col>
-                  <Col span={12}>
-                    <div className="blood-stats-item">
-                      <Text strong className="percentage">21%</Text>
-                      <br/>
-                      <Text className="blood-type">B+</Text>
-                    </div>
-                  </Col>
-                  <Col span={12}>
-                    <div className="blood-stats-item">
-                      <Text strong className="percentage">5%</Text>
-                      <br/>
-                      <Text className="blood-type">AB+</Text>
-                    </div>
+                  <Col xs={24} md={12}>
+                    <Space direction="vertical" size="middle" className="overview-content">
+                      <div>
+                        <Title level={5}>Hệ Rh:</Title>
+                        <Paragraph>
+                          • <strong>Rh dương (+):</strong> Có kháng nguyên Rh<br/>
+                          • <strong>Rh âm (-):</strong> Không có kháng nguyên Rh<br/>
+                          • <strong>Lưu ý:</strong> Các nhóm máu âm tính (Rh-) khá hiếm gặp<br/>
+                          • <strong>Quan trọng:</strong> Cần kiểm tra kỹ trước khi truyền máu
+                        </Paragraph>
+                      </div>
+                    </Space>
                   </Col>
                 </Row>
-                <Divider />
-                <Paragraph className="blood-stats-note">
-                  Các nhóm máu âm tính (Rh-) chiếm khoảng 10% dân số
-                </Paragraph>
               </Card>
             </Col>
           </Row>
@@ -373,7 +335,7 @@ const SearchPage = () => {
                     ⚠️ Lưu ý quan trọng:
                   </Title>
                   <Paragraph className="warning-content">
-                    • Truyền sai nhóm máu có thể gây phản ứng nghiêm trọng<br/>
+                    • Truyền sai nhóm máu có thể gây ra các phản ứng nghiêm trọng, thậm chí nguy hiểm đến tính mạng<br/>
                     • Luôn kiểm tra kỹ nhóm máu trước khi truyền<br/>
                     • Người nhận Rh- không nên nhận máu Rh+
                   </Paragraph>
@@ -386,7 +348,7 @@ const SearchPage = () => {
                     ✅ Nhóm máu đặc biệt:
                   </Title>
                   <Paragraph className="info-content">
-                    • <strong>O-:</strong> Nhóm máu chuyên cho (Người cho phổ thông)<br/>
+                    • <strong>O-:</strong> Nhóm máu chuyên cho<br/>
                     • <strong>AB+:</strong> Người nhận máu toàn năng<br/>
                     • Nhóm máu âm tính rất quý hiếm
                   </Paragraph>
