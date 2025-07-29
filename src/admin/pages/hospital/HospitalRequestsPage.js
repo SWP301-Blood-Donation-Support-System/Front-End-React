@@ -25,6 +25,7 @@ import {
   SyncOutlined,
   CloseCircleOutlined,
   UnorderedListOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -33,6 +34,7 @@ import StaffSidebar from "../../components/StaffSidebar";
 import StaffHeader from "../../components/StaffHeader";
 import { AdminAPI } from "../../api/admin";
 import { HospitalAPI } from "../../api/hospital";
+import { DashboardAPI } from "../../api/dashboard";
 import "../../styles/donation-records.scss";
 
 const { Content } = Layout;
@@ -57,6 +59,7 @@ const HospitalRequestsPage = () => {
   const [bloodTypes, setBloodTypes] = useState({});
   const [bloodComponents, setBloodComponents] = useState({});
   const [urgencies, setUrgencies] = useState({});
+  const [bloodInventory, setBloodInventory] = useState({});
 
   useEffect(() => {
     // Get hospital data from location state or sessionStorage
@@ -90,6 +93,7 @@ const HospitalRequestsPage = () => {
         bloodTypesRes,
         bloodComponentsRes,
         urgenciesRes,
+        bloodInventoryRes,
       ] = await Promise.all([
         AdminAPI.getUsersByRole(4), // Hospital accounts
         HospitalAPI.getAllBloodRequests(),
@@ -97,6 +101,7 @@ const HospitalRequestsPage = () => {
         AdminAPI.getBloodTypesLookup(),
         AdminAPI.getBloodComponents(),
         HospitalAPI.getUrgencies(),
+        DashboardAPI.getBloodInventoryStatistics(),
       ]);
 
       // Process hospital accounts  
@@ -135,6 +140,10 @@ const HospitalRequestsPage = () => {
         urgenciesMap[urgency.id] = urgency;
       });
       setUrgencies(urgenciesMap);
+      
+      // Process blood inventory data
+      const inventoryData = Array.isArray(bloodInventoryRes) ? bloodInventoryRes : bloodInventoryRes.data || {};
+      setBloodInventory(inventoryData);
       
       // Filter requests for this hospital
       filterHospitalRequests(accountsData, requestsData, hospitalId);
@@ -224,6 +233,46 @@ const HospitalRequestsPage = () => {
     });
   };
 
+  // Function to handle emergency blood email call
+  const handleEmergencyBloodCall = async (request) => {
+    try {
+      setLoading(true);
+      message.loading('Đang gửi email kêu gọi hiến máu khẩn cấp...', 0);
+      
+      await HospitalAPI.sendEmergencyBloodEmail(request.requestId);
+      
+      message.destroy();
+      message.success('Đã gửi email kêu gọi hiến máu khẩn cấp đến các người hiến phù hợp!');
+      
+    } catch (error) {
+      console.error('Error sending emergency blood email:', error);
+      message.destroy();
+      message.error('Lỗi khi gửi email kêu gọi hiến máu. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to check if a blood request needs emergency call
+  const isEmergencyCallNeeded = (request) => {
+    if (!request) return false;
+    
+    const status = bloodRequestStatuses[request.requestStatusId];
+    
+    // Only show emergency call for approved requests
+    const isApproved = status && status.name === "Đã duyệt";
+    if (!isApproved) return false;
+    
+    // Check available blood count for the requested blood type
+    const bloodTypeId = request.bloodTypeId;
+    const availableCount = bloodInventory.unitsByBloodType && bloodInventory.unitsByBloodType[bloodTypeId] 
+      ? bloodInventory.unitsByBloodType[bloodTypeId] 
+      : 0;
+    
+    // Show emergency call if less than 5 blood bags available
+    return availableCount < 5;
+  };
+
   const getStatusTag = (statusId) => {
     const status = bloodRequestStatuses[statusId];
     if (!status) return <Tag>Không xác định</Tag>;
@@ -288,126 +337,164 @@ const HospitalRequestsPage = () => {
     return dayjs(dateTime).format('DD/MM/YYYY HH:mm');
   };
 
-  // Hospital requests table columns
-  const requestColumns = [
-    {
-      title: 'ID',
-      dataIndex: 'requestId',
-      key: 'requestId',
-      width: 80,
-    },
-    {
-      title: 'Nhóm máu',
-      dataIndex: 'bloodTypeId',
-      key: 'bloodTypeId',
-      render: (typeId) => {
-        const type = bloodTypes[typeId];
-        return type ? <Tag color="red">{type.name}</Tag> : 'N/A';
+  // Hospital requests table columns - function to get columns based on active tab
+  const getRequestColumns = () => {
+    const baseColumns = [
+      {
+        title: 'ID',
+        dataIndex: 'requestId',
+        key: 'requestId',
+        width: 80,
       },
-    },
-    {
-      title: 'Thành phần',
-      dataIndex: 'bloodComponentId',
-      key: 'bloodComponentId',
-      render: (componentId) => {
-        const component = bloodComponents[componentId];
-        return component ? <Tag color="blue">{component.name}</Tag> : 'N/A';
+      {
+        title: 'Nhóm máu',
+        dataIndex: 'bloodTypeId',
+        key: 'bloodTypeId',
+        render: (typeId) => {
+          const type = bloodTypes[typeId];
+          return type ? <Tag color="red">{type.name}</Tag> : 'N/A';
+        },
       },
-    },
-    {
-      title: 'Thể tích',
-      dataIndex: 'volume',
-      key: 'volume',
-      render: (volume) => `${volume} ml`,
-    },
-    {
-      title: 'Mức độ khẩn cấp',
-      dataIndex: 'urgencyId',
-      key: 'urgencyId',
-      render: (urgencyId) => getUrgencyTag(urgencyId),
-      filters: Object.keys(urgencies).map(id => {
-        const urgency = urgencies[id];
-        let vietnameseName = urgency.name;
-        
-        switch (urgency.name.toLowerCase()) {
-          case 'low':
-            vietnameseName = 'Thấp';
-            break;
-          case 'medium':
-            vietnameseName = 'Trung bình';
-            break;
-          case 'high':
-            vietnameseName = 'Cao';
-            break;
-          case 'critical':
-            vietnameseName = 'Khẩn cấp';
-            break;
-          default:
-            vietnameseName = urgency.name;
-            break;
-        }
-        
-        return {
-          text: vietnameseName,
-          value: id,
-        };
-      }),
-      onFilter: (value, record) => record.urgencyId === parseInt(value, 10),
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'requestStatusId',
-      key: 'requestStatusId',
-      render: (statusId) => getStatusTag(statusId),
-    },
-    {
-      title: 'Thời gian yêu cầu',
-      dataIndex: 'requiredDateTime',
-      key: 'requiredDateTime',
-      render: (dateTime) => formatDateTime(dateTime),
-    },
-    {
-      title: 'Thao tác',
-      key: 'actions',
-      render: (_, record) => {
-        const status = bloodRequestStatuses[record.requestStatusId];
-        const isApproved = status && status.name === "Đã duyệt";
-        const isCompleted = status && status.name === "Đã hoàn thành";
-        
-        return (
-          <Space>
-            <Button
-              type="link"
-              icon={<EyeOutlined />}
-              onClick={() => handleViewRequestDetail(record)}
-            >
-              Chi tiết
-            </Button>
-            {isApproved && (
+      {
+        title: 'Thành phần',
+        dataIndex: 'bloodComponentId',
+        key: 'bloodComponentId',
+        render: (componentId) => {
+          const component = bloodComponents[componentId];
+          return component ? <Tag color="blue">{component.name}</Tag> : 'N/A';
+        },
+      },
+      {
+        title: 'Thể tích',
+        dataIndex: 'volume',
+        key: 'volume',
+        render: (volume) => `${volume} ml`,
+      },
+      {
+        title: 'Mức độ khẩn cấp',
+        dataIndex: 'urgencyId',
+        key: 'urgencyId',
+        render: (urgencyId) => getUrgencyTag(urgencyId),
+        filters: Object.keys(urgencies).map(id => {
+          const urgency = urgencies[id];
+          let vietnameseName = urgency.name;
+          
+          switch (urgency.name.toLowerCase()) {
+            case 'low':
+              vietnameseName = 'Thấp';
+              break;
+            case 'medium':
+              vietnameseName = 'Trung bình';
+              break;
+            case 'high':
+              vietnameseName = 'Cao';
+              break;
+            case 'critical':
+              vietnameseName = 'Khẩn cấp';
+              break;
+            default:
+              vietnameseName = urgency.name;
+              break;
+          }
+          
+          return {
+            text: vietnameseName,
+            value: id,
+          };
+        }),
+        onFilter: (value, record) => record.urgencyId === parseInt(value, 10),
+      },
+      {
+        title: 'Trạng thái',
+        dataIndex: 'requestStatusId',
+        key: 'requestStatusId',
+        render: (statusId) => getStatusTag(statusId),
+      },
+      {
+        title: 'Thời gian yêu cầu',
+        dataIndex: 'requiredDateTime',
+        key: 'requiredDateTime',
+        render: (dateTime) => formatDateTime(dateTime),
+      },
+      {
+        title: 'Chi tiết',
+        key: 'details',
+        align: 'center',
+        render: (_, record) => (
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            onClick={() => handleViewRequestDetail(record)}
+          >
+            Chi tiết
+          </Button>
+        ),
+      },
+      {
+        title: 'Thao tác',
+        key: 'actions',
+        align: 'center',
+        render: (_, record) => {
+          const status = bloodRequestStatuses[record.requestStatusId];
+          const isApproved = status && status.name === "Đã duyệt";
+          const isCompleted = status && status.name === "Đã hoàn thành";
+          
+          return (
+            <Space>
+              {isApproved && (
+                <Button
+                  type="primary"
+                  icon={<SelectOutlined />}
+                  onClick={() => handleSelectBloodUnits(record)}
+                  size="small"
+                >
+                  Chọn túi máu
+                </Button>
+              )}
+              {isCompleted && (
+                <Button
+                  type="default"
+                  icon={<UnorderedListOutlined />}
+                  onClick={() => handleViewSentBloodUnits(record)}
+                  size="small"
+                >
+                  Xem túi máu đã gửi
+                </Button>
+              )}
+            </Space>
+          );
+        },
+      },
+    ];
+
+    // Only add the "Kêu gọi" column for the "approved" tab
+    if (activeTab === 'approved') {
+      baseColumns.push({
+        title: 'Kêu gọi',
+        key: 'emergency',
+        align: 'center',
+        render: (_, record) => {
+          if (isEmergencyCallNeeded(record)) {
+            return (
               <Button
                 type="primary"
-                icon={<SelectOutlined />}
-                onClick={() => handleSelectBloodUnits(record)}
+                danger
+                icon={<ExclamationCircleOutlined />}
+                onClick={() => handleEmergencyBloodCall(record)}
                 size="small"
+                loading={loading}
               >
-                Chọn túi máu
+                Kêu gọi hiến máu
               </Button>
-            )}
-            {isCompleted && (
-              <Button
-                type="default"
-                icon={<UnorderedListOutlined />}
-                onClick={() => handleViewSentBloodUnits(record)}
-                size="small"
-              >
-                Xem túi máu đã gửi
-              </Button>
-            )}
-          </Space>
-        );
-      },
-    },
-  ];
+            );
+          }
+          return null;
+        },
+      });
+    }
+
+    return baseColumns;
+  };
 
   const getPendingRequestsCount = () => {
     const pendingStatusId = Object.keys(bloodRequestStatuses).find(
@@ -612,7 +699,7 @@ const HospitalRequestsPage = () => {
                   </div>
                 ) : (
                   <Table
-                    columns={requestColumns}
+                    columns={getRequestColumns()}
                     dataSource={getFilteredRequests()}
                     rowKey={(record) => `hospital-${hospitalId}-request-${record.requestId}`}
                     locale={{

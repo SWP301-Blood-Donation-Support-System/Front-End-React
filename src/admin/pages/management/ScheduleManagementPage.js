@@ -671,20 +671,6 @@ const ScheduleManagementPage = () => {
       },
     },
     {
-      title: 'Mã Lịch (Schedule ID)',
-      dataIndex: 'scheduleId',
-      key: 'scheduleId',
-      width: '12%',
-      render: (_, record) => {
-        const scheduleId = record.scheduleId || record.ScheduleId || record.ScheduleID || 'N/A';
-        return (
-          <span style={{ fontWeight: 'bold', color: '#cf1322' }}>
-            {scheduleId}
-          </span>
-        );
-      },
-    },
-    {
       title: 'Mã Người Hiến (Donor ID)',
       dataIndex: 'donorId',
       key: 'donorId',
