@@ -111,7 +111,7 @@ const DashboardPage = () => {
       6: "AB-",
       7: "O+",
       8: "O-",
-      1001: "Unknown",
+      1001: "Chưa biết",
     };
     return bloodTypeMap[bloodTypeId] || "Unknown";
   };
