@@ -38,6 +38,9 @@ import RequestDetailPage from './admin/pages/management/RequestDetailPage';
 import RequestHistoryPage from './admin/pages/management/RequestHistoryPage';
 import RequestHistoryDetailPage from './admin/pages/management/RequestHistoryDetailPage';
 import BloodUnitSelectionPage from './admin/pages/management/BloodUnitSelectionPage';
+import ArticleManagementPage from './admin/pages/management/ArticleManagementPage';
+import CreateArticlePage from './admin/pages/management/CreateArticlePage';
+import EditArticlePage from './admin/pages/management/EditArticlePage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
@@ -137,6 +140,22 @@ function App() {
               <CreateDonationRecordPage />
             </AdminProtectedRoute>
           } />
+          <Route path="/staff/article-management" element={
+            <AdminProtectedRoute>
+              <ArticleManagementPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/create-article" element={
+            <AdminProtectedRoute>
+              <CreateArticlePage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/edit-article/:articleId" element={
+            <AdminProtectedRoute>
+              <EditArticlePage />
+            </AdminProtectedRoute>
+          } />
+          
           <Route path="/staff/profile" element={
             <AdminProtectedRoute>
               <StaffProfilePage />
