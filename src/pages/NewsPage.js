@@ -1,80 +1,138 @@
-import React from "react";
-import { Layout, Typography, Card, Row, Col, Button, Tag, Space } from "antd";
+import React, { useState, useEffect } from "react";
+import { Layout, Typography, Card, Row, Col, Button, Tag, Space, Spin, message } from "antd";
 import {
   CalendarOutlined,
   ArrowRightOutlined,
-  FileTextOutlined,
-  HeartOutlined,
   ReadOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Navbar from "../components/Navbar";
 import ProfileWarning from "../components/ProfileWarning";
 import Footer from "../components/Footer";
+import { UserAPI } from "../api/User";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
-const { Meta } = Card;
 
 const NewsPage = () => {
-  const newsData = [
-    {
-      id: 1,
-      title:
-        'KHỞI ĐỘNG THÁNG NHÂN ĐẠO NĂM 2025: HÀNH TRÌNH "TRAO GIỌT HỒNG - LƯU GIỮ YÊU THƯƠNG"',
-      excerpt:
-        "Ngày 8-5, tại TP.HCM, Trung ương Hội Chữ thập đỏ Việt Nam và UBND TP.HCM phối hợp tổ chức lễ phát động Tháng Nhân đạo các cấp gia năm 2025...",
-      date: "8 tháng 1, 2025",
-      image: "/images/vn_blog_1.png",
-      featured: true,
-      category: "Sự kiện",
-    },
-    {
-      id: 2,
-      title: "NGÀY TOÀN DÂN HIẾN MÁU TÌNH NGUYỆN 7/4",
-      excerpt:
-        "Ngày 7/4, chúng ta cùng nhau hướng về một ngày ý nghĩa - Ngày hiến máu tình nguyện Việt Nam. Đây là dịp để mỗi người - Mỗi nghĩa cử cao đẹp...",
-      date: "7 tháng 4, 2025",
-      image: "/images/vn_blog_2.png",
-      category: "Hoạt động",
-    },
-    {
-      id: 3,
-      title: "ÁP DỤNG CÔNG NGHỆ SỐ TRONG HOẠT ĐỘNG HIẾN MÁU",
-      excerpt:
-        'Ngày 04/3, tại Trung tâm triển màn hiến đạo, Hội Chữ thập đỏ Thành phố Hồ Chí Minh đã tổ chức Hội thảo "Ứng dụng công nghệ số trong hoạt động hiến máu...',
-      date: "4 tháng 3, 2025",
-      image: "/images/vn_blog_3.jpg",
-      category: "Công nghệ",
-    },
-    {
-      id: 4,
-      title: "HƠN 1.000 ĐƠN VỊ MÁU ĐƯỢC TIẾP NHẬN TẠI LỄ HỘI XUÂN TÌNH NGUYỆN",
-      excerpt:
-        'Chương trình "Lễ hội Xuân tình nguyện" đã thu hút sự tham gia của hàng nghìn người dân và tình nguyện viên...',
-      date: "15 tháng 2, 2025",
-      image: "/images/vn_blog_4.jpg",
-      category: "Thành tựu",
-    },
-    {
-      id: 5,
-      title: "HỘI NGHỊ TỔNG KẾT CÔNG TÁC VẬN ĐỘNG HIẾN MÁU NĂM 2024",
-      excerpt:
-        "Nhìn lại một năm hoạt động, ngành y tế đã đạt được nhiều kết quả tích cực trong công tác vận động hiến máu tình nguyện...",
-      date: "10 tháng 1, 2025",
-      image: "/images/vn_blog_5.png",
-      category: "Báo cáo",
-    },
-    {
-      id: 6,
-      title: "KỶ NIỆM 25 NĂM THÀNH LẬP VÀ PHÁT TRIỂN TRUNG TÂM HIẾN MÁU",
-      excerpt:
-        "Trung tâm Hiến máu Nhân đạo kỷ niệm 25 năm thành lập và phát triển (1999 - 2024) với nhiều hoạt động ý nghĩa...",
-      date: "25 tháng 12, 2024",
-      image: "/images/vn_blog_6.jpg",
-      category: "Kỷ niệm",
-    },
-  ];
+  const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // First, get article statuses to find Published status ID
+        const statusesResponse = await UserAPI.getArticleStatuses();
+        let publishedId = null;
+        
+        if (statusesResponse.status === 200) {
+          const statusesData = statusesResponse.data?.data || statusesResponse.data || [];
+          setStatuses(statusesData);
+          
+          // Find the Published status ID
+          const publishedStatus = statusesData.find(status => 
+            status.name === 'Published' || 
+            status.name === 'Đã đăng' ||
+            status.name.toLowerCase().includes('Đã đăng')
+          );
+          
+          if (publishedStatus) {
+            publishedId = publishedStatus.id;
+          }
+        }
+        
+        // Fetch articles and categories
+        const [articlesResponse, categoriesResponse] = await Promise.all([
+          UserAPI.getArticles(currentPage, 6, null, publishedId), // Only get Published articles
+          UserAPI.getArticleCategories()
+        ]);
+        
+        // Handle categories
+        if (categoriesResponse.status === 200) {
+          setCategories(categoriesResponse.data || []);
+        }
+        
+        // Handle articles
+        if (articlesResponse.status === 200) {
+          const data = articlesResponse.data;
+          console.log("API Response:", data); // Debug log
+          
+          // Handle different possible response structures
+          let articlesArray = [];
+          if (Array.isArray(data)) {
+            articlesArray = data;
+          } else if (data.result && Array.isArray(data.result)) {
+            articlesArray = data.result;
+          } else if (data.articles && Array.isArray(data.articles)) {
+            articlesArray = data.articles;
+          } else if (data.data && Array.isArray(data.data)) {
+            articlesArray = data.data;
+          } else {
+            console.warn("Unexpected API response structure:", data);
+            articlesArray = [];
+          }
+          
+          setArticles(articlesArray);
+          setTotalPages(data.totalPages || Math.ceil(articlesArray.length / 6) || 1);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("Không thể tải tin tức. Vui lòng thử lại sau.");
+        // Set empty array on error to prevent map error
+        setArticles([]);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currentPage]);
+
+  const handleArticleClick = (articleId) => {
+    navigate(`/article/${articleId}`);
+  };
+
+  const getCategoryName = (categoryId) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : `Danh mục ${categoryId}`;
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit", 
+        year: "numeric"
+      });
+    } catch (error) {
+      return "N/A";
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout className="news-page">
+        <Header />
+        <Navbar />
+        <ProfileWarning />
+        <Content style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
+          <Spin size="large" />
+        </Content>
+        <Footer />
+      </Layout>
+    );
+  }
 
   return (
     <Layout className="news-page">
@@ -93,100 +151,108 @@ const NewsPage = () => {
               Tin Tức & Hoạt Động
             </Title>
             <Paragraph className="page-title-description">
-              Cập nhật những tin tức mới nhất về hoạt động hiến máu, các chương
-              trình tình nguyện và những câu chuyện cảm động từ cộng đồng hiến
-              máu.
+              Cập nhật những tin tức mới nhất về hoạt động hiến máu và các chương trình tình nguyện.
             </Paragraph>
           </div>
 
-          {/* Featured Article */}
-          <Card className="featured-article">
-            <Row gutter={0}>
-              <Col xs={24} lg={12}>
-                <div
-                  className="featured-article-image"
-                  style={{ backgroundImage: `url(${newsData[0].image})` }}
-                >
-                  <div className="featured-article-badge">🌟 TIN NỔI BẬT</div>
-                </div>
-              </Col>
-              <Col xs={24} lg={12}>
-                <div className="featured-article-content">
-                  <div className="featured-article-date">
-                    <Tag icon={<CalendarOutlined />}>{newsData[0].date}</Tag>
-                  </div>
-                  <Title level={2} className="featured-article-title">
-                    {newsData[0].title}
-                  </Title>
-                  <Paragraph className="featured-article-excerpt">
-                    {newsData[0].excerpt}
-                  </Paragraph>
-                  <Button
-                    size="large"
-                    icon={<ArrowRightOutlined />}
-                    className="featured-article-button"
+          {/* Articles Grid */}
+          <Row gutter={[24, 24]} className="news-grid">
+            {Array.isArray(articles) && articles.length > 0 ? (
+              articles.map((article) => (
+                <Col xs={24} sm={12} lg={8} key={article.id || article.articleId}>
+                  <Card
+                    hoverable
+                    className="news-card"
+                    cover={
+                      <div
+                        className="news-card-cover"
+                        style={{ 
+                          backgroundImage: article.picture ? `url(${article.picture})` : `url(/images/vn_blog_1.png)`,
+                          height: "200px",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center"
+                        }}
+                      >
+                        <div className="news-card-gradient" />
+                      </div>
+                    }
+                    onClick={() => handleArticleClick(article.id || article.articleId)}
                   >
-                    Đọc Thêm
-                  </Button>
-                </div>
-              </Col>
-            </Row>
-          </Card>
+                    <div className="news-card-content">
+                      <div className="news-card-meta">
+                        <Tag icon={<CalendarOutlined />} color="blue">
+                          {formatDate(article.createdAt || article.publishedDate || article.date)}
+                        </Tag>
+                        {article.articleCategoryId && (
+                          <Tag color="red">{getCategoryName(article.articleCategoryId)}</Tag>
+                        )}
+                      </div>
 
-          {/* News Grid */}
-          <Row gutter={[32, 32]} className="news-grid">
-            {newsData.slice(1).map((article, index) => (
-              <Col xs={24} sm={12} lg={8} key={article.id}>
-                <Card
-                  hoverable
-                  className="news-card"
-                  cover={
-                    <div
-                      className="news-card-cover"
-                      style={{ backgroundImage: `url(${article.image})` }}
-                    >
-                      <div className="news-card-gradient" />
+                      <Title level={4} className="news-card-title" style={{ 
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        minHeight: "50px"
+                      }}>
+                        {article.title}
+                      </Title>
+
+                      <Paragraph className="news-card-excerpt" style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical", 
+                        overflow: "hidden",
+                        minHeight: "60px",
+                        whiteSpace: "pre-wrap"
+                      }}>
+                        {article.summary || article.excerpt || article.content?.substring(0, 150) + "..."}
+                      </Paragraph>
+
+                      <div className="news-card-actions">
+                        <Button
+                          type="link"
+                          icon={<EyeOutlined />}
+                          className="news-card-action"
+                          style={{ padding: 0 }}
+                        >
+                          Đọc thêm
+                        </Button>
+                      </div>
                     </div>
-                  }
-                >
-                  <div className="news-card-date">
-                    <Tag icon={<CalendarOutlined />}>{article.date}</Tag>
-                  </div>
-
-                  <Title level={4} className="news-card-title">
-                    {article.title}
-                  </Title>
-
-                  <Paragraph className="news-card-excerpt">
-                    {article.excerpt}
-                  </Paragraph>
-
-                  <Button
-                    type="link"
-                    icon={<ArrowRightOutlined />}
-                    className="news-card-action"
-                  >
-                    Đọc thêm
-                  </Button>
-                </Card>
+                  </Card>
+                </Col>
+              ))
+            ) : (
+              <Col span={24}>
+                <div style={{ textAlign: "center", padding: "50px" }}>
+                  <Title level={4}>Không có tin tức nào</Title>
+                  <Paragraph>Hiện tại chưa có bài viết nào được đăng tải.</Paragraph>
+                </div>
               </Col>
-            ))}
+            )}
           </Row>
 
-          {/* Load More Section */}
-          <div className="load-more-section">
-            <HeartOutlined className="load-more-section-icon" />
-            <Title level={3} className="load-more-section-title">
-              Khám phá thêm nhiều câu chuyện cảm động
-            </Title>
-            <Paragraph className="load-more-section-description">
-              Hàng trăm câu chuyện về tình người, những hành động cao đẹp và
-              tinh thần tình nguyện đang chờ bạn khám phá.
-            </Paragraph>
-            <Button size="large" className="load-more-section-button">
-              Xem Thêm Tin Tức
-            </Button>
-          </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination-section" style={{ textAlign: "center", marginTop: "40px" }}>
+              <Space>
+                <Button 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  Trang trước
+                </Button>
+                <span>Trang {currentPage} / {totalPages}</span>
+                <Button 
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  Trang sau
+                </Button>
+              </Space>
+            </div>
+          )}
         </div>
       </Content>
 

@@ -813,6 +813,24 @@ export const AdminAPI = {
     }
   },
 
+  // Publish article (set status to published)
+  publishArticle: async (articleId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${BASE_URL}/api/Articles/${articleId}/publish`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error publishing article:", error);
+      throw error;
+    }
+  },
+
   // Get article by ID
   getArticleById: async (articleId) => {
     try {
@@ -891,6 +909,116 @@ export const AdminAPI = {
       return response;
     } catch (error) {
       console.error("Error fetching article statuses:", error);
+      throw error;
+    }
+  },
+
+  // Archive article (soft delete)
+  deleteArticle: async (articleId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${BASE_URL}/api/Articles/${articleId}/archive`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error archiving article:", error);
+      throw error;
+    }
+  },
+
+  // ==== NOTIFICATION MANAGEMENT APIs ====
+  
+  // Create new notification
+  createNotification: async (notificationData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${BASE_URL}/api/Notification`, notificationData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      throw error;
+    }
+  },
+
+  // Update existing notification
+  updateNotification: async (notificationId, notificationData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(`${BASE_URL}/api/Notification/${notificationId}`, notificationData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error updating notification:", error);
+      throw error;
+    }
+  },
+
+  // Soft delete notification
+  deleteNotification: async (notificationId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${BASE_URL}/api/Notification/${notificationId}/soft-delete`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      throw error;
+    }
+  },
+
+  // Get all notifications
+  getNotifications: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Notification`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      throw error;
+    }
+  },
+
+  // Get notification types
+  getNotificationTypes: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/notification-types`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching notification types:", error);
       throw error;
     }
   },

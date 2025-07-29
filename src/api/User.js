@@ -475,4 +475,86 @@ export const UserAPI = {
       throw error;
     }
   },
+
+  // Get all articles with pagination
+  getArticles: async (page = 1, pageSize = 10, categoryId = null, statusId = null) => {
+    try {
+      let url = `${BASE_URL}/api/Articles?page=${page}&pageSize=${pageSize}`;
+      
+      if (categoryId) {
+        url += `&categoryId=${categoryId}`;
+      }
+      
+      if (statusId) {
+        url += `&statusId=${statusId}`;
+      }
+
+      const response = await axios.get(url);
+      return response;
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+      throw error;
+    }
+  },
+
+  // Get single article by ID
+  getArticleById: async (articleId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/Articles/${articleId}`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching article by ID:", error);
+      throw error;
+    }
+  },
+
+  // Get article categories
+  getArticleCategories: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/Lookup/article-categories`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching article categories:", error);
+      throw error;
+    }
+  },
+
+  // Get article statuses (for filtering Published articles)
+  getArticleStatuses: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/Lookup/article-statuses`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching article statuses:", error);
+      throw error;
+    }
+  },
+
+  // Get notifications for user
+  getUserNotifications: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Notification`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      return response;
+    } catch (error) {
+      console.error("Error fetching user notifications:", error);
+      throw error;
+    }
+  },
+
+  // Get notification types
+  getNotificationTypes: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/Lookup/notification-types`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching notification types:", error);
+      throw error;
+    }
+  },
 };

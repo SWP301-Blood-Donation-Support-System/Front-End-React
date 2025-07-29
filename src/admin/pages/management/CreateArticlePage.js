@@ -11,7 +11,9 @@ import {
   Select,
   Row,
   Col,
-  Divider
+  Divider,
+  Modal,
+  Tag
 } from 'antd';
 import { 
   FileTextOutlined, 
@@ -40,6 +42,10 @@ const CreateArticlePage = () => {
   const [uploadedImageUrl, setUploadedImageUrl] = useState('');
   const [api, contextHolder] = notification.useNotification();
   
+  // Preview modal state
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,7 +65,20 @@ const CreateArticlePage = () => {
   const fetchStatuses = async () => {
     try {
       const response = await AdminAPI.getArticleStatuses();
-      setStatuses(response.data || []);
+      const statusesData = response.data || [];
+      setStatuses(statusesData);
+      
+      // Set default status to "Bản nháp" (Draft)
+      const draftStatus = statusesData.find(status => 
+        status.name.toLowerCase().includes('nháp') || 
+        status.name.toLowerCase().includes('draft')
+      );
+      
+      if (draftStatus) {
+        form.setFieldsValue({
+          articleStatusId: draftStatus.id
+        });
+      }
     } catch (error) {
       console.error("Error fetching statuses:", error);
     }
@@ -159,13 +178,33 @@ const CreateArticlePage = () => {
       });
       return;
     }
+
+    // Get category name
+    const selectedCategory = categories.find(cat => cat.id === values.articleCategoryId);
     
-    // TODO: Implement preview modal
-    api.info({
-      message: 'Tính năng xem trước',
-      description: 'Tính năng xem trước đang được phát triển.',
-      placement: 'topRight',
-      duration: 3,
+    // Prepare preview data
+    const previewArticle = {
+      title: values.title,
+      content: values.content,
+      picture: uploadedImageUrl,
+      articleCategoryId: values.articleCategoryId,
+      categoryName: selectedCategory?.name || 'Chưa chọn danh mục',
+      createdAt: new Date().toISOString(), // Current time for preview
+    };
+
+    setPreviewData(previewArticle);
+    setPreviewVisible(true);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('vi-VN', {
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -260,7 +299,6 @@ const CreateArticlePage = () => {
                             placeholder="Nhập nội dung tin tức..."
                             rows={12}
                             showCount
-                            maxLength={5000}
                           />
                         </Form.Item>
                       </Col>
@@ -293,30 +331,12 @@ const CreateArticlePage = () => {
                           </Select>
                         </Form.Item>
 
+                        {/* Hidden field for status - automatically set to draft */}
                         <Form.Item
-                          label={
-                            <span style={{ fontWeight: 600, fontSize: '14px' }}>
-                              Trạng thái
-                            </span>
-                          }
                           name="articleStatusId"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Vui lòng chọn trạng thái!",
-                            },
-                          ]}
+                          style={{ display: 'none' }}
                         >
-                          <Select
-                            placeholder="Chọn trạng thái"
-                            size="large"
-                          >
-                            {statuses.map(status => (
-                              <Option key={status.id} value={status.id}>
-                                {status.name}
-                              </Option>
-                            ))}
-                          </Select>
+                          <Select />
                         </Form.Item>
 
                         <Divider />
@@ -370,6 +390,71 @@ const CreateArticlePage = () => {
           </Content>
         </Layout>
       </Layout>
+
+      {/* Preview Modal */}
+      <Modal
+        title={
+          <Space>
+            <EyeOutlined style={{ color: '#1890ff' }} />
+            <span>Xem trước bài viết</span>
+          </Space>
+        }
+        open={previewVisible}
+        onCancel={() => setPreviewVisible(false)}
+        width={800}
+        footer={[
+          <Button key="close" onClick={() => setPreviewVisible(false)}>
+            Đóng
+          </Button>
+        ]}
+        style={{ top: 20 }}
+      >
+        {previewData && (
+          <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+            {/* Article Header */}
+            <div style={{ marginBottom: '20px' }}>
+              <Space wrap style={{ marginBottom: '12px' }}>
+                <Tag color="blue">
+                  {formatDate(previewData.createdAt)}
+                </Tag>
+                <Tag color="red">{previewData.categoryName}</Tag>
+              </Space>
+              
+              <Typography.Title level={2} style={{ margin: 0, fontSize: '24px', lineHeight: '1.3' }}>
+                {previewData.title}
+              </Typography.Title>
+            </div>
+
+            {/* Article Image */}
+            {previewData.picture && (
+              <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                <img 
+                  src={previewData.picture}
+                  alt={previewData.title}
+                  style={{ 
+                    width: '100%', 
+                    maxHeight: '300px', 
+                    objectFit: 'cover',
+                    borderRadius: '8px'
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Article Content */}
+            <div 
+              style={{ 
+                fontSize: '16px', 
+                lineHeight: '1.8',
+                color: '#333',
+                whiteSpace: 'pre-wrap'
+              }}
+            >
+              {previewData.content || "Nội dung bài viết không có sẵn."}
+            </div>
+          </div>
+        )}
+      </Modal>
     </Layout>
   );
 };

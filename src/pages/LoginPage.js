@@ -133,9 +133,15 @@ const LoginPage = () => {
       const roleId = parseInt(userRoleId);
       console.log("🔵 Parsed Role ID:", roleId);
 
-      if (roleId === 1 || roleId === 2) {
-        // For admin and staff users, redirect to schedule management
-        console.log("🔵 Redirecting admin/staff user to schedule management");
+      if (roleId === 1) {
+        // For admin and staff users, redirect to dashboard
+        console.log("🔵 Redirecting admin/staff user to dashboard");
+        navigate("/staff/dashboard", {
+          state: { loginNotification },
+        });
+      } else if (roleId === 2) {
+        // For admin users, redirect to schedule management
+        console.log("🔵 Redirecting admin user to schedule management");
         navigate("/staff/schedule-management", {
           state: { loginNotification },
         });

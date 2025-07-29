@@ -25,6 +25,7 @@ import {
   HistoryOutlined,
   LockOutlined,
   FileTextOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button, notification } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -126,7 +127,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return ["18"];
     } else if (pathname.includes("/staff/create-article")) {
       return ["19"];
-    } else if (pathname.includes("/staff/reports")) {
+    } else if (pathname.includes("/staff/reports") || pathname.includes("/staff/dashboard")) {
       // Only return key if user is admin, otherwise return default
       return isAdminUser() ? ["5"] : ["1"];
     } else if (pathname.includes("/staff/hospital-list")) {
@@ -228,13 +229,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         break;
       case "5": // Báo cáo thống kê (admin only)
         if (isAdminUser()) {
-          // TODO: Navigate to reports when implemented
-          api.info({
-            message: "Chức năng đang phát triển",
-            description: "Tính năng báo cáo thống kê đang được phát triển.",
-            placement: "topRight",
-            duration: 3,
-          });
+          navigate("/staff/dashboard");
         } else {
           api.warning({
             message: "Không có quyền truy cập",
@@ -359,6 +354,18 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
+      case "20": // Quản lý thông báo (admin and staff)
+        if (isAdminUser() || !isHospitalUser()) {
+          navigate("/staff/notification-management");
+        } else {
+          api.warning({
+            message: "Không có quyền truy cập",
+            description: "Bạn không có quyền truy cập chức năng này.",
+            placement: "topRight",
+            duration: 3,
+          });
+        }
+        break;
       case "19": // Tạo bài viết (admin and staff)
         if (isAdminUser() || !isHospitalUser()) {
           navigate("/staff/create-article");
@@ -426,6 +433,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           getItem("Quản lý túi máu", "3", <DesktopOutlined />),
           getItem("Hồ sơ người hiến", "4", <FileOutlined />),
           getItem("Quản lý tin tức", "18", <FileTextOutlined />),
+          getItem("Thông báo", "20", <BellOutlined />),
           // Only show reports for admin users
           ...(isAdminUser()
             ? [getItem("Báo cáo thống kê", "5", <TeamOutlined />)]
@@ -452,7 +460,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         type: "group",
         label: "CÀI ĐẶT",
         children: [
-          getItem("Hồ sơ cá nhân", "6", <UserOutlined />),
+          // getItem("Hồ sơ cá nhân", "6", <UserOutlined />),
           getItem("Đổi mật khẩu", "7", <LockOutlined />),
           // getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
         ],
@@ -475,7 +483,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         {!collapsed && (
           <div className="staff-logo">
             <img
-              src="/images/new-logo.png"
+              src="/images/BloodLogo.png"
               alt="Healthcare Logo"
               className="healthcare-logo"
             />

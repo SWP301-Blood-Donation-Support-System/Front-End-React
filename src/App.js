@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, message } from 'antd';
 import Homepage from './pages/Homepage';
 import LoginPage from './pages/LoginPage';
@@ -10,6 +10,7 @@ import ErrorResetPasswordPage from './pages/ErrorResetPasswordPage';
 import FAQPage from './pages/FAQPage';
 import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
+import ArticleDetailPage from './pages/ArticleDetailPage';
 import BookingPage from './pages/BookingPage';
 import EligibilityFormPage from './pages/EligibilityFormPage';
 import ConfirmationPage from './pages/ConfirmationPage';
@@ -24,6 +25,7 @@ import StaffManagementPage from './admin/pages/management/StaffManagementPage';
 import BloodBagManagementPage from './admin/pages/management/BloodBagManagementPage';
 import DonationRecordsPage from './admin/pages/management/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/management/CreateDonationRecordPage';
+import DashboardPage from './admin/pages/management/DashboardPage';
 import StaffProfilePage from './admin/pages/setting/StaffProfilePage';
 import CreateStaffAccountPage from './admin/pages/management/CreateStaffAccountPage';
 import StaffSettingsPage from './admin/pages/setting/StaffSettingsPage';
@@ -41,6 +43,7 @@ import BloodUnitSelectionPage from './admin/pages/management/BloodUnitSelectionP
 import ArticleManagementPage from './admin/pages/management/ArticleManagementPage';
 import CreateArticlePage from './admin/pages/management/CreateArticlePage';
 import EditArticlePage from './admin/pages/management/EditArticlePage';
+import NotificationManagementPage from './admin/pages/management/NotificationManagementPage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
@@ -73,6 +76,7 @@ function App() {
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/news" element={<NewsPage />} />
+          <Route path="/article/:articleId" element={<ArticleDetailPage />} />
           <Route path="/booking" element={
             <UserProtectedRoute>
               <BookingPage />
@@ -105,9 +109,17 @@ function App() {
           } />
           <Route path="/checkin" element={<CheckinPage />} />
 
+          {/* Admin routes - Default redirect to dashboard */}
+          <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
+          
           <Route path="/staff/schedule-management" element={
             <AdminProtectedRoute>
               <ScheduleManagementPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/dashboard" element={
+            <AdminProtectedRoute>
+              <DashboardPage />
             </AdminProtectedRoute>
           } />
           <Route path="/staff/user-management" element={
@@ -153,6 +165,11 @@ function App() {
           <Route path="/staff/edit-article/:articleId" element={
             <AdminProtectedRoute>
               <EditArticlePage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/notification-management" element={
+            <AdminProtectedRoute>
+              <NotificationManagementPage />
             </AdminProtectedRoute>
           } />
           

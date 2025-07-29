@@ -68,6 +68,9 @@
     right: 1%;
     top: 50%;
     transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
   &-user-profile {
@@ -102,5 +105,43 @@
     font-size: 10px;
     color: $background-white;
     margin-left: $spacing-xs;
+  }
+} 
+
+// Notification Dropdown Styles
+.notification-dropdown {
+  .ant-dropdown-menu {
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #d9d9d9;
+    background: #ffffff;
+  }
+
+  .ant-dropdown-menu-item {
+    padding: 0;
+    
+    &:hover {
+      background: transparent;
+    }
+  }
+}
+
+// Global notification dropdown override
+.ant-dropdown {
+  &.notification-dropdown {
+    .ant-dropdown-menu {
+      padding: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      border: none !important;
+    }
+  }
+}
+
+// Notification item hover effect
+.notification-item {
+  &:hover {
+    background-color: #f8f9fa !important;
   }
 } 
