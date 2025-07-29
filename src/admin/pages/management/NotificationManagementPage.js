@@ -15,7 +15,8 @@ import {
 import { 
   PlusOutlined,
   BellOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  EditOutlined
 } from '@ant-design/icons';
 import { AdminAPI } from '../../api/admin';
 import StaffSidebar from '../../components/StaffSidebar';
@@ -32,7 +33,10 @@ const NotificationManagementPage = () => {
   const [notificationTypes, setNotificationTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingNotification, setEditingNotification] = useState(null);
   const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
 
   useEffect(() => {
     fetchNotifications();
@@ -98,6 +102,39 @@ const NotificationManagementPage = () => {
     }
   };
 
+  const handleEditNotification = (notification) => {
+    setEditingNotification(notification);
+    editForm.setFieldsValue({
+      notificationTypeId: notification.notificationTypeId,
+      subject: notification.subject,
+      message: notification.message
+    });
+    setEditModalVisible(true);
+  };
+
+  const handleUpdateNotification = async (values) => {
+    try {
+      const notificationData = {
+        notificationTypeId: values.notificationTypeId,
+        subject: values.subject,
+        message: values.message
+      };
+
+      const response = await AdminAPI.updateNotification(editingNotification.notificationId, notificationData);
+      
+      if (response.status === 200 || response.status === 204) {
+        message.success('Cập nhật thông báo thành công!');
+        setEditModalVisible(false);
+        editForm.resetFields();
+        setEditingNotification(null);
+        fetchNotifications(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error updating notification:', error);
+      message.error('Không thể cập nhật thông báo. Vui lòng thử lại sau.');
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('vi-VN', {
@@ -141,7 +178,7 @@ const NotificationManagementPage = () => {
       title: 'Nội dung',
       dataIndex: 'message',
       key: 'message',
-      width: '40%',
+      width: '35%',
       render: (text) => (
         <span>
           {text && text.length > 100 ? `${text.substring(0, 100)}...` : text || 'N/A'}
@@ -152,11 +189,28 @@ const NotificationManagementPage = () => {
       title: 'Ngày tạo',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: '20%',
+      width: '15%',
       render: (date) => (
         <span style={{ color: '#374151' }}>
           {formatDate(date)}
         </span>
+      ),
+    },
+    {
+      title: 'Thao tác',
+      key: 'actions',
+      width: '10%',
+      render: (_, record) => (
+        <Space size="small">
+          <Button
+            type="primary"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => handleEditNotification(record)}
+          >
+            Sửa
+          </Button>
+        </Space>
       ),
     },
   ];
@@ -299,10 +353,93 @@ const NotificationManagementPage = () => {
               </Button>
             </Space>
           </Form.Item>
-        </Form>
-      </Modal>
-    </Layout>
-  );
-};
+          </Form>
+        </Modal>
 
-export default NotificationManagementPage;
+        {/* Edit Notification Modal */}
+        <Modal
+          title="Chỉnh sửa thông báo"
+          open={editModalVisible}
+          onCancel={() => {
+            setEditModalVisible(false);
+            editForm.resetFields();
+            setEditingNotification(null);
+          }}
+          footer={null}
+          width={600}
+        >
+          <Form
+            form={editForm}
+            layout="vertical"
+            onFinish={handleUpdateNotification}
+          >
+            <Form.Item
+              name="notificationTypeId"
+              label="Loại thông báo"
+              rules={[
+                { required: true, message: 'Vui lòng chọn loại thông báo!' }
+              ]}
+            >
+              <Select 
+                placeholder="Chọn loại thông báo"
+                size="large"
+                allowClear
+              >
+                {notificationTypes.map(type => (
+                  <Option key={type.id} value={type.id}>
+                    {type.name} - {type.description}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="subject"
+              label="Tiêu đề"
+              rules={[
+                { required: true, message: 'Vui lòng nhập tiêu đề thông báo!' },
+                { max: 200, message: 'Tiêu đề không được vượt quá 200 ký tự!' }
+              ]}
+            >
+              <Input 
+                placeholder="Nhập tiêu đề thông báo"
+                size="large"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="message"
+              label="Nội dung"
+              rules={[
+                { required: true, message: 'Vui lòng nhập nội dung thông báo!' },
+                { max: 1000, message: 'Nội dung không được vượt quá 1000 ký tự!' }
+              ]}
+            >
+              <TextArea
+                placeholder="Nhập nội dung thông báo"
+                rows={6}
+                size="large"
+              />
+            </Form.Item>
+
+            <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+              <Space>
+                <Button 
+                  onClick={() => {
+                    setEditModalVisible(false);
+                    editForm.resetFields();
+                    setEditingNotification(null);
+                  }}
+                >
+                  Hủy
+                </Button>
+                <Button type="primary" htmlType="submit">
+                  Cập nhật thông báo
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Layout>
+    );
+  };export default NotificationManagementPage;

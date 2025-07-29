@@ -951,6 +951,24 @@ export const AdminAPI = {
     }
   },
 
+  // Update existing notification
+  updateNotification: async (notificationId, notificationData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(`${BASE_URL}/api/Notification/${notificationId}`, notificationData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error updating notification:", error);
+      throw error;
+    }
+  },
+
   // Get all notifications
   getNotifications: async () => {
     try {
