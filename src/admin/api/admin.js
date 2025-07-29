@@ -895,11 +895,11 @@ export const AdminAPI = {
     }
   },
 
-  // Soft delete article
+  // Archive article (soft delete)
   deleteArticle: async (articleId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.patch(`${BASE_URL}/api/Articles/${articleId}/delete`, {}, {
+      const response = await axios.patch(`${BASE_URL}/api/Articles/${articleId}/archive`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -908,7 +908,7 @@ export const AdminAPI = {
 
       return response;
     } catch (error) {
-      console.error("Error deleting article:", error);
+      console.error("Error archiving article:", error);
       throw error;
     }
   },

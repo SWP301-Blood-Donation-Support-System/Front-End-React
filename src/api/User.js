@@ -519,13 +519,13 @@ export const UserAPI = {
     }
   },
 
-  // Get user by ID
-  getUserById: async (userId) => {
+  // Get article statuses (for filtering Published articles)
+  getArticleStatuses: async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/User/${userId}`);
+      const response = await axios.get(`${BASE_URL}/api/Lookup/article-statuses`);
       return response;
     } catch (error) {
-      console.error("Error fetching user by ID:", error);
+      console.error("Error fetching article statuses:", error);
       throw error;
     }
   },

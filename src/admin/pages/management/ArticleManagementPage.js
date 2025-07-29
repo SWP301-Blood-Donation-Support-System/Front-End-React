@@ -46,25 +46,30 @@ const ArticleManagementPage = () => {
   const navigate = useNavigate();
 
   const handleDeleteArticle = async (articleId, articleTitle) => {
-    Modal.confirm({
-      title: 'Xác nhận xóa bài viết',
-      content: `Bạn có chắc chắn muốn xóa bài viết "${articleTitle}"? Hành động này không thể hoàn tác.`,
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          const response = await AdminAPI.deleteArticle(articleId);
-          if (response.status === 200) {
-            message.success('Xóa bài viết thành công!');
-            fetchArticles(); // Refresh the articles list
-          }
-        } catch (error) {
-          console.error('Error deleting article:', error);
-          message.error('Không thể xóa bài viết. Vui lòng thử lại sau.');
+    const confirmResult = window.confirm(
+      `Bạn có chắc chắn muốn lưu trữ bài viết "${articleTitle}"?\n\nBài viết sẽ được chuyển sang trạng thái đã lưu trữ.`
+    );
+    
+    if (confirmResult) {
+      try {
+        const response = await AdminAPI.deleteArticle(articleId);
+        if (response.status === 200 || response.status === 204) {
+          message.success('Lưu trữ bài viết thành công!');
+          fetchArticles(); // Refresh the articles list
+        }
+      } catch (error) {
+        console.error('Error archiving article:', error);
+        if (error.response?.status === 404) {
+          message.error('Không tìm thấy bài viết để lưu trữ.');
+        } else if (error.response?.status === 403) {
+          message.error('Bạn không có quyền lưu trữ bài viết này.');
+        } else if (error.response?.status === 401) {
+          message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        } else {
+          message.error('Không thể lưu trữ bài viết. Vui lòng thử lại sau.');
         }
       }
-    });
+    }
   };
 
   const fetchArticles = useCallback(async () => {
@@ -306,14 +311,12 @@ const ArticleManagementPage = () => {
               }}
             />
           </Tooltip>
-          <Tooltip title="Xóa">
+          <Tooltip title="Lưu trữ">
             <Button
               size="small"
               danger
               icon={<DeleteOutlined />}
-              onClick={() => {
-                handleDeleteArticle(record.articleId, record.title);
-              }}
+              onClick={() => handleDeleteArticle(record.articleId, record.title)}
             />
           </Tooltip>
         </Space>

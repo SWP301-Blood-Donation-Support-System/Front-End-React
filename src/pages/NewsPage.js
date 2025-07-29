@@ -19,63 +19,84 @@ const { Title, Paragraph, Text } = Typography;
 const NewsPage = () => {
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [statuses, setStatuses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchData();
-  }, [currentPage]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch both articles and categories
-      const [articlesResponse, categoriesResponse] = await Promise.all([
-        UserAPI.getArticles(currentPage, 6),
-        UserAPI.getArticleCategories()
-      ]);
-      
-      // Handle categories
-      if (categoriesResponse.status === 200) {
-        setCategories(categoriesResponse.data || []);
-      }
-      
-      // Handle articles
-      if (articlesResponse.status === 200) {
-        const data = articlesResponse.data;
-        console.log("API Response:", data); // Debug log
+    const fetchData = async () => {
+      try {
+        setLoading(true);
         
-        // Handle different possible response structures
-        let articlesArray = [];
-        if (Array.isArray(data)) {
-          articlesArray = data;
-        } else if (data.result && Array.isArray(data.result)) {
-          articlesArray = data.result;
-        } else if (data.articles && Array.isArray(data.articles)) {
-          articlesArray = data.articles;
-        } else if (data.data && Array.isArray(data.data)) {
-          articlesArray = data.data;
-        } else {
-          console.warn("Unexpected API response structure:", data);
-          articlesArray = [];
+        // First, get article statuses to find Published status ID
+        const statusesResponse = await UserAPI.getArticleStatuses();
+        let publishedId = null;
+        
+        if (statusesResponse.status === 200) {
+          const statusesData = statusesResponse.data?.data || statusesResponse.data || [];
+          setStatuses(statusesData);
+          
+          // Find the Published status ID
+          const publishedStatus = statusesData.find(status => 
+            status.name === 'Published' || 
+            status.name === 'Đã xuất bản' ||
+            status.name.toLowerCase().includes('publish')
+          );
+          
+          if (publishedStatus) {
+            publishedId = publishedStatus.id;
+          }
         }
         
-        setArticles(articlesArray);
-        setTotalPages(data.totalPages || Math.ceil(articlesArray.length / 6) || 1);
+        // Fetch articles and categories
+        const [articlesResponse, categoriesResponse] = await Promise.all([
+          UserAPI.getArticles(currentPage, 6, null, publishedId), // Only get Published articles
+          UserAPI.getArticleCategories()
+        ]);
+        
+        // Handle categories
+        if (categoriesResponse.status === 200) {
+          setCategories(categoriesResponse.data || []);
+        }
+        
+        // Handle articles
+        if (articlesResponse.status === 200) {
+          const data = articlesResponse.data;
+          console.log("API Response:", data); // Debug log
+          
+          // Handle different possible response structures
+          let articlesArray = [];
+          if (Array.isArray(data)) {
+            articlesArray = data;
+          } else if (data.result && Array.isArray(data.result)) {
+            articlesArray = data.result;
+          } else if (data.articles && Array.isArray(data.articles)) {
+            articlesArray = data.articles;
+          } else if (data.data && Array.isArray(data.data)) {
+            articlesArray = data.data;
+          } else {
+            console.warn("Unexpected API response structure:", data);
+            articlesArray = [];
+          }
+          
+          setArticles(articlesArray);
+          setTotalPages(data.totalPages || Math.ceil(articlesArray.length / 6) || 1);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("Không thể tải tin tức. Vui lòng thử lại sau.");
+        // Set empty array on error to prevent map error
+        setArticles([]);
+        setCategories([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error("Không thể tải tin tức. Vui lòng thử lại sau.");
-      // Set empty array on error to prevent map error
-      setArticles([]);
-      setCategories([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchData();
+  }, [currentPage]);
 
   const handleArticleClick = (articleId) => {
     navigate(`/article/${articleId}`);

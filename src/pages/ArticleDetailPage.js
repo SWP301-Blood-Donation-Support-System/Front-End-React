@@ -6,17 +6,13 @@ import {
   Button, 
   Tag, 
   Spin, 
-  message, 
-  Divider,
-  Space,
-  Row,
-  Col 
+  message,
+  Space
 } from "antd";
 import {
   CalendarOutlined,
   ArrowLeftOutlined,
   UserOutlined,
-  EyeOutlined,
 } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
@@ -26,7 +22,7 @@ import Footer from "../components/Footer";
 import { UserAPI } from "../api/User";
 
 const { Content } = Layout;
-const { Title, Paragraph, Text } = Typography;
+const { Title, Paragraph } = Typography;
 
 const ArticleDetailPage = () => {
   const [article, setArticle] = useState(null);
@@ -238,16 +234,6 @@ const ArticleDetailPage = () => {
               }}
             />
           </Card>
-
-          {/* Article Footer */}
-          <div style={{ marginTop: "30px", textAlign: "center" }}>
-            <Divider />
-            <Space>
-              <Text type="secondary">
-                <EyeOutlined /> Đã xem: {article.viewCount || 0}
-              </Text>
-            </Space>
-          </div>
 
           {/* Back to News Button */}
           <div style={{ textAlign: "center", marginTop: "30px" }}>
