@@ -16,7 +16,8 @@ import {
   PlusOutlined,
   BellOutlined,
   ReloadOutlined,
-  EditOutlined
+  EditOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 import { AdminAPI } from '../../api/admin';
 import StaffSidebar from '../../components/StaffSidebar';
@@ -35,6 +36,8 @@ const NotificationManagementPage = () => {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingNotification, setEditingNotification] = useState(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deletingNotification, setDeletingNotification] = useState(null);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
 
@@ -135,6 +138,24 @@ const NotificationManagementPage = () => {
     }
   };
 
+  const handleDeleteNotification = (notification) => {
+    setDeletingNotification(notification);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDeleteNotification = async () => {
+    try {
+      await AdminAPI.deleteNotification(deletingNotification.notificationId);
+      message.success('Thông báo đã được xóa thành công!');
+      setDeleteModalVisible(false);
+      setDeletingNotification(null);
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      message.error('Có lỗi xảy ra khi xóa thông báo');
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('vi-VN', {
@@ -199,7 +220,7 @@ const NotificationManagementPage = () => {
     {
       title: 'Thao tác',
       key: 'actions',
-      width: '10%',
+      width: '15%',
       render: (_, record) => (
         <Space size="small">
           <Button
@@ -209,6 +230,15 @@ const NotificationManagementPage = () => {
             onClick={() => handleEditNotification(record)}
           >
             Sửa
+          </Button>
+          <Button
+            type="primary"
+            danger
+            size="small"
+            icon={<DeleteOutlined />}
+            onClick={() => handleDeleteNotification(record)}
+          >
+            Xóa
           </Button>
         </Space>
       ),
@@ -439,6 +469,40 @@ const NotificationManagementPage = () => {
               </Space>
             </Form.Item>
           </Form>
+        </Modal>
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          title="Xác nhận xóa thông báo"
+          open={deleteModalVisible}
+          onCancel={() => {
+            setDeleteModalVisible(false);
+            setDeletingNotification(null);
+          }}
+          footer={[
+            <Button 
+              key="cancel"
+              onClick={() => {
+                setDeleteModalVisible(false);
+                setDeletingNotification(null);
+              }}
+            >
+              Hủy
+            </Button>,
+            <Button 
+              key="delete"
+              type="primary"
+              danger
+              onClick={confirmDeleteNotification}
+            >
+              Xóa
+            </Button>
+          ]}
+        >
+          <p>Bạn có chắc chắn muốn xóa thông báo "{deletingNotification?.subject}"?</p>
+          <p style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
+            Hành động này không thể hoàn tác!
+          </p>
         </Modal>
       </Layout>
     );

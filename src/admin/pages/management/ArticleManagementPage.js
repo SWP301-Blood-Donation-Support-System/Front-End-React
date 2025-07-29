@@ -43,59 +43,64 @@ const ArticleManagementPage = () => {
   // Modal state
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewArticle, setPreviewArticle] = useState(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [publishModalVisible, setPublishModalVisible] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState(null);
 
   const navigate = useNavigate();
 
-  const handleDeleteArticle = async (articleId, articleTitle) => {
-    const confirmResult = window.confirm(
-      `Bạn có chắc chắn muốn lưu trữ bài viết "${articleTitle}"?\n\nBài viết sẽ được chuyển sang trạng thái đã lưu trữ.`
-    );
-    
-    if (confirmResult) {
-      try {
-        const response = await AdminAPI.deleteArticle(articleId);
-        if (response.status === 200 || response.status === 204) {
-          message.success('Lưu trữ bài viết thành công!');
-          fetchArticles(); // Refresh the articles list
-        }
-      } catch (error) {
-        console.error('Error archiving article:', error);
-        if (error.response?.status === 404) {
-          message.error('Không tìm thấy bài viết để lưu trữ.');
-        } else if (error.response?.status === 403) {
-          message.error('Bạn không có quyền lưu trữ bài viết này.');
-        } else if (error.response?.status === 401) {
-          message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-        } else {
-          message.error('Không thể lưu trữ bài viết. Vui lòng thử lại sau.');
-        }
+  const handleDeleteArticle = (article) => {
+    setSelectedArticle(article);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDeleteArticle = async () => {
+    try {
+      const response = await AdminAPI.deleteArticle(selectedArticle.articleId);
+      if (response.status === 200 || response.status === 204) {
+        message.success('Lưu trữ bài viết thành công!');
+        setDeleteModalVisible(false);
+        setSelectedArticle(null);
+        fetchArticles(); // Refresh the articles list
+      }
+    } catch (error) {
+      console.error('Error archiving article:', error);
+      if (error.response?.status === 404) {
+        message.error('Không tìm thấy bài viết để lưu trữ.');
+      } else if (error.response?.status === 403) {
+        message.error('Bạn không có quyền lưu trữ bài viết này.');
+      } else if (error.response?.status === 401) {
+        message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      } else {
+        message.error('Không thể lưu trữ bài viết. Vui lòng thử lại sau.');
       }
     }
   };
 
-  const handlePublishArticle = async (articleId, articleTitle) => {
-    const confirmResult = window.confirm(
-      `Bạn có chắc chắn muốn đăng bài viết "${articleTitle}"?\n\nBài viết sẽ được chuyển sang trạng thái "Đã đăng" và hiển thị công khai.`
-    );
-    
-    if (confirmResult) {
-      try {
-        const response = await AdminAPI.publishArticle(articleId);
-        if (response.status === 200 || response.status === 204) {
-          message.success('Đăng bài viết thành công!');
-          fetchArticles(); // Refresh the articles list
-        }
-      } catch (error) {
-        console.error('Error publishing article:', error);
-        if (error.response?.status === 404) {
-          message.error('Không tìm thấy bài viết để đăng.');
-        } else if (error.response?.status === 403) {
-          message.error('Bạn không có quyền đăng bài viết này.');
-        } else if (error.response?.status === 401) {
-          message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-        } else {
-          message.error('Không thể đăng bài viết. Vui lòng thử lại sau.');
-        }
+  const handlePublishArticle = (article) => {
+    setSelectedArticle(article);
+    setPublishModalVisible(true);
+  };
+
+  const confirmPublishArticle = async () => {
+    try {
+      const response = await AdminAPI.publishArticle(selectedArticle.articleId);
+      if (response.status === 200 || response.status === 204) {
+        message.success('Đăng bài viết thành công!');
+        setPublishModalVisible(false);
+        setSelectedArticle(null);
+        fetchArticles(); // Refresh the articles list
+      }
+    } catch (error) {
+      console.error('Error publishing article:', error);
+      if (error.response?.status === 404) {
+        message.error('Không tìm thấy bài viết để đăng.');
+      } else if (error.response?.status === 403) {
+        message.error('Bạn không có quyền đăng bài viết này.');
+      } else if (error.response?.status === 401) {
+        message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      } else {
+        message.error('Không thể đăng bài viết. Vui lòng thử lại sau.');
       }
     }
   };
@@ -341,7 +346,7 @@ const ArticleManagementPage = () => {
                   type="primary"
                   icon={<SendOutlined />}
                   style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-                  onClick={() => handlePublishArticle(record.articleId, record.title)}
+                  onClick={() => handlePublishArticle(record)}
                 />
               </Tooltip>
             )}
@@ -362,7 +367,7 @@ const ArticleManagementPage = () => {
                 size="small"
                 danger
                 icon={<DeleteOutlined />}
-                onClick={() => handleDeleteArticle(record.articleId, record.title)}
+                onClick={() => handleDeleteArticle(record)}
               />
             </Tooltip>
           </Space>
@@ -510,6 +515,74 @@ const ArticleManagementPage = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Xác nhận lưu trữ bài viết"
+        open={deleteModalVisible}
+        onCancel={() => {
+          setDeleteModalVisible(false);
+          setSelectedArticle(null);
+        }}
+        footer={[
+          <Button 
+            key="cancel"
+            onClick={() => {
+              setDeleteModalVisible(false);
+              setSelectedArticle(null);
+            }}
+          >
+            Hủy
+          </Button>,
+          <Button 
+            key="delete"
+            type="primary"
+            danger
+            onClick={confirmDeleteArticle}
+          >
+            Lưu trữ
+          </Button>
+        ]}
+      >
+        <p>Bạn có chắc chắn muốn lưu trữ bài viết "{selectedArticle?.title}"?</p>
+        <p style={{ color: '#ff4d4f', fontWeight: 'bold' }}>
+          Bài viết sẽ được chuyển sang trạng thái đã lưu trữ!
+        </p>
+      </Modal>
+
+      {/* Publish Confirmation Modal */}
+      <Modal
+        title="Xác nhận đăng bài viết"
+        open={publishModalVisible}
+        onCancel={() => {
+          setPublishModalVisible(false);
+          setSelectedArticle(null);
+        }}
+        footer={[
+          <Button 
+            key="cancel"
+            onClick={() => {
+              setPublishModalVisible(false);
+              setSelectedArticle(null);
+            }}
+          >
+            Hủy
+          </Button>,
+          <Button 
+            key="publish"
+            type="primary"
+            style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+            onClick={confirmPublishArticle}
+          >
+            Đăng bài
+          </Button>
+        ]}
+      >
+        <p>Bạn có chắc chắn muốn đăng bài viết "{selectedArticle?.title}"?</p>
+        <p style={{ color: '#52c41a', fontWeight: 'bold' }}>
+          Bài viết sẽ được chuyển sang trạng thái "Đã đăng" và hiển thị công khai!
+        </p>
       </Modal>
     </Layout>
   );

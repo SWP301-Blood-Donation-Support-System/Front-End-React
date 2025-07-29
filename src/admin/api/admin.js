@@ -969,6 +969,24 @@ export const AdminAPI = {
     }
   },
 
+  // Soft delete notification
+  deleteNotification: async (notificationId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${BASE_URL}/api/Notification/${notificationId}/soft-delete`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      throw error;
+    }
+  },
+
   // Get all notifications
   getNotifications: async () => {
     try {
