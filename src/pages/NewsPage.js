@@ -41,8 +41,8 @@ const NewsPage = () => {
           // Find the Published status ID
           const publishedStatus = statusesData.find(status => 
             status.name === 'Published' || 
-            status.name === 'Đã xuất bản' ||
-            status.name.toLowerCase().includes('publish')
+            status.name === 'Đã đăng' ||
+            status.name.toLowerCase().includes('Đã đăng')
           );
           
           if (publishedStatus) {

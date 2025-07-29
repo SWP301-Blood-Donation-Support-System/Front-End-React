@@ -460,7 +460,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         type: "group",
         label: "CÀI ĐẶT",
         children: [
-          getItem("Hồ sơ cá nhân", "6", <UserOutlined />),
+          // getItem("Hồ sơ cá nhân", "6", <UserOutlined />),
           getItem("Đổi mật khẩu", "7", <LockOutlined />),
           // getItem("Trợ giúp", "8", <QuestionCircleOutlined />),
         ],
