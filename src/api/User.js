@@ -475,4 +475,58 @@ export const UserAPI = {
       throw error;
     }
   },
+
+  // Get all articles with pagination
+  getArticles: async (page = 1, pageSize = 10, categoryId = null, statusId = null) => {
+    try {
+      let url = `${BASE_URL}/api/Articles?page=${page}&pageSize=${pageSize}`;
+      
+      if (categoryId) {
+        url += `&categoryId=${categoryId}`;
+      }
+      
+      if (statusId) {
+        url += `&statusId=${statusId}`;
+      }
+
+      const response = await axios.get(url);
+      return response;
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+      throw error;
+    }
+  },
+
+  // Get single article by ID
+  getArticleById: async (articleId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/Articles/${articleId}`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching article by ID:", error);
+      throw error;
+    }
+  },
+
+  // Get article categories
+  getArticleCategories: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/Lookup/article-categories`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching article categories:", error);
+      throw error;
+    }
+  },
+
+  // Get user by ID
+  getUserById: async (userId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/User/${userId}`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      throw error;
+    }
+  },
 };

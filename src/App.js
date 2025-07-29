@@ -10,6 +10,7 @@ import ErrorResetPasswordPage from './pages/ErrorResetPasswordPage';
 import FAQPage from './pages/FAQPage';
 import SearchPage from './pages/SearchPage';
 import NewsPage from './pages/NewsPage';
+import ArticleDetailPage from './pages/ArticleDetailPage';
 import BookingPage from './pages/BookingPage';
 import EligibilityFormPage from './pages/EligibilityFormPage';
 import ConfirmationPage from './pages/ConfirmationPage';
@@ -73,6 +74,7 @@ function App() {
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/news" element={<NewsPage />} />
+          <Route path="/article/:articleId" element={<ArticleDetailPage />} />
           <Route path="/booking" element={
             <UserProtectedRoute>
               <BookingPage />
