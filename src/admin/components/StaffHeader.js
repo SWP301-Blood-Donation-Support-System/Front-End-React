@@ -76,9 +76,9 @@ const StaffHeader = () => {
       <div className="staff-header-right">
         <div className="staff-header-actions">
           <Space size="middle">
-            <div className="header-icon">
+            {/* <div className="header-icon">
               <MailOutlined />
-            </div>
+            </div> */}
 
             <div className="staff-user-profile">
               <Avatar
