@@ -524,7 +524,7 @@ const HospitalRequestsPage = () => {
                   cursor: 'not-allowed',
                 }}
               >
-                Đã kêu gọi cho đơn này
+                Đã kêu gọi cho nhóm máu này
               </Button>
             );
           }
