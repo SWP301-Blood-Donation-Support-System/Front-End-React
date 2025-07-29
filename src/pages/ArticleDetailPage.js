@@ -12,7 +12,6 @@ import {
 import {
   CalendarOutlined,
   ArrowLeftOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
@@ -27,7 +26,6 @@ const { Title, Paragraph } = Typography;
 const ArticleDetailPage = () => {
   const [article, setArticle] = useState(null);
   const [categoryName, setCategoryName] = useState("");
-  const [authorName, setAuthorName] = useState("");
   const [loading, setLoading] = useState(true);
   const { articleId } = useParams();
   const navigate = useNavigate();
@@ -50,13 +48,9 @@ const ArticleDetailPage = () => {
         console.log("Processed article data:", articleData);
         setArticle(articleData);
 
-        // Fetch category name and author name if available
+        // Fetch category name if available
         if (articleData.articleCategoryId) {
           fetchCategoryName(articleData.articleCategoryId);
-        }
-        
-        if (articleData.authorUserId) {
-          fetchAuthorName(articleData.authorUserId);
         }
       }
     } catch (error) {
@@ -79,19 +73,6 @@ const ArticleDetailPage = () => {
     } catch (error) {
       console.error("Error fetching category:", error);
       setCategoryName(`Danh mục ${categoryId}`);
-    }
-  };
-
-  const fetchAuthorName = async (userId) => {
-    try {
-      const response = await UserAPI.getUserById(userId);
-      if (response.status === 200) {
-        const user = response.data;
-        setAuthorName(user.fullName || user.username || user.email || `Tác giả ${userId}`);
-      }
-    } catch (error) {
-      console.error("Error fetching author:", error);
-      setAuthorName(`Tác giả ${userId}`);
     }
   };
 
@@ -179,9 +160,6 @@ const ArticleDetailPage = () => {
                   </Tag>
                   {categoryName && (
                     <Tag color="red">{categoryName}</Tag>
-                  )}
-                  {authorName && (
-                    <Tag icon={<UserOutlined />}>{authorName}</Tag>
                   )}
                 </Space>
               </div>
