@@ -80,7 +80,7 @@ const StaffManagementPage = () => {
 
   const staffColumns = [
     {
-      title: 'Mã Nhân Viên (User ID)',
+      title: 'Mã Nhân Viên',
       dataIndex: 'userId',
       key: 'userId',
       width: '25%',

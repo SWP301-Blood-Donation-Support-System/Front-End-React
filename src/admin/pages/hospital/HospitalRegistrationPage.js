@@ -151,25 +151,15 @@ const HospitalRegistrationPage = () => {
                 </Row>
 
                 <Form.Item style={{ marginTop: '32px', textAlign: 'center' }}>
-                  <Space size="middle">
-                    <Button
-                      type="default"
-                      icon={<ArrowLeftOutlined />}
-                      onClick={() => navigate('/staff/hospital-list')}
-                      disabled={loading}
-                    >
-                      Quay lại
-                    </Button>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      icon={<SaveOutlined />}
-                      loading={loading}
-                      size="large"
-                    >
-                      Đăng ký bệnh viện
-                    </Button>
-                  </Space>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    icon={<SaveOutlined />}
+                    loading={loading}
+                    size="large"
+                  >
+                    Đăng ký bệnh viện
+                  </Button>
                 </Form.Item>
               </Form>
             </Card>

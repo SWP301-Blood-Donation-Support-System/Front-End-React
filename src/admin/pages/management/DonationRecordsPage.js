@@ -1467,7 +1467,7 @@ const DonationRecordsPage = () => {
   // Layer 1: User list columns
   const userColumns = [
     {
-      title: "Mã Người Hiến (DonorID)",
+      title: "Mã Người Hiến",
       dataIndex: "userId",
       key: "userId",
       width: "25%",
@@ -1503,7 +1503,7 @@ const DonationRecordsPage = () => {
   // Layer 2: User's donation records columns
   const userRecordColumns = [
     {
-      title: "Mã Hồ Sơ (DonationRecordID)",
+      title: "Mã Hồ Sơ",
       dataIndex: "donationRecordId",
       key: "donationRecordId",
       width: "15%",
@@ -1521,7 +1521,7 @@ const DonationRecordsPage = () => {
       },
     },
     {
-      title: "Mã Đăng Ký (RegistrationID)",
+      title: "Mã Đăng Ký",
       dataIndex: "registrationId",
       key: "registrationId",
       width: "15%",

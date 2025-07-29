@@ -146,7 +146,7 @@ const UserManagementPage = () => {
 
   const userColumns = [
     {
-      title: 'Mã Người Dùng (User ID)',
+      title: 'Mã Người Dùng',
       dataIndex: 'userId',
       key: 'userId',
       width: '15%',
