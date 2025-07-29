@@ -87,7 +87,7 @@ const StaffHeader = () => {
                 className="user-avatar"
               />
               <span className="user-name">
-                {user ? `Xin chào ${user.FullName || user.fullName}` : 'Staff'}
+                {user ? `Xin chào ${user.FullName || user.fullName || "Bệnh Viện"}` : 'Staff'}
               </span>
             </div>
           </Space>

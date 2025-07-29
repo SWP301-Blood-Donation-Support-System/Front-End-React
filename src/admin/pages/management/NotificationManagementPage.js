@@ -9,7 +9,8 @@ import {
   Input,
   Typography,
   Space,
-  Card
+  Card,
+  Select
 } from 'antd';
 import { 
   PlusOutlined,
@@ -23,16 +24,19 @@ import StaffHeader from '../../components/StaffHeader';
 const { Content } = Layout;
 const { Title } = Typography;
 const { TextArea } = Input;
+const { Option } = Select;
 
 const NotificationManagementPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [notificationTypes, setNotificationTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
     fetchNotifications();
+    fetchNotificationTypes();
   }, []);
 
   const fetchNotifications = async () => {
@@ -55,10 +59,27 @@ const NotificationManagementPage = () => {
     }
   };
 
+  const fetchNotificationTypes = async () => {
+    try {
+      const response = await AdminAPI.getNotificationTypes();
+      
+      if (response.status === 200) {
+        // Handle different response structures
+        const typesData = Array.isArray(response.data) ? response.data : 
+                         Array.isArray(response.data?.data) ? response.data.data : [];
+        setNotificationTypes(typesData);
+      }
+    } catch (error) {
+      console.error('Error fetching notification types:', error);
+      message.error('Lỗi khi tải danh sách loại thông báo');
+      setNotificationTypes([]);
+    }
+  };
+
   const handleCreateNotification = async (values) => {
     try {
       const notificationData = {
-        notificationTypeId: 0, // Based on the API schema
+        notificationTypeId: values.notificationTypeId,
         subject: values.subject,
         message: values.message
       };
@@ -214,6 +235,26 @@ const NotificationManagementPage = () => {
           layout="vertical"
           onFinish={handleCreateNotification}
         >
+          <Form.Item
+            name="notificationTypeId"
+            label="Loại thông báo"
+            rules={[
+              { required: true, message: 'Vui lòng chọn loại thông báo!' }
+            ]}
+          >
+            <Select 
+              placeholder="Chọn loại thông báo"
+              size="large"
+              allowClear
+            >
+              {notificationTypes.map(type => (
+                <Option key={type.id} value={type.id}>
+                  {type.name} - {type.description}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
           <Form.Item
             name="subject"
             label="Tiêu đề"
