@@ -276,16 +276,37 @@ const ProfilePage = () => {
         "nationalID",
       ];
 
-      const newValidationErrors = {};
+      // Start with existing validation errors to preserve them (like duplicate CCCD error)
+      const newValidationErrors = { ...validationErrors };
       let hasErrors = false;
 
-      // Validate each field
+      // Validate each field, but only override if it's not a duplicate error
       fieldsToValidate.forEach((field) => {
         const value = editValues[field];
         const error = validateField(field, value);
+        
+        // Only set validation error if:
+        // 1. There's a new validation error, OR
+        // 2. There's no existing error for this field, OR  
+        // 3. The existing error is not a duplicate CCCD error
         if (error) {
-          newValidationErrors[field] = error;
-          hasErrors = true;
+          // Don't override duplicate CCCD error with generic required field error
+          if (field === "nationalID" && 
+              newValidationErrors[field] && 
+              newValidationErrors[field].includes("đã được đăng ký")) {
+            // Keep the existing duplicate error, but still mark as having errors
+            hasErrors = true;
+          } else {
+            newValidationErrors[field] = error;
+            hasErrors = true;
+          }
+        } else {
+          // Clear validation error only if it's not a duplicate CCCD error
+          if (!(field === "nationalID" && 
+                newValidationErrors[field] && 
+                newValidationErrors[field].includes("đã được đăng ký"))) {
+            newValidationErrors[field] = null;
+          }
         }
       });
 
@@ -293,17 +314,35 @@ const ProfilePage = () => {
       setValidationErrors(newValidationErrors);
 
       // Check for existing validation errors
-      const hasExistingValidationErrors = Object.values(validationErrors).some(
-        (error) => error !== null
+      const hasExistingValidationErrors = Object.values(newValidationErrors).some(
+        (error) => error !== null && error !== ""
       );
 
       if (hasErrors || hasExistingValidationErrors) {
-        api.error({
-          message: "Thiếu thông tin bắt buộc!",
-          description: "Vui lòng cập nhật đầy đủ thông tin để được hiến máu!",
-          placement: "topRight",
-          duration: 4,
-        });
+        // Check if the only error is a duplicate CCCD error
+        const onlyDuplicateCCCDError = 
+          newValidationErrors.nationalID && 
+          newValidationErrors.nationalID.includes("đã được đăng ký") &&
+          Object.keys(newValidationErrors).filter(key => 
+            newValidationErrors[key] !== null && newValidationErrors[key] !== ""
+          ).length === 1;
+
+        if (onlyDuplicateCCCDError) {
+          // Don't show the generic error message, the duplicate CCCD error is already shown
+          api.error({
+            message: "Không thể cập nhật hồ sơ!",
+            description: "Vui lòng sửa lỗi CCCD để tiếp tục.",
+            placement: "topRight",
+            duration: 4,
+          });
+        } else {
+          api.error({
+            message: "Thiếu thông tin bắt buộc!",
+            description: "Vui lòng cập nhật đầy đủ thông tin để được hiến máu!",
+            placement: "topRight",
+            duration: 4,
+          });
+        }
         setEditLoading(false);
         return;
       }
@@ -406,7 +445,25 @@ const ProfilePage = () => {
       }
     } catch (error) {
       console.error("Error updating profile:", error);
+      
+      // Check for duplicate National ID error
       if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message &&
+        (error.response.data.message.includes("duplicate key") || 
+         error.response.data.message.includes("UQ_User_NationalID") ||
+         error.response.data.message.includes("NationalID") ||
+         error.response.data.message.includes("Cannot insert duplicate key"))
+      ) {
+        // Set validation error for National ID field
+        setValidationErrors(prev => ({
+          ...prev,
+          nationalID: "CCCD này đã được đăng ký, vui lòng sử dụng một CCCD khác"
+        }));
+        
+        message.error("CCCD này đã được đăng ký trong hệ thống!");
+      } else if (
         error.response &&
         error.response.data &&
         error.response.data.message
