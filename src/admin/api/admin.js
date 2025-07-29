@@ -774,4 +774,124 @@ export const AdminAPI = {
       throw error;
     }
   },
+
+  // ==== ARTICLE MANAGEMENT APIs ====
+  
+  // Create new article
+  createArticle: async (articleData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${BASE_URL}/api/Articles`, articleData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error creating article:", error);
+      throw error;
+    }
+  },
+
+  // Update existing article
+  updateArticle: async (articleId, articleData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(`${BASE_URL}/api/Articles/${articleId}`, articleData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error updating article:", error);
+      throw error;
+    }
+  },
+
+  // Get article by ID
+  getArticleById: async (articleId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Articles/${articleId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching article by ID:", error);
+      throw error;
+    }
+  },
+
+  // Get all articles with pagination
+  getArticles: async (page = 1, pageSize = 10, categoryId = null, statusId = null) => {
+    try {
+      const token = localStorage.getItem("token");
+      let url = `${BASE_URL}/api/Articles?page=${page}&pageSize=${pageSize}`;
+      
+      if (categoryId) {
+        url += `&categoryId=${categoryId}`;
+      }
+      
+      if (statusId) {
+        url += `&statusId=${statusId}`;
+      }
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+      throw error;
+    }
+  },
+
+  // Get article categories
+  getArticleCategories: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/article-categories`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching article categories:", error);
+      throw error;
+    }
+  },
+
+  // Get article statuses
+  getArticleStatuses: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Lookup/article-statuses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching article statuses:", error);
+      throw error;
+    }
+  },
 };
