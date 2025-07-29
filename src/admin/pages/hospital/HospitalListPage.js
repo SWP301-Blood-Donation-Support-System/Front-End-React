@@ -24,11 +24,11 @@ import {
   EyeOutlined,
   PlusOutlined
 } from '@ant-design/icons';
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import { HospitalAPI } from '../api/hospital';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import { HospitalAPI } from '../../api/hospital';
 import dayjs from 'dayjs';
-import '../styles/hospital-list.scss';
+import '../../styles/hospital-list.scss';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;

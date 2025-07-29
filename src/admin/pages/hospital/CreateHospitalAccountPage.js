@@ -19,9 +19,9 @@ import {
   EnvironmentOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import { HospitalAPI } from '../api/hospital';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import { HospitalAPI } from '../../api/hospital';
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;

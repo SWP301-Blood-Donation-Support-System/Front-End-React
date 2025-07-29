@@ -17,10 +17,10 @@ import {
 } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
-import StaffSidebar from "../components/StaffSidebar";
-import StaffHeader from "../components/StaffHeader";
+import StaffSidebar from "../../components/StaffSidebar";
+import StaffHeader from "../../components/StaffHeader";
 
-import { AdminAPI } from "../api/admin";
+import { AdminAPI } from "../../api/admin";
 
 const { Content } = Layout;
 const { Title } = Typography;

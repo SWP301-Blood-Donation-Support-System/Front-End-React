@@ -16,11 +16,11 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-import StaffSidebar from "../components/StaffSidebar";
-import StaffHeader from "../components/StaffHeader";
-import { AdminAPI } from "../api/admin";
-import { HospitalAPI } from "../api/hospital";
-import "../styles/donation-records.scss";
+import StaffSidebar from "../../components/StaffSidebar";
+import StaffHeader from "../../components/StaffHeader";
+import { AdminAPI } from "../../api/admin";
+import { HospitalAPI } from "../../api/hospital";
+import "../../styles/donation-records.scss";
 
 const { Content } = Layout;
 const { Text, Title } = Typography;

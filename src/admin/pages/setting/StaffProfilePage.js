@@ -30,9 +30,9 @@ import {
   ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { UserAPI } from '../../api/User';
-import { isHospitalUser } from '../utils/passwordUtils';
-import StaffHeader from '../components/StaffHeader';
+import { UserAPI } from '../../../api/User';
+import { isHospitalUser } from '../../utils/passwordUtils';
+import StaffHeader from '../../components/StaffHeader';
 
 import dayjs from 'dayjs';
 

@@ -27,10 +27,10 @@ import {
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 
-import StaffSidebar from "../components/StaffSidebar";
-import StaffHeader from "../components/StaffHeader";
-import { HospitalAPI } from "../api/hospital";
-import "../styles/donation-records.scss";
+import StaffSidebar from "../../components/StaffSidebar";
+import StaffHeader from "../../components/StaffHeader";
+import { HospitalAPI } from "../../api/hospital";
+import "../../styles/donation-records.scss";
 
 const { Content } = Layout;
 const { Title } = Typography;

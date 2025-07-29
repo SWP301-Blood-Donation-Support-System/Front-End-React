@@ -10,11 +10,11 @@ import {
   message,
   InputNumber
 } from 'antd';
-import { AdminAPI } from '../api/admin';
+import { AdminAPI } from '../../api/admin';
 
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import '../styles/user-management.scss';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import '../../styles/user-management.scss';
 
 const { Content } = Layout;
 const { Text, Title } = Typography;

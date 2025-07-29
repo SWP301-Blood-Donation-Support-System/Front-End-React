@@ -19,11 +19,11 @@ import {
   Modal,
   Checkbox,
 } from "antd";
-import { AdminAPI } from "../api/admin";
+import { AdminAPI } from "../../api/admin";
 
-import StaffSidebar from "../components/StaffSidebar";
-import StaffHeader from "../components/StaffHeader";
-import "../styles/donation-records.scss";
+import StaffSidebar from "../../components/StaffSidebar";
+import StaffHeader from "../../components/StaffHeader";
+import "../../styles/donation-records.scss";
 
 const { Content } = Layout;
 const { Text, Title } = Typography;

@@ -10,10 +10,10 @@ import {
   notification
 } from 'antd';
 import { UserOutlined, MailOutlined } from '@ant-design/icons';
-import { AdminAPI } from '../api/admin';
-import StaffSidebar from '../components/StaffSidebar';
-import StaffHeader from '../components/StaffHeader';
-import '../styles/staff.scss';
+import { AdminAPI } from '../../api/admin';
+import StaffSidebar from '../../components/StaffSidebar';
+import StaffHeader from '../../components/StaffHeader';
+import '../../styles/staff.scss';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
