@@ -546,4 +546,15 @@ export const UserAPI = {
       throw error;
     }
   },
+
+  // Get notification types
+  getNotificationTypes: async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/Lookup/notification-types`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching notification types:", error);
+      throw error;
+    }
+  },
 };

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Button, Avatar, Dropdown, Menu, notification, Badge, List, Typography, Spin, Empty } from "antd";
+import { Layout, Button, Avatar, Dropdown, Menu, notification, Badge, List, Typography, Spin, Empty, Modal } from "antd";
 import {
   UserOutlined,
   DownOutlined,
   LogoutOutlined,
   SettingOutlined,
   BellOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { UserAPI } from "../api/User";
@@ -19,6 +20,9 @@ const Header = () => {
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [notificationVisible, setNotificationVisible] = useState(false);
+  const [notificationTypes, setNotificationTypes] = useState([]);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [notificationDetailVisible, setNotificationDetailVisible] = useState(false);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -31,6 +35,7 @@ const Header = () => {
           setUser(userInfo);
           // Fetch notifications cho user đã đăng nhập
           fetchNotifications();
+          fetchNotificationTypes();
         } else {
           localStorage.removeItem("token");
           localStorage.removeItem("fullname");
@@ -61,8 +66,35 @@ const Header = () => {
       }
     };
 
+    const fetchNotificationTypes = async () => {
+      try {
+        const response = await UserAPI.getNotificationTypes();
+        if (response.status === 200) {
+          const typesData = Array.isArray(response.data) ? response.data : 
+                           Array.isArray(response.data?.data) ? response.data.data : [];
+          setNotificationTypes(typesData);
+        }
+      } catch (error) {
+        console.error("Error fetching notification types:", error);
+        setNotificationTypes([]);
+      }
+    };
+
     initializeAuth();
   }, []);
+
+  // Handle notification click
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification);
+    setNotificationDetailVisible(true);
+    setNotificationVisible(false); // Close dropdown
+  };
+
+  // Get notification type name
+  const getNotificationTypeName = (notificationTypeId) => {
+    const type = notificationTypes.find(t => t.id === notificationTypeId);
+    return type ? type.name : 'Thông báo';
+  };
 
   // User dropdown menu
   const userMenu = (
@@ -162,13 +194,35 @@ const Header = () => {
         <List
           dataSource={notifications}
           renderItem={(item) => (
-            <List.Item style={{ 
-              padding: '12px 16px', 
-              borderBottom: '1px solid #f5f5f5',
-              backgroundColor: '#ffffff',
-              margin: 0
-            }}>
+            <List.Item 
+              style={{ 
+                padding: '12px 16px', 
+                borderBottom: '1px solid #f5f5f5',
+                backgroundColor: '#ffffff',
+                margin: 0,
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease'
+              }}
+              onClick={() => handleNotificationClick(item)}
+              className="notification-item"
+            >
               <div style={{ width: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                  <Typography.Text style={{ 
+                    fontSize: '11px',
+                    color: '#1890ff',
+                    fontWeight: '500',
+                    textTransform: 'uppercase'
+                  }}>
+                    {getNotificationTypeName(item.notificationTypeId)}
+                  </Typography.Text>
+                  <Typography.Text style={{ 
+                    fontSize: '10px', 
+                    color: '#8c8c8c' 
+                  }}>
+                    {formatDate(item.createdAt)}
+                  </Typography.Text>
+                </div>
                 <Typography.Title level={5} style={{ 
                   margin: 0, 
                   fontSize: '14px',
@@ -177,25 +231,6 @@ const Header = () => {
                 }}>
                   {item.subject}
                 </Typography.Title>
-                <Typography.Paragraph 
-                  style={{ 
-                    margin: '4px 0', 
-                    fontSize: '12px', 
-                    color: '#595959',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {item.message}
-                </Typography.Paragraph>
-                <Typography.Text style={{ 
-                  fontSize: '11px', 
-                  color: '#8c8c8c' 
-                }}>
-                  {formatDate(item.createdAt)}
-                </Typography.Text>
               </div>
             </List.Item>
           )}
@@ -285,6 +320,72 @@ const Header = () => {
           Đăng Nhập
         </Button>
       )}
+
+      {/* Notification Detail Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <InfoCircleOutlined style={{ color: '#1890ff' }} />
+            <span>Chi tiết thông báo</span>
+          </div>
+        }
+        open={notificationDetailVisible}
+        onCancel={() => setNotificationDetailVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setNotificationDetailVisible(false)}>
+            Đóng
+          </Button>
+        ]}
+        width={600}
+      >
+        {selectedNotification && (
+          <div>
+            <div style={{ marginBottom: '16px' }}>
+              <Typography.Text style={{ 
+                fontSize: '12px',
+                color: '#1890ff',
+                fontWeight: '500',
+                textTransform: 'uppercase',
+                backgroundColor: '#e6f7ff',
+                padding: '4px 8px',
+                borderRadius: '4px'
+              }}>
+                {getNotificationTypeName(selectedNotification.notificationTypeId)}
+              </Typography.Text>
+            </div>
+            
+            <Typography.Title level={4} style={{ marginBottom: '8px' }}>
+              {selectedNotification.subject}
+            </Typography.Title>
+            
+            <Typography.Text style={{ 
+              fontSize: '12px', 
+              color: '#8c8c8c',
+              display: 'block',
+              marginBottom: '16px'
+            }}>
+              {formatDate(selectedNotification.createdAt)}
+            </Typography.Text>
+            
+            <div style={{ 
+              backgroundColor: '#fafafa',
+              padding: '16px',
+              borderRadius: '6px',
+              border: '1px solid #f0f0f0'
+            }}>
+              <Typography.Paragraph style={{ 
+                margin: 0,
+                fontSize: '14px',
+                lineHeight: '1.6',
+                color: '#262626',
+                whiteSpace: 'pre-wrap'
+              }}>
+                {selectedNotification.message}
+              </Typography.Paragraph>
+            </div>
+          </div>
+        )}
+      </Modal>
     </AntHeader>
   );
 };

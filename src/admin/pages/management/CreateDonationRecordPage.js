@@ -254,13 +254,23 @@ const CreateDonationRecordPage = () => {
                                   return Promise.reject(new Error('Huyết áp phải có định dạng "tâm thu/tâm trương" (ví dụ: 120/80)'));
                                 }
                                 
-                                const systolic = parseInt(parts[0].trim());
-                                const diastolic = parseInt(parts[1].trim());
+                                // Check if both parts contain only numbers (and whitespace)
+                                const systolicStr = parts[0].trim();
+                                const diastolicStr = parts[1].trim();
                                 
-                                // Check if both parts are valid numbers
-                                if (isNaN(systolic) || isNaN(diastolic)) {
-                                  return Promise.reject(new Error('Huyết áp phải là số (ví dụ: 120/80)'));
+                                // Use regex to check if the string contains only digits
+                                const numberRegex = /^\d+$/;
+                                
+                                if (!numberRegex.test(systolicStr)) {
+                                  return Promise.reject(new Error('Huyết áp tâm thu phải là số (ví dụ: 120/80)'));
                                 }
+                                
+                                if (!numberRegex.test(diastolicStr)) {
+                                  return Promise.reject(new Error('Huyết áp tâm trương phải là số (ví dụ: 120/80)'));
+                                }
+                                
+                                const systolic = parseInt(systolicStr);
+                                const diastolic = parseInt(diastolicStr);
                                 
                                 // Validate systolic pressure (110-133)
                                 if (systolic < 110 || systolic > 133) {
@@ -297,9 +307,9 @@ const CreateDonationRecordPage = () => {
                                   if (value < 42) {
                                     return Promise.reject(new Error('Cân nặng tối thiểu là 42kg'));
                                   }
-                                  if (value > 200) {
-                                    return Promise.reject(new Error('Cân nặng tối đa là 200kg'));
-                                  }
+                                  // if (value > 200) {
+                                  //   return Promise.reject(new Error('Cân nặng tối đa là 200kg'));
+                                  // }
                                 }
                                 return Promise.resolve();
                               }
@@ -422,14 +432,32 @@ const CreateDonationRecordPage = () => {
                               required: !cannotDonate,
                               message: "Vui lòng nhập thể tích hiến!",
                             },
+                            {
+                              validator: (_, value) => {
+                                // Skip validation if cannotDonate is true
+                                if (cannotDonate) return Promise.resolve();
+                                
+                                if (value !== null && value !== undefined) {
+                                  if (value < 0) {
+                                    return Promise.reject(new Error('Thể tích hiến không được là số âm'));
+                                  }
+                                  if (value > 500) {
+                                    return Promise.reject(new Error('Thể tích hiến tối đa là 500ml'));
+                                  }
+                                }
+                                return Promise.resolve();
+                              }
+                            }
                           ]}
                         >
                           <InputNumber
                             style={{ width: "100%" }}
                             placeholder="Nhập thể tích hiến"
-                            min={0}
-                            max={500}
+                            // min={0}
+                            // max={500}
                             disabled={cannotDonate}
+                            parser={(value) => value.replace(/[^\d]/g, '')}
+                            formatter={(value) => value ? `${value}` : ''}
                           />
                         </Form.Item>
                       </Col>
