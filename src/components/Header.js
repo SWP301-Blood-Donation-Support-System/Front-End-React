@@ -220,7 +220,7 @@ const Header = () => {
       {contextHolder}
       {/* Logo using new-logo.png - clickable to go home */}
       <div onClick={() => navigate("/")} className="header-logo">
-        <img src="/images/BloodLogo.jpg" alt="Blood Services Logo" />
+        <img src="/images/NewLogo.png" alt="Blood Services Logo" />
       </div>
 
       {user ? (

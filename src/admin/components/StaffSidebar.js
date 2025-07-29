@@ -127,7 +127,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
       return ["18"];
     } else if (pathname.includes("/staff/create-article")) {
       return ["19"];
-    } else if (pathname.includes("/staff/reports")) {
+    } else if (pathname.includes("/staff/reports") || pathname.includes("/staff/dashboard")) {
       // Only return key if user is admin, otherwise return default
       return isAdminUser() ? ["5"] : ["1"];
     } else if (pathname.includes("/staff/hospital-list")) {
@@ -229,13 +229,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         break;
       case "5": // Báo cáo thống kê (admin only)
         if (isAdminUser()) {
-          // TODO: Navigate to reports when implemented
-          api.info({
-            message: "Chức năng đang phát triển",
-            description: "Tính năng báo cáo thống kê đang được phát triển.",
-            placement: "topRight",
-            duration: 3,
-          });
+          navigate("/staff/dashboard");
         } else {
           api.warning({
             message: "Không có quyền truy cập",
@@ -489,7 +483,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
         {!collapsed && (
           <div className="staff-logo">
             <img
-              src="/images/new-logo.png"
+              src="/images/BloodLogo.png"
               alt="Healthcare Logo"
               className="healthcare-logo"
             />

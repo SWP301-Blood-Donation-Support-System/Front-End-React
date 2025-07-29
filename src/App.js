@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, message } from 'antd';
 import Homepage from './pages/Homepage';
 import LoginPage from './pages/LoginPage';
@@ -25,6 +25,7 @@ import StaffManagementPage from './admin/pages/management/StaffManagementPage';
 import BloodBagManagementPage from './admin/pages/management/BloodBagManagementPage';
 import DonationRecordsPage from './admin/pages/management/DonationRecordsPage';
 import CreateDonationRecordPage from './admin/pages/management/CreateDonationRecordPage';
+import DashboardPage from './admin/pages/management/DashboardPage';
 import StaffProfilePage from './admin/pages/setting/StaffProfilePage';
 import CreateStaffAccountPage from './admin/pages/management/CreateStaffAccountPage';
 import StaffSettingsPage from './admin/pages/setting/StaffSettingsPage';
@@ -108,9 +109,17 @@ function App() {
           } />
           <Route path="/checkin" element={<CheckinPage />} />
 
+          {/* Admin routes - Default redirect to dashboard */}
+          <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
+          
           <Route path="/staff/schedule-management" element={
             <AdminProtectedRoute>
               <ScheduleManagementPage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/dashboard" element={
+            <AdminProtectedRoute>
+              <DashboardPage />
             </AdminProtectedRoute>
           } />
           <Route path="/staff/user-management" element={
