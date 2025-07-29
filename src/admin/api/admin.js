@@ -813,6 +813,24 @@ export const AdminAPI = {
     }
   },
 
+  // Publish article (set status to published)
+  publishArticle: async (articleId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${BASE_URL}/api/Articles/${articleId}/publish`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error publishing article:", error);
+      throw error;
+    }
+  },
+
   // Get article by ID
   getArticleById: async (articleId) => {
     try {

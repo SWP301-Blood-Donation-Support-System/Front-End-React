@@ -203,7 +203,8 @@ const NewsPage = () => {
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: "vertical", 
                         overflow: "hidden",
-                        minHeight: "60px"
+                        minHeight: "60px",
+                        whiteSpace: "pre-wrap"
                       }}>
                         {article.summary || article.excerpt || article.content?.substring(0, 150) + "..."}
                       </Paragraph>

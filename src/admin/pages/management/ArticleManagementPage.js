@@ -18,7 +18,8 @@ import {
   EditOutlined,
   DeleteOutlined,
   ReloadOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  SendOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { AdminAPI } from '../../api/admin';
@@ -67,6 +68,33 @@ const ArticleManagementPage = () => {
           message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
         } else {
           message.error('Không thể lưu trữ bài viết. Vui lòng thử lại sau.');
+        }
+      }
+    }
+  };
+
+  const handlePublishArticle = async (articleId, articleTitle) => {
+    const confirmResult = window.confirm(
+      `Bạn có chắc chắn muốn đăng bài viết "${articleTitle}"?\n\nBài viết sẽ được chuyển sang trạng thái "Đã đăng" và hiển thị công khai.`
+    );
+    
+    if (confirmResult) {
+      try {
+        const response = await AdminAPI.publishArticle(articleId);
+        if (response.status === 200 || response.status === 204) {
+          message.success('Đăng bài viết thành công!');
+          fetchArticles(); // Refresh the articles list
+        }
+      } catch (error) {
+        console.error('Error publishing article:', error);
+        if (error.response?.status === 404) {
+          message.error('Không tìm thấy bài viết để đăng.');
+        } else if (error.response?.status === 403) {
+          message.error('Bạn không có quyền đăng bài viết này.');
+        } else if (error.response?.status === 401) {
+          message.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        } else {
+          message.error('Không thể đăng bài viết. Vui lòng thử lại sau.');
         }
       }
     }
@@ -170,10 +198,10 @@ const ArticleManagementPage = () => {
 
   const getStatusColor = (statusName) => {
     const statusColors = {
-      'Đã xuất bản': 'green',
+      'Đã đăng': 'green',
       'Bản nháp': 'orange',
       'Chờ duyệt': 'blue',
-      'Đã ẩn': 'red'
+      'Đã lưu trữ': 'red'
     };
     return statusColors[statusName] || 'default';
   };
@@ -291,36 +319,55 @@ const ArticleManagementPage = () => {
     {
       title: 'Thao tác',
       key: 'actions',
-      width: '15%',
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="Xem chi tiết">
-            <Button
-              size="small"
-              icon={<EyeOutlined />}
-              onClick={() => handlePreview(record)}
-            />
-          </Tooltip>
-          <Tooltip title="Chỉnh sửa">
-            <Button
-              size="small"
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={() => {
-                navigate(`/staff/edit-article/${record.articleId}`);
-              }}
-            />
-          </Tooltip>
-          <Tooltip title="Lưu trữ">
-            <Button
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDeleteArticle(record.articleId, record.title)}
-            />
-          </Tooltip>
-        </Space>
-      ),
+      width: '20%',
+      render: (_, record) => {
+        const isDraft = statuses[record.articleStatusId]?.name?.toLowerCase().includes('nháp') || 
+                       statuses[record.articleStatusId]?.name?.toLowerCase().includes('draft');
+        
+        return (
+          <Space size="small" wrap>
+            <Tooltip title="Xem chi tiết">
+              <Button
+                size="small"
+                icon={<EyeOutlined />}
+                onClick={() => handlePreview(record)}
+              />
+            </Tooltip>
+            
+            {isDraft && (
+              <Tooltip title="Đăng bài">
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<SendOutlined />}
+                  style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+                  onClick={() => handlePublishArticle(record.articleId, record.title)}
+                />
+              </Tooltip>
+            )}
+            
+            <Tooltip title="Chỉnh sửa">
+              <Button
+                size="small"
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={() => {
+                  navigate(`/staff/edit-article/${record.articleId}`);
+                }}
+              />
+            </Tooltip>
+            
+            <Tooltip title="Lưu trữ">
+              <Button
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={() => handleDeleteArticle(record.articleId, record.title)}
+              />
+            </Tooltip>
+          </Space>
+        );
+      },
     },
   ];
 

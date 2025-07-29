@@ -205,7 +205,8 @@ const ArticleDetailPage = () => {
               style={{ 
                 fontSize: "16px", 
                 lineHeight: "1.8",
-                color: "#333"
+                color: "#333",
+                whiteSpace: "pre-wrap"
               }}
               dangerouslySetInnerHTML={{ 
                 __html: article.content || "Nội dung bài viết không có sẵn." 
