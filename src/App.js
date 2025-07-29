@@ -42,6 +42,7 @@ import BloodUnitSelectionPage from './admin/pages/management/BloodUnitSelectionP
 import ArticleManagementPage from './admin/pages/management/ArticleManagementPage';
 import CreateArticlePage from './admin/pages/management/CreateArticlePage';
 import EditArticlePage from './admin/pages/management/EditArticlePage';
+import NotificationManagementPage from './admin/pages/management/NotificationManagementPage';
 import AdminProtectedRoute from './admin/components/AdminProtectedRoute';
 import UserProtectedRoute from './components/UserProtectedRoute';
 import './styles/main.scss';
@@ -155,6 +156,11 @@ function App() {
           <Route path="/staff/edit-article/:articleId" element={
             <AdminProtectedRoute>
               <EditArticlePage />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/staff/notification-management" element={
+            <AdminProtectedRoute>
+              <NotificationManagementPage />
             </AdminProtectedRoute>
           } />
           

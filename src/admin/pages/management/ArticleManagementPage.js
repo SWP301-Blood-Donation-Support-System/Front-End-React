@@ -45,6 +45,28 @@ const ArticleManagementPage = () => {
 
   const navigate = useNavigate();
 
+  const handleDeleteArticle = async (articleId, articleTitle) => {
+    Modal.confirm({
+      title: 'Xác nhận xóa bài viết',
+      content: `Bạn có chắc chắn muốn xóa bài viết "${articleTitle}"? Hành động này không thể hoàn tác.`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      onOk: async () => {
+        try {
+          const response = await AdminAPI.deleteArticle(articleId);
+          if (response.status === 200) {
+            message.success('Xóa bài viết thành công!');
+            fetchArticles(); // Refresh the articles list
+          }
+        } catch (error) {
+          console.error('Error deleting article:', error);
+          message.error('Không thể xóa bài viết. Vui lòng thử lại sau.');
+        }
+      }
+    });
+  };
+
   const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
@@ -290,8 +312,7 @@ const ArticleManagementPage = () => {
               danger
               icon={<DeleteOutlined />}
               onClick={() => {
-                // TODO: Implement delete functionality
-                message.info('Tính năng xóa đang phát triển');
+                handleDeleteArticle(record.articleId, record.title);
               }}
             />
           </Tooltip>

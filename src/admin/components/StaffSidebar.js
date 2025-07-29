@@ -25,6 +25,7 @@ import {
   HistoryOutlined,
   LockOutlined,
   FileTextOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button, notification } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -359,6 +360,18 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           });
         }
         break;
+      case "20": // Quản lý thông báo (admin and staff)
+        if (isAdminUser() || !isHospitalUser()) {
+          navigate("/staff/notification-management");
+        } else {
+          api.warning({
+            message: "Không có quyền truy cập",
+            description: "Bạn không có quyền truy cập chức năng này.",
+            placement: "topRight",
+            duration: 3,
+          });
+        }
+        break;
       case "19": // Tạo bài viết (admin and staff)
         if (isAdminUser() || !isHospitalUser()) {
           navigate("/staff/create-article");
@@ -426,6 +439,7 @@ const StaffSidebar = ({ collapsed, onCollapse }) => {
           getItem("Quản lý túi máu", "3", <DesktopOutlined />),
           getItem("Hồ sơ người hiến", "4", <FileOutlined />),
           getItem("Quản lý tin tức", "18", <FileTextOutlined />),
+          getItem("Thông báo", "20", <BellOutlined />),
           // Only show reports for admin users
           ...(isAdminUser()
             ? [getItem("Báo cáo thống kê", "5", <TeamOutlined />)]

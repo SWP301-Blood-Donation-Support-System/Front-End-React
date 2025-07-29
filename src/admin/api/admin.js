@@ -894,4 +894,60 @@ export const AdminAPI = {
       throw error;
     }
   },
+
+  // Soft delete article
+  deleteArticle: async (articleId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.patch(`${BASE_URL}/api/Articles/${articleId}/delete`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      throw error;
+    }
+  },
+
+  // ==== NOTIFICATION MANAGEMENT APIs ====
+  
+  // Create new notification
+  createNotification: async (notificationData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(`${BASE_URL}/api/Notification`, notificationData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      throw error;
+    }
+  },
+
+  // Get all notifications
+  getNotifications: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${BASE_URL}/api/Notification`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      return response;
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      throw error;
+    }
+  },
 };
