@@ -21,6 +21,7 @@ const CheckinPage = () => {
   const [loading, setLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [alreadyCheckedInModalVisible, setAlreadyCheckedInModalVisible] = useState(false);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -46,8 +47,20 @@ const CheckinPage = () => {
 
       // Handle different error scenarios
       if (error.response?.status === 404) {
-        // Show error modal for National ID not found
-        setErrorModalVisible(true);
+        // Check the error message to distinguish between different 404 cases
+        const errorMessage = error.response?.data?.message || "";
+        console.log("404 Error message:", errorMessage); // Debug log
+        
+        if (errorMessage.includes("Không tìm thấy đăng ký hợp lệ") || errorMessage.includes("Approved") || errorMessage.includes("lịch hiến máu")) {
+          // CCCD not found in today's donation schedule
+          setErrorModalVisible(true);
+        } else if (errorMessage.includes("điểm danh") || errorMessage.includes("check-in") || errorMessage.includes("hôm nay")) {
+          // Already checked in today
+          setAlreadyCheckedInModalVisible(true);
+        } else {
+          // General CCCD not found - default to showing invalid CCCD message
+          setErrorModalVisible(true);
+        }
       } else if (error.response?.status === 400) {
         message.error("Dữ liệu không hợp lệ hoặc đã check-in rồi!");
       } else if (error.response?.status === 401) {
@@ -253,7 +266,7 @@ const CheckinPage = () => {
               fontWeight: "700",
             }}
           >
-            CCCD không tồn tại
+            CCCD này không hợp lệ trong ngày hiến máu này
           </Typography.Title>
           <Typography.Text
             style={{
@@ -261,7 +274,65 @@ const CheckinPage = () => {
               fontSize: "16px",
             }}
           >
-            Vui lòng nhập lại số CCCD chính xác
+            Vui lòng kiểm tra lại số CCCD hoặc đăng ký lịch hiến máu
+          </Typography.Text>
+        </div>
+      </Modal>
+
+      {/* Already Checked In Modal */}
+      <Modal
+        open={alreadyCheckedInModalVisible}
+        onCancel={() => setAlreadyCheckedInModalVisible(false)}
+        footer={[
+          <Button
+            key="ok"
+            type="primary"
+            onClick={() => setAlreadyCheckedInModalVisible(false)}
+            style={{
+              background: "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
+            }}
+          >
+            Đóng
+          </Button>,
+        ]}
+        centered
+        width={400}
+        style={{
+          borderRadius: "16px",
+        }}
+        bodyStyle={{
+          textAlign: "center",
+          padding: "40px 20px",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <ExclamationCircleOutlined
+            style={{
+              fontSize: "80px",
+              color: "#faad14",
+              marginBottom: "20px",
+            }}
+          />
+          <Typography.Title
+            level={3}
+            style={{
+              color: "#000000",
+              marginBottom: "16px",
+              fontWeight: "700",
+            }}
+          >
+            Bạn đã check-in trong hôm nay rồi
+          </Typography.Title>
+          <Typography.Text
+            style={{
+              color: "#666666",
+              fontSize: "16px",
+            }}
+          >
+            Vui lòng tiến ra quầy khám
           </Typography.Text>
         </div>
       </Modal>
